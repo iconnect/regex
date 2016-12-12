@@ -10,6 +10,9 @@
 module Text.Regex.Simple
   ( SubMatches(..)
   , Match(..)
+  , substAllCaptures
+  , substCaptures
+  , captureMatches
   , matchNote
   , matched
   , matchMay
@@ -26,9 +29,9 @@ module Text.Regex.Simple
   ) where
 
 import           Data.Array
+--import qualified Data.IntMap                    as IntMap
 import           Data.Maybe
 import           Text.Regex.Base
-
 
 newtype SubMatches a =
   SubMatches
@@ -44,6 +47,15 @@ data Match a =
     , _m_length :: !Int
     }
   deriving (Show)
+
+substAllCaptures :: Extract a => a -> SubMatches a -> a
+substAllCaptures x = substCaptures $ const $ const x
+
+substCaptures :: Extract a => (Int->a->a) -> SubMatches a -> a
+substCaptures = undefined
+
+captureMatches :: [SubMatches a] -> SubMatches a
+captureMatches = undefined
 
 matchNote :: String -> SubMatches a -> Match a
 matchNote nte sm = fromMaybe oops $ matchMay sm

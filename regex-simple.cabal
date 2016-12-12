@@ -4,7 +4,7 @@ Synopsis:               A simple regex-base extension
 Description:            Extends the regex-base over a simple flexible SubMatches that should cover most general regex queries.
 Homepage:               http://github.com/cdornan/regex-simple
 Author:                 Chris Dornan
-License:                Berkley
+License:                BSD3
 Maintainer:             chris.dornan@irisconnect.co.uk
 Copyright:              Chris Dornan
 Category:               Text

@@ -8,13 +8,17 @@
 {-# OPTIONS_GHC -fno-warn-orphans       #-}
 
 module Text.Regex.Simple
-  ( SubMatches(..)
+  ( AllSubMatches(..)
+  , SubMatches(..)
   , Match(..)
+  , Subst(..)
+  , Context(..)
+  , Location(..)
   , substAllCaptures
+  , substAllCaptures'
   , substCaptures
   , substCaptures'
   , substCapture
-  , captureMatches
   , matchNote
   , matched
   , matchMay
@@ -30,13 +34,22 @@ module Text.Regex.Simple
   , matchSuffix
   ) where
 
+import qualified Data.ByteString.Char8          as B
+import qualified Data.ByteString.Lazy.Char8     as LBS
 import           Data.Array
---import qualified Data.IntMap                    as IntMap
 import           Data.List
 import           Data.Maybe
 import           Data.Monoid
 import           Data.Ord
 import           Text.Regex.Base
+
+
+data AllSubMatches a =
+  AllSubMatches
+    { _asm_source :: !a
+    , _asm_list   :: [SubMatches a]
+    }
+  deriving (Show)
 
 data SubMatches a =
   SubMatches
@@ -47,50 +60,102 @@ data SubMatches a =
 
 data Match a =
   Match
-    { _m_hay    :: !a
-    , _m_needle :: !a
-    , _m_offset :: !Int
-    , _m_length :: !Int
+    { _m_hay       :: !a
+    , _m_needle    :: !a
+    , _m_offset    :: !Int
+    , _m_length    :: !Int
     }
   deriving (Show)
 
-substAllCaptures :: (Monoid a,Extract a) => a -> SubMatches a -> a
-substAllCaptures x = substCaptures' $ const $ const x
+data Subst a =
+  Subst
+    { _subst_context :: Context
+    , _subst_phi     :: Location -> a -> a
+    }
 
-substCaptures :: (Monoid a,Extract a)
-              => (Int->a->a)
+data Context
+  = TOP
+  | CAP
+  | ALL
+  deriving (Show)
+
+data Location =
+  Location
+    { _loc_match   :: Int
+    , _loc_capture :: Int
+    }
+  deriving (Show)
+
+substAllCaptures :: Subable a
+                 => Subst a
+                 -> AllSubMatches a
+                 -> a
+substAllCaptures subst = substAllCaptures' $ mk_phi subst
+
+substAllCaptures' :: Subable a
+                  => (Location->a->a)
+                  -> AllSubMatches a
+                  -> a
+substAllCaptures' phi AllSubMatches{..} =
+    substCaptures' f' $ SubMatches _asm_source arr
+  where
+    f' (Location _ i) = phi . uncurry Location $ arr_i ! i
+
+    arr_i = listArray bds j_ks
+
+    arr   = listArray bds $
+        [ arr_ ! k
+            | arr_ <- map _sm_array _asm_list
+            , k <- indices arr_
+            ]
+
+    bds   = (0,length j_ks-1)
+
+    j_ks  =
+        [ (j,k)
+            | (j,arr_) <- zip [0..] $ map _sm_array _asm_list
+            , k <- indices arr_
+            ]
+
+substCaptures :: Subable a
+              => Subst a
               -> SubMatches a
               -> a
-substCaptures f = substCaptures' f'
-  where
-    f' 0 = id
-    f' i = f i
+substCaptures subst = substCaptures' $ mk_phi subst
 
-substCaptures' :: (Monoid a,Extract a)
-               => (Int->a->a)
-               -> SubMatches a
-               -> a
-substCaptures' f sm =
-    foldr sc _sm_source $ zip [0..] $ left_to_right $ elems _sm_array
+substCaptures' :: Subable a => (Location->a->a) -> SubMatches a -> a
+substCaptures' phi SubMatches{..} = fst $
+    foldr sc (_sm_source,[]) $ zip [0..] $
+      left_to_right $ elems _sm_array
   where
-    sc (i,m) hay   = substCapture (f i) (m { _m_hay = hay })
+    sc (i,m0) (hay,ds) =
+        ( substCapture (const nd') m
+        , (_m_offset m,length_ nd'-length_ nd) : ds
+        )
+      where
+        nd' = phi (Location 0 i) nd
+        nd  = _m_needle m
+        m   = adj hay ds m0
 
-    SubMatches{..} = sm
+    adj hay ds m =
+      Match
+        { _m_hay    = hay
+        , _m_needle = before len $ after off0 hay
+        , _m_offset = off0
+        , _m_length = len
+        }
+      where
+        len  = len0 + sum
+          [ delta
+            | (off,delta) <- ds
+            , off < off0 + len0
+            ]
+        len0 = _m_length m
+        off0 = _m_offset m
 
 substCapture :: (Monoid a,Extract a) => (a->a) -> Match a -> a
 substCapture f m@Match{..} =
     matchPrefix m <> f _m_needle <> matchSuffix m
-
-captureMatches :: [SubMatches a] -> SubMatches a
-captureMatches []          = error "captureMatches: empty list"
-captureMatches sms@(sm0:_) =
-    mk $ left_to_right $ catMaybes $ map matchMay sms
-  where
-    mk as =
-      SubMatches
-        { _sm_source = _sm_source sm0
-        , _sm_array  = listArray (0,length as-1) as
-        }
 
 matchNote :: String -> SubMatches a -> Match a
 matchNote nte sm = fromMaybe oops $ matchMay sm
@@ -145,11 +210,47 @@ instance RegexContext regex source (AllTextSubmatches (Array Int) (source,(Int,I
       return $ cvt s $ getAllTextSubmatches y
 
 instance RegexContext regex source [MatchText source] =>
-  RegexContext regex source [SubMatches source] where
-    match  r s = map (cvt s) $ match r s
+  RegexContext regex source (AllSubMatches source) where
+    match  r s = AllSubMatches s $ map (cvt s) $ match r s
     matchM r s = do
       y <- matchM r s
-      return $ map (cvt s) y
+      return $ AllSubMatches s $ map (cvt s) y
+
+class (Extract a,Monoid a) => Subable a where
+  length_ :: a -> Int
+
+instance (Extract [a],Monoid [a]) => Subable [a] where
+  length_ = length
+
+instance Subable B.ByteString where
+  length_ = B.length
+
+instance Subable LBS.ByteString where
+  length_ = fromEnum . LBS.length
+
+{-
+instance Subable T.Text where
+  length_ = T.length
+
+instance Subable LT.Text where
+  length_ = fromEnum . LT.length
+-}
+
+mk_phi :: Subst a -> Location -> a -> a
+mk_phi Subst{..} = phi
+  where
+    phi = case _subst_context of
+      TOP -> phi_top
+      CAP -> phi_cap
+      ALL -> _subst_phi
+
+    phi_top loc@(Location _ n) = case n==0 of
+      True  -> _subst_phi loc
+      False -> id
+
+    phi_cap loc@(Location _ n) = case n==0 of
+      True  -> id
+      False -> _subst_phi loc
 
 cvt :: source -> MatchText source -> SubMatches source
 cvt hay arr =
@@ -160,10 +261,10 @@ cvt hay arr =
   where
     f (ndl,(off,len)) =
       Match
-        { _m_hay    = hay
-        , _m_needle = ndl
-        , _m_offset = off
-        , _m_length = len
+        { _m_hay       = hay
+        , _m_needle    = ndl
+        , _m_offset    = off
+        , _m_length    = len
         }
 
 tailDef :: [a] -> [a] -> [a]

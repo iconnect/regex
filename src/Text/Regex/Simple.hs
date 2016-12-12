@@ -93,7 +93,7 @@ substAllCaptures :: Subable a
 substAllCaptures subst = substAllCaptures' $ mk_phi subst
 
 substAllCaptures' :: Subable a
-                  => (Location->a->a)
+                  => (Location->Match a->a)
                   -> AllSubMatches a
                   -> a
 substAllCaptures' phi AllSubMatches{..} =
@@ -123,19 +123,24 @@ substCaptures :: Subable a
               -> a
 substCaptures subst = substCaptures' $ mk_phi subst
 
-substCaptures' :: Subable a => (Location->a->a) -> SubMatches a -> a
+substCaptures' :: Subable a
+               => (Location->Match a->a)
+               -> SubMatches a
+               -> a
 substCaptures' phi SubMatches{..} = fst $
     foldr sc (_sm_source,[]) $ zip [0..] $
       left_to_right $ elems _sm_array
   where
     sc (i,m0) (hay,ds) =
-        ( substCapture (const nd') m
-        , (_m_offset m,length_ nd'-length_ nd) : ds
+        ( substCapture (const ndl') m
+        , (_m_offset m,len'-len) : ds
         )
       where
-        nd' = phi (Location 0 i) nd
-        nd  = _m_needle m
-        m   = adj hay ds m0
+        len' = length_ ndl'
+        len  = length_ ndl
+        ndl' = phi (Location 0 i) m
+        ndl  = _m_needle m
+        m    = adj hay ds m0
 
     adj hay ds m =
       Match
@@ -236,8 +241,8 @@ instance Subable LT.Text where
   length_ = fromEnum . LT.length
 -}
 
-mk_phi :: Subst a -> Location -> a -> a
-mk_phi Subst{..} = phi
+mk_phi :: Subst a -> Location -> Match a -> a
+mk_phi Subst{..} loc0 = phi loc0 . _m_needle
   where
     phi = case _subst_context of
       TOP -> phi_top

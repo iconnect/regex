@@ -1,3 +1,5 @@
+{-# LANGUAGE RecordWildCards            #-}
+
 module Main(main) where
 
 import       Data.Array
@@ -59,14 +61,14 @@ ex_subst = do
     ms <- str =~~ regex :: IO (SubMatches String)
     print $ substCaptures' f ms
   where
-    f i s = "(" ++ show i ++ ":" ++ s ++ ")"
+    f i Match{..} = "(" ++ show i ++ ":" ++ _m_needle ++ ")"
 
 ex_all_subst :: IO ()
 ex_all_subst = do
     ms <- str =~~ regex :: IO (AllSubMatches String)
     print $ substAllCaptures' f ms
   where
-    f (Location i j) s = "(" ++ show i ++ ":" ++ show j ++ ":" ++ s ++ ")"
+    f (Location i j) Match{..} = "(" ++ show i ++ ":" ++ show j ++ ":" ++ _m_needle ++ ")"
 
 ex_sm :: SubMatches String
 ex_sm =

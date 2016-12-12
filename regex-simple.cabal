@@ -27,9 +27,7 @@ Library
     Build-depends:
         array                  >= 0.4         ,
         base                   >= 4           ,
-        regex-base             >= 0.93.2      ,
-        regex-compat-tdfa      >= 0.95.1      ,
-        regex-tdfa             >= 1.2.0
+        regex-base             >= 0.93.2
 
     Default-Language:   Haskell2010
 
@@ -46,5 +44,4 @@ Executable regex-simple-examples
       array                    >= 0.4         ,
       base                     >= 4           ,
       regex-base               >= 0.93.2      ,
-      regex-compat-tdfa        >= 0.95.1      ,
       regex-tdfa               >= 1.2.0

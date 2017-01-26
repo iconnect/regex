@@ -28,7 +28,7 @@ Schedule
 The Web Page
 ------------
 
-We have a [web page](https://lainepress.github.io/regex/) with a tutorial,
+We have a [web page](https://iconnect.github.io/regex/) with a tutorial,
 a major example and and more examples than you can shake a stick at (most
 of them used in the package itself).
 

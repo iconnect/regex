@@ -1,0 +1,21 @@
+/*
+ * our local style sheet
+ */
+
+div.replcodeblock div.sourceCode pre.sourceCode.literate.haskell {
+  background-color: #f2f2ff;
+  border: 2px solid #ffcccc;
+/*
+  border: 2px solid #cccccc;
+ */
+}
+
+div.includedcodeblock div.sourceCode pre.sourceCode.literate.haskell {
+  background-color: #ffffff;
+  border: 2px solid #000000;
+}
+
+div.inlinecodeblock pre {
+  background-color: #ffffff;
+  border: 2px solid #000000;
+}

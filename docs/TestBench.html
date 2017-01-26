@@ -1,0 +1,530 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="lib/styles.css" type="text/css" />
+  <link rel="stylesheet" href="lib/bs.css" type="text/css" />
+</head>
+<body>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/Text/RE/TestBench.lhs'>RE/TestBench</a></ol>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
+<span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
+
+<span class="kw">module</span> <span class="dt">Text.RE.TestBench</span>
+  ( <span class="dt">MacroID</span>(<span class="fu">..</span>)
+  , <span class="dt">RegexType</span>(<span class="fu">..</span>)
+  , <span class="dt">MacroEnv</span>
+  , <span class="dt">WithCaptures</span>(<span class="fu">..</span>)
+  , <span class="dt">MacroDescriptor</span>(<span class="fu">..</span>)
+  , <span class="dt">TestResult</span>(<span class="fu">..</span>)
+  , <span class="dt">RegexSource</span>(<span class="fu">..</span>)
+  , <span class="dt">FunctionID</span>(<span class="fu">..</span>)
+  , mkMacros
+  , testMacroEnv
+  , badMacros
+  , runTests
+  , runTests&#39;
+  , formatMacroTable
+  , dumpMacroTable
+  , formatMacroSummary
+  , formatMacroSources
+  , formatMacroSource
+  , testMacroDescriptors
+  , regexSource
+  ) <span class="kw">where</span>
+
+<span class="kw">import           </span><span class="dt">Data.Array</span>
+<span class="kw">import           </span><span class="dt">Control.Applicative</span>
+<span class="kw">import qualified</span> <span class="dt">Data.HashMap.Lazy</span>              <span class="kw">as</span> <span class="dt">HML</span>
+<span class="kw">import           </span><span class="dt">Data.List</span>
+<span class="kw">import           </span><span class="dt">Data.Maybe</span>
+<span class="kw">import           </span><span class="dt">Data.Ord</span>
+<span class="kw">import           </span><span class="dt">Data.String</span>
+<span class="kw">import           </span><span class="dt">Text.Printf</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Capture</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Options</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Replace</span>
+<span class="kw">import qualified</span> <span class="dt">Text.Regex.PCRE</span>                <span class="kw">as</span> <span class="dt">PCRE</span>
+<span class="kw">import qualified</span> <span class="dt">Text.Regex.TDFA</span>                <span class="kw">as</span> <span class="dt">TDFA</span></code></pre></div>
+<h2 id="types">Types</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | what kind of back end will be compiling the RE</span>
+<span class="kw">data</span> <span class="dt">RegexType</span>
+  <span class="fu">=</span> <span class="dt">TDFA</span>    <span class="co">-- the TDFA back end</span>
+  <span class="fu">|</span> <span class="dt">PCRE</span>    <span class="co">-- the PCRE back end</span>
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>,<span class="dt">Ord</span>,<span class="dt">Show</span>)
+
+<span class="co">-- | do we need the captures in the RE or whould they be stripped out</span>
+<span class="co">-- where possible</span>
+<span class="kw">data</span> <span class="dt">WithCaptures</span>
+  <span class="fu">=</span> <span class="dt">InclCaptures</span>
+  <span class="fu">|</span> <span class="dt">ExclCaptures</span>
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>,<span class="dt">Ord</span>,<span class="dt">Show</span>)
+
+<span class="co">-- | each macro can reference others, the whole environment being</span>
+<span class="co">-- required for each macro, so we use a Lazy HashMap</span>
+<span class="kw">type</span> <span class="dt">MacroEnv</span> <span class="fu">=</span> <span class="dt">HML.HashMap</span> <span class="dt">MacroID</span> <span class="dt">MacroDescriptor</span>
+
+<span class="co">-- | describes a macro, giving the text of the RE and a si=ummary</span>
+<span class="co">-- description</span>
+<span class="kw">data</span> <span class="dt">MacroDescriptor</span> <span class="fu">=</span>
+  <span class="dt">MacroDescriptor</span>
+    {<span class="ot"> _md_source          ::</span> <span class="dt">RegexSource</span>      <span class="co">-- ^ the RE</span>
+    ,<span class="ot"> _md_samples         ::</span> [<span class="dt">String</span>]         <span class="co">-- ^ some sample matches</span>
+    ,<span class="ot"> _md_counter_samples ::</span> [<span class="dt">String</span>]         <span class="co">-- ^ some sample non-matches</span>
+    ,<span class="ot"> _md_test_results    ::</span> [<span class="dt">TestResult</span>]     <span class="co">-- ^ validation test results</span>
+    ,<span class="ot"> _md_parser          ::</span> <span class="dt">Maybe</span> <span class="dt">FunctionID</span> <span class="co">-- ^ WA, the parser function</span>
+    ,<span class="ot"> _md_description     ::</span> <span class="dt">String</span>           <span class="co">-- ^ summary comment</span>
+    }
+  <span class="kw">deriving</span> (<span class="dt">Show</span>)
+
+<span class="co">-- | list of failures on a validation run</span>
+<span class="kw">newtype</span> <span class="dt">TestResult</span> <span class="fu">=</span>
+  <span class="dt">TestResult</span> {<span class="ot"> _TestResult ::</span> <span class="dt">String</span> }
+  <span class="kw">deriving</span> (<span class="dt">IsString</span>,<span class="dt">Show</span>)
+
+<span class="co">-- | a RE that should work for POSIX and PCRE with open brackets (&#39;(&#39;)</span>
+<span class="co">-- represented as follows:</span>
+<span class="co">--    \(    mere symbol</span>
+<span class="co">--    (?:   used for grouping only, not for captures</span>
+<span class="co">--    (}:   used for captures only, not for grouping</span>
+<span class="co">--    (]:   used for captures and grouping</span>
+<span class="co">--    (     do not modify</span>
+<span class="kw">newtype</span> <span class="dt">RegexSource</span> <span class="fu">=</span>
+    <span class="dt">RegexSource</span> {<span class="ot"> _RegexSource ::</span> <span class="dt">String</span> }
+  <span class="kw">deriving</span> (<span class="dt">IsString</span>,<span class="dt">Show</span>)
+
+<span class="co">-- | name of the Haskell parser function for parsing the text matched</span>
+<span class="co">-- by a macro</span>
+<span class="kw">newtype</span> <span class="dt">FunctionID</span> <span class="fu">=</span>
+    <span class="dt">FunctionID</span> {<span class="ot"> _FunctionID ::</span> <span class="dt">String</span> }
+  <span class="kw">deriving</span> (<span class="dt">IsString</span>,<span class="dt">Show</span>)
+
+<span class="co">-- | we are only interested in the open parentheses used for</span>
+<span class="co">-- grouping and/or capturing; if neither grouping or capturing then</span>
+<span class="co">-- there is no initial &#39;(&#39; or &#39;(?:&#39;, just the suffic text</span>
+<span class="kw">data</span> <span class="dt">REToken</span> <span class="fu">=</span>
+  <span class="dt">REToken</span>
+    {<span class="ot"> _ret_prefix    ::</span> <span class="dt">String</span>  <span class="co">-- ^ following text optional ( or (?:</span>
+    ,<span class="ot"> _ret_fixed     ::</span> <span class="dt">Bool</span>    <span class="co">-- ^ a &#39;(&#39; that is not safe to modify</span>
+    ,<span class="ot"> _ret_grouping  ::</span> <span class="dt">Bool</span>    <span class="co">-- ^ is this a grouping group</span>
+    ,<span class="ot"> _ret_capturing ::</span> <span class="dt">Bool</span>    <span class="co">-- ^ is this a capturing group</span>
+    }
+  <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
+<h2 id="mkmacros">mkMacros</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mkMacros ::</span> (<span class="dt">Monad</span> m,<span class="dt">Functor</span> m)
+         <span class="ot">=&gt;</span> (<span class="dt">String</span><span class="ot">-&gt;</span>m r)
+         <span class="ot">-&gt;</span> <span class="dt">RegexType</span>
+         <span class="ot">-&gt;</span> <span class="dt">WithCaptures</span>
+         <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span>
+         <span class="ot">-&gt;</span> m (<span class="dt">Macros</span> r)
+mkMacros prs rty wc env <span class="fu">=</span>
+    HML.fromList <span class="fu">&lt;$&gt;</span> mapM (uncurry mk) (HML.toList env)
+  <span class="kw">where</span>
+    mk mid md <span class="fu">=</span> (,) mid <span class="fu">&lt;$&gt;</span> prs (mdRegexSource rty wc env md)</code></pre></div>
+<h2 id="testmacroenv-badmacros">testMacroEnv, badMacros</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">testMacroEnv ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span>
+testMacroEnv lab rty m_env <span class="fu">=</span> <span class="kw">case</span> badMacros m_env <span class="kw">of</span>
+  []    <span class="ot">-&gt;</span> return <span class="dt">True</span>
+  fails <span class="ot">-&gt;</span> <span class="kw">do</span>
+    putStrLn <span class="fu">$</span> lab&#39; <span class="fu">++</span> <span class="st">&quot; has failing tests for these macros: &quot;</span>
+    putStr   <span class="fu">$</span> unlines <span class="fu">$</span> [ <span class="st">&quot;  &quot;</span><span class="fu">++</span>_MacroID mid <span class="fu">|</span> mid<span class="ot">&lt;-</span>fails ]
+    putStrLn <span class="fu">$</span> <span class="st">&quot;The whole table:&quot;</span>
+    putStrLn <span class="fu">$</span> <span class="st">&quot;========================================================&quot;</span>
+    putStr   <span class="fu">$</span> formatMacroTable rty m_env
+    putStrLn <span class="fu">$</span> <span class="st">&quot;========================================================&quot;</span>
+    return <span class="dt">False</span>
+  <span class="kw">where</span>
+    lab&#39; <span class="fu">=</span> lab <span class="fu">++</span> <span class="st">&quot; [&quot;</span> <span class="fu">++</span> show rty <span class="fu">++</span><span class="st">&quot;]&quot;</span>
+
+<span class="ot">badMacros ::</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> [<span class="dt">MacroID</span>]
+badMacros m_env <span class="fu">=</span>
+  [ mid
+      <span class="fu">|</span> (mid,<span class="dt">MacroDescriptor</span>{<span class="fu">..</span>}) <span class="ot">&lt;-</span> HML.toList m_env
+      , not <span class="fu">$</span> null _md_test_results
+      ]
+
+<span class="ot">runTests ::</span> (<span class="dt">Eq</span> a,<span class="dt">Show</span> a)
+         <span class="ot">=&gt;</span> <span class="dt">RegexType</span>
+         <span class="ot">-&gt;</span> (<span class="dt">String</span><span class="ot">-&gt;</span><span class="dt">Maybe</span> a)
+         <span class="ot">-&gt;</span> [(<span class="dt">String</span>,a)]
+         <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span>
+         <span class="ot">-&gt;</span> <span class="dt">MacroID</span>
+         <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span>
+         <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span>
+runTests rty parser <span class="fu">=</span> runTests&#39; rty parser&#39;
+  <span class="kw">where</span>
+    parser&#39; caps <span class="fu">=</span> fmap capturedText (matchCapture caps) <span class="fu">&gt;&gt;=</span> parser
+
+<span class="ot">runTests&#39; ::</span> (<span class="dt">Eq</span> a,<span class="dt">Show</span> a)
+          <span class="ot">=&gt;</span> <span class="dt">RegexType</span>
+          <span class="ot">-&gt;</span> (<span class="dt">Match</span> <span class="dt">String</span><span class="ot">-&gt;</span><span class="dt">Maybe</span> a)
+          <span class="ot">-&gt;</span> [(<span class="dt">String</span>,a)]
+          <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span>
+          <span class="ot">-&gt;</span> <span class="dt">MacroID</span>
+          <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span>
+          <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span>
+runTests&#39; rty parser vector env mid md<span class="fu">@</span><span class="dt">MacroDescriptor</span>{<span class="fu">..</span>} <span class="fu">=</span>
+    md { _md_test_results <span class="fu">=</span> test_results }
+  <span class="kw">where</span>
+    test_results <span class="fu">=</span> concat
+      [ concat <span class="fu">$</span> map test     vector
+      , concat <span class="fu">$</span> map test_neg _md_counter_samples
+      ]
+
+    test (src,x) <span class="fu">=</span> test&#39;     mid rty parser x <span class="fu">$</span> match_ src env md
+
+    test_neg src <span class="fu">=</span> test_neg&#39; mid rty parser   <span class="fu">$</span> match_ src env md
+
+    match_ <span class="fu">=</span> <span class="kw">case</span> rty <span class="kw">of</span>
+      <span class="dt">TDFA</span> <span class="ot">-&gt;</span> match_tdfa
+      <span class="dt">PCRE</span> <span class="ot">-&gt;</span> match_pcre</code></pre></div>
+<h2 id="dumpmacrotable-formatmacrotable-formatmacrosummary-formatmacrosources-formatmacrosource">dumpMacroTable, formatMacroTable, formatMacroSummary, formatMacroSources, formatMacroSource</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">dumpMacroTable ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+dumpMacroTable lab rty m_env <span class="fu">=</span> <span class="kw">do</span>
+    writeFile fp_t <span class="fu">$</span> formatMacroTable   rty              m_env
+    writeFile fp_s <span class="fu">$</span> formatMacroSources rty <span class="dt">ExclCaptures</span> m_env
+  <span class="kw">where</span>
+    fp_t <span class="fu">=</span> <span class="st">&quot;tables/&quot;</span> <span class="fu">++</span> lab <span class="fu">++</span> <span class="st">&quot;-&quot;</span> <span class="fu">++</span> show rty <span class="fu">++</span> <span class="st">&quot;.md&quot;</span>
+    fp_s <span class="fu">=</span> <span class="st">&quot;tables/&quot;</span> <span class="fu">++</span> lab <span class="fu">++</span> <span class="st">&quot;-&quot;</span> <span class="fu">++</span> show rty <span class="fu">++</span> <span class="st">&quot;.txt&quot;</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatMacroTable ::</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+formatMacroTable rty env <span class="fu">=</span> unlines <span class="fu">$</span>
+  format_table macro_table_hdr
+    [ macro_table_row rty mid md
+        <span class="fu">|</span> (mid,md) <span class="ot">&lt;-</span> sortBy (comparing fst) <span class="fu">$</span> HML.toList env
+        ]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatMacroSummary ::</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">MacroID</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+formatMacroSummary rty env mid <span class="fu">=</span> maybe oops prep <span class="fu">$</span> HML.lookup mid env
+  <span class="kw">where</span>
+<span class="ot">    prep ::</span> <span class="dt">MacroDescriptor</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+    prep md <span class="fu">=</span> unlines <span class="fu">$</span> concat <span class="fu">$</span> map (fmt md) [minBound<span class="fu">..</span>maxBound]
+
+<span class="ot">    fmt ::</span> <span class="dt">MacroDescriptor</span> <span class="ot">-&gt;</span> <span class="dt">Col</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>]
+    fmt md c <span class="fu">=</span>
+        [ printf <span class="st">&quot;%-15s : %s&quot;</span> (present_col c) ini
+        ] <span class="fu">++</span> map (<span class="st">&quot;      &quot;</span><span class="fu">++</span>) lns
+      <span class="kw">where</span>
+        (ini,lns) <span class="fu">=</span> <span class="kw">case</span> macro_attribute rty mid md c <span class="kw">of</span>
+          []   <span class="ot">-&gt;</span> (,) <span class="st">&quot;&quot;</span> []
+          [ln] <span class="ot">-&gt;</span> (,) ln []
+          lns_ <span class="ot">-&gt;</span> (,) <span class="st">&quot;&quot;</span> lns_
+
+    oops <span class="fu">=</span> error <span class="fu">$</span> _MacroID mid <span class="fu">++</span> <span class="st">&quot;: macro not defined in this environment&quot;</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatMacroSources ::</span> <span class="dt">RegexType</span>
+                   <span class="ot">-&gt;</span> <span class="dt">WithCaptures</span>
+                   <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span>
+                   <span class="ot">-&gt;</span> <span class="dt">String</span>
+formatMacroSources rty wc env <span class="fu">=</span> unlines <span class="fu">$</span>
+    [ printf <span class="st">&quot;%-20s : %s&quot;</span> (_MacroID mid) <span class="fu">$</span> formatMacroSource rty wc env mid
+        <span class="fu">|</span> mid <span class="ot">&lt;-</span> sort <span class="fu">$</span> HML.keys env
+        ]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatMacroSource ::</span> <span class="dt">RegexType</span>
+                  <span class="ot">-&gt;</span> <span class="dt">WithCaptures</span>
+                  <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span>
+                  <span class="ot">-&gt;</span> <span class="dt">MacroID</span>
+                  <span class="ot">-&gt;</span> <span class="dt">String</span>
+formatMacroSource rty wc env mid <span class="fu">=</span>
+    mdRegexSource rty wc env <span class="fu">$</span> fromMaybe oops <span class="fu">$</span> HML.lookup mid env
+  <span class="kw">where</span>
+    oops <span class="fu">=</span> error <span class="fu">$</span> <span class="st">&quot;formatMacroSource: not found: &quot;</span> <span class="fu">++</span> _MacroID mid</code></pre></div>
+<h2 id="testmacrodescriptors-regexsource">testMacroDescriptors, regexSource</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">testMacroDescriptors ::</span> [<span class="dt">MacroDescriptor</span>] <span class="ot">-&gt;</span> [<span class="dt">TestResult</span>]
+testMacroDescriptors <span class="fu">=</span> concat <span class="fu">.</span> map _md_test_results
+
+<span class="ot">regexSource ::</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">WithCaptures</span> <span class="ot">-&gt;</span> <span class="dt">RegexSource</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+regexSource rty wc <span class="fu">=</span> format_tokens rty wc <span class="fu">.</span> scan_re</code></pre></div>
+<h2 id="formatting-helpers">Formatting helpers</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">TableRow</span> <span class="fu">=</span> <span class="dt">Array</span> <span class="dt">Col</span> [<span class="dt">String</span>]
+
+<span class="kw">data</span> <span class="dt">Col</span>
+  <span class="fu">=</span> <span class="dt">C_name</span>
+  <span class="fu">|</span> <span class="dt">C_caps</span>
+  <span class="fu">|</span> <span class="dt">C_regex</span>
+  <span class="fu">|</span> <span class="dt">C_examples</span>
+  <span class="fu">|</span> <span class="dt">C_anti_examples</span>
+  <span class="fu">|</span> <span class="dt">C_fails</span>
+  <span class="fu">|</span> <span class="dt">C_parser</span>
+  <span class="fu">|</span> <span class="dt">C_comment</span>
+  <span class="kw">deriving</span> (<span class="dt">Ix</span>,<span class="dt">Bounded</span>,<span class="dt">Enum</span>,<span class="dt">Ord</span>,<span class="dt">Eq</span>,<span class="dt">Show</span>)
+
+<span class="ot">present_col ::</span> <span class="dt">Col</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+present_col <span class="fu">=</span> map tr <span class="fu">.</span> drop <span class="dv">2</span> <span class="fu">.</span> show
+  <span class="kw">where</span>
+    tr <span class="ch">&#39;_&#39;</span> <span class="fu">=</span> <span class="ch">&#39;-&#39;</span>
+    tr c   <span class="fu">=</span> c
+
+<span class="ot">macro_table_hdr ::</span> <span class="dt">TableRow</span>
+macro_table_hdr <span class="fu">=</span> listArray (minBound,maxBound)
+  [ [present_col c]
+    <span class="fu">|</span> c<span class="ot">&lt;-</span>[minBound<span class="fu">..</span>maxBound]
+    ]
+
+<span class="ot">macro_table_row ::</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">MacroID</span> <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span> <span class="ot">-&gt;</span> <span class="dt">TableRow</span>
+macro_table_row rty mid md <span class="fu">=</span>
+    listArray (minBound,maxBound) <span class="fu">$</span>
+      map (macro_attribute rty mid md) [minBound<span class="fu">..</span>maxBound]
+
+<span class="ot">macro_attribute ::</span> <span class="dt">RegexType</span>
+                <span class="ot">-&gt;</span> <span class="dt">MacroID</span>
+                <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span>
+                <span class="ot">-&gt;</span> <span class="dt">Col</span>
+                <span class="ot">-&gt;</span> [<span class="dt">String</span>]
+macro_attribute rty mid <span class="dt">MacroDescriptor</span>{<span class="fu">..</span>} c <span class="fu">=</span>
+    <span class="kw">case</span> c <span class="kw">of</span>
+      <span class="dt">C_name</span>          <span class="ot">-&gt;</span> [_MacroID mid]
+      <span class="dt">C_caps</span>          <span class="ot">-&gt;</span> [show <span class="fu">$</span> min_captures rty <span class="fu">$</span> scan_re _md_source]
+      <span class="dt">C_regex</span>         <span class="ot">-&gt;</span> [regexSource rty <span class="dt">ExclCaptures</span> _md_source]
+      <span class="dt">C_examples</span>      <span class="ot">-&gt;</span> _md_samples
+      <span class="dt">C_anti_examples</span> <span class="ot">-&gt;</span> _md_counter_samples
+      <span class="dt">C_fails</span>         <span class="ot">-&gt;</span> map _TestResult _md_test_results
+      <span class="dt">C_parser</span>        <span class="ot">-&gt;</span> [maybe <span class="st">&quot;-&quot;</span> _FunctionID _md_parser]
+      <span class="dt">C_comment</span>       <span class="ot">-&gt;</span> [_md_description]
+
+<span class="ot">format_table ::</span> <span class="dt">TableRow</span> <span class="ot">-&gt;</span> [<span class="dt">TableRow</span>] <span class="ot">-&gt;</span> [<span class="dt">String</span>]
+format_table hdr rows0 <span class="fu">=</span> concat
+    [ format_row cws hdr&#39;
+    , format_row cws dsh
+    , concat <span class="fu">$</span> map (format_row cws) rows
+    ]
+  <span class="kw">where</span>
+    dsh  <span class="fu">=</span> listArray (minBound,maxBound)
+              [ [replicate n <span class="ch">&#39;-&#39;</span>] <span class="fu">|</span> n<span class="ot">&lt;-</span>elems cws ]
+
+    hdr&#39; <span class="fu">=</span> hdr <span class="fu">//</span> [(,) <span class="dt">C_regex</span> <span class="fu">$</span> [take n <span class="fu">$</span> concat <span class="fu">$</span> repeat <span class="st">&quot;regex=&quot;</span>] ]
+      <span class="kw">where</span>
+        n <span class="fu">=</span> min <span class="dv">29</span> <span class="fu">$</span> cws<span class="fu">!</span><span class="dt">C_regex</span>
+
+    cws  <span class="fu">=</span> widths <span class="fu">$</span> hdr <span class="fu">:</span> rows
+
+    rows <span class="fu">=</span> map wrap_row rows0
+
+<span class="ot">field_width ::</span> <span class="dt">Int</span>
+field_width <span class="fu">=</span> <span class="dv">40</span>
+
+<span class="ot">wrap_row ::</span> <span class="dt">TableRow</span> <span class="ot">-&gt;</span> <span class="dt">TableRow</span>
+wrap_row <span class="fu">=</span> fmap <span class="fu">$</span> concat <span class="fu">.</span> map f
+  <span class="kw">where</span>
+    f,<span class="ot"> g ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>]
+
+    f cts <span class="fu">=</span> (ini <span class="fu">++</span> [<span class="ch">&#39;\\&#39;</span> <span class="fu">|</span> not (null rst)]) <span class="fu">:</span> g rst
+      <span class="kw">where</span>
+        (ini,rst) <span class="fu">=</span> splitAt (<span class="dv">1</span><span class="fu">+</span>field_width) cts
+
+    g <span class="st">&quot;&quot;</span>  <span class="fu">=</span> []
+    g cts <span class="fu">=</span> (<span class="ch">&#39;\\&#39;</span> <span class="fu">:</span> ini <span class="fu">++</span> [<span class="ch">&#39;\\&#39;</span> <span class="fu">|</span> not (null rst)]) <span class="fu">:</span> g rst
+      <span class="kw">where</span>
+        (ini,rst) <span class="fu">=</span> splitAt field_width cts
+
+
+<span class="ot">widths ::</span> [<span class="dt">TableRow</span>] <span class="ot">-&gt;</span> <span class="dt">Array</span> <span class="dt">Col</span> <span class="dt">Int</span>
+widths rows <span class="fu">=</span> listArray (minBound,maxBound)
+  [ maximum <span class="fu">$</span> concat [ map length <span class="fu">$</span> row<span class="fu">!</span>c <span class="fu">|</span> row<span class="ot">&lt;-</span>rows ]
+    <span class="fu">|</span> c<span class="ot">&lt;-</span>[minBound<span class="fu">..</span>maxBound]
+    ]
+
+<span class="ot">format_row ::</span> <span class="dt">Array</span> <span class="dt">Col</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">TableRow</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>]
+format_row cw_arr row <span class="fu">=</span>
+  [ (<span class="st">&quot;|&quot;</span><span class="fu">++</span>) <span class="fu">$</span> intercalate <span class="st">&quot;|&quot;</span>
+      [ field cw_arr row c i <span class="fu">|</span> c<span class="ot">&lt;-</span>[minBound<span class="fu">..</span>maxBound] ]
+    <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">0</span><span class="fu">..</span>depth<span class="fu">-</span><span class="dv">1</span>]
+    ]
+  <span class="kw">where</span>
+    depth <span class="fu">=</span> maximum [ length <span class="fu">$</span> row<span class="fu">!</span>c <span class="fu">|</span> c<span class="ot">&lt;-</span>[minBound<span class="fu">..</span>maxBound] ]
+
+<span class="ot">field ::</span> <span class="dt">Array</span> <span class="dt">Col</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">TableRow</span> <span class="ot">-&gt;</span> <span class="dt">Col</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+field cws row c i <span class="fu">=</span> ljust (cws<span class="fu">!</span>c) <span class="fu">$</span> sel i <span class="fu">$</span> row<span class="fu">!</span>c
+
+<span class="ot">sel ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
+sel i ss <span class="fu">=</span> <span class="kw">case</span> drop i ss <span class="kw">of</span>
+  []  <span class="ot">-&gt;</span> <span class="st">&quot;&quot;</span>
+  s<span class="fu">:</span>_ <span class="ot">-&gt;</span> s
+
+<span class="ot">ljust ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+ljust w s <span class="fu">=</span> s <span class="fu">++</span> replicate n <span class="ch">&#39; &#39;</span>
+  <span class="kw">where</span>
+    n <span class="fu">=</span> max <span class="dv">0</span> <span class="fu">$</span> w <span class="fu">-</span> length s
+
+<span class="ot">min_captures ::</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> [<span class="dt">REToken</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+min_captures rty rets <span class="fu">=</span> length
+  [ ()
+    <span class="fu">|</span> <span class="dt">REToken</span>{<span class="fu">..</span>}<span class="ot">&lt;-</span>rets
+    , _ret_fixed <span class="fu">||</span> (_ret_grouping <span class="fu">&amp;&amp;</span> rty<span class="fu">==</span><span class="dt">TDFA</span>)
+    ]</code></pre></div>
+<h2 id="formatting-tokens">Formatting tokens</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">format_tokens ::</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">WithCaptures</span> <span class="ot">-&gt;</span> [<span class="dt">REToken</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
+format_tokens rty wc <span class="fu">=</span> foldr f <span class="st">&quot;&quot;</span>
+  <span class="kw">where</span>
+    f <span class="dt">REToken</span>{<span class="fu">..</span>} rst <span class="fu">=</span> _ret_prefix <span class="fu">++</span> bra <span class="fu">++</span> xket rst
+      <span class="kw">where</span>
+        bra <span class="fu">=</span> <span class="kw">case</span> _ret_fixed <span class="kw">of</span>
+          <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="st">&quot;(&quot;</span>
+          <span class="dt">False</span> <span class="ot">-&gt;</span>
+            <span class="kw">case</span> (,) _ret_grouping (_ret_capturing <span class="fu">&amp;&amp;</span> wc<span class="fu">==</span><span class="dt">InclCaptures</span>) <span class="kw">of</span>
+              (<span class="dt">False</span>,<span class="dt">False</span>) <span class="ot">-&gt;</span> <span class="st">&quot;&quot;</span>
+              (<span class="dt">True</span> ,<span class="dt">False</span>) <span class="ot">-&gt;</span> <span class="kw">if</span> rty<span class="fu">==</span><span class="dt">PCRE</span> <span class="kw">then</span> <span class="st">&quot;(?:&quot;</span> <span class="kw">else</span> <span class="st">&quot;(&quot;</span>
+              (<span class="dt">False</span>,<span class="dt">True</span> ) <span class="ot">-&gt;</span> <span class="st">&quot;(&quot;</span>
+              (<span class="dt">True</span> ,<span class="dt">True</span> ) <span class="ot">-&gt;</span> <span class="st">&quot;(&quot;</span>
+
+        xket <span class="fu">=</span>
+          <span class="kw">case</span> not _ret_grouping <span class="fu">&amp;&amp;</span> _ret_capturing <span class="fu">&amp;&amp;</span> wc<span class="fu">==</span><span class="dt">ExclCaptures</span> <span class="kw">of</span>
+            <span class="dt">True</span>  <span class="ot">-&gt;</span> delete_ket <span class="dv">0</span>
+            <span class="dt">False</span> <span class="ot">-&gt;</span> id
+
+<span class="ot">delete_ket ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+delete_ket _ <span class="st">&quot;&quot;</span> <span class="fu">=</span> error <span class="st">&quot;delete_ket: end of input&quot;</span>
+delete_ket n (c<span class="fu">:</span>t) <span class="fu">=</span> <span class="kw">case</span> c <span class="kw">of</span>
+  <span class="ch">&#39;\\&#39;</span> <span class="ot">-&gt;</span> <span class="kw">case</span> t <span class="kw">of</span>
+    <span class="st">&quot;&quot;</span>    <span class="ot">-&gt;</span> error <span class="st">&quot;delete_ket: end of input&quot;</span>
+    c&#39;<span class="fu">:</span>t&#39; <span class="ot">-&gt;</span> c <span class="fu">:</span> c&#39; <span class="fu">:</span> delete_ket n t&#39;
+  <span class="ch">&#39;)&#39;</span>  <span class="ot">-&gt;</span> <span class="kw">case</span> n <span class="kw">of</span>
+    <span class="dv">0</span>  <span class="ot">-&gt;</span> t
+    _  <span class="ot">-&gt;</span> c <span class="fu">:</span> delete_ket (n<span class="fu">-</span><span class="dv">1</span>) t
+  <span class="ch">&#39;(&#39;</span>  <span class="ot">-&gt;</span> c <span class="fu">:</span> delete_ket (n<span class="fu">+</span><span class="dv">1</span>) t
+  _    <span class="ot">-&gt;</span> c <span class="fu">:</span> delete_ket  n    t</code></pre></div>
+<h2 id="scan_re">scan_re</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">scan_re ::</span> <span class="dt">RegexSource</span> <span class="ot">-&gt;</span> [<span class="dt">REToken</span>]
+scan_re (<span class="dt">RegexSource</span> src0) <span class="fu">=</span> loop src0
+  <span class="kw">where</span>
+    loop <span class="st">&quot;&quot;</span>  <span class="fu">=</span> []
+    loop src <span class="fu">=</span>
+        <span class="kw">case</span> rst <span class="kw">of</span>
+          <span class="ch">&#39;\\&#39;</span><span class="fu">:</span>t <span class="ot">-&gt;</span> <span class="kw">case</span> t <span class="kw">of</span>
+              <span class="st">&quot;&quot;</span>    <span class="ot">-&gt;</span> <span class="dt">REToken</span> (ini<span class="fu">++</span>[<span class="ch">&#39;\\&#39;</span>])    <span class="dt">False</span> <span class="dt">False</span> <span class="dt">False</span> <span class="fu">:</span> []
+              c&#39;<span class="fu">:</span>t&#39; <span class="ot">-&gt;</span> <span class="dt">REToken</span> (ini<span class="fu">++</span>[<span class="ch">&#39;\\&#39;</span>,c&#39;]) <span class="dt">False</span> <span class="dt">False</span> <span class="dt">False</span> <span class="fu">:</span> loop t&#39;
+          <span class="ch">&#39;(&#39;</span> <span class="fu">:</span>t <span class="ot">-&gt;</span> <span class="kw">case</span> t <span class="kw">of</span>
+            c<span class="fu">:</span><span class="ch">&#39;:&#39;</span><span class="fu">:</span>t&#39;
+              <span class="fu">|</span> c<span class="fu">==</span><span class="ch">&#39;?&#39;</span>  <span class="ot">-&gt;</span> <span class="dt">REToken</span>  ini <span class="dt">False</span> <span class="dt">True</span>  <span class="dt">False</span> <span class="fu">:</span> loop t&#39;
+              <span class="fu">|</span> c<span class="fu">==</span><span class="ch">&#39;}&#39;</span>  <span class="ot">-&gt;</span> <span class="dt">REToken</span>  ini <span class="dt">False</span> <span class="dt">False</span> <span class="dt">True</span>  <span class="fu">:</span> loop t&#39;
+              <span class="fu">|</span> c<span class="fu">==</span><span class="ch">&#39;]&#39;</span>  <span class="ot">-&gt;</span> <span class="dt">REToken</span>  ini <span class="dt">False</span> <span class="dt">True</span>  <span class="dt">True</span>  <span class="fu">:</span> loop t&#39;
+            _           <span class="ot">-&gt;</span> <span class="dt">REToken</span>  ini <span class="dt">True</span>  <span class="dt">True</span>  <span class="dt">True</span>  <span class="fu">:</span> loop t
+          _ <span class="ot">-&gt;</span> [<span class="dt">REToken</span> src <span class="dt">False</span> <span class="dt">False</span> <span class="dt">False</span>]
+      <span class="kw">where</span>
+        (ini,rst) <span class="fu">=</span> break chk src
+
+        chk <span class="ch">&#39;\\&#39;</span>  <span class="fu">=</span> <span class="dt">True</span>
+        chk <span class="ch">&#39;(&#39;</span>   <span class="fu">=</span> <span class="dt">True</span>
+        chk _     <span class="fu">=</span> <span class="dt">False</span></code></pre></div>
+<h2 id="scan_re-1">scan_re</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">match_tdfa ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span> <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">String</span>
+match_tdfa txt env md <span class="fu">=</span> txt <span class="fu">TDFA.=~</span> mdRegexSource <span class="dt">TDFA</span> <span class="dt">ExclCaptures</span> env md
+
+<span class="ot">match_pcre ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span> <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">String</span>
+match_pcre txt env md <span class="fu">=</span> txt <span class="fu">PCRE.=~</span> mdRegexSource <span class="dt">PCRE</span> <span class="dt">ExclCaptures</span> env md</code></pre></div>
+<h2 id="mdregexsource">mdRegexSource</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mdRegexSource ::</span> <span class="dt">RegexType</span>
+              <span class="ot">-&gt;</span> <span class="dt">WithCaptures</span>
+              <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span>
+              <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span>
+              <span class="ot">-&gt;</span> <span class="dt">String</span>
+mdRegexSource rty wc env md <span class="fu">=</span>
+    expandMacros&#39; lu <span class="fu">$</span> regexSource rty wc <span class="fu">$</span> _md_source md
+  <span class="kw">where</span>
+    lu  <span class="fu">=</span> fmap (regexSource rty wc <span class="fu">.</span> _md_source) <span class="fu">.</span>
+            flip HML.lookup env</code></pre></div>
+<h2 id="test-test_neg">test', test_neg'</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">test&#39; ::</span> (<span class="dt">Eq</span> a,<span class="dt">Show</span> a)
+      <span class="ot">=&gt;</span> <span class="dt">MacroID</span>
+      <span class="ot">-&gt;</span> <span class="dt">RegexType</span>
+      <span class="ot">-&gt;</span> (<span class="dt">Match</span> <span class="dt">String</span><span class="ot">-&gt;</span><span class="dt">Maybe</span> a)
+      <span class="ot">-&gt;</span> a
+      <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">String</span>
+      <span class="ot">-&gt;</span> [<span class="dt">TestResult</span>]
+test&#39; mid rty prs x <span class="dt">Matches</span>{<span class="fu">..</span>} <span class="fu">=</span> either (<span class="fu">:</span>[]) (const []) <span class="fu">$</span> <span class="kw">do</span>
+    cs <span class="ot">&lt;-</span> <span class="kw">case</span> allMatches <span class="kw">of</span>
+      [cs] <span class="ot">-&gt;</span> return cs
+      _    <span class="ot">-&gt;</span> oops <span class="st">&quot;RE failed to parse&quot;</span>
+    mtx <span class="ot">&lt;-</span> <span class="kw">case</span> matchCapture cs <span class="kw">of</span>
+      <span class="dt">Nothing</span> <span class="ot">-&gt;</span> oops <span class="fu">$</span> <span class="st">&quot;RE parse failure: &quot;</span> <span class="fu">++</span> show cs
+      <span class="dt">Just</span> c  <span class="ot">-&gt;</span> return <span class="fu">$</span> capturedText c
+    <span class="kw">case</span> mtx <span class="fu">==</span> matchesSource <span class="kw">of</span>
+      <span class="dt">True</span>  <span class="ot">-&gt;</span> return ()
+      <span class="dt">False</span> <span class="ot">-&gt;</span> oops <span class="st">&quot;RE failed to match the whole text&quot;</span>
+    x&#39; <span class="ot">&lt;-</span> <span class="kw">case</span> prs cs <span class="kw">of</span>
+      <span class="dt">Nothing</span> <span class="ot">-&gt;</span> oops <span class="st">&quot;matched text failed to parse&quot;</span>
+      <span class="dt">Just</span> x&#39; <span class="ot">-&gt;</span> return x&#39;
+    <span class="kw">case</span> x&#39;<span class="fu">==</span>x <span class="kw">of</span>
+      <span class="dt">True</span>  <span class="ot">-&gt;</span> return ()
+      <span class="dt">False</span> <span class="ot">-&gt;</span> oops <span class="st">&quot;parser failed to yield the expected result&quot;</span>
+  <span class="kw">where</span>
+    oops <span class="fu">=</span> <span class="dt">Left</span> <span class="fu">.</span> test_diagnostic mid <span class="dt">False</span> rty matchesSource
+
+<span class="ot">test_neg&#39; ::</span> <span class="dt">MacroID</span>
+          <span class="ot">-&gt;</span> <span class="dt">RegexType</span>
+          <span class="ot">-&gt;</span> (<span class="dt">Match</span> <span class="dt">String</span><span class="ot">-&gt;</span><span class="dt">Maybe</span> a)
+          <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">String</span>
+          <span class="ot">-&gt;</span> [<span class="dt">TestResult</span>]
+test_neg&#39; mid rty prs <span class="dt">Matches</span>{<span class="fu">..</span>} <span class="fu">=</span> either id (const []) <span class="fu">$</span> <span class="kw">do</span>
+    <span class="kw">case</span> allMatches <span class="kw">of</span>
+      [] <span class="ot">-&gt;</span> return ()
+      cz <span class="ot">-&gt;</span> <span class="kw">case</span> ms <span class="kw">of</span>
+          [] <span class="ot">-&gt;</span> return ()
+          _  <span class="ot">-&gt;</span> <span class="dt">Left</span> [oops <span class="st">&quot;RE parse succeeded&quot;</span>]
+        <span class="kw">where</span>
+          ms <span class="fu">=</span>
+            [ ()
+              <span class="fu">|</span> cs     <span class="ot">&lt;-</span> cz
+              , <span class="dt">Just</span> c <span class="ot">&lt;-</span> [matchCapture cs]
+              , <span class="kw">let</span> t <span class="fu">=</span> capturedText c
+              , t <span class="fu">==</span> matchesSource
+              , isJust <span class="fu">$</span> prs cs
+              ]
+
+  <span class="kw">where</span>
+    oops <span class="fu">=</span> test_diagnostic mid <span class="dt">True</span> rty matchesSource
+
+<span class="ot">test_diagnostic ::</span> <span class="dt">MacroID</span>
+                <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+                <span class="ot">-&gt;</span> <span class="dt">RegexType</span>
+                <span class="ot">-&gt;</span> <span class="dt">String</span>
+                <span class="ot">-&gt;</span> <span class="dt">String</span>
+                <span class="ot">-&gt;</span> <span class="dt">TestResult</span>
+test_diagnostic mid is_neg rty tst msg <span class="fu">=</span>
+    <span class="dt">TestResult</span> <span class="fu">$</span>
+      printf <span class="st">&quot;%-20s [%s %s] : %s (%s)&quot;</span> mid_s neg_s rty_s msg tst
+  <span class="kw">where</span>
+    mid_s <span class="fu">=</span> _MacroID mid
+    neg_s <span class="fu">=</span> <span class="kw">if</span> is_neg <span class="kw">then</span> <span class="st">&quot;-ve&quot;</span> <span class="kw">else</span> <span class="st">&quot;+ve&quot;</span><span class="ot"> ::</span> <span class="dt">String</span>
+    rty_s <span class="fu">=</span> show rty</code></pre></div>
+</body>
+</html>

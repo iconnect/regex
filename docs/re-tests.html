@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="lib/styles.css" type="text/css" />
+  <link rel="stylesheet" href="lib/bs.css" type="text/css" />
+</head>
+<body>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/examples/re-tests.lhs'>re-tests</a></ol>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
+<span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
+
+<span class="kw">module</span> <span class="dt">Main</span> (main) <span class="kw">where</span>
+
+<span class="kw">import           </span><span class="dt">Control.Applicative</span>
+<span class="kw">import           </span><span class="dt">Data.Array</span>
+<span class="kw">import qualified</span> <span class="dt">Data.ByteString.Char8</span>          <span class="kw">as</span> <span class="dt">B</span>
+<span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>     <span class="kw">as</span> <span class="dt">LBS</span>
+<span class="kw">import           </span><span class="dt">Data.Foldable</span>
+<span class="kw">import           </span><span class="dt">Data.Monoid</span>
+<span class="kw">import qualified</span> <span class="dt">Data.Sequence</span>                  <span class="kw">as</span> <span class="dt">S</span>
+<span class="kw">import           </span><span class="dt">Data.String</span>
+<span class="kw">import qualified</span> <span class="dt">Data.Text</span>                      <span class="kw">as</span> <span class="dt">T</span>
+<span class="kw">import qualified</span> <span class="dt">Data.Text.Lazy</span>                 <span class="kw">as</span> <span class="dt">LT</span>
+<span class="kw">import           </span><span class="dt">Test.Tasty</span>
+<span class="kw">import           </span><span class="dt">Test.Tasty.HUnit</span>
+<span class="kw">import           </span><span class="dt">Text.RE</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Internal.NamedCaptures</span>
+<span class="kw">import qualified</span> <span class="dt">Text.RE.PCRE</span>           <span class="kw">as</span> <span class="dt">PCRE</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TDFA</span>           <span class="kw">as</span> <span class="dt">TDFA</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TestBench</span>
+
+<span class="kw">import           </span><span class="dt">Text.RE.TDFA.String</span>()
+
+
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> defaultMain <span class="fu">$</span>
+  testGroup <span class="st">&quot;Tests&quot;</span>
+    [ prelude_tests
+    , parsing_tests
+    , core_tests
+    , replace_tests
+    , options_tests
+    , namedCapturesTestTree
+    ]
+
+<span class="ot">prelude_tests ::</span> <span class="dt">TestTree</span>
+prelude_tests <span class="fu">=</span> testGroup <span class="st">&quot;Prelude&quot;</span>
+  [ tc <span class="dt">TDFA</span> TDFA.preludeEnv
+  , tc <span class="dt">PCRE</span> PCRE.preludeEnv
+  ]
+  <span class="kw">where</span>
+    tc rty m_env <span class="fu">=</span>
+      testCase (show rty) <span class="fu">$</span> <span class="kw">do</span>
+        dumpMacroTable <span class="st">&quot;prelude&quot;</span> rty m_env
+        assertBool <span class="st">&quot;testMacroEnv&quot;</span> <span class="fu">=&lt;&lt;</span> testMacroEnv <span class="st">&quot;prelude&quot;</span> rty m_env
+
+str,<span class="ot"> str&#39; ::</span> <span class="dt">String</span>
+str       <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+str&#39;      <span class="fu">=</span> <span class="st">&quot;foo&quot;</span>
+
+regex_,<span class="ot"> regex_alt ::</span> <span class="dt">RE</span>
+regex_    <span class="fu">=</span> [re|(a+) (b+)|]
+regex_alt <span class="fu">=</span> [re|(a+)|(b+)|]
+
+<span class="ot">regex_str_matches ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
+regex_str_matches <span class="fu">=</span>
+  <span class="dt">Matches</span>
+    { matchesSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+    , allMatches <span class="fu">=</span>
+        [ regex_str_match
+        , regex_str_match_2
+        ]
+    }
+
+<span class="ot">regex_str_match ::</span> <span class="dt">Match</span> <span class="dt">String</span>
+regex_str_match <span class="fu">=</span>
+  <span class="dt">Match</span>
+    { matchSource   <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+    , captureNames  <span class="fu">=</span> noCaptureNames
+    , matchArray    <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">2</span>)
+        [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;a bbbb&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">0</span>, captureLength <span class="fu">=</span> <span class="dv">6</span>})
+        , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;a&quot;</span>     , captureOffset <span class="fu">=</span> <span class="dv">0</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
+        , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;bbbb&quot;</span>  , captureOffset <span class="fu">=</span> <span class="dv">2</span>, captureLength <span class="fu">=</span> <span class="dv">4</span>})
+        ]
+    }
+
+<span class="ot">regex_str_match_2 ::</span> <span class="dt">Match</span> <span class="dt">String</span>
+regex_str_match_2 <span class="fu">=</span>
+  <span class="dt">Match</span>
+    { matchSource   <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+    , captureNames  <span class="fu">=</span> noCaptureNames
+    , matchArray    <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">2</span>)
+        [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;aa b&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">7</span> , captureLength <span class="fu">=</span> <span class="dv">4</span>})
+        , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;aa&quot;</span>  , captureOffset <span class="fu">=</span> <span class="dv">7</span> , captureLength <span class="fu">=</span> <span class="dv">2</span>})
+        , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;b&quot;</span>   , captureOffset <span class="fu">=</span> <span class="dv">10</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
+        ]
+    }
+
+<span class="ot">regex_alt_str_matches ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
+regex_alt_str_matches <span class="fu">=</span>
+  <span class="dt">Matches</span>
+    { matchesSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+    , allMatches    <span class="fu">=</span>
+        [ <span class="dt">Match</span>
+            { matchSource   <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+            , captureNames  <span class="fu">=</span> noCaptureNames
+            , matchArray    <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">2</span>)
+                [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;a&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">0</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
+                , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;a&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">0</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
+                , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;&quot;</span>, captureOffset <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>, captureLength <span class="fu">=</span> <span class="dv">0</span>})
+                ]
+            }
+        , <span class="dt">Match</span>
+            { matchSource   <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+            , captureNames  <span class="fu">=</span> noCaptureNames
+            , matchArray    <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">2</span>)
+                [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;bbbb&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">2</span> , captureLength <span class="fu">=</span> <span class="dv">4</span>})
+                , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;&quot;</span>    , captureOffset <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>, captureLength <span class="fu">=</span> <span class="dv">0</span>})
+                , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;bbbb&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">2</span> , captureLength <span class="fu">=</span> <span class="dv">4</span>})
+                ]
+            }
+        , <span class="dt">Match</span>
+            { matchSource   <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+            , captureNames  <span class="fu">=</span> noCaptureNames
+            , matchArray    <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">2</span>)
+                [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;aa&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">7</span> , captureLength <span class="fu">=</span> <span class="dv">2</span>})
+                , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;aa&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">7</span> , captureLength <span class="fu">=</span> <span class="dv">2</span>})
+                , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;&quot;</span>  , captureOffset <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>, captureLength <span class="fu">=</span> <span class="dv">0</span>})
+                ]
+            }
+        , <span class="dt">Match</span>
+            { matchSource   <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+            , captureNames  <span class="fu">=</span> noCaptureNames
+            , matchArray    <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">2</span>)
+                [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;b&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">10</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
+                , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;&quot;</span> , captureOffset <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>, captureLength <span class="fu">=</span> <span class="dv">0</span>})
+                , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;b&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">10</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
+                ]
+            }
+        ]
+    }
+
+<span class="ot">parsing_tests ::</span> <span class="dt">TestTree</span>
+parsing_tests <span class="fu">=</span> testGroup <span class="st">&quot;Parsing&quot;</span>
+  [ testCase <span class="st">&quot;complete check (matchM/ByteString)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      r    <span class="ot">&lt;-</span> compileRegex () <span class="fu">$</span> reSource regex_
+      assertEqual <span class="st">&quot;Match&quot;</span> (B.pack <span class="fu">&lt;$&gt;</span> regex_str_match) <span class="fu">$</span> B.pack str <span class="fu">?=~</span> r
+  , testCase <span class="st">&quot;matched (matchM/Text)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      r     <span class="ot">&lt;-</span> compileRegex () <span class="fu">$</span> reSource regex_
+      assertEqual <span class="st">&quot;matched&quot;</span> <span class="dt">True</span> <span class="fu">$</span> matched <span class="fu">$</span> T.pack str <span class="fu">?=~</span> r
+  ]
+
+<span class="ot">core_tests ::</span> <span class="dt">TestTree</span>
+core_tests <span class="fu">=</span> testGroup <span class="st">&quot;Match&quot;</span>
+  [ testCase <span class="st">&quot;text (=~~Text.Lazy)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      txt <span class="ot">&lt;-</span> <span class="dt">LT</span><span class="fu">.</span>pack str <span class="fu">=~~</span> [re|(a+) (b+)|]<span class="ot"> ::</span> <span class="dt">IO</span> (<span class="dt">LT</span><span class="fu">.</span><span class="dt">Text</span>)
+      assertEqual <span class="st">&quot;text&quot;</span> txt <span class="st">&quot;a bbbb&quot;</span>
+  , testCase <span class="st">&quot;multi (=~~/String)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      <span class="kw">let</span> sm <span class="fu">=</span> str <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Match</span> <span class="dt">String</span>
+          m  <span class="fu">=</span> capture [cp|0|] sm
+      assertEqual <span class="st">&quot;captureSource&quot;</span> <span class="st">&quot;a bbbb aa b&quot;</span> <span class="fu">$</span> captureSource m
+      assertEqual <span class="st">&quot;capturedText&quot;</span>  <span class="st">&quot;a bbbb&quot;</span>      <span class="fu">$</span> capturedText  m
+      assertEqual <span class="st">&quot;capturePrefix&quot;</span> <span class="st">&quot;&quot;</span>            <span class="fu">$</span> capturePrefix m
+      assertEqual <span class="st">&quot;captureSuffix&quot;</span> <span class="st">&quot; aa b&quot;</span>       <span class="fu">$</span> captureSuffix m
+  , testCase <span class="st">&quot;complete (=~~/ByteString)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      mtch <span class="ot">&lt;-</span> B.pack str <span class="fu">=~~</span><span class="ot"> regex_ ::</span> <span class="dt">IO</span> (<span class="dt">Match</span> <span class="dt">B.ByteString</span>)
+      assertEqual <span class="st">&quot;Match&quot;</span> mtch <span class="fu">$</span> B.pack <span class="fu">&lt;$&gt;</span> regex_str_match
+  , testCase <span class="st">&quot;complete (all,String)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      <span class="kw">let</span> mtchs <span class="fu">=</span> str <span class="fu">=~</span><span class="ot"> regex_     ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
+      assertEqual <span class="st">&quot;Matches&quot;</span> mtchs regex_str_matches
+  , testCase <span class="st">&quot;complete (all,reg_alt)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      <span class="kw">let</span> mtchs <span class="fu">=</span> str <span class="fu">=~</span><span class="ot"> regex_alt  ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
+      assertEqual <span class="st">&quot;Matches&quot;</span> mtchs regex_alt_str_matches
+  , testCase <span class="st">&quot;complete (=~~,all)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      mtchs <span class="ot">&lt;-</span> str <span class="fu">=~~</span><span class="ot"> regex_       ::</span> <span class="dt">IO</span> (<span class="dt">Matches</span> <span class="dt">String</span>)
+      assertEqual <span class="st">&quot;Matches&quot;</span> mtchs regex_str_matches
+  , testCase <span class="st">&quot;fail (all)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      <span class="kw">let</span> mtchs <span class="fu">=</span> str&#39; <span class="fu">=~</span><span class="ot"> regex_    ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
+      assertEqual <span class="st">&quot;not.anyMatches&quot;</span> <span class="dt">False</span> <span class="fu">$</span> anyMatches mtchs
+  ]
+
+<span class="ot">replace_tests ::</span> <span class="dt">TestTree</span>
+replace_tests <span class="fu">=</span> testGroup <span class="st">&quot;Replace&quot;</span>
+  [ testCase <span class="st">&quot;String/single&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      <span class="kw">let</span> m <span class="fu">=</span> str <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Match</span> <span class="dt">String</span>
+          r <span class="fu">=</span> replaceCaptures&#39; <span class="dt">ALL</span> fmt m
+      assertEqual <span class="st">&quot;replaceCaptures&#39;&quot;</span> r <span class="st">&quot;(0:0:(0:1:a) (0:2:bbbb)) aa b&quot;</span>
+  , testCase <span class="st">&quot;String/alt&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      <span class="kw">let</span> ms <span class="fu">=</span> str <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
+          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> fmt ms
+      chk r
+  , testCase <span class="st">&quot;String&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      <span class="kw">let</span> ms <span class="fu">=</span> str <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
+          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> fmt ms
+      chk r
+  , testCase <span class="st">&quot;ByteString&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      <span class="kw">let</span> ms <span class="fu">=</span> B.pack str <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> <span class="dt">B.ByteString</span>
+          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> fmt ms
+      chk r
+  , testCase <span class="st">&quot;LBS.ByteString&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      <span class="kw">let</span> ms <span class="fu">=</span> LBS.pack str <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> fmt ms
+      chk r
+  , testCase <span class="st">&quot;Seq Char&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      <span class="kw">let</span> ms <span class="fu">=</span> S.fromList str <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> (<span class="dt">S.Seq</span> <span class="dt">Char</span>)
+          f  <span class="fu">=</span> \_ (<span class="dt">Location</span> i j) <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="ot">-&gt;</span> <span class="dt">Just</span> <span class="fu">$</span> S.fromList <span class="fu">$</span>
+                  <span class="st">&quot;(&quot;</span> <span class="fu">&lt;&gt;</span> show i <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span> show_co j <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span>
+                    toList capturedText <span class="fu">&lt;&gt;</span> <span class="st">&quot;)&quot;</span>
+          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> f ms
+      assertEqual <span class="st">&quot;replaceAllCaptures&#39;&quot;</span> r <span class="fu">$</span>
+        S.fromList <span class="st">&quot;(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))&quot;</span>
+  , testCase <span class="st">&quot;Text&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      <span class="kw">let</span> ms <span class="fu">=</span> T.pack str <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> <span class="dt">T.Text</span>
+          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> fmt ms
+      chk r
+  , testCase <span class="st">&quot;LT.Text&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+      <span class="kw">let</span> ms <span class="fu">=</span> <span class="dt">LT</span><span class="fu">.</span>pack str <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> <span class="dt">LT</span><span class="fu">.</span><span class="dt">Text</span>
+          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> fmt ms
+      chk r
+  ]
+  <span class="kw">where</span>
+    chk r <span class="fu">=</span>
+      assertEqual
+        <span class="st">&quot;replaceAllCaptures&#39;&quot;</span>
+        r
+        <span class="st">&quot;(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))&quot;</span>
+
+<span class="ot">    fmt ::</span> (<span class="dt">IsString</span> s,<span class="dt">Replace</span> s) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Location</span> <span class="ot">-&gt;</span> <span class="dt">Capture</span> s <span class="ot">-&gt;</span> <span class="dt">Maybe</span> s
+    fmt _ (<span class="dt">Location</span> i j) <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="st">&quot;(&quot;</span> <span class="fu">&lt;&gt;</span> pack_ (show i) <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span>
+      pack_ (show_co j) <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span> capturedText <span class="fu">&lt;&gt;</span> <span class="st">&quot;)&quot;</span>
+
+    show_co (<span class="dt">CaptureOrdinal</span> j) <span class="fu">=</span> show j
+
+<span class="ot">options_tests ::</span> <span class="dt">TestTree</span>
+options_tests <span class="fu">=</span> testGroup <span class="st">&quot;Simple Options&quot;</span>
+  [ testGroup <span class="st">&quot;TDFA Simple Options&quot;</span>
+      [ testCase <span class="st">&quot;default (MultilineSensitive)&quot;</span> <span class="fu">$</span> assertEqual <span class="st">&quot;#&quot;</span> <span class="dv">2</span> <span class="fu">$</span>
+          countMatches <span class="fu">$</span> s <span class="fu">TDFA.*=~</span> [TDFA.re<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
+      , testCase <span class="st">&quot;MultilineSensitive&quot;</span> <span class="fu">$</span> assertEqual <span class="st">&quot;#&quot;</span> <span class="dv">2</span> <span class="fu">$</span>
+          countMatches <span class="fu">$</span> s <span class="fu">TDFA.*=~</span> [TDFA.reMultilineSensitive<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
+      , testCase <span class="st">&quot;MultilineInsensitive&quot;</span> <span class="fu">$</span> assertEqual <span class="st">&quot;#&quot;</span> <span class="dv">4</span> <span class="fu">$</span>
+          countMatches <span class="fu">$</span> s <span class="fu">TDFA.*=~</span> [TDFA.reMultilineInsensitive<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
+      , testCase <span class="st">&quot;BlockSensitive&quot;</span> <span class="fu">$</span> assertEqual <span class="st">&quot;#&quot;</span> <span class="dv">0</span> <span class="fu">$</span>
+          countMatches <span class="fu">$</span> s <span class="fu">TDFA.*=~</span> [TDFA.reBlockSensitive<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
+      , testCase <span class="st">&quot;BlockInsensitive&quot;</span> <span class="fu">$</span> assertEqual <span class="st">&quot;#&quot;</span> <span class="dv">1</span> <span class="fu">$</span>
+          countMatches <span class="fu">$</span> s <span class="fu">TDFA.*=~</span> [TDFA.reBlockInsensitive<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
+      ]
+  , testGroup <span class="st">&quot;PCRE Simple Options&quot;</span>
+      [ testCase <span class="st">&quot;default (MultilineSensitive)&quot;</span> <span class="fu">$</span> assertEqual <span class="st">&quot;#&quot;</span> <span class="dv">2</span> <span class="fu">$</span>
+          countMatches <span class="fu">$</span> s <span class="fu">PCRE.*=~</span> [PCRE.re<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
+      , testCase <span class="st">&quot;MultilineSensitive&quot;</span> <span class="fu">$</span> assertEqual <span class="st">&quot;#&quot;</span> <span class="dv">2</span> <span class="fu">$</span>
+          countMatches <span class="fu">$</span> s <span class="fu">PCRE.*=~</span> [PCRE.reMultilineSensitive<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
+      , testCase <span class="st">&quot;MultilineInsensitive&quot;</span> <span class="fu">$</span> assertEqual <span class="st">&quot;#&quot;</span> <span class="dv">4</span> <span class="fu">$</span>
+          countMatches <span class="fu">$</span> s <span class="fu">PCRE.*=~</span> [PCRE.reMultilineInsensitive<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
+      , testCase <span class="st">&quot;BlockSensitive&quot;</span> <span class="fu">$</span> assertEqual <span class="st">&quot;#&quot;</span> <span class="dv">0</span> <span class="fu">$</span>
+          countMatches <span class="fu">$</span> s <span class="fu">PCRE.*=~</span> [PCRE.reBlockSensitive<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
+      , testCase <span class="st">&quot;BlockInsensitive&quot;</span> <span class="fu">$</span> assertEqual <span class="st">&quot;#&quot;</span> <span class="dv">1</span> <span class="fu">$</span>
+          countMatches <span class="fu">$</span> s <span class="fu">PCRE.*=~</span> [PCRE.reBlockInsensitive<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
+      ]
+    ]
+  <span class="kw">where</span>
+    s <span class="fu">=</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span><span class="ot"> ::</span> <span class="dt">String</span></code></pre></div>
+</body>
+</html>

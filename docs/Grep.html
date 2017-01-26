@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="lib/styles.css" type="text/css" />
+  <link rel="stylesheet" href="lib/bs.css" type="text/css" />
+</head>
+<body>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/Text/RE/Tools/Grep.lhs'>RE/Tools/Grep</a></ol>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<span class="ot">{-# LANGUAGE FlexibleContexts           #-}</span>
+
+<span class="kw">module</span> <span class="dt">Text.RE.Tools.Grep</span>
+  ( grep
+  , grepLines
+  , <span class="dt">GrepScript</span>
+  , grepScript
+  ) <span class="kw">where</span>
+
+<span class="kw">import           </span><span class="dt">Control.Applicative</span>
+<span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>               <span class="kw">as</span> <span class="dt">LBS</span>
+<span class="kw">import           </span><span class="dt">Text.Printf</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Capture</span>
+<span class="kw">import           </span><span class="dt">Text.RE.IsRegex</span>
+<span class="kw">import           </span><span class="dt">Text.RE.LineNo</span>
+
+
+<span class="kw">data</span> <span class="dt">Line</span> <span class="fu">=</span>
+  <span class="dt">Line</span>
+    {<span class="ot"> _ln_no      ::</span> <span class="dt">LineNo</span>
+    ,<span class="ot"> _ln_matches ::</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+    }
+  <span class="kw">deriving</span> (<span class="dt">Show</span>)
+
+<span class="ot">grep ::</span> <span class="dt">IsRegex</span> re <span class="dt">LBS.ByteString</span> <span class="ot">=&gt;</span> re <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+grep rex fp <span class="fu">=</span> grepLines rex fp <span class="fu">&gt;&gt;=</span> putStr <span class="fu">.</span> report
+
+<span class="ot">grepLines ::</span> <span class="dt">IsRegex</span> re <span class="dt">LBS.ByteString</span> <span class="ot">=&gt;</span> re <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> [<span class="dt">Line</span>]
+grepLines rex fp <span class="fu">=</span>
+    grepScript [(rex,mk)] <span class="fu">.</span> LBS.lines <span class="fu">&lt;$&gt;</span> LBS.readFile fp
+  <span class="kw">where</span>
+    mk i mtchs <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="dt">Line</span> i mtchs
+
+<span class="kw">type</span> <span class="dt">GrepScript</span> re s t <span class="fu">=</span> [(re,<span class="dt">LineNo</span> <span class="ot">-&gt;</span> <span class="dt">Matches</span> s <span class="ot">-&gt;</span> <span class="dt">Maybe</span> t)]
+
+<span class="ot">grepScript ::</span> <span class="dt">IsRegex</span> re s <span class="ot">=&gt;</span> <span class="dt">GrepScript</span> re s t <span class="ot">-&gt;</span> [s] <span class="ot">-&gt;</span> [t]
+grepScript scr <span class="fu">=</span> loop firstLine
+  <span class="kw">where</span>
+    loop _ []       <span class="fu">=</span> []
+    loop i (ln<span class="fu">:</span>lns) <span class="fu">=</span> seq i <span class="fu">$</span> choose i ln lns scr
+
+    choose i _  lns []             <span class="fu">=</span> loop (succ i) lns
+    choose i ln lns ((rex,f)<span class="fu">:</span>scr&#39;) <span class="fu">=</span> <span class="kw">case</span> f i <span class="fu">$</span> matchMany rex ln <span class="kw">of</span>
+      <span class="dt">Nothing</span> <span class="ot">-&gt;</span> choose i ln lns scr&#39;
+      <span class="dt">Just</span> t  <span class="ot">-&gt;</span> t <span class="fu">:</span> loop (succ i) lns
+
+<span class="ot">report ::</span> [<span class="dt">Line</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
+report <span class="fu">=</span> unlines <span class="fu">.</span> map fmt <span class="fu">.</span> lines_matched
+  <span class="kw">where</span>
+    fmt <span class="dt">Line</span>{<span class="fu">..</span>} <span class="fu">=</span>
+      printf <span class="st">&quot;%05d %s&quot;</span> (getLineNo _ln_no) <span class="fu">$</span>
+          LBS.unpack <span class="fu">$</span> matchesSource _ln_matches
+
+<span class="ot">lines_matched ::</span> [<span class="dt">Line</span>] <span class="ot">-&gt;</span> [<span class="dt">Line</span>]
+lines_matched <span class="fu">=</span> filter <span class="fu">$</span> anyMatches <span class="fu">.</span> _ln_matches</code></pre></div>
+</body>
+</html>

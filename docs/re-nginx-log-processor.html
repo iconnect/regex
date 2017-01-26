@@ -1,0 +1,618 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="lib/styles.css" type="text/css" />
+  <link rel="stylesheet" href="lib/bs.css" type="text/css" />
+</head>
+<body>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/examples/re-nginx-log-processor.lhs'>re-nginx-log-processor</a></ol>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
+<span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
+<span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
+<span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
+
+<span class="kw">module</span> <span class="dt">Main</span>
+  ( main
+  <span class="co">-- development</span>
+  , parse_a
+  , parse_e
+  ) <span class="kw">where</span>
+
+<span class="kw">import           </span><span class="dt">Control.Applicative</span>
+<span class="kw">import           </span><span class="dt">Control.Exception</span>
+<span class="kw">import           </span><span class="dt">Control.Monad</span>
+<span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>               <span class="kw">as</span> <span class="dt">LBS</span>
+<span class="kw">import qualified</span> <span class="dt">Data.HashMap.Lazy</span>                        <span class="kw">as</span> <span class="dt">HML</span>
+<span class="kw">import           </span><span class="dt">Data.Functor.Identity</span>
+<span class="kw">import           </span><span class="dt">Data.Maybe</span>
+<span class="kw">import           </span><span class="dt">Data.String</span>
+<span class="kw">import qualified</span> <span class="dt">Data.Text</span>                                <span class="kw">as</span> <span class="dt">T</span>
+<span class="kw">import           </span><span class="dt">Data.Time</span>
+<span class="kw">import qualified</span> <span class="dt">Shelly</span>                                   <span class="kw">as</span> <span class="dt">SH</span>
+<span class="kw">import           </span><span class="dt">System.Directory</span>
+<span class="kw">import           </span><span class="dt">System.Environment</span>
+<span class="kw">import           </span><span class="dt">System.Posix.Syslog</span>
+<span class="kw">import           </span><span class="dt">System.Exit</span>
+<span class="kw">import           </span><span class="dt">System.IO</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Options</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Parsers</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TestBench</span>
+<span class="kw">import           </span><span class="dt">Text.RE.PCRE.ByteString.Lazy</span>
+<span class="kw">import qualified</span> <span class="dt">Text.RE.PCRE.String</span>              <span class="kw">as</span> <span class="dt">S</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span>
+<span class="kw">import           </span><span class="dt">Text.Printf</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> <span class="kw">do</span>
+  as  <span class="ot">&lt;-</span> getArgs
+  <span class="kw">case</span> as <span class="kw">of</span>
+    [<span class="st">&quot;--macro&quot;</span>      ] <span class="ot">-&gt;</span> putStr      lp_macro_table
+    [<span class="st">&quot;--macro&quot;</span>,mid_s] <span class="ot">-&gt;</span> putStrLn  <span class="fu">$</span> lp_macro_summary <span class="fu">$</span> <span class="dt">MacroID</span> mid_s
+    [<span class="st">&quot;--regex&quot;</span>      ] <span class="ot">-&gt;</span> putStr      lp_macro_sources
+    [<span class="st">&quot;--regex&quot;</span>,mid_s] <span class="ot">-&gt;</span> putStrLn  <span class="fu">$</span> lp_macro_source  <span class="fu">$</span> <span class="dt">MacroID</span> mid_s
+    [<span class="st">&quot;--test&quot;</span>       ] <span class="ot">-&gt;</span> test
+    []                <span class="ot">-&gt;</span> test
+    [in_file          ] <span class="fu">|</span> is_file in_file <span class="ot">-&gt;</span> go <span class="dt">True</span>  in_file <span class="st">&quot;-&quot;</span>
+    [in_file,out_file ] <span class="fu">|</span> is_file in_file <span class="ot">-&gt;</span> go <span class="dt">True</span>  in_file out_file
+    _                                     <span class="ot">-&gt;</span> usage
+  <span class="kw">where</span>
+    is_file <span class="fu">=</span> not <span class="fu">.</span> (<span class="fu">==</span> <span class="st">&quot;--&quot;</span>) <span class="fu">.</span> take <span class="dv">2</span>
+
+    usage <span class="fu">=</span> <span class="kw">do</span>
+      pnm <span class="ot">&lt;-</span> getProgName
+      <span class="kw">let</span> prg <span class="fu">=</span> ((pnm<span class="fu">++</span><span class="st">&quot; &quot;</span>)<span class="fu">++</span>)
+      putStr <span class="fu">$</span> unlines
+        [ <span class="st">&quot;usage:&quot;</span>
+        , prg <span class="st">&quot; --help&quot;</span>
+        , prg <span class="st">&quot; --macro&quot;</span>
+        , prg <span class="st">&quot; --macro &lt;macro-id&gt;&quot;</span>
+        , prg <span class="st">&quot; --regex&quot;</span>
+        , prg <span class="st">&quot; --regex &lt;macro-id&gt;&quot;</span>
+        , prg <span class="st">&quot;[--test]&quot;</span>
+        , prg <span class="st">&quot;(-|&lt;in-file&gt;) [-|&lt;out-fileß&gt;]&quot;</span>
+        ]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">
+<span class="co">--</span>
+<span class="co">-- go</span>
+<span class="co">--</span>
+
+<span class="ot">test ::</span> <span class="dt">IO</span> ()
+test <span class="fu">=</span> <span class="kw">do</span>
+  putStrLn <span class="st">&quot;============================================================&quot;</span>
+  putStrLn <span class="st">&quot;Testing the macro environment.&quot;</span>
+  putStrLn <span class="st">&quot;nginx-log-processor&quot;</span>
+  dumpMacroTable        <span class="st">&quot;nginx-log-processor&quot;</span> regexType lp_env
+  me_ok <span class="ot">&lt;-</span> testMacroEnv <span class="st">&quot;nginx-log-processor&quot;</span> regexType lp_env
+  putStrLn <span class="st">&quot;============================================================&quot;</span>
+  putStrLn <span class="st">&quot;Testing the log processor on reference data.&quot;</span>
+  putStrLn <span class="st">&quot;&quot;</span>
+  lp_ok <span class="ot">&lt;-</span> test_log_processor
+  putStrLn <span class="st">&quot;============================================================&quot;</span>
+  <span class="kw">case</span> me_ok <span class="fu">&amp;&amp;</span> lp_ok <span class="kw">of</span>
+    <span class="dt">True</span>  <span class="ot">-&gt;</span> return ()
+    <span class="dt">False</span> <span class="ot">-&gt;</span> exitWith <span class="fu">$</span> <span class="dt">ExitFailure</span> <span class="dv">1</span>
+
+
+<span class="ot">test_log_processor ::</span> <span class="dt">IO</span> <span class="dt">Bool</span>
+test_log_processor <span class="fu">=</span> <span class="kw">do</span>
+    createDirectoryIfMissing <span class="dt">False</span> <span class="st">&quot;tmp&quot;</span>
+    go <span class="dt">False</span> <span class="st">&quot;data/access-errors.log&quot;</span> <span class="st">&quot;tmp/events.log&quot;</span>
+    cmp <span class="st">&quot;tmp/events.log&quot;</span> <span class="st">&quot;data/events.log&quot;</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">
+<span class="co">--</span>
+<span class="co">-- go</span>
+<span class="co">--</span>
+
+<span class="ot">go ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+go rprt_flg in_file out_file <span class="fu">=</span> <span class="kw">do</span>
+  ctx <span class="ot">&lt;-</span> setup rprt_flg
+  sed (script ctx) in_file out_file</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">SedScript</span> <span class="dt">RE</span>
+script ctx <span class="fu">=</span> <span class="dt">Select</span>
+    [ on [re_|@{access}|]     <span class="dt">Acc</span> parse_access
+    , on [re_|@{access_deg}|] <span class="dt">AcQ</span> parse_deg_access
+    , on [re_|@{error}|]      <span class="dt">Err</span> parse_error
+    , on [re_|.*|]            <span class="dt">QQQ</span> parse_def
+    ]
+  <span class="kw">where</span>
+    on rex src prs <span class="fu">=</span>
+      (,) (rex lpo) <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> process_line ctx src prs
+
+    parse_def      <span class="fu">=</span> fmap capturedText <span class="fu">.</span> matchCapture</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">process_line ::</span> <span class="dt">IsEvent</span> a
+             <span class="ot">=&gt;</span> <span class="dt">Ctx</span>
+             <span class="ot">-&gt;</span> <span class="dt">Source</span>
+             <span class="ot">-&gt;</span> (<span class="dt">Match</span> <span class="dt">LBS.ByteString</span><span class="ot">-&gt;</span><span class="dt">Maybe</span> a)
+             <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
+             <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
+             <span class="ot">-&gt;</span> <span class="dt">Location</span>
+             <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
+             <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
+process_line ctx src prs lno cs _ _ <span class="fu">=</span> <span class="kw">do</span>
+    when (event_is_notifiable event) <span class="fu">$</span>
+      flag_event ctx event
+    return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> presentEvent event
+  <span class="kw">where</span>
+    event     <span class="fu">=</span> maybe def_event (mkEvent lno src) <span class="fu">$</span> prs cs
+
+    def_event <span class="fu">=</span>
+      <span class="dt">Event</span>
+        { _event_line     <span class="fu">=</span> lno
+        , _event_source   <span class="fu">=</span> src
+        , _event_utc      <span class="fu">=</span> read <span class="st">&quot;1970-01-01 00:00:00&quot;</span>
+        , _event_severity <span class="fu">=</span> <span class="dt">Nothing</span>
+        , _event_address  <span class="fu">=</span> (<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>)
+        , _event_details  <span class="fu">=</span> <span class="st">&quot;&quot;</span>
+        }
+
+
+<span class="co">--</span>
+<span class="co">-- Ctx, setup, event_is_notifiable, flag_event</span>
+<span class="co">--</span>
+
+<span class="kw">type</span> <span class="dt">Ctx</span> <span class="fu">=</span> <span class="dt">Bool</span>
+
+<span class="ot">setup ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Ctx</span>
+setup <span class="fu">=</span> return
+
+<span class="ot">event_is_notifiable ::</span> <span class="dt">Event</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+event_is_notifiable <span class="dt">Event</span>{<span class="fu">..</span>} <span class="fu">=</span>
+  fromEnum (fromMaybe <span class="dt">Debug</span> _event_severity) <span class="fu">&lt;=</span> fromEnum <span class="dt">Error</span>
+
+<span class="ot">flag_event ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">Event</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+flag_event <span class="dt">False</span> <span class="fu">=</span> const <span class="fu">$</span> return ()
+flag_event <span class="dt">True</span>  <span class="fu">=</span> LBS.hPutStrLn stderr <span class="fu">.</span> presentEvent
+
+
+<span class="co">--</span>
+<span class="co">-- Event, presentEvent, IsEvent</span>
+<span class="co">--</span>
+
+<span class="kw">data</span> <span class="dt">Event</span> <span class="fu">=</span>
+  <span class="dt">Event</span>
+    {<span class="ot"> _event_line     ::</span> <span class="dt">LineNo</span>
+    ,<span class="ot"> _event_source   ::</span> <span class="dt">Source</span>
+    ,<span class="ot"> _event_utc      ::</span> <span class="dt">UTCTime</span>
+    ,<span class="ot"> _event_severity ::</span> <span class="dt">Maybe</span> <span class="dt">Priority</span>
+    ,<span class="ot"> _event_address  ::</span> <span class="dt">IPV4Address</span>
+    ,<span class="ot"> _event_details  ::</span> <span class="dt">LBS.ByteString</span>
+    }
+  <span class="kw">deriving</span> (<span class="dt">Show</span>)
+
+<span class="kw">data</span> <span class="dt">Source</span> <span class="fu">=</span> <span class="dt">Acc</span> <span class="fu">|</span> <span class="dt">AcQ</span> <span class="fu">|</span> <span class="dt">Err</span> <span class="fu">|</span> <span class="dt">QQQ</span>
+  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Read</span>)
+
+<span class="ot">presentEvent ::</span> <span class="dt">Event</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
+presentEvent <span class="dt">Event</span>{<span class="fu">..</span>} <span class="fu">=</span> LBS.pack <span class="fu">$</span>
+  printf <span class="st">&quot;%04d %s %s %-7s %3d.%3d.%3d.%3d [%s]&quot;</span>
+    (getLineNo                _event_line    )
+    (show                     _event_source  )
+    (show                     _event_utc     )
+    (maybe <span class="st">&quot;-&quot;</span> svrty_kw       _event_severity)
+                              a b c d
+    (LBS.unpack               _event_details )
+  <span class="kw">where</span>
+    (a,b,c,d) <span class="fu">=</span> _event_address
+
+    svrty_kw  <span class="fu">=</span> fst <span class="fu">.</span> syslogSeverityKeywords
+
+<span class="kw">class</span> <span class="dt">IsEvent</span> a <span class="kw">where</span>
+<span class="ot">  mkEvent ::</span> <span class="dt">LineNo</span> <span class="ot">-&gt;</span> <span class="dt">Source</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Event</span>
+
+<span class="kw">instance</span> <span class="dt">IsEvent</span> <span class="dt">Access</span> <span class="kw">where</span>
+  mkEvent lno src <span class="dt">Access</span>{<span class="fu">..</span>} <span class="fu">=</span>
+    <span class="dt">Event</span>
+      { _event_line     <span class="fu">=</span> lno
+      , _event_source   <span class="fu">=</span> src
+      , _event_utc      <span class="fu">=</span> _a_time_local
+      , _event_severity <span class="fu">=</span> <span class="dt">Nothing</span>
+      , _event_address  <span class="fu">=</span> _a_remote_addr
+      , _event_details  <span class="fu">=</span> LBS.pack <span class="fu">$</span>
+          printf <span class="st">&quot;%s %d %d %s %s %s&quot;</span>
+            _a_request
+            _a_status
+            _a_body_bytes
+            _a_http_referrer
+            _a_http_user_agent
+            _a_other
+      }
+
+<span class="kw">instance</span> <span class="dt">IsEvent</span> <span class="dt">Error</span> <span class="kw">where</span>
+  mkEvent lno src <span class="dt">ERROR</span>{<span class="fu">..</span>} <span class="fu">=</span>
+    <span class="dt">Event</span>
+      { _event_line     <span class="fu">=</span> lno
+      , _event_source   <span class="fu">=</span> src
+      , _event_utc      <span class="fu">=</span> <span class="dt">UTCTime</span> _e_date <span class="fu">$</span> timeOfDayToTime _e_time
+      , _event_severity <span class="fu">=</span> <span class="dt">Just</span> _e_severity
+      , _event_address  <span class="fu">=</span> (<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>)
+      , _event_details  <span class="fu">=</span> LBS.pack <span class="fu">$</span> printf <span class="st">&quot;%d#%d: %s&quot;</span> pid tid <span class="fu">$</span> LBS.unpack _e_other
+      }
+    <span class="kw">where</span>
+      (pid,tid) <span class="fu">=</span> _e_pid_tid
+
+<span class="kw">instance</span> <span class="dt">IsEvent</span> <span class="dt">LBS.ByteString</span> <span class="kw">where</span>
+  mkEvent lno src lbs <span class="fu">=</span>
+    <span class="dt">Event</span>
+      { _event_line     <span class="fu">=</span> lno
+      , _event_source   <span class="fu">=</span> src
+      , _event_utc      <span class="fu">=</span> read <span class="st">&quot;1970-01-01 00:00:00&quot;</span>
+      , _event_severity <span class="fu">=</span> <span class="dt">Nothing</span>
+      , _event_address  <span class="fu">=</span> (<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>)
+      , _event_details  <span class="fu">=</span> lbs
+      }
+
+
+<span class="co">--</span>
+<span class="co">-- Options and Prelude</span>
+<span class="co">--</span>
+
+<span class="ot">lpo ::</span> <span class="dt">Options</span>
+lpo <span class="fu">=</span> makeOptions lp_prelude
+
+<span class="ot">lp_prelude ::</span> <span class="dt">Macros</span> <span class="dt">RE</span>
+lp_prelude <span class="fu">=</span> runIdentity <span class="fu">$</span> mkMacros mk regexType <span class="dt">ExclCaptures</span> lp_env
+  <span class="kw">where</span>
+    mk   <span class="fu">=</span> maybe oops <span class="dt">Identity</span> <span class="fu">.</span> compileRegex noPreludeOptions
+
+    oops <span class="fu">=</span> error <span class="st">&quot;lp_prelude&quot;</span>
+
+<span class="ot">lp_macro_table ::</span> <span class="dt">String</span>
+lp_macro_table <span class="fu">=</span> formatMacroTable regexType lp_env
+
+<span class="ot">lp_macro_summary ::</span> <span class="dt">MacroID</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+lp_macro_summary <span class="fu">=</span> formatMacroSummary regexType lp_env
+
+<span class="ot">lp_macro_sources ::</span> <span class="dt">String</span>
+lp_macro_sources <span class="fu">=</span> formatMacroSources regexType <span class="dt">ExclCaptures</span> lp_env
+
+<span class="ot">lp_macro_source ::</span> <span class="dt">MacroID</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+lp_macro_source <span class="fu">=</span> formatMacroSource regexType <span class="dt">ExclCaptures</span> lp_env
+
+<span class="ot">lp_env ::</span> <span class="dt">MacroEnv</span>
+lp_env <span class="fu">=</span> preludeEnv <span class="ot">`HML.union`</span> HML.fromList
+    [ f <span class="st">&quot;user&quot;</span>        user_macro
+    , f <span class="st">&quot;pid#tid:&quot;</span>    pid_tid_macro
+    , f <span class="st">&quot;access&quot;</span>      access_macro
+    , f <span class="st">&quot;access_deg&quot;</span>  access_deg_macro
+    , f <span class="st">&quot;error&quot;</span>       error_macro
+    ]
+  <span class="kw">where</span>
+    f mid mk <span class="fu">=</span> (mid, mk lp_env mid)
+
+
+<span class="co">--</span>
+<span class="co">-- The Macro Descriptors</span>
+<span class="co">--</span>
+
+<span class="ot">user_macro ::</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">MacroID</span> <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span>
+user_macro env mid <span class="fu">=</span>
+  runTests regexType parse_user samples env mid
+    <span class="dt">MacroDescriptor</span>
+      { _md_source          <span class="fu">=</span> <span class="st">&quot;(?:-|[^[:space:]]+)&quot;</span>
+      , _md_samples         <span class="fu">=</span> map fst samples
+      , _md_counter_samples <span class="fu">=</span> counter_samples
+      , _md_test_results    <span class="fu">=</span> def_test_results
+      , _md_parser          <span class="fu">=</span> <span class="dt">Just</span> <span class="st">&quot;parse_user&quot;</span>
+      , _md_description     <span class="fu">=</span> <span class="st">&quot;a user ident (per RFC1413)&quot;</span>
+      }
+  <span class="kw">where</span>
+<span class="ot">    samples ::</span> [(<span class="dt">String</span>,<span class="dt">User</span>)]
+    samples <span class="fu">=</span>
+        [ f <span class="st">&quot;joe&quot;</span>
+        ]
+      <span class="kw">where</span>
+        f nm <span class="fu">=</span> (nm,<span class="dt">User</span> <span class="fu">$</span> LBS.pack nm)
+
+    counter_samples <span class="fu">=</span>
+        [ <span class="st">&quot;joe user&quot;</span>
+        ]
+
+<span class="ot">pid_tid_macro ::</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">MacroID</span> <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span>
+pid_tid_macro env mid <span class="fu">=</span>
+  runTests regexType parse_pid_tid samples env mid
+    <span class="dt">MacroDescriptor</span>
+      { _md_source          <span class="fu">=</span> <span class="st">&quot;(?:@{%natural})#(?:@{%natural}):&quot;</span>
+      , _md_samples         <span class="fu">=</span> map fst samples
+      , _md_counter_samples <span class="fu">=</span> counter_samples
+      , _md_test_results    <span class="fu">=</span> def_test_results
+      , _md_parser          <span class="fu">=</span> <span class="dt">Just</span> <span class="st">&quot;parse_pid_tid&quot;</span>
+      , _md_description     <span class="fu">=</span> <span class="st">&quot;&lt;PID&gt;#&lt;TID&gt;:&quot;</span>
+      }
+  <span class="kw">where</span>
+<span class="ot">    samples ::</span> [(<span class="dt">String</span>,(<span class="dt">Int</span>,<span class="dt">Int</span>))]
+    samples <span class="fu">=</span>
+        [ f <span class="st">&quot;1378#0:&quot;</span> (<span class="dv">1378</span>,<span class="dv">0</span>)
+        ]
+      <span class="kw">where</span>
+        f <span class="fu">=</span> (,)
+
+    counter_samples <span class="fu">=</span>
+        [ <span class="st">&quot;&quot;</span>
+        , <span class="st">&quot;24#:&quot;</span>
+        , <span class="st">&quot;24.365:&quot;</span>
+        ]
+
+<span class="ot">access_macro ::</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">MacroID</span> <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span>
+access_macro env mid <span class="fu">=</span>
+  runTests&#39; regexType (parse_access <span class="fu">.</span> fmap LBS.pack) samples env mid
+    <span class="dt">MacroDescriptor</span>
+      { _md_source          <span class="fu">=</span> access_re
+      , _md_samples         <span class="fu">=</span> map fst samples
+      , _md_counter_samples <span class="fu">=</span> counter_samples
+      , _md_test_results    <span class="fu">=</span> def_test_results
+      , _md_parser          <span class="fu">=</span> <span class="dt">Just</span> <span class="st">&quot;parse_a&quot;</span>
+      , _md_description     <span class="fu">=</span> <span class="st">&quot;an Nginx access log file line&quot;</span>
+      }
+  <span class="kw">where</span>
+<span class="ot">    samples ::</span> [(<span class="dt">String</span>,<span class="dt">Access</span>)]
+    samples <span class="fu">=</span>
+        [ (,) <span class="st">&quot;192.168.100.200 - - [12/Jan/2016:12:08:36 +0000] \&quot;GET / HTTP/1.1\&quot; 200 3700 \&quot;-\&quot; \&quot;My Agent\&quot; \&quot;-\&quot;&quot;</span>
+            <span class="dt">Access</span>
+              { _a_remote_addr      <span class="fu">=</span> (<span class="dv">192</span>,<span class="dv">168</span>,<span class="dv">100</span>,<span class="dv">200</span>)
+              , _a_remote_user      <span class="fu">=</span> <span class="st">&quot;-&quot;</span>
+              , _a_time_local       <span class="fu">=</span> read <span class="st">&quot;2016-01-12 12:08:36 UTC&quot;</span>
+              , _a_request          <span class="fu">=</span> <span class="st">&quot;GET / HTTP/1.1&quot;</span>
+              , _a_status           <span class="fu">=</span> <span class="dv">200</span>
+              , _a_body_bytes       <span class="fu">=</span> <span class="dv">3700</span>
+              , _a_http_referrer    <span class="fu">=</span> <span class="st">&quot;-&quot;</span>
+              , _a_http_user_agent  <span class="fu">=</span> <span class="st">&quot;My Agent&quot;</span>
+              , _a_other            <span class="fu">=</span> <span class="st">&quot;-&quot;</span>
+              }
+        ]
+
+    counter_samples <span class="fu">=</span>
+        [ <span class="st">&quot;&quot;</span>
+        , <span class="st">&quot; -  [] \&quot;\&quot;   \&quot;\&quot; \&quot;\&quot; \&quot;\&quot;&quot;</span>
+        ]
+
+<span class="ot">access_deg_macro ::</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">MacroID</span> <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span>
+access_deg_macro env mid <span class="fu">=</span>
+  runTests&#39; regexType (parse_deg_access <span class="fu">.</span> fmap LBS.pack) samples env mid
+    <span class="dt">MacroDescriptor</span>
+      { _md_source          <span class="fu">=</span> <span class="st">&quot; -  \\[\\] \&quot;\&quot;   \&quot;\&quot; \&quot;\&quot; \&quot;\&quot;&quot;</span>
+      , _md_samples         <span class="fu">=</span> map fst samples
+      , _md_counter_samples <span class="fu">=</span> counter_samples
+      , _md_test_results    <span class="fu">=</span> def_test_results
+      , _md_parser          <span class="fu">=</span> <span class="dt">Nothing</span>
+      , _md_description     <span class="fu">=</span> <span class="st">&quot;a degenerate Nginx access log file line&quot;</span>
+      }
+  <span class="kw">where</span>
+<span class="ot">    samples ::</span> [(<span class="dt">String</span>,<span class="dt">Access</span>)]
+    samples <span class="fu">=</span>
+        [ (,) <span class="st">&quot; -  [] \&quot;\&quot;   \&quot;\&quot; \&quot;\&quot; \&quot;\&quot;&quot;</span> deg_access
+        ]
+
+    counter_samples <span class="fu">=</span>
+        [ <span class="st">&quot;&quot;</span>
+        , <span class="st">&quot;foo&quot;</span>
+        ]
+
+<span class="ot">error_macro ::</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">MacroID</span> <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span>
+error_macro env mid <span class="fu">=</span>
+  runTests&#39; regexType (parse_error <span class="fu">.</span> fmap LBS.pack) samples env mid
+    <span class="dt">MacroDescriptor</span>
+      { _md_source          <span class="fu">=</span> error_re
+      , _md_samples         <span class="fu">=</span> map fst samples
+      , _md_counter_samples <span class="fu">=</span> counter_samples
+      , _md_test_results    <span class="fu">=</span> def_test_results
+      , _md_parser          <span class="fu">=</span> <span class="dt">Just</span> <span class="st">&quot;parse_e&quot;</span>
+      , _md_description     <span class="fu">=</span> <span class="st">&quot;an Nginx error log file line&quot;</span>
+      }
+  <span class="kw">where</span>
+<span class="ot">    samples ::</span> [(<span class="dt">String</span>,<span class="dt">Error</span>)]
+    samples <span class="fu">=</span>
+        [ (,) <span class="st">&quot;2016/12/21 11:53:35 [emerg] 1378#0: foo&quot;</span>
+            <span class="dt">ERROR</span>
+              { _e_date     <span class="fu">=</span> read <span class="st">&quot;2016-12-21&quot;</span>
+              , _e_time     <span class="fu">=</span> read <span class="st">&quot;11:53:35&quot;</span>
+              , _e_severity <span class="fu">=</span> <span class="dt">Emergency</span>
+              , _e_pid_tid  <span class="fu">=</span> (<span class="dv">1378</span>,<span class="dv">0</span>)
+              , _e_other    <span class="fu">=</span> <span class="st">&quot; foo&quot;</span>
+              }
+        , (,) <span class="st">&quot;2017/01/04 05:40:19 [error] 31623#0: *1861296 no \&quot;ssl_certificate\&quot; is defined in server listening on SSL port while SSL handshaking, client: 192.168.31.38, server: 0.0.0.0:80&quot;</span>
+            <span class="dt">ERROR</span>
+              { _e_date     <span class="fu">=</span> read <span class="st">&quot;2017-01-04&quot;</span>
+              , _e_time     <span class="fu">=</span> read <span class="st">&quot;05:40:19&quot;</span>
+              , _e_severity <span class="fu">=</span> <span class="dt">Error</span>
+              , _e_pid_tid  <span class="fu">=</span> (<span class="dv">31623</span>,<span class="dv">0</span>)
+              , _e_other    <span class="fu">=</span> <span class="st">&quot; *1861296 no \&quot;ssl_certificate\&quot; is defined in server listening on SSL port while SSL handshaking, client: 192.168.31.38, server: 0.0.0.0:80&quot;</span>
+              }
+        ]
+
+    counter_samples <span class="fu">=</span>
+        [ <span class="st">&quot;&quot;</span>
+        , <span class="st">&quot;foo&quot;</span>
+        ]
+
+<span class="ot">def_test_results ::</span> [<span class="dt">TestResult</span>]
+def_test_results <span class="fu">=</span> error <span class="st">&quot;def_test_results&quot;</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">
+<span class="co">--</span>
+<span class="co">-- Access, access_re, deg_access, parse_deg_access, parse_access</span>
+<span class="co">--</span>
+
+<span class="kw">data</span> <span class="dt">Access</span> <span class="fu">=</span>
+  <span class="dt">Access</span>
+    {<span class="ot"> _a_remote_addr      ::</span> <span class="dt">IPV4Address</span>
+    ,<span class="ot"> _a_remote_user      ::</span> <span class="dt">User</span>
+    ,<span class="ot"> _a_time_local       ::</span> <span class="dt">UTCTime</span>
+    ,<span class="ot"> _a_request          ::</span> <span class="dt">String</span>
+    ,<span class="ot"> _a_status           ::</span> <span class="dt">Int</span>
+    ,<span class="ot"> _a_body_bytes       ::</span> <span class="dt">Int</span>
+    ,<span class="ot"> _a_http_referrer    ::</span> <span class="dt">String</span>
+    ,<span class="ot"> _a_http_user_agent  ::</span> <span class="dt">String</span>
+    ,<span class="ot"> _a_other            ::</span> <span class="dt">String</span>
+    }
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>,<span class="dt">Show</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">access_re ::</span> <span class="dt">RegexSource</span>
+access_re <span class="fu">=</span> <span class="dt">RegexSource</span> <span class="fu">$</span> unwords
+  [ <span class="st">&quot;(@{%address.ipv4})&quot;</span>
+  , <span class="st">&quot;-&quot;</span>
+  , <span class="st">&quot;(@{user})&quot;</span>
+  , <span class="st">&quot;\\[(@{%datetime.clf})\\]&quot;</span>
+  , <span class="st">&quot;(@{%string.simple})&quot;</span>
+  , <span class="st">&quot;(@{%natural})&quot;</span>
+  , <span class="st">&quot;(@{%natural})&quot;</span>
+  , <span class="st">&quot;(@{%string.simple})&quot;</span>
+  , <span class="st">&quot;(@{%string.simple})&quot;</span>
+  , <span class="st">&quot;(@{%string.simple})&quot;</span>
+  ]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">deg_access ::</span> <span class="dt">Access</span>
+deg_access <span class="fu">=</span>
+  <span class="dt">Access</span>
+    { _a_remote_addr      <span class="fu">=</span> (<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>)
+    , _a_remote_user      <span class="fu">=</span> <span class="st">&quot;-&quot;</span>
+    , _a_time_local       <span class="fu">=</span> read <span class="st">&quot;1970-01-01 00:00:00&quot;</span>
+    , _a_request          <span class="fu">=</span> <span class="st">&quot;&quot;</span>
+    , _a_status           <span class="fu">=</span> <span class="dv">0</span>
+    , _a_body_bytes       <span class="fu">=</span> <span class="dv">0</span>
+    , _a_http_referrer    <span class="fu">=</span> <span class="st">&quot;&quot;</span>
+    , _a_http_user_agent  <span class="fu">=</span> <span class="st">&quot;&quot;</span>
+    , _a_other            <span class="fu">=</span> <span class="st">&quot;&quot;</span>
+    }
+
+<span class="ot">parse_deg_access ::</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">Access</span>
+parse_deg_access <span class="dt">Match</span>{<span class="fu">..</span>} <span class="fu">=</span>
+  <span class="kw">case</span> matchSource <span class="fu">==</span> <span class="st">&quot; -  [] \&quot;\&quot;   \&quot;\&quot; \&quot;\&quot; \&quot;\&quot;&quot;</span> <span class="kw">of</span>
+    <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Just</span> deg_access
+    <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span>
+
+<span class="ot">parse_a ::</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">Access</span>
+parse_a lbs <span class="fu">=</span> parse_access <span class="fu">$</span> lbs <span class="fu">?=~</span> [re_|@{access}|] lpo
+
+<span class="ot">parse_access ::</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">Access</span>
+parse_access cs <span class="fu">=</span>
+  <span class="dt">Access</span>
+    <span class="fu">&lt;$&gt;</span> f parseIPv4Address  [cp|1|]
+    <span class="fu">&lt;*&gt;</span> f parse_user        [cp|2|]
+    <span class="fu">&lt;*&gt;</span> f parseDateTimeCLF  [cp|3|]
+    <span class="fu">&lt;*&gt;</span> f parseSimpleString [cp|4|]
+    <span class="fu">&lt;*&gt;</span> f parseInteger      [cp|5|]
+    <span class="fu">&lt;*&gt;</span> f parseInteger      [cp|6|]
+    <span class="fu">&lt;*&gt;</span> f parseSimpleString [cp|7|]
+    <span class="fu">&lt;*&gt;</span> f parseSimpleString [cp|8|]
+    <span class="fu">&lt;*&gt;</span> f parseSimpleString [cp|9|]
+  <span class="kw">where</span>
+    f psr i <span class="fu">=</span> psr <span class="fu">$</span> capturedText <span class="fu">$</span> capture i cs
+
+
+<span class="co">--</span>
+<span class="co">-- Error, error_re, parse_error</span>
+<span class="co">--</span>
+
+<span class="kw">data</span> <span class="dt">Error</span> <span class="fu">=</span>
+  <span class="dt">ERROR</span>
+    {<span class="ot"> _e_date     ::</span> <span class="dt">Day</span>
+    ,<span class="ot"> _e_time     ::</span> <span class="dt">TimeOfDay</span>
+    ,<span class="ot"> _e_severity ::</span> <span class="dt">Priority</span>
+    ,<span class="ot"> _e_pid_tid  ::</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)
+    ,<span class="ot"> _e_other    ::</span> <span class="dt">LBS.ByteString</span>
+    }
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>,<span class="dt">Show</span>)
+
+<span class="ot">error_re ::</span> <span class="dt">RegexSource</span>
+error_re <span class="fu">=</span> <span class="dt">RegexSource</span> <span class="fu">$</span> unwords
+  [ <span class="st">&quot;(@{%date.slashes})&quot;</span>
+  , <span class="st">&quot;(@{%time})&quot;</span>
+  , <span class="st">&quot;\\[(@{%syslog.severity})\\]&quot;</span>
+  , <span class="st">&quot;(@{pid#tid:})(.*)&quot;</span>
+  ]
+
+<span class="ot">parse_e ::</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">Error</span>
+parse_e lbs <span class="fu">=</span> parse_error <span class="fu">$</span> lbs <span class="fu">?=~</span> [re_|@{error}|] lpo
+
+<span class="ot">parse_error ::</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">Error</span>
+parse_error cs <span class="fu">=</span>
+  <span class="dt">ERROR</span>
+    <span class="fu">&lt;$&gt;</span> f parseSlashesDate    [cp|1|]
+    <span class="fu">&lt;*&gt;</span> f parseTimeOfDay      [cp|2|]
+    <span class="fu">&lt;*&gt;</span> f parseSyslogSeverity [cp|3|]
+    <span class="fu">&lt;*&gt;</span> f parse_pid_tid       [cp|4|]
+    <span class="fu">&lt;*&gt;</span> f <span class="dt">Just</span>                [cp|5|]
+  <span class="kw">where</span>
+    f psr i <span class="fu">=</span> psr <span class="fu">$</span> capturedText <span class="fu">$</span> capture i cs
+
+
+<span class="co">--</span>
+<span class="co">-- User, parseUser</span>
+<span class="co">--</span>
+
+<span class="kw">newtype</span> <span class="dt">User</span> <span class="fu">=</span>
+    <span class="dt">User</span> {<span class="ot"> _User ::</span> <span class="dt">LBS.ByteString</span> }
+  <span class="kw">deriving</span> (<span class="dt">IsString</span>,<span class="dt">Ord</span>,<span class="dt">Eq</span>,<span class="dt">Show</span>)
+
+<span class="ot">parse_user ::</span> <span class="dt">Replace</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">User</span>
+parse_user <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">.</span> <span class="dt">User</span> <span class="fu">.</span> LBS.pack <span class="fu">.</span> unpack_
+
+
+<span class="co">--</span>
+<span class="co">-- parse_pid_tid</span>
+<span class="co">--</span>
+
+<span class="ot">parse_pid_tid ::</span> <span class="dt">Replace</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)
+parse_pid_tid x <span class="fu">=</span> <span class="kw">case</span> allMatches <span class="fu">$</span> unpack_ x <span class="fu">S.*=~</span> [re|@{%natural}|] <span class="kw">of</span>
+    [cs,cs&#39;] <span class="ot">-&gt;</span> (,) <span class="fu">&lt;$&gt;</span> p cs <span class="fu">&lt;*&gt;</span> p cs&#39;
+    _        <span class="ot">-&gt;</span> <span class="dt">Nothing</span>
+  <span class="kw">where</span>
+    p cs <span class="fu">=</span> matchCapture cs <span class="fu">&gt;&gt;=</span> parseInteger <span class="fu">.</span> capturedText
+
+
+<span class="co">--</span>
+<span class="co">-- cmp</span>
+<span class="co">--</span>
+
+<span class="ot">cmp ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span>
+cmp src dst <span class="fu">=</span> handle hdl <span class="fu">$</span> <span class="kw">do</span>
+    _ <span class="ot">&lt;-</span> SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span>
+        SH.run <span class="st">&quot;cmp&quot;</span> [src,dst]
+    return <span class="dt">True</span>
+  <span class="kw">where</span>
+<span class="ot">    hdl ::</span> <span class="dt">SomeException</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span>
+    hdl se <span class="fu">=</span> <span class="kw">do</span>
+      hPutStrLn stderr <span class="fu">$</span>
+        <span class="st">&quot;testing results against model answers failed: &quot;</span> <span class="fu">++</span> show se
+      return <span class="dt">False</span></code></pre></div>
+</body>
+</html>

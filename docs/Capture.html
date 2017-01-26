@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="lib/styles.css" type="text/css" />
+  <link rel="stylesheet" href="lib/bs.css" type="text/css" />
+</head>
+<body>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/Text/RE/Capture.lhs'>RE/Capture</a></ol>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<span class="ot">{-# LANGUAGE FlexibleInstances          #-}</span>
+<span class="ot">{-# LANGUAGE UndecidableInstances       #-}</span>
+<span class="ot">{-# LANGUAGE MultiParamTypeClasses      #-}</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">Text.RE.Capture</span>
+  ( <span class="dt">Matches</span>(<span class="fu">..</span>)
+  , <span class="dt">Match</span>(<span class="fu">..</span>)
+  , <span class="dt">Capture</span>(<span class="fu">..</span>)
+  <span class="co">-- Matches functions</span>
+  , anyMatches
+  , countMatches
+  , matches
+  , mainCaptures
+  <span class="co">-- Match functions</span>
+  , matched
+  , matchedText
+  , matchCapture
+  , matchCaptures
+  , captureText
+  , captureTextMaybe
+  , capture
+  , captureMaybe
+  <span class="co">-- Capture functions</span>
+  , hasCaptured
+  , capturePrefix
+  , captureSuffix
+  ) <span class="kw">where</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import           </span><span class="dt">Data.Array</span>
+<span class="kw">import           </span><span class="dt">Data.Maybe</span>
+<span class="kw">import           </span><span class="dt">Text.Regex.Base</span>
+<span class="kw">import           </span><span class="dt">Text.RE.CaptureID</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the result type to use when every match is needed, not just the</span>
+<span class="co">-- first match of the RE against the source</span>
+<span class="kw">data</span> <span class="dt">Matches</span> a <span class="fu">=</span>
+  <span class="dt">Matches</span>
+    {<span class="ot"> matchesSource ::</span> <span class="fu">!</span>a          <span class="co">-- ^ the source text being matched</span>
+    ,<span class="ot"> allMatches    ::</span> [<span class="dt">Match</span> a]   <span class="co">-- ^ all captures found, left to right</span>
+    }
+  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the result of matching a RE to a text once, listing the text that</span>
+<span class="co">-- was matched and the named captures in the RE and all of the substrings</span>
+<span class="co">-- matched, with the text captured by the whole RE; a complete failure</span>
+<span class="co">-- to match will be represented with an empty array (with bounds (0,-1))</span>
+<span class="kw">data</span> <span class="dt">Match</span> a <span class="fu">=</span>
+  <span class="dt">Match</span>
+    {<span class="ot"> matchSource  ::</span> <span class="fu">!</span>a                <span class="co">-- ^ the whole source text</span>
+    ,<span class="ot"> captureNames ::</span> <span class="dt">CaptureNames</span>      <span class="co">-- ^ the RE&#39;s capture names</span>
+    ,<span class="ot"> matchArray   ::</span> <span class="fu">!</span>(<span class="dt">Array</span> <span class="dt">CaptureOrdinal</span> (<span class="dt">Capture</span> a))
+                                        <span class="co">-- ^ 0..n-1 captures,</span>
+                                        <span class="co">-- starting with the</span>
+                                        <span class="co">-- text matched by the</span>
+                                        <span class="co">-- whole RE</span>
+    }
+  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the matching of a single sub-expression against part of the source</span>
+<span class="co">-- text</span>
+<span class="kw">data</span> <span class="dt">Capture</span> a <span class="fu">=</span>
+  <span class="dt">Capture</span>
+    {<span class="ot"> captureSource  ::</span> <span class="fu">!</span>a    <span class="co">-- ^ the whole text that was searched</span>
+    ,<span class="ot"> capturedText   ::</span> <span class="fu">!</span>a    <span class="co">-- ^ the text that was matched</span>
+    ,<span class="ot"> captureOffset  ::</span> <span class="fu">!</span><span class="dt">Int</span>  <span class="co">-- ^ the number of characters preceding the</span>
+                              <span class="co">-- match with -1 used if no text was captured</span>
+                              <span class="co">-- by the RE (not even the empty string)</span>
+    ,<span class="ot"> captureLength  ::</span> <span class="fu">!</span><span class="dt">Int</span>  <span class="co">-- ^ the number of chacter in the captured</span>
+                              <span class="co">-- sub-string</span>
+    }
+  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Matches</span> <span class="kw">where</span>
+  fmap f <span class="dt">Matches</span>{<span class="fu">..</span>} <span class="fu">=</span>
+    <span class="dt">Matches</span>
+      { matchesSource <span class="fu">=</span> f matchesSource
+      , allMatches   <span class="fu">=</span> map (fmap f) allMatches
+      }
+
+<span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Match</span> <span class="kw">where</span>
+  fmap f <span class="dt">Match</span>{<span class="fu">..</span>} <span class="fu">=</span>
+    <span class="dt">Match</span>
+      { matchSource  <span class="fu">=</span> f matchSource
+      , captureNames <span class="fu">=</span> captureNames
+      , matchArray   <span class="fu">=</span> fmap (fmap f) matchArray
+      }
+
+<span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Capture</span> <span class="kw">where</span>
+  fmap f c<span class="fu">@</span><span class="dt">Capture</span>{<span class="fu">..</span>} <span class="fu">=</span>
+    c
+      { captureSource <span class="fu">=</span> f captureSource
+      , capturedText <span class="fu">=</span> f capturedText
+      }</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | tests whether the RE matched the source text at all</span>
+<span class="ot">anyMatches ::</span> <span class="dt">Matches</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+anyMatches <span class="fu">=</span> not <span class="fu">.</span> null <span class="fu">.</span> allMatches
+
+<span class="co">-- | count the matches</span>
+<span class="ot">countMatches ::</span> <span class="dt">Matches</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>
+countMatches <span class="fu">=</span> length <span class="fu">.</span> allMatches
+
+<span class="ot">matches ::</span> <span class="dt">Matches</span> a <span class="ot">-&gt;</span> [a]
+matches <span class="fu">=</span> map capturedText <span class="fu">.</span> mainCaptures
+
+<span class="co">-- | extract the main capture from each match</span>
+<span class="ot">mainCaptures ::</span> <span class="dt">Matches</span> a <span class="ot">-&gt;</span> [<span class="dt">Capture</span> a]
+mainCaptures ac <span class="fu">=</span> [ capture c0 cs <span class="fu">|</span> cs<span class="ot">&lt;-</span>allMatches ac ]
+  <span class="kw">where</span>
+    c0 <span class="fu">=</span> <span class="dt">CID_ordinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="dv">0</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | tests whether the RE matched the source text at all</span>
+<span class="ot">matched ::</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+matched <span class="fu">=</span> isJust <span class="fu">.</span> matchCapture
+
+<span class="co">-- | tests whether the RE matched the source text at all</span>
+<span class="ot">matchedText ::</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a
+matchedText <span class="fu">=</span> fmap capturedText <span class="fu">.</span> matchCapture
+
+<span class="co">-- | the top-level capture if the source text matched the RE,</span>
+<span class="co">-- Nothing otherwise</span>
+<span class="ot">matchCapture ::</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">Capture</span> a)
+matchCapture <span class="fu">=</span> fmap fst <span class="fu">.</span> matchCaptures
+
+<span class="co">-- | the top-level capture and the sub captures if the text matched</span>
+<span class="co">-- the RE, Nothing otherwise</span>
+<span class="ot">matchCaptures ::</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">Capture</span> a,[<span class="dt">Capture</span> a])
+matchCaptures <span class="dt">Match</span>{<span class="fu">..</span>} <span class="fu">=</span> <span class="kw">case</span> rangeSize (bounds matchArray) <span class="fu">==</span> <span class="dv">0</span> <span class="kw">of</span>
+  <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Nothing</span>
+  <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="dt">Just</span> (matchArray<span class="fu">!</span><span class="dv">0</span>,drop <span class="dv">1</span> <span class="fu">$</span> elems matchArray)
+
+<span class="co">-- | look up the text of the nth capture, 0 being the match of the whole</span>
+<span class="co">-- RE against the source text, 1, the first bracketed sub-expression to</span>
+<span class="co">-- be matched and so on</span>
+<span class="ot">captureText ::</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> a
+captureText cid mtch <span class="fu">=</span> capturedText <span class="fu">$</span> capture cid mtch
+
+<span class="co">-- | look up the text of the nth capture (0 being the match of the</span>
+<span class="co">-- whole), returning Nothing if the Match doesn&#39;t contain the capture</span>
+<span class="ot">captureTextMaybe ::</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a
+captureTextMaybe cid mtch <span class="fu">=</span> <span class="kw">do</span>
+    cap <span class="ot">&lt;-</span> captureMaybe cid mtch
+    <span class="kw">case</span> hasCaptured cap <span class="kw">of</span>
+      <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Just</span> <span class="fu">$</span> capturedText cap
+      <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span>
+
+<span class="co">-- | look up the nth capture, 0 being the match of the whole RE against</span>
+<span class="co">-- the source text, 1, the first bracketed sub-expression to be matched</span>
+<span class="co">-- and so on</span>
+<span class="ot">capture ::</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Capture</span> a
+capture cid mtch <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> captureMaybe cid mtch
+  <span class="kw">where</span>
+    oops <span class="fu">=</span> error <span class="fu">$</span> <span class="st">&quot;capture: out of bounds (&quot;</span> <span class="fu">++</span> show cid <span class="fu">++</span> <span class="st">&quot;)&quot;</span>
+
+<span class="co">-- | look up the nth capture, 0 being the match of the whole RE against</span>
+<span class="co">-- the source text, 1, the first bracketed sub-expression to be matched</span>
+<span class="co">-- and so on, returning Nothing if there is no such capture, or if the</span>
+<span class="co">-- capture failed to capture anything (being in a failed alternate)</span>
+<span class="ot">captureMaybe ::</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">Capture</span> a)
+captureMaybe cid mtch<span class="fu">@</span><span class="dt">Match</span>{<span class="fu">..</span>} <span class="fu">=</span> <span class="kw">do</span>
+  cap <span class="ot">&lt;-</span> <span class="kw">case</span> bounds matchArray <span class="ot">`inRange`</span> <span class="dt">CaptureOrdinal</span> i <span class="kw">of</span>
+    <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Just</span> <span class="fu">$</span> matchArray <span class="fu">!</span> <span class="dt">CaptureOrdinal</span> i
+    <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span>
+  <span class="kw">case</span> hasCaptured cap <span class="kw">of</span>
+    <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Just</span> cap
+    <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span>
+  <span class="kw">where</span>
+    i <span class="fu">=</span> lookupCaptureID cid mtch
+
+<span class="ot">lookupCaptureID ::</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>
+lookupCaptureID cid <span class="dt">Match</span>{<span class="fu">..</span>} <span class="fu">=</span> findCaptureID cid captureNames</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | test if the capture has matched any text</span>
+<span class="ot">hasCaptured ::</span> <span class="dt">Capture</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+hasCaptured <span class="fu">=</span> (<span class="fu">&gt;=</span><span class="dv">0</span>) <span class="fu">.</span> captureOffset
+
+<span class="co">-- | returns the text preceding the match</span>
+<span class="ot">capturePrefix ::</span> <span class="dt">Extract</span> a <span class="ot">=&gt;</span> <span class="dt">Capture</span> a <span class="ot">-&gt;</span> a
+capturePrefix <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="fu">=</span> before captureOffset captureSource
+
+<span class="co">-- | returns the text after the match</span>
+<span class="ot">captureSuffix ::</span> <span class="dt">Extract</span> a <span class="ot">=&gt;</span> <span class="dt">Capture</span> a <span class="ot">-&gt;</span> a
+captureSuffix <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="fu">=</span> after (captureOffset<span class="fu">+</span>captureLength) captureSource</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | for matching just the first RE against the source text</span>
+<span class="kw">instance</span> <span class="dt">RegexContext</span> regex source (<span class="dt">AllTextSubmatches</span> (<span class="dt">Array</span> <span class="dt">Int</span>) (source,(<span class="dt">Int</span>,<span class="dt">Int</span>))) <span class="ot">=&gt;</span>
+  <span class="dt">RegexContext</span> regex source (<span class="dt">Match</span> source) <span class="kw">where</span>
+    match  r s <span class="fu">=</span> cvt s <span class="fu">$</span> getAllTextSubmatches <span class="fu">$</span> match r s
+    matchM r s <span class="fu">=</span> <span class="kw">do</span>
+      y <span class="ot">&lt;-</span> matchM r s
+      return <span class="fu">$</span> cvt s <span class="fu">$</span> getAllTextSubmatches y
+
+<span class="co">-- | for matching all REs against the source text</span>
+<span class="kw">instance</span> <span class="dt">RegexContext</span> regex source [<span class="dt">MatchText</span> source] <span class="ot">=&gt;</span>
+  <span class="dt">RegexContext</span> regex source (<span class="dt">Matches</span> source) <span class="kw">where</span>
+    match  r s <span class="fu">=</span> <span class="dt">Matches</span> s <span class="fu">$</span> map (cvt s) <span class="fu">$</span> match r s
+    matchM r s <span class="fu">=</span> <span class="kw">do</span>
+      y <span class="ot">&lt;-</span> matchM r s
+      return <span class="fu">$</span> <span class="dt">Matches</span> s <span class="fu">$</span> map (cvt s) y</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">cvt ::</span> source <span class="ot">-&gt;</span> <span class="dt">MatchText</span> source <span class="ot">-&gt;</span> <span class="dt">Match</span> source
+cvt hay arr <span class="fu">=</span>
+    <span class="dt">Match</span>
+      { matchSource  <span class="fu">=</span> hay
+      , captureNames <span class="fu">=</span> noCaptureNames
+      , matchArray   <span class="fu">=</span>
+          ixmap (<span class="dt">CaptureOrdinal</span> lo,<span class="dt">CaptureOrdinal</span> hi) getCaptureOrdinal <span class="fu">$</span>
+            fmap f arr
+      }
+  <span class="kw">where</span>
+    (lo,hi) <span class="fu">=</span> bounds arr
+
+    f (ndl,(off,len)) <span class="fu">=</span>
+      <span class="dt">Capture</span>
+        { captureSource <span class="fu">=</span> hay
+        , capturedText  <span class="fu">=</span> ndl
+        , captureOffset <span class="fu">=</span> off
+        , captureLength <span class="fu">=</span> len
+        }</code></pre></div>
+</body>
+</html>

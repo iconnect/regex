@@ -1,0 +1,407 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="lib/styles.css" type="text/css" />
+  <link rel="stylesheet" href="lib/bs.css" type="text/css" />
+</head>
+<body>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/examples/re-pp.lhs'>re-pp</a></ol>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
+<span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
+<span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
+<span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
+
+<span class="kw">module</span> <span class="dt">Main</span>
+  ( main
+  ) <span class="kw">where</span>
+
+<span class="kw">import           </span><span class="dt">Control.Applicative</span>
+<span class="kw">import           </span><span class="dt">Control.Monad</span>
+<span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>               <span class="kw">as</span> <span class="dt">LBS</span>
+<span class="kw">import           </span><span class="dt">Data.IORef</span>
+<span class="kw">import           </span><span class="dt">Data.Maybe</span>
+<span class="kw">import           </span><span class="dt">Data.Monoid</span>
+<span class="kw">import qualified</span> <span class="dt">Data.Text</span>                                <span class="kw">as</span> <span class="dt">T</span>
+<span class="kw">import qualified</span> <span class="dt">Shelly</span>                                   <span class="kw">as</span> <span class="dt">SH</span>
+<span class="kw">import           </span><span class="dt">System.Directory</span>
+<span class="kw">import           </span><span class="dt">System.Environment</span>
+<span class="kw">import           </span><span class="dt">TestKit</span>
+<span class="kw">import           </span><span class="dt">Text.Printf</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Edit</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TDFA.ByteString.Lazy</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TDFA.Text</span>                <span class="kw">as</span> <span class="dt">T</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Grep</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> <span class="kw">do</span>
+  as  <span class="ot">&lt;-</span> getArgs
+  <span class="kw">case</span> as <span class="kw">of</span>
+    []                          <span class="ot">-&gt;</span> test
+    [<span class="st">&quot;test&quot;</span>]                    <span class="ot">-&gt;</span> test
+    [<span class="st">&quot;doc&quot;</span>,fn,fn&#39;] <span class="fu">|</span> is_file fn <span class="ot">-&gt;</span> doc fn fn&#39;
+    [<span class="st">&quot;gen&quot;</span>,fn,fn&#39;] <span class="fu">|</span> is_file fn <span class="ot">-&gt;</span> gen fn fn&#39;
+    [<span class="st">&quot;all&quot;</span>]                     <span class="ot">-&gt;</span> gen_all
+    _                           <span class="ot">-&gt;</span> usage
+  <span class="kw">where</span>
+    is_file <span class="fu">=</span> not <span class="fu">.</span> (<span class="fu">==</span> <span class="st">&quot;--&quot;</span>) <span class="fu">.</span> take <span class="dv">2</span>
+
+    doc fn fn&#39; <span class="fu">=</span> docMode <span class="fu">&gt;&gt;=</span> \dm <span class="ot">-&gt;</span> loop dm fn fn&#39;
+    gen fn fn&#39; <span class="fu">=</span> genMode <span class="fu">&gt;&gt;=</span> \gm <span class="ot">-&gt;</span> loop gm fn fn&#39;
+
+    usage <span class="fu">=</span> <span class="kw">do</span>
+      pnm <span class="ot">&lt;-</span> getProgName
+      <span class="kw">let</span> prg <span class="fu">=</span> ((pnm<span class="fu">++</span><span class="st">&quot; &quot;</span>)<span class="fu">++</span>)
+      putStr <span class="fu">$</span> unlines
+        [ <span class="st">&quot;usage:&quot;</span>
+        , <span class="st">&quot;  &quot;</span><span class="fu">++</span>prg <span class="st">&quot;--help&quot;</span>
+        , <span class="st">&quot;  &quot;</span><span class="fu">++</span>prg <span class="st">&quot;[test]&quot;</span>
+        , <span class="st">&quot;  &quot;</span><span class="fu">++</span>prg <span class="st">&quot;all&quot;</span>
+        , <span class="st">&quot;  &quot;</span><span class="fu">++</span>prg <span class="st">&quot;doc (-|&lt;in-file&gt;) (-|&lt;out-file&gt;)&quot;</span>
+        , <span class="st">&quot;  &quot;</span><span class="fu">++</span>prg <span class="st">&quot;gen (-|&lt;in-file&gt;) (-|&lt;out-file&gt;)&quot;</span>
+        ]</code></pre></div>
+<h2 id="the-sed-script">The Sed Script</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the MODE determines whether we are generating documentation</span>
+<span class="co">-- or a Haskell testsuite and includes any IO-accessible state</span>
+<span class="co">-- needed by the relevant processor</span>
+<span class="kw">data</span> <span class="dt">MODE</span>
+  <span class="fu">=</span> <span class="dt">Doc</span> <span class="dt">DocState</span>  <span class="co">-- ^ document-generation state</span>
+  <span class="fu">|</span> <span class="dt">Gen</span> <span class="dt">GenState</span>  <span class="co">-- ^ adjusting-the-program-for-testing state</span></code></pre></div>
+The <code>DocState</code> is initialised to <code>Outside</code> and flips though the different states as it traverses a code block, so that we can wrap code blocks in special
+<div class="replcodeblock">
+<p>blocks when their first line indicates that it contains a REPL calculation, which the style sheet can pick up and present accordingly.</p>
+
+<p>block | Beginning -- at the start of a begin{code} ... \end{code} block | InsideRepl -- inside a REPL code block | InsideProg -- inside a non-REPL code block deriving (Eq,Show)</p>
+<p>type DocState = IORef DocMode</p>
+<p>genMode :: IO MODE genMode = Gen &lt;$&gt; newIORef [] \end{code}</p>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the state is the accumulated test function identifiers for</span>
+<span class="co">-- generating the list of them gets added to the end of the programme</span>
+<span class="kw">type</span> <span class="dt">GenState</span> <span class="fu">=</span> <span class="dt">IORef</span> [<span class="dt">String</span>]
+
+<span class="ot">docMode ::</span> <span class="dt">IO</span> <span class="dt">MODE</span>
+docMode <span class="fu">=</span> <span class="dt">Doc</span> <span class="fu">&lt;$&gt;</span> newIORef <span class="dt">Outside</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">loop ::</span> <span class="dt">MODE</span> <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+loop mode <span class="fu">=</span>
+  sed <span class="fu">$</span> <span class="dt">Select</span>
+    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|]      <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> include mode
+    , (,) [re|^%main ${arg}(top|bottom)$|]                             <span class="fu">$</span> <span class="dt">EDIT_gen</span>     <span class="fu">$</span> main_   mode
+    , (,) [re|^\\begin\{code\}$|]                                      <span class="fu">$</span> <span class="dt">EDIT_gen</span>     <span class="fu">$</span> begin   mode
+    , (,) [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}).*$|] <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> evalme  mode
+    , (,) [re|^\\end\{code\}$|]                                        <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> end     mode
+    , (,) [re|^.*$|]                                                   <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> other   mode
+    ]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">include, evalme, end,
+<span class="ot">  other ::</span> <span class="dt">MODE</span>
+        <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
+        <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
+        <span class="ot">-&gt;</span> <span class="dt">Location</span>
+        <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
+        <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
+
+main_,
+<span class="ot">  begin ::</span> <span class="dt">MODE</span>
+        <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
+        <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+        <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
+
+include (<span class="dt">Doc</span> _ ) <span class="fu">=</span> includeDoc
+include (<span class="dt">Gen</span> _ ) <span class="fu">=</span> passthru
+
+main_   (<span class="dt">Doc</span> _ ) <span class="fu">=</span> mainDoc
+main_   (<span class="dt">Gen</span> gs) <span class="fu">=</span> mainGen    gs
+
+begin   (<span class="dt">Doc</span> ds) <span class="fu">=</span> beginDoc   ds
+begin   (<span class="dt">Gen</span> _ ) <span class="fu">=</span> passthru_g
+
+evalme  (<span class="dt">Doc</span> ds) <span class="fu">=</span> evalmeDoc  ds
+evalme  (<span class="dt">Gen</span> gs) <span class="fu">=</span> evalmeGen  gs
+
+end     (<span class="dt">Doc</span> ds) <span class="fu">=</span> endDoc     ds
+end     (<span class="dt">Gen</span> _ ) <span class="fu">=</span> passthru
+
+other   (<span class="dt">Doc</span> ds) <span class="fu">=</span> otherDoc   ds
+other   (<span class="dt">Gen</span> _ ) <span class="fu">=</span> passthru
+
+<span class="ot">passthru ::</span> <span class="dt">LineNo</span>
+         <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
+         <span class="ot">-&gt;</span> <span class="dt">Location</span>
+         <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
+         <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
+passthru _ _ _ _ <span class="fu">=</span> return <span class="dt">Nothing</span>
+
+<span class="ot">passthru_g ::</span> <span class="dt">LineNo</span>
+           <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+           <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
+passthru_g _ _ <span class="fu">=</span> return <span class="dt">NoEdit</span></code></pre></div>
+<h2 id="script-to-generate-all-tutorial-tests-and-docs">Script to Generate All Tutorial Tests and Docs</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">gen_all ::</span> <span class="dt">IO</span> ()
+gen_all <span class="fu">=</span> <span class="kw">do</span>
+    <span class="co">-- prepare HTML docs for the (literate) tools</span>
+    pd <span class="st">&quot;re-gen-modules&quot;</span>
+    pd <span class="st">&quot;re-include&quot;</span>
+    pd <span class="st">&quot;re-nginx-log-processor&quot;</span>
+    pd <span class="st">&quot;re-pp&quot;</span>
+    pd <span class="st">&quot;re-tests&quot;</span>
+    pd <span class="st">&quot;TestKit&quot;</span>
+    pd <span class="st">&quot;RE/Capture&quot;</span>
+    pd <span class="st">&quot;RE/Edit&quot;</span>
+    pd <span class="st">&quot;RE/IsRegex&quot;</span>
+    pd <span class="st">&quot;RE/Options&quot;</span>
+    pd <span class="st">&quot;RE/Replace&quot;</span>
+    pd <span class="st">&quot;RE/TestBench&quot;</span>
+    pd <span class="st">&quot;RE/Tools/Grep&quot;</span>
+    pd <span class="st">&quot;RE/Tools/Lex&quot;</span>
+    pd <span class="st">&quot;RE/Tools/Sed&quot;</span>
+    pd <span class="st">&quot;RE/Internal/NamedCaptures&quot;</span>
+    <span class="co">-- render the tutorial in HTML</span>
+    dm <span class="ot">&lt;-</span> docMode
+    loop dm <span class="st">&quot;examples/re-tutorial-master.lhs&quot;</span> <span class="st">&quot;tmp/re-tutorial.lhs&quot;</span>
+    createDirectoryIfMissing <span class="dt">False</span> <span class="st">&quot;tmp&quot;</span>
+    pandoc&#39;
+      <span class="st">&quot;re-tutorial.lhs&quot;</span>
+      <span class="st">&quot;examples/re-tutorial.lhs&quot;</span>
+      <span class="st">&quot;tmp/re-tutorial.lhs&quot;</span>
+      <span class="st">&quot;docs/re-tutorial.html&quot;</span>
+    <span class="co">-- generate the tutorial-based tests</span>
+    gm <span class="ot">&lt;-</span> genMode
+    loop gm <span class="st">&quot;examples/re-tutorial-master.lhs&quot;</span> <span class="st">&quot;examples/re-tutorial.lhs&quot;</span>
+    putStrLn <span class="st">&quot;&gt;&gt; examples/re-tutorial.lhs&quot;</span>
+  <span class="kw">where</span>
+    pd fnm <span class="fu">=</span> <span class="kw">case</span> captureTextMaybe [cp|mnm|] <span class="fu">$</span> fnm <span class="fu">T.?=~</span> [re|^RE/(Tools/|Internal/)?${mnm}(@{%id})|] <span class="kw">of</span>
+        <span class="dt">Just</span> mnm <span class="ot">-&gt;</span> pandoc fnm (<span class="st">&quot;Text/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
+        <span class="dt">Nothing</span>  <span class="ot">-&gt;</span> pandoc fnm (  <span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)</code></pre></div>
+<h2 id="generating-the-tutorial">Generating the Tutorial</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">includeDoc ::</span> <span class="dt">LineNo</span>
+           <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
+           <span class="ot">-&gt;</span> <span class="dt">Location</span>
+           <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
+           <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
+includeDoc _ mtch _ _ <span class="fu">=</span> fmap <span class="dt">Just</span> <span class="fu">$</span>
+    extract fp <span class="fu">=&lt;&lt;</span> compileRegex () re_s
+  <span class="kw">where</span>
+    fp    <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|file|] mtch
+    re_s  <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|rex|]  mtch
+
+    prs_s <span class="fu">=</span> fromMaybe (error <span class="st">&quot;includeDoc&quot;</span>) <span class="fu">.</span> parseString</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mainDoc ::</span> <span class="dt">LineNo</span>
+        <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+        <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
+mainDoc _ _ <span class="fu">=</span> return <span class="dt">Delete</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">beginDoc ::</span> <span class="dt">DocState</span>
+         <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
+         <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+         <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
+beginDoc ds _ _ <span class="fu">=</span> writeIORef ds <span class="dt">Beginning</span> <span class="fu">&gt;&gt;</span> return <span class="dt">Delete</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">evalmeDoc, endDoc,<span class="ot"> otherDoc ::</span> <span class="dt">DocState</span>
+                            <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
+                            <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
+                            <span class="ot">-&gt;</span> <span class="dt">Location</span>
+                            <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
+                            <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
+
+evalmeDoc ds lno _ _ _ <span class="fu">=</span> <span class="kw">do</span>
+  dm <span class="ot">&lt;-</span> readIORef ds
+  when (dm<span class="fu">/=</span><span class="dt">Beginning</span>) <span class="fu">$</span>
+    bad_state <span class="st">&quot;evalme&quot;</span> lno dm
+  writeIORef ds <span class="dt">InsideRepl</span>
+  return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="st">&quot;&lt;div class=\&quot;replcodeblock\&quot;&gt;\n&quot;</span><span class="fu">&lt;&gt;</span>begin_code
+
+endDoc    ds lno _ _ _ <span class="fu">=</span> <span class="kw">do</span>
+  dm <span class="ot">&lt;-</span> readIORef ds
+  <span class="kw">case</span> dm <span class="kw">of</span>
+    <span class="dt">Outside</span>    <span class="ot">-&gt;</span> bad_state <span class="st">&quot;end&quot;</span> lno dm
+    <span class="dt">Beginning</span>  <span class="ot">-&gt;</span> return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> begin_code <span class="fu">&lt;&gt;</span> <span class="st">&quot;\n&quot;</span> <span class="fu">&lt;&gt;</span> end_code
+    <span class="dt">InsideRepl</span> <span class="ot">-&gt;</span> return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> end_code   <span class="fu">&lt;&gt;</span> <span class="st">&quot;\n&lt;/div&gt;&quot;</span>
+    <span class="dt">InsideProg</span> <span class="ot">-&gt;</span> return   <span class="dt">Nothing</span>
+
+otherDoc  ds _ mtch _ _ <span class="fu">=</span> <span class="kw">do</span>
+  dm <span class="ot">&lt;-</span> readIORef ds
+  <span class="kw">case</span> dm <span class="kw">of</span>
+    <span class="dt">Beginning</span> <span class="ot">-&gt;</span> <span class="kw">do</span>
+      writeIORef ds <span class="dt">InsideProg</span>
+      return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> begin_code <span class="fu">&lt;&gt;</span> <span class="st">&quot;\n&quot;</span> <span class="fu">&lt;&gt;</span> matchSource mtch
+    _ <span class="ot">-&gt;</span> return <span class="dt">Nothing</span>
+
+<span class="ot">bad_state ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">LineNo</span> <span class="ot">-&gt;</span> <span class="dt">DocMode</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> a
+bad_state lab lno dm <span class="fu">=</span> error <span class="fu">$</span>
+  printf <span class="st">&quot;Bad document syntax: %s: %d: %s&quot;</span> lab (getLineNo lno) <span class="fu">$</span> show dm</code></pre></div>
+<h2 id="generating-the-tests">Generating the Tests</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">evalmeGen ::</span> <span class="dt">GenState</span>
+          <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
+          <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
+          <span class="ot">-&gt;</span> <span class="dt">Location</span>
+          <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
+          <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
+evalmeGen gs _ mtch0 _ _ <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">&lt;$&gt;</span>
+    replaceCapturesM replace_ <span class="dt">ALL</span> f mtch0
+  <span class="kw">where</span>
+    f mtch loc cap <span class="fu">=</span> <span class="kw">case</span> _loc_capture loc <span class="kw">of</span>
+      <span class="dv">2</span> <span class="ot">-&gt;</span> <span class="kw">do</span>
+          modifyIORef gs (ide<span class="fu">:</span>)
+          return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> LBS.pack <span class="fu">$</span> show ide
+        <span class="kw">where</span>
+          ide <span class="fu">=</span> LBS.unpack <span class="fu">$</span> captureText [cp|fn|] mtch
+      _ <span class="ot">-&gt;</span> return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> capturedText cap</code></pre></div>
+<p>How are we doing?</p>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mainGen ::</span> <span class="dt">GenState</span>
+        <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
+        <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+        <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
+mainGen gs _ mtchs <span class="fu">=</span> <span class="kw">case</span> allMatches mtchs <span class="kw">of</span>
+  [mtch]  <span class="ot">-&gt;</span>
+    <span class="kw">case</span> captureText [cp|arg|] <span class="fu">$</span> mtch <span class="kw">of</span>
+      <span class="st">&quot;top&quot;</span>    <span class="ot">-&gt;</span> return <span class="fu">$</span> <span class="dt">ReplaceWith</span> <span class="fu">$</span> LBS.unlines <span class="fu">$</span>
+          [ begin_code
+          , <span class="st">&quot;module Main(main) where&quot;</span>
+          , end_code
+          , <span class="st">&quot;&quot;</span>
+          , <span class="st">&quot;*********************************************************&quot;</span>
+          , <span class="st">&quot;*&quot;</span>
+          , <span class="st">&quot;* WARNING: this is generated from pp-tutorial-master.lhs &quot;</span>
+          , <span class="st">&quot;*&quot;</span>
+          , <span class="st">&quot;*********************************************************&quot;</span>
+          ]
+      <span class="st">&quot;bottom&quot;</span> <span class="ot">-&gt;</span> <span class="kw">do</span>
+        fns <span class="ot">&lt;-</span> readIORef gs
+        return <span class="fu">$</span> <span class="dt">ReplaceWith</span> <span class="fu">$</span> LBS.unlines <span class="fu">$</span>
+          [ begin_code
+          , <span class="st">&quot;main :: IO ()&quot;</span>
+          , <span class="st">&quot;main = runTests&quot;</span>
+          ] <span class="fu">++</span> mk_list fns <span class="fu">++</span>
+          [ end_code
+          ]
+      _ <span class="ot">-&gt;</span> error <span class="st">&quot;mainGen (b)&quot;</span>
+  _ <span class="ot">-&gt;</span> error <span class="st">&quot;mainGen (a)&quot;</span></code></pre></div>
+<p>We cannot place these strings inline without confusing pandoc so we use these definitions instead.</p>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">begin_code,<span class="ot"> end_code ::</span> <span class="dt">LBS.ByteString</span>
+begin_code <span class="fu">=</span> <span class="st">&quot;\\&quot;</span><span class="fu">&lt;&gt;</span><span class="st">&quot;begin{code}&quot;</span>
+end_code   <span class="fu">=</span> <span class="st">&quot;\\&quot;</span><span class="fu">&lt;&gt;</span><span class="st">&quot;end{code}&quot;</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mk_list ::</span> [<span class="dt">String</span>] <span class="ot">-&gt;</span> [<span class="dt">LBS.ByteString</span>]
+mk_list []          <span class="fu">=</span> [<span class="st">&quot;[]&quot;</span>]
+mk_list (ide0<span class="fu">:</span>ides) <span class="fu">=</span> f <span class="st">&quot;[&quot;</span> ide0 <span class="fu">$</span> foldr (f <span class="st">&quot;,&quot;</span>) [<span class="st">&quot;  ]&quot;</span>] ides
+  <span class="kw">where</span>
+    f pfx ide t <span class="fu">=</span> (<span class="st">&quot;  &quot;</span><span class="fu">&lt;&gt;</span>pfx<span class="fu">&lt;&gt;</span><span class="st">&quot; &quot;</span><span class="fu">&lt;&gt;</span>LBS.pack ide) <span class="fu">:</span> t</code></pre></div>
+<h2 id="extracting-a-literate-fragment-from-a-haskell-program-text">Extracting a Literate Fragment from a Haskell Program Text</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">extract ::</span> FilePath <span class="ot">-&gt;</span> <span class="dt">RE</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">LBS.ByteString</span>
+extract fp rex <span class="fu">=</span> extr <span class="fu">.</span> LBS.lines <span class="fu">&lt;$&gt;</span> LBS.readFile fp
+  <span class="kw">where</span>
+    extr lns <span class="fu">=</span>
+      <span class="kw">case</span> parse <span class="fu">$</span> scan rex lns <span class="kw">of</span>
+        <span class="dt">Nothing</span>      <span class="ot">-&gt;</span> oops
+        <span class="dt">Just</span> (lno,n) <span class="ot">-&gt;</span> LBS.unlines <span class="fu">$</span> (hdr <span class="fu">:</span>) <span class="fu">$</span> (take n <span class="fu">$</span> drop i lns) <span class="fu">++</span> [ftr]
+          <span class="kw">where</span>
+            i <span class="fu">=</span> getZeroBasedLineNo lno
+
+    oops <span class="fu">=</span> error <span class="fu">$</span> concat
+      [ <span class="st">&quot;failed to locate fragment matching &quot;</span>
+      , show <span class="fu">$</span> reSource rex
+      , <span class="st">&quot; in file &quot;</span>
+      , show fp
+      ]
+
+    hdr  <span class="fu">=</span> <span class="st">&quot;&lt;div class=&#39;includedcodeblock&#39;&gt;&quot;</span>
+    ftr  <span class="fu">=</span> <span class="st">&quot;&lt;/div&gt;&quot;</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">parse ::</span> [<span class="dt">Token</span>] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">LineNo</span>,<span class="dt">Int</span>)
+parse []       <span class="fu">=</span> <span class="dt">Nothing</span>
+parse (tk<span class="fu">:</span>tks) <span class="fu">=</span> <span class="kw">case</span> (tk,tks) <span class="kw">of</span>
+  (<span class="dt">Bra</span> b_ln,<span class="dt">Hit</span><span class="fu">:</span><span class="dt">Ket</span> k_ln<span class="fu">:</span>_) <span class="ot">-&gt;</span> <span class="dt">Just</span> (b_ln,count_lines_incl b_ln k_ln)
+  _                         <span class="ot">-&gt;</span> parse tks</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">count_lines_incl ::</span> <span class="dt">LineNo</span> <span class="ot">-&gt;</span> <span class="dt">LineNo</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+count_lines_incl b_ln k_ln <span class="fu">=</span>
+  getZeroBasedLineNo k_ln <span class="fu">+</span> <span class="dv">1</span> <span class="fu">-</span> getZeroBasedLineNo b_ln</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Token</span> <span class="fu">=</span> <span class="dt">Bra</span> <span class="dt">LineNo</span> <span class="fu">|</span> <span class="dt">Hit</span> <span class="fu">|</span> <span class="dt">Ket</span> <span class="dt">LineNo</span>   <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">scan ::</span> <span class="dt">RE</span> <span class="ot">-&gt;</span> [<span class="dt">LBS.ByteString</span>] <span class="ot">-&gt;</span> [<span class="dt">Token</span>]
+scan rex <span class="fu">=</span> grepScript
+    [ (,) [re|\\begin\{code\}|] <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Bra</span> i
+    , (,) rex                   <span class="fu">$</span> \_ <span class="ot">-&gt;</span> chk   <span class="dt">Hit</span>
+    , (,) [re|\\end\{code\}|]   <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Ket</span> i
+    ]
+  <span class="kw">where</span>
+    chk x mtchs <span class="fu">=</span> <span class="kw">case</span> anyMatches mtchs <span class="kw">of</span>
+      <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Just</span> x
+      <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span></code></pre></div>
+<h2 id="pandoc">pandoc</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">pandoc ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+pandoc title in_file <span class="fu">=</span> pandoc&#39; title in_file in_file
+
+<span class="ot">pandoc&#39; ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+pandoc&#39; title repo_path in_file out_file <span class="fu">=</span> <span class="kw">do</span>
+  writeFile <span class="st">&quot;tmp/bc.html&quot;</span> bc
+  fmap (const ()) <span class="fu">$</span>
+    SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span>
+      SH.run <span class="st">&quot;pandoc&quot;</span>
+        [ <span class="st">&quot;-f&quot;</span>, <span class="st">&quot;markdown+lhs+grid_tables&quot;</span>
+        , <span class="st">&quot;-t&quot;</span>, <span class="st">&quot;html&quot;</span>
+        , <span class="st">&quot;-s&quot;</span>
+        , <span class="st">&quot;-B&quot;</span>, <span class="st">&quot;tmp/bc.html&quot;</span>
+        , <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;lib/styles.css&quot;</span>
+        , <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;lib/bs.css&quot;</span>
+        , <span class="st">&quot;-o&quot;</span>, out_file
+        , in_file
+        ]
+  <span class="kw">where</span>
+    bc <span class="fu">=</span> concat
+      [ <span class="st">&quot;&lt;ol class=&#39;breadcrumb&#39;&gt;&lt;li&gt;&lt;a href=&#39;.&#39; title=&#39;Home&#39;&gt;&quot;</span>
+      , <span class="st">&quot;Home&lt;/a&gt;&lt;/li&gt; &amp;gt; &lt;a title=&#39;source file&#39; href=&#39;&quot;</span>
+      , repo_url
+      , <span class="st">&quot;&#39;&gt;&quot;</span>
+      , T.unpack title
+      , <span class="st">&quot;&lt;/a&gt;&lt;/ol&gt;&quot;</span>
+      ]
+
+    repo_url <span class="fu">=</span> concat
+      [ <span class="st">&quot;https://github.com/iconnect/regex/blob/master/&quot;</span>
+      , T.unpack repo_path
+      ]</code></pre></div>
+<h2 id="testing">testing</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">test ::</span> <span class="dt">IO</span> ()
+test <span class="fu">=</span> <span class="kw">do</span>
+  dm <span class="ot">&lt;-</span> docMode
+  test_pp <span class="st">&quot;pp-doc&quot;</span> (loop dm) <span class="st">&quot;data/pp-test.lhs&quot;</span> <span class="st">&quot;data/pp-result-doc.lhs&quot;</span>
+  gm <span class="ot">&lt;-</span> genMode
+  test_pp <span class="st">&quot;pp-gen&quot;</span> (loop gm) <span class="st">&quot;data/pp-test.lhs&quot;</span> <span class="st">&quot;data/pp-result-gen.lhs&quot;</span>
+  putStrLn <span class="st">&quot;tests passed&quot;</span></code></pre></div>
+</body>
+</html>

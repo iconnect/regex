@@ -100,7 +100,7 @@ contains the text-replacement toolkit.
 ### [Text.RE.Options](Options.html)
 contains the `Options` types for controlling RE parsing and compilation.
 
-### [Text.RE.IsEasy](IsEasy.html)
+### [Text.RE.IsRegex](IsRegex.html)
 contains the IsRegex class for writing polymorphic regex tools that work with
 all regex back ends and text type combinations.
 

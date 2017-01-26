@@ -10,6 +10,7 @@ Description:            A Regular Expression Toolkit for regex-base with
 Homepage:               https://iconnect.github.io/regex
 Author:                 Chris Dornan
 License:                BSD3
+license-file:           LICENSE
 Maintainer:             chris.dornan@irisconnect.co.uk
 Copyright:              Chris Dornan
 Category:               Text

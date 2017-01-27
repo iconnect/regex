@@ -1,0 +1,9 @@
+resolver: lts-7.14
+install-ghc: true
+flags: {}
+packages:
+- '.'
+system-ghc: false
+extra-deps:
+- fastpbkdf2-0.1.0.0
+- bytestring-arbitrary-0.1.1

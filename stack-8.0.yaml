@@ -1,0 +1,7 @@
+resolver: lts-7.14
+install-ghc: true
+flags: {}
+packages:
+- '.'
+system-ghc: false
+extra-deps: []

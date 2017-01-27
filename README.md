@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/iconnect/regex.svg?branch=master)](https://travis-ci.org/iconnect/regex)
-[![Build status](https://ci.appveyor.com/api/projects/status/vj3d35qptms3q23w?svg=true)](https://ci.appveyor.com/project/iconnect/regex)
+[![Build status](https://ci.appveyor.com/api/projects/status/9gqs37u3h1mlc02b/branch/master?svg=true)](https://ci.appveyor.com/project/engineerirngirisconnectcouk/regex/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/RNCryptor/regex/badge.svg?branch=master)](https://coveralls.io/github/iconnect/regex?branch=master)
 
 # regex: A Regular Expression Toolkit for regex-base

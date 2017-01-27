@@ -6,7 +6,7 @@ regex extends regex-base with:
   * special datatypes for many matches, first match and individual captures
   * compile-time checking of RE syntax
   * a unified means of controlling case-sensitivity and multi-line options
-  * high-level Awk-like tools for building text processing apps
+  * high-level AWK-like tools for building text processing apps
   * the option of using match operators with reduced polymorphism on the
     text and/or result types
   * regular expression macros including
@@ -22,7 +22,7 @@ Schedule
   * **2017-01-27**&nbsp;&nbsp;0.0.0.1&nbsp;&nbsp;Pre-release
   * **2017-01-30**&nbsp;&nbsp;0.0.1.0&nbsp;&nbsp;RFC
   * **2017-02-20**&nbsp;&nbsp;0.1.0.0&nbsp;&nbsp;a candidate stable release
-  * **2017-02-20**&nbsp;&nbsp;1.0.0.0&nbsp;&nbsp;a first stable release
+  * **2017-03-20**&nbsp;&nbsp;1.0.0.0&nbsp;&nbsp;first stable release
 
 
 The Web Page

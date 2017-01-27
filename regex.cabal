@@ -4,7 +4,7 @@ Synopsis:               A Regular Expression Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
                         matches and captures, a text replacement toolkit,
-                        portable options, high-level Awk-like tools
+                        portable options, high-level AWK-like tools
                         for building text processing apps, regular expression
                         macros and test bench, a tutorial and copious examples.
 Homepage:               https://iconnect.github.io/regex

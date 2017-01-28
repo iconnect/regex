@@ -25,7 +25,6 @@ import           Data.Time
 import qualified Shelly                                   as SH
 import           System.Directory
 import           System.Environment
-import           System.Posix.Syslog
 import           System.Exit
 import           System.IO
 import           Text.RE.Options
@@ -114,9 +113,9 @@ go rprt_flg in_file out_file = do
 \begin{code}
 script :: Ctx -> SedScript RE
 script ctx = Select
-    [ on [re_|@{access}|]     Acc parse_access
-    , on [re_|@{access_deg}|] AcQ parse_deg_access
-    , on [re_|@{error}|]      Err parse_error
+    [ on [re_|@{access}|]     ACC parse_access
+    , on [re_|@{access_deg}|] AQQ parse_deg_access
+    , on [re_|@{error}|]      ERR parse_error
     , on [re_|.*|]            QQQ parse_def
     ]
   where
@@ -165,7 +164,7 @@ setup = return
 
 event_is_notifiable :: Event -> Bool
 event_is_notifiable Event{..} =
-  fromEnum (fromMaybe Debug _event_severity) <= fromEnum Error
+  fromEnum (fromMaybe Debug _event_severity) <= fromEnum Err
 
 flag_event :: Ctx -> Event -> IO ()
 flag_event False = const $ return ()
@@ -181,13 +180,13 @@ data Event =
     { _event_line     :: LineNo
     , _event_source   :: Source
     , _event_utc      :: UTCTime
-    , _event_severity :: Maybe Priority
+    , _event_severity :: Maybe Severity
     , _event_address  :: IPV4Address
     , _event_details  :: LBS.ByteString
     }
   deriving (Show)
 
-data Source = Acc | AcQ | Err | QQQ
+data Source = ACC | AQQ | ERR | QQQ
   deriving (Show,Read)
 
 presentEvent :: Event -> LBS.ByteString
@@ -202,7 +201,7 @@ presentEvent Event{..} = LBS.pack $
   where
     (a,b,c,d) = _event_address
 
-    svrty_kw  = fst . syslogSeverityKeywords
+    svrty_kw  = fst . severityKeywords
 
 class IsEvent a where
   mkEvent :: LineNo -> Source -> a -> Event
@@ -413,7 +412,7 @@ error_macro env mid =
             ERROR
               { _e_date     = read "2016-12-21"
               , _e_time     = read "11:53:35"
-              , _e_severity = Emergency
+              , _e_severity = Emerg
               , _e_pid_tid  = (1378,0)
               , _e_other    = " foo"
               }
@@ -421,7 +420,7 @@ error_macro env mid =
             ERROR
               { _e_date     = read "2017-01-04"
               , _e_time     = read "05:40:19"
-              , _e_severity = Error
+              , _e_severity = Err
               , _e_pid_tid  = (31623,0)
               , _e_other    = " *1861296 no \"ssl_certificate\" is defined in server listening on SSL port while SSL handshaking, client: 192.168.31.38, server: 0.0.0.0:80"
               }
@@ -521,7 +520,7 @@ data Error =
   ERROR
     { _e_date     :: Day
     , _e_time     :: TimeOfDay
-    , _e_severity :: Priority
+    , _e_severity :: Severity
     , _e_pid_tid  :: (Int,Int)
     , _e_other    :: LBS.ByteString
     }
@@ -543,7 +542,7 @@ parse_error cs =
   ERROR
     <$> f parseSlashesDate    [cp|1|]
     <*> f parseTimeOfDay      [cp|2|]
-    <*> f parseSyslogSeverity [cp|3|]
+    <*> f parseSeverity [cp|3|]
     <*> f parse_pid_tid       [cp|4|]
     <*> f Just                [cp|5|]
   where

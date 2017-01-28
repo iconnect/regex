@@ -122,4 +122,4 @@ contains a simple scanning tool for building prototype scanners before being
 discarded or converted into Alex scanners.
 
 ### [Text.RE.Internal.NamedCaptures](NamedCaptures.html)
-an internal library module for dealing with named captures in REs.
+is an internal library module for dealing with named captures in REs.

@@ -236,7 +236,7 @@ presentEvent <span class="dt">Event</span>{<span class="fu">..</span>} <span cla
   <span class="kw">where</span>
     (a,b,c,d) <span class="fu">=</span> _event_address
 
-    svrty_kw  <span class="fu">=</span> fst <span class="fu">.</span> syslogSeverityKeywords
+    svrty_kw  <span class="fu">=</span> fst <span class="fu">.</span> severityKeywords
 
 <span class="kw">class</span> <span class="dt">IsEvent</span> a <span class="kw">where</span>
 <span class="ot">  mkEvent ::</span> <span class="dt">LineNo</span> <span class="ot">-&gt;</span> <span class="dt">Source</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Event</span>
@@ -568,7 +568,7 @@ parse_error cs <span class="fu">=</span>
   <span class="dt">ERROR</span>
     <span class="fu">&lt;$&gt;</span> f parseSlashesDate    [cp|1|]
     <span class="fu">&lt;*&gt;</span> f parseTimeOfDay      [cp|2|]
-    <span class="fu">&lt;*&gt;</span> f parseSyslogSeverity [cp|3|]
+    <span class="fu">&lt;*&gt;</span> f parseSeverity [cp|3|]
     <span class="fu">&lt;*&gt;</span> f parse_pid_tid       [cp|4|]
     <span class="fu">&lt;*&gt;</span> f <span class="dt">Just</span>                [cp|5|]
   <span class="kw">where</span>

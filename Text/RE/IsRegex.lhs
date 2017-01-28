@@ -1,5 +1,6 @@
 \begin{code}
 {-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE AllowAmbiguousTypes        #-}
 
 module Text.RE.IsRegex where
 

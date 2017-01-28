@@ -12,14 +12,14 @@ Author:                 Chris Dornan
 License:                BSD3
 license-file:           LICENSE
 Maintainer:             chris.dornan@irisconnect.co.uk
-Copyright:              Chris Dornan
+Copyright:              Chris Dornan 2016-2017
 Category:               Text
 Build-type:             Simple
 Stability:              rfc
 Extra-source-files:     changelog
 bug-reports:            https://github.com/iconnect/regex/issues
 
-Cabal-version:          >= 1.14
+Cabal-version:          >= 1.16
 
 Source-repository head
     type:               git

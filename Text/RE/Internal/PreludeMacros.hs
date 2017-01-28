@@ -23,7 +23,6 @@ import qualified Data.HashMap.Lazy              as HML
 import           Data.List
 import           Data.Maybe
 import           Data.Time
-import           System.Posix.Syslog
 import           Text.RE.Options
 import           Text.RE.Parsers
 import           Text.RE.TestBench
@@ -482,12 +481,12 @@ time_macro rty env pm =
   where
     samples :: [(String,TimeOfDay)]
     samples =
-        [ f "00:00:00"            00 00 0
-        , f "23:59:59"            23 59 59000000000000
-        , f "00:00:00.1234567890" 00 00 00123456789000
+        [ f "00:00:00"            00 00   0
+        , f "23:59:59"            23 59   59
+        , f "00:00:00.1234567890" 00 00 $ 123456789 / 1000000000
         ]
       where
-        f s h m ps = (s,TimeOfDay h m $ toEnum ps)
+        f s h m ps = (s,TimeOfDay h m ps)
 
     counter_samples =
         [ ""
@@ -673,7 +672,7 @@ address_ipv4_macros rty env pm =
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
       , _md_test_results    = test_stub pm
-      , _md_parser          = Just "parseSyslogSeverity"
+      , _md_parser          = Just "parseSeverity"
       , _md_description     = "an a.b.c.d IPv4 address"
       }
   where
@@ -703,24 +702,24 @@ syslog_severity_macro :: RegexType
                       -> PreludeMacro
                       -> Maybe MacroDescriptor
 syslog_severity_macro rty env pm =
-  Just $ run_tests rty parseSyslogSeverity samples env pm
+  Just $ run_tests rty parseSeverity samples env pm
     MacroDescriptor
       { _md_source          = re
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
       , _md_test_results    = test_stub pm
-      , _md_parser          = Just "parseSyslogSeverity"
+      , _md_parser          = Just "parseSeverity"
       , _md_description     = "syslog severity keyword (debug-emerg)"
       }
   where
-    samples :: [(String,Priority)]
+    samples :: [(String,Severity)]
     samples =
-        [ f "emerg"     Emergency
-        , f "panic"     Emergency
+        [ f "emerg"     Emerg
+        , f "panic"     Emerg
         , f "alert"     Alert
-        , f "crit"      Critical
-        , f "err"       Error
-        , f "error"     Error
+        , f "crit"      Crit
+        , f "err"       Err
+        , f "error"     Err
         , f "warn"      Warning
         , f "warning"   Warning
         , f "notice"    Notice
@@ -743,15 +742,15 @@ syslog_severity_macro rty env pm =
     re_tdfa = bracketedRegexSource $
           intercalate "|" $
             [ kw
-              | (kw0,kws) <- map syslogSeverityKeywords [minBound..maxBound]
+              | (kw0,kws) <- map severityKeywords [minBound..maxBound]
               , kw <- kw0:kws
               ]
 
     re_pcre = bracketedRegexSource $
           intercalate "|" $
             [ kw
-              | (kw0,kws) <- map syslogSeverityKeywords $
-                                  filter (/=Error) [minBound..maxBound]
+              | (kw0,kws) <- map severityKeywords $
+                                  filter (/=Err) [minBound..maxBound]
               , kw <- kw0:kws
               ] ++ ["err(?:or)?"]
 

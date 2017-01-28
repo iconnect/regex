@@ -15,8 +15,9 @@ module Text.RE.Parsers
   , shortMonthArray
   , IPV4Address
   , parseIPv4Address
-  , parseSyslogSeverity
-  , syslogSeverityKeywords
+  , Severity(..)
+  , parseSeverity
+  , severityKeywords
   ) where
 
 import           Data.Array
@@ -24,7 +25,6 @@ import qualified Data.HashMap.Strict        as HM
 import           Data.Maybe
 import           Data.Time
 import           Data.Word
-import           System.Posix.Syslog
 import           Text.Printf
 import           Text.Read
 import           Text.RE.Replace
@@ -126,23 +126,34 @@ parseIPv4Address = prs . words_by (=='.') . unpack_
 
     is_o x = 0 <= x && x <= 255
 
-parseSyslogSeverity :: Replace a => a -> Maybe Priority
-parseSyslogSeverity = flip HM.lookup syslog_severity_hm . unpack_
+data Severity
+  = Emerg
+  | Alert
+  | Crit
+  | Err
+  | Warning
+  | Notice
+  | Info
+  | Debug
+  deriving (Bounded,Enum,Ord,Eq,Show)
 
-syslog_severity_hm :: HM.HashMap String Priority
-syslog_severity_hm = HM.fromList
+parseSeverity :: Replace a => a -> Maybe Severity
+parseSeverity = flip HM.lookup severity_hm . unpack_
+
+severity_hm :: HM.HashMap String Severity
+severity_hm = HM.fromList
   [ (kw,pri)
       | pri<-[minBound..maxBound]
-      , let (kw0,kws) = syslogSeverityKeywords pri
+      , let (kw0,kws) = severityKeywords pri
       , kw <- kw0:kws
       ]
 
-syslogSeverityKeywords :: Priority -> (String,[String])
-syslogSeverityKeywords pri = case pri of
-  Emergency -> (,) "emerg"    ["panic"]
+severityKeywords :: Severity -> (String,[String])
+severityKeywords pri = case pri of
+  Emerg     -> (,) "emerg"    ["panic"]
   Alert     -> (,) "alert"    []
-  Critical  -> (,) "crit"     []
-  Error     -> (,) "err"      ["error"]
+  Crit      -> (,) "crit"     []
+  Err       -> (,) "err"      ["error"]
   Warning   -> (,) "warning"  ["warn"]
   Notice    -> (,) "notice"   []
   Info      -> (,) "info"     []

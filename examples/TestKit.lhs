@@ -12,6 +12,7 @@ module TestKit
 import           Control.Exception
 import qualified Data.Text                                as T
 import qualified Shelly                                   as SH
+import           System.Directory
 import           System.Environment
 import           System.Exit
 import           System.IO
@@ -68,6 +69,7 @@ test_pp :: String
         -> FilePath
         -> IO ()
 test_pp lab loop test_file gold_file = do
+    createDirectoryIfMissing False "tmp"
     loop test_file tmp_pth
     ok <- cmp (T.pack tmp_pth) (T.pack gold_file)
     case ok of

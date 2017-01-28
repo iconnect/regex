@@ -213,7 +213,10 @@ captureSuffix Capture{..} = after (captureOffset+captureLength) captureSource
 
 \begin{code}
 -- | for matching just the first RE against the source text
-instance RegexContext regex source (AllTextSubmatches (Array Int) (source,(Int,Int))) =>
+instance
+    ( RegexContext regex source (AllTextSubmatches (Array Int) (source,(Int,Int)))
+    , RegexLike    regex source
+    ) =>
   RegexContext regex source (Match source) where
     match  r s = cvt s $ getAllTextSubmatches $ match r s
     matchM r s = do
@@ -221,7 +224,10 @@ instance RegexContext regex source (AllTextSubmatches (Array Int) (source,(Int,I
       return $ cvt s $ getAllTextSubmatches y
 
 -- | for matching all REs against the source text
-instance RegexContext regex source [MatchText source] =>
+instance
+    ( RegexContext regex source [MatchText source]
+    , RegexLike    regex source
+    ) =>
   RegexContext regex source (Matches source) where
     match  r s = Matches s $ map (cvt s) $ match r s
     matchM r s = do

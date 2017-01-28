@@ -89,13 +89,13 @@ matrix:
   #  compiler: ": #stack 7.8.4 osx"
   #  os: osx
 
-  # - env: BUILD=stack STACK_YAML=stack-7.10.yaml
-  #   compiler: ": #stack 7.10.3 osx"
-  #   os: osx
+  - env: BUILD=stack STACK_YAML=stack-7.10.yaml
+    compiler: ": #stack 7.10.3 osx"
+    os: osx
 
-  # - env: BUILD=stack STACK_YAML=stack-8.0.yaml
-  #   compiler: ": #stack 8.0.1 osx"
-  #   os: osx
+  - env: BUILD=stack STACK_YAML=stack-8.0.yaml
+    compiler: ": #stack 8.0.1 osx"
+    os: osx
 
   # - env: BUILD=stack ARGS="--resolver nightly"
   #   compiler: ": #stack nightly osx"

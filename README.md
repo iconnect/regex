@@ -1,6 +1,6 @@
 [![Hackage](https://img.shields.io/hackage/v/regex.svg)](https://hackage.haskell.org/package/regex)
 [![BSD3 License](http://img.shields.io/badge/license-BSD3-brightgreen.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
-[![Un*x build](https://img.shields.io/travis/iconnect/regex.svg?label=Linux%2FmacOS)](https://hackage.haskell.org/package/regex)
+[![Un*x build](https://img.shields.io/travis/iconnect/regex.svg?label=Linux%2FmacOS)](https://travis-ci.org/iconnect/regex)
 [![Windows build](https://img.shields.io/appveyor/ci/engineerirngirisconnectcouk/regex.svg?label=Windows)](https://ci.appveyor.com/project/engineerirngirisconnectcouk/regex/branch/master)
 [![Coverage](https://img.shields.io/coveralls/iconnect/regex.svg)](https://coveralls.io/github/iconnect/regex?branch=master)
 

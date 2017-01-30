@@ -8,6 +8,7 @@ module Text.RE.Internal.PreludeMacros
   , MacroDescriptor(..)
   , RegexSource(..)
   , PreludeMacro(..)
+  , presentPreludeMacro
   , preludeMacros
   , preludeMacroTable
   , preludeMacroSummary
@@ -142,7 +143,7 @@ natural_macro rty env pm = Just $ run_tests rty parseInteger samples env pm
     { _md_source          = "[0-9]+"
     , _md_samples         = map fst samples
     , _md_counter_samples = counter_samples
-    , _md_test_results    = test_stub pm
+    , _md_test_results    = []
     , _md_parser          = Just "parseInteger"
     , _md_description     = "a string of one or more decimal digits"
     }
@@ -170,7 +171,7 @@ natural_hex_macro rty env pm = Just $ run_tests rty parseHex samples env pm
     { _md_source          = "[0-9a-fA-F]+"
     , _md_samples         = map fst samples
     , _md_counter_samples = counter_samples
-    , _md_test_results    = test_stub pm
+    , _md_test_results    = []
     , _md_parser          = Just "parseHex"
     , _md_description     = "a string of one or more hexadecimal digits"
     }
@@ -198,7 +199,7 @@ integer_macro rty env pm = Just $ run_tests rty parseInteger samples env pm
     { _md_source          = "-?[0-9]+"
     , _md_samples         = map fst samples
     , _md_counter_samples = counter_samples
-    , _md_test_results    = test_stub pm
+    , _md_test_results    = []
     , _md_parser          = Just "parseInteger"
     , _md_description     = "a decimal integer"
     }
@@ -226,7 +227,7 @@ decimal_macro rty env pm = Just $ run_tests rty parseDouble samples env pm
     { _md_source          = "-?[0-9]+(?:\\.[0-9]+)?"
     , _md_samples         = map fst samples
     , _md_counter_samples = counter_samples
-    , _md_test_results    = test_stub pm
+    , _md_test_results    = []
     , _md_parser          = Just "parseInteger"
     , _md_description     = "a decimal integer"
     }
@@ -267,7 +268,7 @@ string_macro rty@TDFA env pm =
       { _md_source          = "\"(?:[^\"\\]+|\\\\[\\\"])*\""
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Just "parseString"
       , _md_description     = "a double-quote string, with simple \\ escapes for \\s and \"s"
       }
@@ -298,7 +299,7 @@ string_simple_macro rty env pm =
       { _md_source          = "\"[^\"[:cntrl:]]*\""
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Just "parseSimpleString"
       , _md_description     = "a decimal integer"
       }
@@ -331,7 +332,7 @@ id_macro rty env pm =
       { _md_source          = "_*[a-zA-Z][a-zA-Z0-9_]*"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Nothing
       , _md_description     = "a standard C-style alphanumeric identifier (with _s)"
       }
@@ -369,7 +370,7 @@ id'_macro rty env pm =
       { _md_source          = "_*[a-zA-Z][a-zA-Z0-9_']*"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Nothing
       , _md_description     = "a standard Haskell-style alphanumeric identifier (with '_'s and '''s)"
       }
@@ -410,7 +411,7 @@ date_macro rty env pm =
       { _md_source          = "[0-9]{4}-[0-9]{2}-[0-9]{2}"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Just "parseDate"
       , _md_description     = "a YYYY-MM-DD format date"
       }
@@ -442,7 +443,7 @@ date_slashes_macro rty env pm =
       { _md_source          = "[0-9]{4}/[0-9]{2}/[0-9]{2}"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Just "parseSlashesDate"
       , _md_description     = "a YYYY/MM/DD format date"
       }
@@ -474,7 +475,7 @@ time_macro rty env pm =
       { _md_source          = "[0-9]{2}:[0-9]{2}:[0-9]{2}(?:[.][0-9]+)?"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Just "parseTimeOfDay"
       , _md_description     = "a HH:MM:SS[.Q+]"
       }
@@ -507,7 +508,7 @@ timezone_macro rty env pm =
       { _md_source          = "(?:Z|[+-][0-9]{2}:?[0-9]{2})"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Just "parseTimeZone"
       , _md_description     = "an IOS-8601 TZ specification"
       }
@@ -538,7 +539,7 @@ datetime_macro rty env pm = Just $ run_tests rty parseDateTime samples env pm
     { _md_source          = "@{%date}[ T]@{%time}(?:@{%timezone}| UTC)?"
     , _md_samples         = map fst samples
     , _md_counter_samples = counter_samples
-    , _md_test_results    = test_stub pm
+    , _md_test_results    = []
     , _md_parser          = Just "parseDateTime"
     , _md_description     = "ISO-8601 format date and time + simple variants"
     }
@@ -572,7 +573,7 @@ datetime_8601_macro rty env pm =
       { _md_source          = "@{%date}T@{%time}@{%timezone}"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Just "parseDateTime8601"
       , _md_description     = "YYYY-MM-DDTHH:MM:SS[.Q*](Z|[+-]HHMM) format date and time"
       }
@@ -599,7 +600,7 @@ datetime_clf_macro rty env pm =
       { _md_source          = re
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Just "parseDateTimeCLF"
       , _md_description     = "Common Log Format date+time: %d/%b/%Y:%H:%M:%S %z"
       }
@@ -638,7 +639,7 @@ shortmonth_macro rty env pm =
                                 intercalate "|" $ elems shortMonthArray
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Just "parseShortMonth"
       , _md_description     = "three letter month name: Jan-Dec"
       }
@@ -671,7 +672,7 @@ address_ipv4_macros rty env pm =
       { _md_source          = "[0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Just "parseSeverity"
       , _md_description     = "an a.b.c.d IPv4 address"
       }
@@ -707,7 +708,7 @@ syslog_severity_macro rty env pm =
       { _md_source          = re
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Just "parseSeverity"
       , _md_description     = "syslog severity keyword (debug-emerg)"
       }
@@ -764,7 +765,7 @@ email_simple_macro rty env pm =
       { _md_source          = "[a-zA-Z0-9%_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9.-]+"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Nothing
       , _md_description     = "an email address"
       }
@@ -793,7 +794,7 @@ url_macro rty env pm =
       { _md_source          = "([hH][tT][tT][pP][sS]?|[fF][tT][pP])://[^[:space:]/$.?#].[^[:space:]]*"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = test_stub pm
+      , _md_test_results    = []
       , _md_parser          = Nothing
       , _md_description     = "a URL"
       }
@@ -828,10 +829,6 @@ url_macro rty env pm =
         , "http://##"
         , "http://##/"
         ]
-
-test_stub :: PreludeMacro -> [TestResult]
-test_stub pm =
-  error $ "test_stub: tests missing: " ++ presentPreludeMacro pm
 
 run_tests :: (Eq a,Show a)
           => RegexType

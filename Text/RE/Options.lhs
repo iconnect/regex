@@ -17,10 +17,10 @@ import           Language.Haskell.TH.Syntax
 \begin{code}
 data Options_ r c e =
   Options
-    { _options_mode :: Mode
-    , _options_macs :: Macros r
-    , _options_comp :: c
-    , _options_exec :: e
+    { _options_mode :: !Mode
+    , _options_macs :: !(Macros r)
+    , _options_comp :: !c
+    , _options_exec :: !e
     }
   deriving (Show)
 \end{code}

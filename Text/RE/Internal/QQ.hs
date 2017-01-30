@@ -1,21 +1,26 @@
+{-# LANGUAGE DeriveDataTypeable         #-}
+
 module Text.RE.Internal.QQ where
 
+import           Control.Exception
+import           Data.Typeable
 import           Language.Haskell.TH.Quote
 
 
-qq0 :: String -> QuasiQuoter
-qq0 nm =
-  QuasiQuoter
-    { quoteExp  = const $ error $ oops "an expression"
-    , quotePat  = const $ error $ oops "a pattern"
-    , quoteType = const $ error $ oops "a type"
-    , quoteDec  = const $ error $ oops "a declaration"
+data QQFailure =
+  QQFailure
+    { _qqf_context   :: String
+    , _qqf_component :: String
     }
-  where
-    oops sc = unwords
-      [ "`"
-      , nm
-      , "` QuasiQuoter has been used in"
-      , sc
-      , "context but it should be used in an expresion context."
-      ]
+  deriving (Show,Typeable)
+
+instance Exception QQFailure where
+
+qq0 :: String -> QuasiQuoter
+qq0 ctx =
+  QuasiQuoter
+    { quoteExp  = const $ throw $ QQFailure ctx "expression"
+    , quotePat  = const $ throw $ QQFailure ctx "pattern"
+    , quoteType = const $ throw $ QQFailure ctx "type"
+    , quoteDec  = const $ throw $ QQFailure ctx "declaration"
+    }

@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                0.0.0.1
+Version:                0.0.0.2
 Synopsis:               A Regular Expression Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
@@ -16,8 +16,11 @@ Copyright:              Chris Dornan 2016-2017
 Category:               Text
 Build-type:             Simple
 Stability:              rfc
-Extra-source-files:     changelog
 bug-reports:            https://github.com/iconnect/regex/issues
+
+extra-source-files:
+    README.md
+    changelog
 
 Cabal-version:          >= 1.16
 
@@ -26,9 +29,9 @@ Source-repository head
     location:           https://github.com/iconnect/regex.git
 
 Source-Repository this
-    Type:              git
-    Location:          https://github.com/iconnect/regex.git
-    Tag:               0.0.0.1
+    Type:               git
+    Location:           https://github.com/iconnect/regex.git
+    Tag:                0.0.0.2
 
 Library
     Exposed-modules:

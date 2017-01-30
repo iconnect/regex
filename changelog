@@ -5,7 +5,7 @@
   * Remove hsyslog dependency
   * Establish Travis CI, AppVeyor and coveralls.io integrations
   * Fix time parser to use Fixed arithmetic
-  * Miscelaneous fixes
+  * Miscelaneous minor adjustments
 
 0.0.0.1 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-01-26
 	* First public release

@@ -20,16 +20,19 @@ import           Text.RE.TDFA.RE
 import qualified Text.Regex.TDFA               as TDFA
 
 
+-- | find all matches in text
 (*=~) :: String
       -> RE
       -> Matches String
 (*=~) bs rex = addCaptureNamesToMatches (reCaptureNames rex) $ match (reRegex rex) bs
 
+-- | find first matches in text
 (?=~) :: String
       -> RE
       -> Match String
 (?=~) bs rex = addCaptureNamesToMatch (reCaptureNames rex) $ match (reRegex rex) bs
 
+-- | regex-base polymorphic match operator
 (=~) :: ( RegexContext TDFA.Regex String a
         , RegexMaker   TDFA.Regex TDFA.CompOption TDFA.ExecOption String
         )
@@ -38,6 +41,7 @@ import qualified Text.Regex.TDFA               as TDFA
      -> a
 (=~) bs rex = match (reRegex rex) bs
 
+-- | regex-base monadic, polymorphic match operator
 (=~~) :: ( Monad m
          , RegexContext TDFA.Regex String a
          , RegexMaker   TDFA.Regex TDFA.CompOption TDFA.ExecOption String

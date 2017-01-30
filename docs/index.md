@@ -22,10 +22,11 @@ regex extends regex-base with:
 Schedule
 --------
 
-  * **2017-01-27**&nbsp;&nbsp;0.0.0.1&nbsp;&nbsp;Pre-release
-  * **2017-01-30**&nbsp;&nbsp;0.0.1.0&nbsp;&nbsp;RFC
-  * **2017-02-20**&nbsp;&nbsp;0.1.0.0&nbsp;&nbsp;a candidate stable release
-  * **2017-03-20**&nbsp;&nbsp;1.0.0.0&nbsp;&nbsp;first stable release
+- [X] **2017-01-26**&nbsp;&nbsp;0.0.0.1&nbsp;&nbsp;Pre-release (I)
+- [X] **2017-01-30**&nbsp;&nbsp;0.0.0.2&nbsp;&nbsp;Pre-release (II)
+- [ ] **2017-02-06**&nbsp;&nbsp;0.0.1.0&nbsp;&nbsp;RFC
+- [ ] **2017-02-20**&nbsp;&nbsp;0.1.0.0&nbsp;&nbsp;a candidate stable release
+- [ ] **2017-03-20**&nbsp;&nbsp;1.0.0.0&nbsp;&nbsp;first stable release
 
 
 Installation Instructions

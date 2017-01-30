@@ -1,4 +1,11 @@
 -*-change-log-*-
 
-0.0.0.1 Chris Dornan <chrisd@irisconnect.co.uk> Feb 2014
+0.0.0.2 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-01-30
+  * Fix for Windows
+  * Remove hsyslog dependency
+  * Establish Travis CI, AppVeyor and coveralls.io integrations
+  * Fix time parser to use Fixed arithmetic
+  * Miscelaneous minor adjustments
+
+0.0.0.1 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-01-26
 	* First public release

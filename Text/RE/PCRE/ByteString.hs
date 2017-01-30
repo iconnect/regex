@@ -20,16 +20,19 @@ import           Text.RE.PCRE.RE
 import qualified Text.Regex.PCRE               as PCRE
 
 
+-- | find all matches in text
 (*=~) :: B.ByteString
       -> RE
       -> Matches B.ByteString
 (*=~) bs rex = addCaptureNamesToMatches (reCaptureNames rex) $ match (reRegex rex) bs
 
+-- | find first matches in text
 (?=~) :: B.ByteString
       -> RE
       -> Match B.ByteString
 (?=~) bs rex = addCaptureNamesToMatch (reCaptureNames rex) $ match (reRegex rex) bs
 
+-- | regex-base polymorphic match operator
 (=~) :: ( RegexContext PCRE.Regex B.ByteString a
         , RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption String
         )
@@ -38,6 +41,7 @@ import qualified Text.Regex.PCRE               as PCRE
      -> a
 (=~) bs rex = match (reRegex rex) bs
 
+-- | regex-base monadic, polymorphic match operator
 (=~~) :: ( Monad m
          , RegexContext PCRE.Regex B.ByteString a
          , RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption String

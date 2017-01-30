@@ -78,10 +78,10 @@ regexType = TDFA
 
 data RE =
   RE
-    { _re_options :: Options
-    , _re_source  :: String
-    , _re_cnames  :: CaptureNames
-    , _re_regex   :: Regex
+    { _re_options :: !Options
+    , _re_source  :: !String
+    , _re_cnames  :: !CaptureNames
+    , _re_regex   :: !Regex
     }
 
 reOptions :: RE -> Options
@@ -173,8 +173,6 @@ compileRegex_ os re_s = uncurry mk <$> compileRegex' os re_s
         , _re_cnames  = cnms
         , _re_regex   = rx
         }
-
-    Options{..} = os
 
 re' :: Maybe SimpleRegexOptions -> QuasiQuoter
 re' mb = case mb of

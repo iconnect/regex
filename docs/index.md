@@ -50,7 +50,7 @@ Loading up the Tutorial into ghci
 ```bash
 cabal unpack regex
 cd regex-*
-cabal configure --enable-tests
+cabal configure
 cabal repl examples/re-tutorial
 ```
 

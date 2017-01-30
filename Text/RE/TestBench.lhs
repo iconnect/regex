@@ -23,7 +23,7 @@ module Text.RE.TestBench
   , formatMacroSources
   , formatMacroSource
   , testMacroDescriptors
-  , regexSource
+-- , regexSource
   ) where
 
 import           Data.Array
@@ -49,7 +49,7 @@ Types
 data RegexType
   = TDFA    -- the TDFA back end
   | PCRE    -- the PCRE back end
-  deriving (Eq,Ord,Show)
+  deriving (Bounded,Enum,Eq,Ord,Show)
 
 -- | do we need the captures in the RE or whould they be stripped out
 -- where possible
@@ -66,12 +66,12 @@ type MacroEnv = HML.HashMap MacroID MacroDescriptor
 -- description
 data MacroDescriptor =
   MacroDescriptor
-    { _md_source          :: RegexSource      -- ^ the RE
-    , _md_samples         :: [String]         -- ^ some sample matches
-    , _md_counter_samples :: [String]         -- ^ some sample non-matches
-    , _md_test_results    :: [TestResult]     -- ^ validation test results
-    , _md_parser          :: Maybe FunctionID -- ^ WA, the parser function
-    , _md_description     :: String           -- ^ summary comment
+    { _md_source          :: !RegexSource         -- ^ the RE
+    , _md_samples         :: ![String]            -- ^ some sample matches
+    , _md_counter_samples :: ![String]            -- ^ some sample non-matches
+    , _md_test_results    :: ![TestResult]        -- ^ validation test results
+    , _md_parser          :: !(Maybe FunctionID)  -- ^ WA, the parser function
+    , _md_description     :: !String              -- ^ summary comment
     }
   deriving (Show)
 

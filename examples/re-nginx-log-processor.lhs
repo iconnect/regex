@@ -298,7 +298,7 @@ user_macro env mid =
       { _md_source          = "(?:-|[^[:space:]]+)"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = def_test_results
+      , _md_test_results    = []
       , _md_parser          = Just "parse_user"
       , _md_description     = "a user ident (per RFC1413)"
       }
@@ -321,7 +321,7 @@ pid_tid_macro env mid =
       { _md_source          = "(?:@{%natural})#(?:@{%natural}):"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = def_test_results
+      , _md_test_results    = []
       , _md_parser          = Just "parse_pid_tid"
       , _md_description     = "<PID>#<TID>:"
       }
@@ -346,7 +346,7 @@ access_macro env mid =
       { _md_source          = access_re
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = def_test_results
+      , _md_test_results    = []
       , _md_parser          = Just "parse_a"
       , _md_description     = "an Nginx access log file line"
       }
@@ -379,7 +379,7 @@ access_deg_macro env mid =
       { _md_source          = " -  \\[\\] \"\"   \"\" \"\" \"\""
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = def_test_results
+      , _md_test_results    = []
       , _md_parser          = Nothing
       , _md_description     = "a degenerate Nginx access log file line"
       }
@@ -401,7 +401,7 @@ error_macro env mid =
       { _md_source          = error_re
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
-      , _md_test_results    = def_test_results
+      , _md_test_results    = []
       , _md_parser          = Just "parse_e"
       , _md_description     = "an Nginx error log file line"
       }
@@ -430,9 +430,6 @@ error_macro env mid =
         [ ""
         , "foo"
         ]
-
-def_test_results :: [TestResult]
-def_test_results = error "def_test_results"
 \end{code}
 
 \begin{code}

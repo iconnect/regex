@@ -2,28 +2,46 @@
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE TemplateHaskell            #-}
 
 module Main (main) where
 
 import           Control.Applicative
+import           Control.Exception
 import           Data.Array
 import qualified Data.ByteString.Char8          as B
 import qualified Data.ByteString.Lazy.Char8     as LBS
-import           Data.Foldable
+import qualified Data.Foldable                  as F
+import           Data.Maybe
 import           Data.Monoid
 import qualified Data.Sequence                  as S
 import           Data.String
 import qualified Data.Text                      as T
 import qualified Data.Text.Lazy                 as LT
+import           Language.Haskell.TH.Quote
 import           Test.Tasty
 import           Test.Tasty.HUnit
+import qualified Text.Regex.PCRE                as PCRE_
+import qualified Text.Regex.TDFA                as TDFA_
 import           Text.RE
 import           Text.RE.Internal.NamedCaptures
-import qualified Text.RE.PCRE           as PCRE
-import           Text.RE.TDFA           as TDFA
+import           Text.RE.Internal.PreludeMacros
+import           Text.RE.Internal.QQ
+import qualified Text.RE.PCRE                   as PCRE
+import           Text.RE.TDFA                   as TDFA
 import           Text.RE.TestBench
 
-import           Text.RE.TDFA.String()
+import qualified Text.RE.PCRE.String            as P_ST
+import qualified Text.RE.PCRE.ByteString        as P_BS
+import qualified Text.RE.PCRE.ByteString.Lazy   as PLBS
+import qualified Text.RE.PCRE.Sequence          as P_SQ
+
+import qualified Text.RE.TDFA.String            as T_ST
+import qualified Text.RE.TDFA.ByteString        as T_BS
+import qualified Text.RE.TDFA.ByteString.Lazy   as TLBS
+import qualified Text.RE.TDFA.Sequence          as T_SQ
+import qualified Text.RE.TDFA.Text              as T_TX
+import qualified Text.RE.TDFA.Text.Lazy         as TLTX
 
 
 main :: IO ()
@@ -35,6 +53,8 @@ main = defaultMain $
     , replace_tests
     , options_tests
     , namedCapturesTestTree
+    , many_tests
+    , misc_tests
     ]
 
 prelude_tests :: TestTree
@@ -199,7 +219,7 @@ replace_tests = testGroup "Replace"
       let ms = S.fromList str =~ regex_ :: Matches (S.Seq Char)
           f  = \_ (Location i j) Capture{..} -> Just $ S.fromList $
                   "(" <> show i <> ":" <> show_co j <> ":" <>
-                    toList capturedText <> ")"
+                    F.toList capturedText <> ")"
           r  = replaceAllCaptures' ALL f ms
       assertEqual "replaceAllCaptures'" r $
         S.fromList "(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))"
@@ -254,4 +274,168 @@ options_tests = testGroup "Simple Options"
     ]
   where
     s = "0a\nbb\nFe\nA5" :: String
+
+many_tests :: TestTree
+many_tests = testGroup "Many Tests"
+    [ testCase "PCRE a"               $ test (PCRE.*=~) (PCRE.?=~) (PCRE.=~) (PCRE.=~~) matchOnce matchMany id          re_pcre
+    , testCase "PCRE ByteString"      $ test (P_BS.*=~) (P_BS.?=~) (P_BS.=~) (P_BS.=~~) matchOnce matchMany B.pack      re_pcre
+    , testCase "PCRE ByteString.Lazy" $ test (PLBS.*=~) (PLBS.?=~) (PLBS.=~) (PLBS.=~~) matchOnce matchMany LBS.pack    re_pcre
+    , testCase "PCRE Sequence"        $ test (P_SQ.*=~) (P_SQ.?=~) (P_SQ.=~) (P_SQ.=~~) matchOnce matchMany S.fromList  re_pcre
+    , testCase "PCRE String"          $ test (P_ST.*=~) (P_ST.?=~) (P_ST.=~) (P_ST.=~~) matchOnce matchMany id          re_pcre
+    , testCase "TDFA a"               $ test (TDFA.*=~) (TDFA.?=~) (TDFA.=~) (TDFA.=~~) matchOnce matchMany id          re_tdfa
+    , testCase "TDFA ByteString"      $ test (T_BS.*=~) (T_BS.?=~) (T_BS.=~) (T_BS.=~~) matchOnce matchMany B.pack      re_tdfa
+    , testCase "TDFA ByteString.Lazy" $ test (TLBS.*=~) (TLBS.?=~) (TLBS.=~) (TLBS.=~~) matchOnce matchMany LBS.pack    re_tdfa
+    , testCase "TDFA Sequence"        $ test (T_SQ.*=~) (T_SQ.?=~) (T_SQ.=~) (T_SQ.=~~) matchOnce matchMany S.fromList  re_tdfa
+    , testCase "TDFA String"          $ test (T_ST.*=~) (T_ST.?=~) (T_ST.=~) (T_ST.=~~) matchOnce matchMany id          re_tdfa
+    , testCase "TDFA Text"            $ test (T_TX.*=~) (T_TX.?=~) (T_TX.=~) (T_TX.=~~) matchOnce matchMany T.pack      re_tdfa
+    , testCase "TDFA Text.Lazy"       $ test (TLTX.*=~) (TLTX.?=~) (TLTX.=~) (TLTX.=~~) matchOnce matchMany LT.pack     re_tdfa
+    ]
+  where
+    test :: (Show s,Eq s)
+         => (s->r->Matches s)
+         -> (s->r->Match   s)
+         -> (s->r->Matches s)
+         -> (s->r->Maybe(Match s))
+         -> (r->s->Match   s)
+         -> (r->s->Matches s)
+         -> (String->s)
+         -> r
+         -> Assertion
+    test (%*=~) (%?=~) (%=~) (%=~~) mo mm inj r = do
+        2         @=? countMatches mtchs
+        Just txt' @=? matchedText  mtch
+        mtchs     @=? mtchs'
+        mb_mtch   @=? Just mtch
+        mtch      @=? mtch''
+        mtchs     @=? mtchs''
+      where
+        mtchs   = txt %*=~ r
+        mtch    = txt %?=~ r
+        mtchs'  = txt %=~  r
+        mb_mtch = txt %=~~ r
+        mtch''  = mo r txt
+        mtchs'' = mm r txt
+
+        txt     = inj "2016-01-09 2015-12-5 2015-10-05"
+        txt'    = inj "2016-01-09"
+
+    re_pcre = fromMaybe oops $ PCRE.compileRegex () "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+    re_tdfa = fromMaybe oops $ TDFA.compileRegex () "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+
+    oops    = error "many_tests"
+
+misc_tests :: TestTree
+misc_tests = testGroup "Miscelaneous Tests"
+    [ testGroup "QQ"
+        [ qq_tc "expression"  quoteExp
+        , qq_tc "pattern"     quotePat
+        , qq_tc "type"        quoteType
+        , qq_tc "declaration" quoteDec
+        ]
+    , testGroup "PreludeMacros"
+        [ valid_string "preludeMacroTable"    preludeMacroTable
+        , valid_macro  "preludeMacroSummary"  preludeMacroSummary
+        , valid_string "preludeMacroSources"  preludeMacroSources
+        , valid_macro  "preludeMacroSource"   preludeMacroSource
+        ]
+    , testGroup "RE"
+        [ valid_res TDFA
+            [ TDFA.re
+            , TDFA.reMS
+            , TDFA.reMI
+            , TDFA.reBS
+            , TDFA.reBI
+            , TDFA.reMultilineSensitive
+            , TDFA.reMultilineInsensitive
+            , TDFA.reBlockSensitive
+            , TDFA.reBlockInsensitive
+            , TDFA.re_
+            ]
+        , testCase  "TDFA.regexType"           $ TDFA   @=? TDFA.regexType
+        , testCase  "TDFA.reOptions"           $ Simple @=? _options_mode (TDFA.reOptions tdfa_re)
+        , testCase  "TDFA.makeOptions md"      $ Block  @=? _options_mode (makeOptions Block :: Options_ TDFA.RE TDFA_.CompOption TDFA_.ExecOption)
+        , testCase  "TDFA.preludeTestsFailing" $ []     @=? TDFA.preludeTestsFailing
+        , ne_string "TDFA.preludeTable"          TDFA.preludeTable
+        , ne_string "TDFA.preludeSources"        TDFA.preludeSources
+        , testGroup "TDFA.preludeSummary"
+            [ ne_string (presentPreludeMacro pm) $ TDFA.preludeSummary pm
+                | pm <- tdfa_prelude_macros
+                ]
+        , testGroup  "TDFA.preludeSource"
+            [ ne_string (presentPreludeMacro pm) $ TDFA.preludeSource  pm
+                | pm <- tdfa_prelude_macros
+                ]
+        , valid_res PCRE
+            [ PCRE.re
+            , PCRE.reMS
+            , PCRE.reMI
+            , PCRE.reBS
+            , PCRE.reBI
+            , PCRE.reMultilineSensitive
+            , PCRE.reMultilineInsensitive
+            , PCRE.reBlockSensitive
+            , PCRE.reBlockInsensitive
+            , PCRE.re_
+            ]
+        , testCase  "PCRE.regexType"           $ PCRE   @=? PCRE.regexType
+        , testCase  "PCRE.reOptions"           $ Simple @=? _options_mode (PCRE.reOptions pcre_re)
+        , testCase  "PCRE.makeOptions md"      $ Block  @=? _options_mode (makeOptions Block :: Options_ PCRE.RE PCRE_.CompOption PCRE_.ExecOption)
+        , testCase  "PCRE.preludeTestsFailing" $ []     @=? PCRE.preludeTestsFailing
+        , ne_string "PCRE.preludeTable"          PCRE.preludeTable
+        , ne_string "PCRE.preludeTable"          PCRE.preludeSources
+        , testGroup "PCRE.preludeSummary"
+            [ ne_string (presentPreludeMacro pm) $ PCRE.preludeSummary pm
+                | pm <- pcre_prelude_macros
+                ]
+        , testGroup "PCRE.preludeSource"
+            [ ne_string (presentPreludeMacro pm) $ PCRE.preludeSource  pm
+                | pm <- pcre_prelude_macros
+                ]
+        ]
+    ]
+  where
+    tdfa_re = fromMaybe oops $ TDFA.compileRegex () ".*"
+    pcre_re = fromMaybe oops $ PCRE.compileRegex () ".*"
+
+    oops = error "misc_tests"
+
+qq_tc :: String -> (QuasiQuoter->String->a) -> TestTree
+qq_tc sc prj = testCase sc $
+    try tst >>= either hdl (const $ assertFailure "qq0")
+  where
+    tst :: IO ()
+    tst = prj (qq0 "qq_tc") "" `seq` return ()
+
+    hdl :: QQFailure -> IO ()
+    hdl qqf = do
+      "qq_tc" @=? _qqf_context   qqf
+      sc      @=? _qqf_component qqf
+
+valid_macro :: String -> (RegexType->PreludeMacro->String) -> TestTree
+valid_macro label f = testGroup label
+    [ valid_string (presentPreludeMacro pm) (flip f pm)
+        | pm<-[minBound..maxBound]
+        ]
+
+valid_string :: String -> (RegexType->String) -> TestTree
+valid_string label f = testGroup label
+    [ ne_string (show rty) $ f rty
+        | rty<-[TDFA] -- until PCRE has a binding for all macros
+        ]
+
+ne_string :: String -> String -> TestTree
+ne_string label s =
+  testCase label $ assertBool "non-empty string" $ length s > 0
+
+-- just evaluating quasi quoters to HNF for now -- they
+-- being tested everywhere [re|...|] (etc.) calculations
+-- are bings used but HPC isn't measuring this
+valid_res :: RegexType -> [QuasiQuoter] -> TestTree
+valid_res rty = testCase (show rty) . foldr seq (return ())
+
+pcre_prelude_macros :: [PreludeMacro]
+pcre_prelude_macros = filter (/= PM_string) [minBound..maxBound]
+
+tdfa_prelude_macros :: [PreludeMacro]
+tdfa_prelude_macros = [minBound..maxBound]
 \end{code}

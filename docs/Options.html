@@ -47,7 +47,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/Text/RE/Options.lhs'>RE/Options</a></ol>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/Options.lhs'>RE/Options</a></ol><div class='content'>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
 <span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
 <span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
@@ -63,10 +63,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Language.Haskell.TH.Syntax</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Options_</span> r c e <span class="fu">=</span>
   <span class="dt">Options</span>
-    {<span class="ot"> _options_mode ::</span> <span class="dt">Mode</span>
-    ,<span class="ot"> _options_macs ::</span> <span class="dt">Macros</span> r
-    ,<span class="ot"> _options_comp ::</span> c
-    ,<span class="ot"> _options_exec ::</span> e
+    {<span class="ot"> _options_mode ::</span> <span class="fu">!</span><span class="dt">Mode</span>
+    ,<span class="ot"> _options_macs ::</span> <span class="fu">!</span>(<span class="dt">Macros</span> r)
+    ,<span class="ot"> _options_comp ::</span> <span class="fu">!</span>c
+    ,<span class="ot"> _options_exec ::</span> <span class="fu">!</span>e
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">IsOption</span> o r c e <span class="fu">|</span>
@@ -96,5 +96,6 @@ emptyMacros <span class="fu">=</span> HM.empty</code></pre></div>
     <span class="dt">MultilineInsensitive</span>  <span class="ot">-&gt;</span> conE <span class="ch">&#39;MultilineInsensitive</span>
     <span class="dt">BlockSensitive</span>        <span class="ot">-&gt;</span> conE <span class="ch">&#39;BlockSensitive</span>
     <span class="dt">BlockInsensitive</span>      <span class="ot">-&gt;</span> conE <span class="ch">&#39;BlockInsensitive</span></code></pre></div>
+</div>
 </body>
 </html>

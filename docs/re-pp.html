@@ -47,7 +47,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/examples/re-pp.lhs'>re-pp</a></ol>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/examples/re-pp.lhs'>re-pp</a></ol><div class='content'>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
 <span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
@@ -369,6 +369,7 @@ pandoc title in_file <span class="fu">=</span> pandoc&#39; title in_file in_file
 <span class="ot">pandoc&#39; ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 pandoc&#39; title repo_path in_file out_file <span class="fu">=</span> <span class="kw">do</span>
   writeFile <span class="st">&quot;tmp/bc.html&quot;</span> bc
+  writeFile <span class="st">&quot;tmp/ft.html&quot;</span> ft
   fmap (const ()) <span class="fu">$</span>
     SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span>
       SH.run <span class="st">&quot;pandoc&quot;</span>
@@ -376,6 +377,7 @@ pandoc&#39; title repo_path in_file out_file <span class="fu">=</span> <span cla
         , <span class="st">&quot;-t&quot;</span>, <span class="st">&quot;html&quot;</span>
         , <span class="st">&quot;-s&quot;</span>
         , <span class="st">&quot;-B&quot;</span>, <span class="st">&quot;tmp/bc.html&quot;</span>
+        , <span class="st">&quot;-A&quot;</span>, <span class="st">&quot;tmp/ft.html&quot;</span>
         , <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;lib/styles.css&quot;</span>
         , <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;lib/bs.css&quot;</span>
         , <span class="st">&quot;-o&quot;</span>, out_file
@@ -389,6 +391,11 @@ pandoc&#39; title repo_path in_file out_file <span class="fu">=</span> <span cla
       , <span class="st">&quot;&#39;&gt;&quot;</span>
       , T.unpack title
       , <span class="st">&quot;&lt;/a&gt;&lt;/ol&gt;&quot;</span>
+      , <span class="st">&quot;&lt;div class=&#39;content&#39;&gt;&quot;</span>
+      ]
+
+    ft <span class="fu">=</span> concat
+      [ <span class="st">&quot;&lt;/div&gt;&quot;</span>
       ]
 
     repo_url <span class="fu">=</span> concat
@@ -403,5 +410,6 @@ test <span class="fu">=</span> <span class="kw">do</span>
   gm <span class="ot">&lt;-</span> genMode
   test_pp <span class="st">&quot;pp-gen&quot;</span> (loop gm) <span class="st">&quot;data/pp-test.lhs&quot;</span> <span class="st">&quot;data/pp-result-gen.lhs&quot;</span>
   putStrLn <span class="st">&quot;tests passed&quot;</span></code></pre></div>
+</div>
 </body>
 </html>

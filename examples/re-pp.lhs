@@ -443,7 +443,8 @@ pandoc' title repo_path in_file out_file = do
       ]
 
     ft = concat
-      [ "</div>" ]
+      [ "</div>"
+      ]
 
     repo_url = concat
       [ "https://github.com/iconnect/regex/blob/master/"

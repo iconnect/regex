@@ -47,7 +47,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/Text/RE/Edit.lhs'>RE/Edit</a></ol>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/Edit.lhs'>RE/Edit</a></ol><div class='content'>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.Edit</span>
@@ -140,5 +140,6 @@ pipe_edit_scripts lno ez s0 <span class="fu">=</span>
     f (re,es) act <span class="fu">=</span> <span class="kw">do</span>
       s <span class="ot">&lt;-</span> act
       fromMaybe s <span class="fu">&lt;$&gt;</span> applyEdit id lno re es s</code></pre></div>
+</div>
 </body>
 </html>

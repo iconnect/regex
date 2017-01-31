@@ -47,7 +47,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/Text/RE/Capture.lhs'>RE/Capture</a></ol>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/Capture.lhs'>RE/Capture</a></ol><div class='content'>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE FlexibleInstances          #-}</span>
 <span class="ot">{-# LANGUAGE UndecidableInstances       #-}</span>
@@ -224,7 +224,10 @@ capturePrefix <span class="dt">Capture</span>{<span class="fu">..</span>} <span 
 <span class="ot">captureSuffix ::</span> <span class="dt">Extract</span> a <span class="ot">=&gt;</span> <span class="dt">Capture</span> a <span class="ot">-&gt;</span> a
 captureSuffix <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="fu">=</span> after (captureOffset<span class="fu">+</span>captureLength) captureSource</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | for matching just the first RE against the source text</span>
-<span class="kw">instance</span> <span class="dt">RegexContext</span> regex source (<span class="dt">AllTextSubmatches</span> (<span class="dt">Array</span> <span class="dt">Int</span>) (source,(<span class="dt">Int</span>,<span class="dt">Int</span>))) <span class="ot">=&gt;</span>
+<span class="kw">instance</span>
+    ( <span class="dt">RegexContext</span> regex source (<span class="dt">AllTextSubmatches</span> (<span class="dt">Array</span> <span class="dt">Int</span>) (source,(<span class="dt">Int</span>,<span class="dt">Int</span>)))
+    , <span class="dt">RegexLike</span>    regex source
+    ) <span class="ot">=&gt;</span>
   <span class="dt">RegexContext</span> regex source (<span class="dt">Match</span> source) <span class="kw">where</span>
     match  r s <span class="fu">=</span> cvt s <span class="fu">$</span> getAllTextSubmatches <span class="fu">$</span> match r s
     matchM r s <span class="fu">=</span> <span class="kw">do</span>
@@ -232,7 +235,10 @@ captureSuffix <span class="dt">Capture</span>{<span class="fu">..</span>} <span 
       return <span class="fu">$</span> cvt s <span class="fu">$</span> getAllTextSubmatches y
 
 <span class="co">-- | for matching all REs against the source text</span>
-<span class="kw">instance</span> <span class="dt">RegexContext</span> regex source [<span class="dt">MatchText</span> source] <span class="ot">=&gt;</span>
+<span class="kw">instance</span>
+    ( <span class="dt">RegexContext</span> regex source [<span class="dt">MatchText</span> source]
+    , <span class="dt">RegexLike</span>    regex source
+    ) <span class="ot">=&gt;</span>
   <span class="dt">RegexContext</span> regex source (<span class="dt">Matches</span> source) <span class="kw">where</span>
     match  r s <span class="fu">=</span> <span class="dt">Matches</span> s <span class="fu">$</span> map (cvt s) <span class="fu">$</span> match r s
     matchM r s <span class="fu">=</span> <span class="kw">do</span>
@@ -257,5 +263,6 @@ cvt hay arr <span class="fu">=</span>
         , captureOffset <span class="fu">=</span> off
         , captureLength <span class="fu">=</span> len
         }</code></pre></div>
+</div>
 </body>
 </html>

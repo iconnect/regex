@@ -47,8 +47,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/Text/RE/IsRegex.lhs'>RE/IsRegex</a></ol>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/IsRegex.lhs'>RE/IsRegex</a></ol><div class='content'>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE MultiParamTypeClasses      #-}</span>
+<span class="ot">{-# LANGUAGE AllowAmbiguousTypes        #-}</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.IsRegex</span> <span class="kw">where</span>
 
@@ -58,5 +59,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="ot">  matchOnce   ::</span> re <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">Match</span> s
 <span class="ot">  matchMany   ::</span> re <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">Matches</span> s
 <span class="ot">  regexSource ::</span> re <span class="ot">-&gt;</span> <span class="dt">String</span></code></pre></div>
+</div>
 </body>
 </html>

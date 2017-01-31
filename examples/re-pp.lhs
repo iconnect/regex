@@ -417,6 +417,7 @@ pandoc title in_file = pandoc' title in_file in_file
 pandoc' :: T.Text -> T.Text -> T.Text -> T.Text -> IO ()
 pandoc' title repo_path in_file out_file = do
   writeFile "tmp/bc.html" bc
+  writeFile "tmp/ft.html" ft
   fmap (const ()) $
     SH.shelly $ SH.verbosely $
       SH.run "pandoc"
@@ -424,6 +425,7 @@ pandoc' title repo_path in_file out_file = do
         , "-t", "html"
         , "-s"
         , "-B", "tmp/bc.html"
+        , "-A", "tmp/ft.html"
         , "-c", "lib/styles.css"
         , "-c", "lib/bs.css"
         , "-o", out_file
@@ -437,6 +439,11 @@ pandoc' title repo_path in_file out_file = do
       , "'>"
       , T.unpack title
       , "</a></ol>"
+      , "<div class='content'>"
+      ]
+
+    ft = concat
+      [ "</div>"
       ]
 
     repo_url = concat

@@ -47,7 +47,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/examples/re-tutorial.lhs'>re-tutorial.lhs</a></ol>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/examples/re-tutorial.lhs'>re-tutorial.lhs</a></ol><div class='content'>
 <h1 id="the-regex-tutorial">The Regex Tutorial</h1>
 <p>This is a literate Haskell programme lightly processed to produce this web presentation and also to generate a test suite that verifies that each of the example calculations are generating the expected results. You can load it into ghci and try out the examples either by running <em>ghci</em> itself from the root folder of the regex package:</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">ghci</span> examples/re-tutorial.lhs</code></pre></div>
@@ -406,10 +406,10 @@ Each type of RE — TDFA and PCRE — has it own complile-time options and execu
 <div class="includedcodeblock">
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Options_</span> r c e <span class="fu">=</span>
   <span class="dt">Options</span>
-    {<span class="ot"> _options_mode ::</span> <span class="dt">Mode</span>
-    ,<span class="ot"> _options_macs ::</span> <span class="dt">Macros</span> r
-    ,<span class="ot"> _options_comp ::</span> c
-    ,<span class="ot"> _options_exec ::</span> e
+    {<span class="ot"> _options_mode ::</span> <span class="fu">!</span><span class="dt">Mode</span>
+    ,<span class="ot"> _options_macs ::</span> <span class="fu">!</span>(<span class="dt">Macros</span> r)
+    ,<span class="ot"> _options_comp ::</span> <span class="fu">!</span>c
+    ,<span class="ot"> _options_exec ::</span> <span class="fu">!</span>e
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
 </div>
@@ -488,9 +488,9 @@ If you just need to specify some non-standard options while statically checking 
 <div class="includedcodeblock">
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">SedScript</span> <span class="dt">RE</span>
 script ctx <span class="fu">=</span> <span class="dt">Select</span>
-    [ on [re_|@{access}|]     <span class="dt">Acc</span> parse_access
-    , on [re_|@{access_deg}|] <span class="dt">AcQ</span> parse_deg_access
-    , on [re_|@{error}|]      <span class="dt">Err</span> parse_error
+    [ on [re_|@{access}|]     <span class="dt">ACC</span> parse_access
+    , on [re_|@{access_deg}|] <span class="dt">AQQ</span> parse_deg_access
+    , on [re_|@{error}|]      <span class="dt">ERR</span> parse_error
     , on [re_|.*|]            <span class="dt">QQQ</span> parse_def
     ]
   <span class="kw">where</span>
@@ -728,5 +728,6 @@ scan rex <span class="fu">=</span> grepScript
 <p>The preprocessor that converts this literate Haskell program into a web page and a test suite that makes plenty of use of regex is in <a href="re-pp.html">examples/re-pp.lhs</a>.</p>
 <h2 id="example-gen-modules">Example: gen-modules</h2>
 <p>The many TDFA and PCRE API modules (but <em>not</em> the <code>RE</code> modules) are all generated from <code>Text.RE.TDFA.ByteString.Lazy</code> with <a href="re-gen-modules.html">examples/re-gen-modules.lhs</a> which is also an application of regex.</p>
+</div>
 </body>
 </html>

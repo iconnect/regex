@@ -47,7 +47,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/examples/TestKit.lhs'>TestKit</a></ol>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/examples/TestKit.lhs'>TestKit</a></ol><div class='content'>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
 
@@ -61,6 +61,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Control.Exception</span>
 <span class="kw">import qualified</span> <span class="dt">Data.Text</span>                                <span class="kw">as</span> <span class="dt">T</span>
 <span class="kw">import qualified</span> <span class="dt">Shelly</span>                                   <span class="kw">as</span> <span class="dt">SH</span>
+<span class="kw">import           </span><span class="dt">System.Directory</span>
 <span class="kw">import           </span><span class="dt">System.Environment</span>
 <span class="kw">import           </span><span class="dt">System.Exit</span>
 <span class="kw">import           </span><span class="dt">System.IO</span></code></pre></div>
@@ -111,6 +112,7 @@ present_test <span class="dt">Test</span>{<span class="fu">..</span>} <span clas
         <span class="ot">-&gt;</span> FilePath
         <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 test_pp lab loop test_file gold_file <span class="fu">=</span> <span class="kw">do</span>
+    createDirectoryIfMissing <span class="dt">False</span> <span class="st">&quot;tmp&quot;</span>
     loop test_file tmp_pth
     ok <span class="ot">&lt;-</span> cmp (T.pack tmp_pth) (T.pack gold_file)
     <span class="kw">case</span> ok <span class="kw">of</span>
@@ -131,5 +133,6 @@ cmp src dst <span class="fu">=</span> handle hdl <span class="fu">$</span> <span
       hPutStrLn stderr <span class="fu">$</span>
         <span class="st">&quot;testing results against model answers failed: &quot;</span> <span class="fu">++</span> show se
       return <span class="dt">False</span></code></pre></div>
+</div>
 </body>
 </html>

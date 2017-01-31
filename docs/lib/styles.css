@@ -2,6 +2,10 @@
  * our local style sheet
  */
 
+div.content {
+  padding: 20px;
+}
+
 div.replcodeblock div.sourceCode pre.sourceCode.literate.haskell {
   background-color: #f2f2ff;
   border: 2px solid #ffcccc;

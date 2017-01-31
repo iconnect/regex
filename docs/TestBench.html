@@ -47,7 +47,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/Text/RE/TestBench.lhs'>RE/TestBench</a></ol>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/TestBench.lhs'>RE/TestBench</a></ol><div class='content'>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
 <span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
@@ -72,7 +72,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   , formatMacroSources
   , formatMacroSource
   , testMacroDescriptors
-  , regexSource
+<span class="co">-- , regexSource</span>
   ) <span class="kw">where</span>
 
 <span class="kw">import           </span><span class="dt">Data.Array</span>
@@ -93,7 +93,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">data</span> <span class="dt">RegexType</span>
   <span class="fu">=</span> <span class="dt">TDFA</span>    <span class="co">-- the TDFA back end</span>
   <span class="fu">|</span> <span class="dt">PCRE</span>    <span class="co">-- the PCRE back end</span>
-  <span class="kw">deriving</span> (<span class="dt">Eq</span>,<span class="dt">Ord</span>,<span class="dt">Show</span>)
+  <span class="kw">deriving</span> (<span class="dt">Bounded</span>,<span class="dt">Enum</span>,<span class="dt">Eq</span>,<span class="dt">Ord</span>,<span class="dt">Show</span>)
 
 <span class="co">-- | do we need the captures in the RE or whould they be stripped out</span>
 <span class="co">-- where possible</span>
@@ -110,12 +110,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="co">-- description</span>
 <span class="kw">data</span> <span class="dt">MacroDescriptor</span> <span class="fu">=</span>
   <span class="dt">MacroDescriptor</span>
-    {<span class="ot"> _md_source          ::</span> <span class="dt">RegexSource</span>      <span class="co">-- ^ the RE</span>
-    ,<span class="ot"> _md_samples         ::</span> [<span class="dt">String</span>]         <span class="co">-- ^ some sample matches</span>
-    ,<span class="ot"> _md_counter_samples ::</span> [<span class="dt">String</span>]         <span class="co">-- ^ some sample non-matches</span>
-    ,<span class="ot"> _md_test_results    ::</span> [<span class="dt">TestResult</span>]     <span class="co">-- ^ validation test results</span>
-    ,<span class="ot"> _md_parser          ::</span> <span class="dt">Maybe</span> <span class="dt">FunctionID</span> <span class="co">-- ^ WA, the parser function</span>
-    ,<span class="ot"> _md_description     ::</span> <span class="dt">String</span>           <span class="co">-- ^ summary comment</span>
+    {<span class="ot"> _md_source          ::</span> <span class="fu">!</span><span class="dt">RegexSource</span>         <span class="co">-- ^ the RE</span>
+    ,<span class="ot"> _md_samples         ::</span> <span class="fu">!</span>[<span class="dt">String</span>]            <span class="co">-- ^ some sample matches</span>
+    ,<span class="ot"> _md_counter_samples ::</span> <span class="fu">!</span>[<span class="dt">String</span>]            <span class="co">-- ^ some sample non-matches</span>
+    ,<span class="ot"> _md_test_results    ::</span> <span class="fu">!</span>[<span class="dt">TestResult</span>]        <span class="co">-- ^ validation test results</span>
+    ,<span class="ot"> _md_parser          ::</span> <span class="fu">!</span>(<span class="dt">Maybe</span> <span class="dt">FunctionID</span>)  <span class="co">-- ^ WA, the parser function</span>
+    ,<span class="ot"> _md_description     ::</span> <span class="fu">!</span><span class="dt">String</span>              <span class="co">-- ^ summary comment</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)
 
@@ -526,5 +526,6 @@ test_diagnostic mid is_neg rty tst msg <span class="fu">=</span>
     mid_s <span class="fu">=</span> _MacroID mid
     neg_s <span class="fu">=</span> <span class="kw">if</span> is_neg <span class="kw">then</span> <span class="st">&quot;-ve&quot;</span> <span class="kw">else</span> <span class="st">&quot;+ve&quot;</span><span class="ot"> ::</span> <span class="dt">String</span>
     rty_s <span class="fu">=</span> show rty</code></pre></div>
+</div>
 </body>
 </html>

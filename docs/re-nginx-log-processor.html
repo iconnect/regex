@@ -47,7 +47,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/Lainepress/regex/blob/master/examples/re-nginx-log-processor.lhs'>re-nginx-log-processor</a></ol>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/examples/re-nginx-log-processor.lhs'>re-nginx-log-processor</a></ol><div class='content'>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
 <span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
@@ -74,7 +74,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import qualified</span> <span class="dt">Shelly</span>                                   <span class="kw">as</span> <span class="dt">SH</span>
 <span class="kw">import           </span><span class="dt">System.Directory</span>
 <span class="kw">import           </span><span class="dt">System.Environment</span>
-<span class="kw">import           </span><span class="dt">System.Posix.Syslog</span>
 <span class="kw">import           </span><span class="dt">System.Exit</span>
 <span class="kw">import           </span><span class="dt">System.IO</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Options</span>
@@ -151,9 +150,9 @@ go rprt_flg in_file out_file <span class="fu">=</span> <span class="kw">do</span
   sed (script ctx) in_file out_file</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">SedScript</span> <span class="dt">RE</span>
 script ctx <span class="fu">=</span> <span class="dt">Select</span>
-    [ on [re_|@{access}|]     <span class="dt">Acc</span> parse_access
-    , on [re_|@{access_deg}|] <span class="dt">AcQ</span> parse_deg_access
-    , on [re_|@{error}|]      <span class="dt">Err</span> parse_error
+    [ on [re_|@{access}|]     <span class="dt">ACC</span> parse_access
+    , on [re_|@{access_deg}|] <span class="dt">AQQ</span> parse_deg_access
+    , on [re_|@{error}|]      <span class="dt">ERR</span> parse_error
     , on [re_|.*|]            <span class="dt">QQQ</span> parse_def
     ]
   <span class="kw">where</span>
@@ -199,7 +198,7 @@ setup <span class="fu">=</span> return
 
 <span class="ot">event_is_notifiable ::</span> <span class="dt">Event</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
 event_is_notifiable <span class="dt">Event</span>{<span class="fu">..</span>} <span class="fu">=</span>
-  fromEnum (fromMaybe <span class="dt">Debug</span> _event_severity) <span class="fu">&lt;=</span> fromEnum <span class="dt">Error</span>
+  fromEnum (fromMaybe <span class="dt">Debug</span> _event_severity) <span class="fu">&lt;=</span> fromEnum <span class="dt">Err</span>
 
 <span class="ot">flag_event ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">Event</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 flag_event <span class="dt">False</span> <span class="fu">=</span> const <span class="fu">$</span> return ()
@@ -215,13 +214,13 @@ flag_event <span class="dt">True</span>  <span class="fu">=</span> LBS.hPutStrLn
     {<span class="ot"> _event_line     ::</span> <span class="dt">LineNo</span>
     ,<span class="ot"> _event_source   ::</span> <span class="dt">Source</span>
     ,<span class="ot"> _event_utc      ::</span> <span class="dt">UTCTime</span>
-    ,<span class="ot"> _event_severity ::</span> <span class="dt">Maybe</span> <span class="dt">Priority</span>
+    ,<span class="ot"> _event_severity ::</span> <span class="dt">Maybe</span> <span class="dt">Severity</span>
     ,<span class="ot"> _event_address  ::</span> <span class="dt">IPV4Address</span>
     ,<span class="ot"> _event_details  ::</span> <span class="dt">LBS.ByteString</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)
 
-<span class="kw">data</span> <span class="dt">Source</span> <span class="fu">=</span> <span class="dt">Acc</span> <span class="fu">|</span> <span class="dt">AcQ</span> <span class="fu">|</span> <span class="dt">Err</span> <span class="fu">|</span> <span class="dt">QQQ</span>
+<span class="kw">data</span> <span class="dt">Source</span> <span class="fu">=</span> <span class="dt">ACC</span> <span class="fu">|</span> <span class="dt">AQQ</span> <span class="fu">|</span> <span class="dt">ERR</span> <span class="fu">|</span> <span class="dt">QQQ</span>
   <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Read</span>)
 
 <span class="ot">presentEvent ::</span> <span class="dt">Event</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
@@ -333,7 +332,7 @@ user_macro env mid <span class="fu">=</span>
       { _md_source          <span class="fu">=</span> <span class="st">&quot;(?:-|[^[:space:]]+)&quot;</span>
       , _md_samples         <span class="fu">=</span> map fst samples
       , _md_counter_samples <span class="fu">=</span> counter_samples
-      , _md_test_results    <span class="fu">=</span> def_test_results
+      , _md_test_results    <span class="fu">=</span> []
       , _md_parser          <span class="fu">=</span> <span class="dt">Just</span> <span class="st">&quot;parse_user&quot;</span>
       , _md_description     <span class="fu">=</span> <span class="st">&quot;a user ident (per RFC1413)&quot;</span>
       }
@@ -356,7 +355,7 @@ pid_tid_macro env mid <span class="fu">=</span>
       { _md_source          <span class="fu">=</span> <span class="st">&quot;(?:@{%natural})#(?:@{%natural}):&quot;</span>
       , _md_samples         <span class="fu">=</span> map fst samples
       , _md_counter_samples <span class="fu">=</span> counter_samples
-      , _md_test_results    <span class="fu">=</span> def_test_results
+      , _md_test_results    <span class="fu">=</span> []
       , _md_parser          <span class="fu">=</span> <span class="dt">Just</span> <span class="st">&quot;parse_pid_tid&quot;</span>
       , _md_description     <span class="fu">=</span> <span class="st">&quot;&lt;PID&gt;#&lt;TID&gt;:&quot;</span>
       }
@@ -381,7 +380,7 @@ access_macro env mid <span class="fu">=</span>
       { _md_source          <span class="fu">=</span> access_re
       , _md_samples         <span class="fu">=</span> map fst samples
       , _md_counter_samples <span class="fu">=</span> counter_samples
-      , _md_test_results    <span class="fu">=</span> def_test_results
+      , _md_test_results    <span class="fu">=</span> []
       , _md_parser          <span class="fu">=</span> <span class="dt">Just</span> <span class="st">&quot;parse_a&quot;</span>
       , _md_description     <span class="fu">=</span> <span class="st">&quot;an Nginx access log file line&quot;</span>
       }
@@ -414,7 +413,7 @@ access_deg_macro env mid <span class="fu">=</span>
       { _md_source          <span class="fu">=</span> <span class="st">&quot; -  \\[\\] \&quot;\&quot;   \&quot;\&quot; \&quot;\&quot; \&quot;\&quot;&quot;</span>
       , _md_samples         <span class="fu">=</span> map fst samples
       , _md_counter_samples <span class="fu">=</span> counter_samples
-      , _md_test_results    <span class="fu">=</span> def_test_results
+      , _md_test_results    <span class="fu">=</span> []
       , _md_parser          <span class="fu">=</span> <span class="dt">Nothing</span>
       , _md_description     <span class="fu">=</span> <span class="st">&quot;a degenerate Nginx access log file line&quot;</span>
       }
@@ -436,7 +435,7 @@ error_macro env mid <span class="fu">=</span>
       { _md_source          <span class="fu">=</span> error_re
       , _md_samples         <span class="fu">=</span> map fst samples
       , _md_counter_samples <span class="fu">=</span> counter_samples
-      , _md_test_results    <span class="fu">=</span> def_test_results
+      , _md_test_results    <span class="fu">=</span> []
       , _md_parser          <span class="fu">=</span> <span class="dt">Just</span> <span class="st">&quot;parse_e&quot;</span>
       , _md_description     <span class="fu">=</span> <span class="st">&quot;an Nginx error log file line&quot;</span>
       }
@@ -447,7 +446,7 @@ error_macro env mid <span class="fu">=</span>
             <span class="dt">ERROR</span>
               { _e_date     <span class="fu">=</span> read <span class="st">&quot;2016-12-21&quot;</span>
               , _e_time     <span class="fu">=</span> read <span class="st">&quot;11:53:35&quot;</span>
-              , _e_severity <span class="fu">=</span> <span class="dt">Emergency</span>
+              , _e_severity <span class="fu">=</span> <span class="dt">Emerg</span>
               , _e_pid_tid  <span class="fu">=</span> (<span class="dv">1378</span>,<span class="dv">0</span>)
               , _e_other    <span class="fu">=</span> <span class="st">&quot; foo&quot;</span>
               }
@@ -455,7 +454,7 @@ error_macro env mid <span class="fu">=</span>
             <span class="dt">ERROR</span>
               { _e_date     <span class="fu">=</span> read <span class="st">&quot;2017-01-04&quot;</span>
               , _e_time     <span class="fu">=</span> read <span class="st">&quot;05:40:19&quot;</span>
-              , _e_severity <span class="fu">=</span> <span class="dt">Error</span>
+              , _e_severity <span class="fu">=</span> <span class="dt">Err</span>
               , _e_pid_tid  <span class="fu">=</span> (<span class="dv">31623</span>,<span class="dv">0</span>)
               , _e_other    <span class="fu">=</span> <span class="st">&quot; *1861296 no \&quot;ssl_certificate\&quot; is defined in server listening on SSL port while SSL handshaking, client: 192.168.31.38, server: 0.0.0.0:80&quot;</span>
               }
@@ -464,10 +463,7 @@ error_macro env mid <span class="fu">=</span>
     counter_samples <span class="fu">=</span>
         [ <span class="st">&quot;&quot;</span>
         , <span class="st">&quot;foo&quot;</span>
-        ]
-
-<span class="ot">def_test_results ::</span> [<span class="dt">TestResult</span>]
-def_test_results <span class="fu">=</span> error <span class="st">&quot;def_test_results&quot;</span></code></pre></div>
+        ]</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">
 <span class="co">--</span>
 <span class="co">-- Access, access_re, deg_access, parse_deg_access, parse_access</span>
@@ -546,7 +542,7 @@ parse_access cs <span class="fu">=</span>
   <span class="dt">ERROR</span>
     {<span class="ot"> _e_date     ::</span> <span class="dt">Day</span>
     ,<span class="ot"> _e_time     ::</span> <span class="dt">TimeOfDay</span>
-    ,<span class="ot"> _e_severity ::</span> <span class="dt">Priority</span>
+    ,<span class="ot"> _e_severity ::</span> <span class="dt">Severity</span>
     ,<span class="ot"> _e_pid_tid  ::</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)
     ,<span class="ot"> _e_other    ::</span> <span class="dt">LBS.ByteString</span>
     }
@@ -614,5 +610,6 @@ cmp src dst <span class="fu">=</span> handle hdl <span class="fu">$</span> <span
       hPutStrLn stderr <span class="fu">$</span>
         <span class="st">&quot;testing results against model answers failed: &quot;</span> <span class="fu">++</span> show se
       return <span class="dt">False</span></code></pre></div>
+</div>
 </body>
 </html>

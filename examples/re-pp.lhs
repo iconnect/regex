@@ -16,6 +16,7 @@ import           Data.IORef
 import           Data.Maybe
 import           Data.Monoid
 import qualified Data.Text                                as T
+import           Network.HTTP.Conduit
 import qualified Shelly                                   as SH
 import           System.Directory
 import           System.Environment
@@ -37,6 +38,7 @@ main = do
     ["test"]                    -> test
     ["doc",fn,fn'] | is_file fn -> doc fn fn'
     ["gen",fn,fn'] | is_file fn -> gen fn fn'
+    ["badges"]                  -> badges
     ["all"]                     -> gen_all
     _                           -> usage
   where
@@ -167,6 +169,8 @@ Script to Generate All Tutorial Tests and Docs
 \begin{code}
 gen_all :: IO ()
 gen_all = do
+    -- refresh the badges
+    badges
     -- prepare HTML docs for the (literate) tools
     pd "re-gen-modules"
     pd "re-include"
@@ -407,6 +411,25 @@ scan rex = grepScript
 \end{code}
 
 
+badges
+------
+
+\begin{code}
+badges :: IO ()
+badges = mapM_ collect
+    [ (,) "hackage"         "https://img.shields.io/hackage/v/regex.svg"
+    , (,) "license"         "https://img.shields.io/badge/license-BSD3-brightgreen.svg"
+    , (,) "unix-build"      "https://img.shields.io/travis/iconnect/regex.svg?label=Linux%2BmacOS"
+    , (,) "windows-build"   "https://img.shields.io/appveyor/ci/engineerirngirisconnectcouk/regex.svg?label=Windows"
+    , (,) "coverage"        "https://img.shields.io/coveralls/iconnect/regex.svg"
+    ]
+  where
+    collect (nm,url) = do
+      putStrLn $ "updating badge: " ++ nm
+      simpleHttp url >>= LBS.writeFile ("docs/badges/"++nm++".svg")
+\end{code}
+
+
 pandoc
 ------
 
@@ -458,6 +481,7 @@ testing
 \begin{code}
 test :: IO ()
 test = do
+  badges
   dm <- docMode
   test_pp "pp-doc" (loop dm) "data/pp-test.lhs" "data/pp-result-doc.lhs"
   gm <- genMode

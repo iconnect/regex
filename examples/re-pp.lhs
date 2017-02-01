@@ -169,8 +169,6 @@ Script to Generate All Tutorial Tests and Docs
 \begin{code}
 gen_all :: IO ()
 gen_all = do
-    -- refresh the badges
-    badges
     -- prepare HTML docs for the (literate) tools
     pd "re-gen-modules"
     pd "re-include"
@@ -481,7 +479,6 @@ testing
 \begin{code}
 test :: IO ()
 test = do
-  badges
   dm <- docMode
   test_pp "pp-doc" (loop dm) "data/pp-test.lhs" "data/pp-result-doc.lhs"
   gm <- genMode

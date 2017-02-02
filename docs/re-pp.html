@@ -65,6 +65,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Data.Maybe</span>
 <span class="kw">import           </span><span class="dt">Data.Monoid</span>
 <span class="kw">import qualified</span> <span class="dt">Data.Text</span>                                <span class="kw">as</span> <span class="dt">T</span>
+<span class="kw">import           </span><span class="dt">Network.HTTP.Simple</span>
 <span class="kw">import qualified</span> <span class="dt">Shelly</span>                                   <span class="kw">as</span> <span class="dt">SH</span>
 <span class="kw">import           </span><span class="dt">System.Directory</span>
 <span class="kw">import           </span><span class="dt">System.Environment</span>
@@ -83,6 +84,7 @@ main <span class="fu">=</span> <span class="kw">do</span>
     [<span class="st">&quot;test&quot;</span>]                    <span class="ot">-&gt;</span> test
     [<span class="st">&quot;doc&quot;</span>,fn,fn&#39;] <span class="fu">|</span> is_file fn <span class="ot">-&gt;</span> doc fn fn&#39;
     [<span class="st">&quot;gen&quot;</span>,fn,fn&#39;] <span class="fu">|</span> is_file fn <span class="ot">-&gt;</span> gen fn fn&#39;
+    [<span class="st">&quot;badges&quot;</span>]                  <span class="ot">-&gt;</span> badges
     [<span class="st">&quot;all&quot;</span>]                     <span class="ot">-&gt;</span> gen_all
     _                           <span class="ot">-&gt;</span> usage
   <span class="kw">where</span>
@@ -178,6 +180,8 @@ passthru_g _ _ <span class="fu">=</span> return <span class="dt">NoEdit</span></
 <h2 id="script-to-generate-all-tutorial-tests-and-docs">Script to Generate All Tutorial Tests and Docs</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">gen_all ::</span> <span class="dt">IO</span> ()
 gen_all <span class="fu">=</span> <span class="kw">do</span>
+    <span class="co">-- refresh the badges</span>
+    badges
     <span class="co">-- prepare HTML docs for the (literate) tools</span>
     pd <span class="st">&quot;re-gen-modules&quot;</span>
     pd <span class="st">&quot;re-include&quot;</span>
@@ -362,6 +366,23 @@ scan rex <span class="fu">=</span> grepScript
     chk x mtchs <span class="fu">=</span> <span class="kw">case</span> anyMatches mtchs <span class="kw">of</span>
       <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Just</span> x
       <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span></code></pre></div>
+<h2 id="badges">badges</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">badges ::</span> <span class="dt">IO</span> ()
+badges <span class="fu">=</span> mapM_ collect
+    [ (,) <span class="st">&quot;hackage&quot;</span>         <span class="st">&quot;https://img.shields.io/hackage/v/regex.svg&quot;</span>
+    , (,) <span class="st">&quot;licence&quot;</span>         <span class="st">&quot;https://img.shields.io/badge/license-BSD3-brightgreen.svg&quot;</span>
+    , (,) <span class="st">&quot;unix-build&quot;</span>      <span class="st">&quot;https://img.shields.io/travis/iconnect/regex.svg?label=Linux%2BmacOS&quot;</span>
+    , (,) <span class="st">&quot;windows-build&quot;</span>   <span class="st">&quot;https://img.shields.io/appveyor/ci/engineerirngirisconnectcouk/regex.svg?label=Windows&quot;</span>
+    , (,) <span class="st">&quot;coverage&quot;</span>        <span class="st">&quot;https://img.shields.io/coveralls/iconnect/regex.svg&quot;</span>
+    ]
+  <span class="kw">where</span>
+    collect (nm,url) <span class="fu">=</span>
+      wget url <span class="fu">&gt;&gt;=</span> LBS.writeFile (<span class="st">&quot;docs/badges/&quot;</span><span class="fu">++</span>nm<span class="fu">++</span><span class="st">&quot;.svg&quot;</span>)
+
+<span class="ot">wget ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">LBS.ByteString</span>
+wget url <span class="fu">=</span> <span class="kw">do</span>
+  rq  <span class="ot">&lt;-</span> parseRequest url
+  getResponseBody <span class="fu">&lt;$&gt;</span> httpLbs rq</code></pre></div>
 <h2 id="pandoc">pandoc</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">pandoc ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 pandoc title in_file <span class="fu">=</span> pandoc&#39; title in_file in_file

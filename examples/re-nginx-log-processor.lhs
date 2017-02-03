@@ -33,7 +33,7 @@ import           Text.RE.Options
 import           Text.RE.Parsers
 import           Text.RE.TestBench
 import           Text.RE.PCRE.ByteString.Lazy
-import qualified Text.RE.PCRE.String              as S
+import qualified Text.RE.PCRE.String                      as S
 import           Text.RE.Tools.Sed
 import           Text.Printf
 \end{code}

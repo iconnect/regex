@@ -1,4 +1,5 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE QuasiQuotes                #-}
@@ -6,7 +7,6 @@
 
 module Main (main) where
 
-import           Control.Applicative
 import           Control.Exception
 import           Data.Array
 import qualified Data.ByteString.Char8          as B
@@ -19,6 +19,7 @@ import           Data.String
 import qualified Data.Text                      as T
 import qualified Data.Text.Lazy                 as LT
 import           Language.Haskell.TH.Quote
+import           Prelude.Compat
 import           Test.Tasty
 import           Test.Tasty.HUnit
 import qualified Text.Regex.PCRE                as PCRE_

@@ -2,8 +2,12 @@
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# OPTIONS_GHC -fno-warn-orphans       #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#endif
 
-module Text.RE.TDFA.Text
+module Text.RE.TDFA.ByteString.Lazy
   ( (*=~)
   , (?=~)
   , (=~)
@@ -12,7 +16,7 @@ module Text.RE.TDFA.Text
   , module Text.RE.TDFA.RE
   ) where
 
-import qualified Data.Text                     as T
+import qualified Data.ByteString.Lazy.Char8    as LBS
 import           Text.Regex.Base
 import           Text.RE
 import           Text.RE.Internal.AddCaptureNames
@@ -21,37 +25,37 @@ import qualified Text.Regex.TDFA               as TDFA
 
 
 -- | find all matches in text
-(*=~) :: T.Text
+(*=~) :: LBS.ByteString
       -> RE
-      -> Matches T.Text
+      -> Matches LBS.ByteString
 (*=~) bs rex = addCaptureNamesToMatches (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | find first matches in text
-(?=~) :: T.Text
+(?=~) :: LBS.ByteString
       -> RE
-      -> Match T.Text
+      -> Match LBS.ByteString
 (?=~) bs rex = addCaptureNamesToMatch (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | regex-base polymorphic match operator
-(=~) :: ( RegexContext TDFA.Regex T.Text a
+(=~) :: ( RegexContext TDFA.Regex LBS.ByteString a
         , RegexMaker   TDFA.Regex TDFA.CompOption TDFA.ExecOption String
         )
-     => T.Text
+     => LBS.ByteString
      -> RE
      -> a
 (=~) bs rex = match (reRegex rex) bs
 
 -- | regex-base monadic, polymorphic match operator
 (=~~) :: ( Monad m
-         , RegexContext TDFA.Regex T.Text a
+         , RegexContext TDFA.Regex LBS.ByteString a
          , RegexMaker   TDFA.Regex TDFA.CompOption TDFA.ExecOption String
          )
-      => T.Text
+      => LBS.ByteString
       -> RE
       -> m a
 (=~~) bs rex = matchM (reRegex rex) bs
 
-instance IsRegex RE T.Text where
+instance IsRegex RE LBS.ByteString where
   matchOnce   = flip (?=~)
   matchMany   = flip (*=~)
   regexSource = reSource

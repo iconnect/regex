@@ -2,56 +2,60 @@
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# OPTIONS_GHC -fno-warn-orphans       #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#endif
 
-module Text.RE.PCRE.ByteString.Lazy
+module Text.RE.TDFA.ByteString
   ( (*=~)
   , (?=~)
   , (=~)
   , (=~~)
   , module Text.RE
-  , module Text.RE.PCRE.RE
+  , module Text.RE.TDFA.RE
   ) where
 
-import qualified Data.ByteString.Lazy          as LBS
+import qualified Data.ByteString               as B
 import           Text.Regex.Base
 import           Text.RE
 import           Text.RE.Internal.AddCaptureNames
-import           Text.RE.PCRE.RE
-import qualified Text.Regex.PCRE               as PCRE
+import           Text.RE.TDFA.RE
+import qualified Text.Regex.TDFA               as TDFA
 
 
 -- | find all matches in text
-(*=~) :: LBS.ByteString
+(*=~) :: B.ByteString
       -> RE
-      -> Matches LBS.ByteString
+      -> Matches B.ByteString
 (*=~) bs rex = addCaptureNamesToMatches (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | find first matches in text
-(?=~) :: LBS.ByteString
+(?=~) :: B.ByteString
       -> RE
-      -> Match LBS.ByteString
+      -> Match B.ByteString
 (?=~) bs rex = addCaptureNamesToMatch (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | regex-base polymorphic match operator
-(=~) :: ( RegexContext PCRE.Regex LBS.ByteString a
-        , RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption String
+(=~) :: ( RegexContext TDFA.Regex B.ByteString a
+        , RegexMaker   TDFA.Regex TDFA.CompOption TDFA.ExecOption String
         )
-     => LBS.ByteString
+     => B.ByteString
      -> RE
      -> a
 (=~) bs rex = match (reRegex rex) bs
 
 -- | regex-base monadic, polymorphic match operator
 (=~~) :: ( Monad m
-         , RegexContext PCRE.Regex LBS.ByteString a
-         , RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption String
+         , RegexContext TDFA.Regex B.ByteString a
+         , RegexMaker   TDFA.Regex TDFA.CompOption TDFA.ExecOption String
          )
-      => LBS.ByteString
+      => B.ByteString
       -> RE
       -> m a
 (=~~) bs rex = matchM (reRegex rex) bs
 
-instance IsRegex RE LBS.ByteString where
+instance IsRegex RE B.ByteString where
   matchOnce   = flip (?=~)
   matchMany   = flip (*=~)
   regexSource = reSource

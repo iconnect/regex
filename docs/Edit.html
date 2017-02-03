@@ -47,8 +47,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/Edit.lhs'>RE/Edit</a></ol><div class='content'>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/src/Text/RE/Edit.lhs'>RE/Edit</a></ol><div class='content'>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
+<span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<span class="ot">{-# LANGUAGE CPP                        #-}</span>
+<span class="ot">#if __GLASGOW_HASKELL__ &gt;= 800</span>
+<span class="ot">{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}</span>
+<span class="ot">#endif</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.Edit</span>
   ( <span class="dt">LineNo</span>
@@ -60,9 +65,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   , applyLineEdit
   ) <span class="kw">where</span>
 
-<span class="kw">import           </span><span class="dt">Control.Applicative</span>
 <span class="kw">import           </span><span class="dt">Data.Maybe</span>
-<span class="kw">import           </span><span class="dt">Data.Monoid</span>
+<span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Capture</span>
 <span class="kw">import           </span><span class="dt">Text.RE.IsRegex</span>
 <span class="kw">import           </span><span class="dt">Text.RE.LineNo</span>

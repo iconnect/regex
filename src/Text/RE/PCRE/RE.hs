@@ -1,3 +1,4 @@
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TemplateHaskell            #-}
@@ -5,6 +6,10 @@
 {-# LANGUAGE TypeSynonymInstances       #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#endif
 {-# OPTIONS_GHC -fno-warn-orphans       #-}
 
 module Text.RE.PCRE.RE
@@ -39,11 +44,11 @@ module Text.RE.PCRE.RE
   , compileRegex
   ) where
 
-import           Control.Applicative
 import           Data.Bits
 import           Data.Functor.Identity
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
+import           Prelude.Compat
 import           Text.RE
 import           Text.RE.Internal.NamedCaptures
 import           Text.RE.Internal.PreludeMacros

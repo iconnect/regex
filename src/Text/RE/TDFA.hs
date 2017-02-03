@@ -1,4 +1,8 @@
 {-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#endif
 {-# OPTIONS_GHC -fno-warn-dodgy-exports #-}
 
 module Text.RE.TDFA

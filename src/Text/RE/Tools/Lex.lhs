@@ -1,7 +1,9 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
+
 module Text.RE.Tools.Lex where
 
-import           Control.Applicative
+import           Prelude.Compat
 import           Text.RE
 
 

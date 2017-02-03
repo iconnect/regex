@@ -1,4 +1,5 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TemplateHaskell            #-}
@@ -10,13 +11,14 @@ module Main
   ) where
 
 import           Control.Applicative
-import           Control.Monad
+import qualified Control.Monad                            as M
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Data.IORef
 import           Data.Maybe
 import           Data.Monoid
 import qualified Data.Text                                as T
 import           Network.HTTP.Conduit
+import           Prelude.Compat
 import qualified Shelly                                   as SH
 import           System.Directory
 import           System.Environment
@@ -201,8 +203,8 @@ gen_all = do
     putStrLn ">> examples/re-tutorial.lhs"
   where
     pd fnm = case captureTextMaybe [cp|mnm|] $ fnm T.?=~ [re|^RE/(Tools/|Internal/)?${mnm}(@{%id})|] of
-        Just mnm -> pandoc fnm ("Text/"<>fnm<>".lhs") ("docs/"<>mnm<>".html")
-        Nothing  -> pandoc fnm (  "examples/"<>fnm<>".lhs") ("docs/"<>fnm<>".html")
+        Just mnm -> pandoc fnm ("src/Text/"<>fnm<>".lhs") ("docs/"<>mnm<>".html")
+        Nothing  -> pandoc fnm ("examples/"<>fnm<>".lhs") ("docs/"<>fnm<>".html")
 \end{code}
 
 
@@ -249,7 +251,7 @@ evalmeDoc, endDoc, otherDoc :: DocState
 
 evalmeDoc ds lno _ _ _ = do
   dm <- readIORef ds
-  when (dm/=Beginning) $
+  M.when (dm/=Beginning) $
     bad_state "evalme" lno dm
   writeIORef ds InsideRepl
   return $ Just $ "<div class=\"replcodeblock\">\n"<>begin_code

@@ -48,16 +48,18 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </head>
 <body>
 <ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/examples/re-gen-modules.lhs'>re-gen-modules</a></ol><div class='content'>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
+<span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
 <span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
 <span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
+<span class="ot">{-# LANGUAGE CPP                        #-}</span>
 
 <span class="kw">module</span> <span class="dt">Main</span> (main) <span class="kw">where</span>
 
-<span class="kw">import           </span><span class="dt">Control.Applicative</span>
 <span class="kw">import           </span><span class="dt">Control.Exception</span>
 <span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>               <span class="kw">as</span> <span class="dt">LBS</span>
 <span class="kw">import qualified</span> <span class="dt">Data.Text</span>                                <span class="kw">as</span> <span class="dt">T</span>
+<span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import qualified</span> <span class="dt">Shelly</span>                                   <span class="kw">as</span> <span class="dt">SH</span>
 <span class="kw">import           </span><span class="dt">System.Directory</span>
 <span class="kw">import           </span><span class="dt">System.Environment</span>
@@ -157,7 +159,7 @@ import_re <span class="fu">=</span> [re|import qualified Data.ByteString.Lazy.Ch
 bs_re     <span class="fu">=</span> [re|LBS.ByteString|]
 
 <span class="ot">mod_filepath ::</span> <span class="dt">ModPath</span> <span class="ot">-&gt;</span> FilePath
-mod_filepath mp <span class="fu">=</span> map tr mp <span class="fu">++</span> <span class="st">&quot;.hs&quot;</span>
+mod_filepath mp <span class="fu">=</span> <span class="st">&quot;src/&quot;</span> <span class="fu">++</span> map tr mp <span class="fu">++</span> <span class="st">&quot;.hs&quot;</span>
   <span class="kw">where</span>
     tr <span class="ch">&#39;.&#39;</span> <span class="fu">=</span> <span class="ch">&#39;/&#39;</span>
     tr c   <span class="fu">=</span> c

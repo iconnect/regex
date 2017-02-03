@@ -47,10 +47,15 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/TestBench.lhs'>RE/TestBench</a></ol><div class='content'>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/src/Text/RE/TestBench.lhs'>RE/TestBench</a></ol><div class='content'>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
+<span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
 <span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
+<span class="ot">{-# LANGUAGE CPP                        #-}</span>
+<span class="ot">#if __GLASGOW_HASKELL__ &gt;= 800</span>
+<span class="ot">{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}</span>
+<span class="ot">#endif</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.TestBench</span>
   ( <span class="dt">MacroID</span>(<span class="fu">..</span>)
@@ -72,17 +77,16 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   , formatMacroSources
   , formatMacroSource
   , testMacroDescriptors
-<span class="co">-- , regexSource</span>
   ) <span class="kw">where</span>
 
 <span class="kw">import           </span><span class="dt">Data.Array</span>
-<span class="kw">import           </span><span class="dt">Control.Applicative</span>
 <span class="kw">import qualified</span> <span class="dt">Data.HashMap.Lazy</span>              <span class="kw">as</span> <span class="dt">HML</span>
-<span class="kw">import           </span><span class="dt">Data.List</span>
+<span class="kw">import qualified</span> <span class="dt">Data.List</span>                      <span class="kw">as</span> <span class="dt">L</span>
 <span class="kw">import           </span><span class="dt">Data.Maybe</span>
 <span class="kw">import           </span><span class="dt">Data.Ord</span>
 <span class="kw">import           </span><span class="dt">Data.String</span>
 <span class="kw">import           </span><span class="dt">Text.Printf</span>
+<span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Capture</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Options</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Replace</span>
@@ -232,7 +236,7 @@ dumpMacroTable lab rty m_env <span class="fu">=</span> <span class="kw">do</span
 formatMacroTable rty env <span class="fu">=</span> unlines <span class="fu">$</span>
   format_table macro_table_hdr
     [ macro_table_row rty mid md
-        <span class="fu">|</span> (mid,md) <span class="ot">&lt;-</span> sortBy (comparing fst) <span class="fu">$</span> HML.toList env
+        <span class="fu">|</span> (mid,md) <span class="ot">&lt;-</span> L.sortBy (comparing fst) <span class="fu">$</span> HML.toList env
         ]</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatMacroSummary ::</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">MacroID</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
 formatMacroSummary rty env mid <span class="fu">=</span> maybe oops prep <span class="fu">$</span> HML.lookup mid env
@@ -257,7 +261,7 @@ formatMacroSummary rty env mid <span class="fu">=</span> maybe oops prep <span c
                    <span class="ot">-&gt;</span> <span class="dt">String</span>
 formatMacroSources rty wc env <span class="fu">=</span> unlines <span class="fu">$</span>
     [ printf <span class="st">&quot;%-20s : %s&quot;</span> (_MacroID mid) <span class="fu">$</span> formatMacroSource rty wc env mid
-        <span class="fu">|</span> mid <span class="ot">&lt;-</span> sort <span class="fu">$</span> HML.keys env
+        <span class="fu">|</span> mid <span class="ot">&lt;-</span> L.sort <span class="fu">$</span> HML.keys env
         ]</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatMacroSource ::</span> <span class="dt">RegexType</span>
                   <span class="ot">-&gt;</span> <span class="dt">WithCaptures</span>
@@ -365,7 +369,7 @@ widths rows <span class="fu">=</span> listArray (minBound,maxBound)
 
 <span class="ot">format_row ::</span> <span class="dt">Array</span> <span class="dt">Col</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">TableRow</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>]
 format_row cw_arr row <span class="fu">=</span>
-  [ (<span class="st">&quot;|&quot;</span><span class="fu">++</span>) <span class="fu">$</span> intercalate <span class="st">&quot;|&quot;</span>
+  [ (<span class="st">&quot;|&quot;</span><span class="fu">++</span>) <span class="fu">$</span> L.intercalate <span class="st">&quot;|&quot;</span>
       [ field cw_arr row c i <span class="fu">|</span> c<span class="ot">&lt;-</span>[minBound<span class="fu">..</span>maxBound] ]
     <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">0</span><span class="fu">..</span>depth<span class="fu">-</span><span class="dv">1</span>]
     ]

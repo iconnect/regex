@@ -2,8 +2,12 @@
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# OPTIONS_GHC -fno-warn-orphans       #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#endif
 
-module Text.RE.TDFA.Sequence
+module Text.RE.TDFA.Text
   ( (*=~)
   , (?=~)
   , (=~)
@@ -12,7 +16,7 @@ module Text.RE.TDFA.Sequence
   , module Text.RE.TDFA.RE
   ) where
 
-import qualified Data.Sequence                 as S
+import qualified Data.Text                     as T
 import           Text.Regex.Base
 import           Text.RE
 import           Text.RE.Internal.AddCaptureNames
@@ -21,37 +25,37 @@ import qualified Text.Regex.TDFA               as TDFA
 
 
 -- | find all matches in text
-(*=~) :: (S.Seq Char)
+(*=~) :: T.Text
       -> RE
-      -> Matches (S.Seq Char)
+      -> Matches T.Text
 (*=~) bs rex = addCaptureNamesToMatches (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | find first matches in text
-(?=~) :: (S.Seq Char)
+(?=~) :: T.Text
       -> RE
-      -> Match (S.Seq Char)
+      -> Match T.Text
 (?=~) bs rex = addCaptureNamesToMatch (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | regex-base polymorphic match operator
-(=~) :: ( RegexContext TDFA.Regex (S.Seq Char) a
+(=~) :: ( RegexContext TDFA.Regex T.Text a
         , RegexMaker   TDFA.Regex TDFA.CompOption TDFA.ExecOption String
         )
-     => (S.Seq Char)
+     => T.Text
      -> RE
      -> a
 (=~) bs rex = match (reRegex rex) bs
 
 -- | regex-base monadic, polymorphic match operator
 (=~~) :: ( Monad m
-         , RegexContext TDFA.Regex (S.Seq Char) a
+         , RegexContext TDFA.Regex T.Text a
          , RegexMaker   TDFA.Regex TDFA.CompOption TDFA.ExecOption String
          )
-      => (S.Seq Char)
+      => T.Text
       -> RE
       -> m a
 (=~~) bs rex = matchM (reRegex rex) bs
 
-instance IsRegex RE (S.Seq Char) where
+instance IsRegex RE T.Text where
   matchOnce   = flip (?=~)
   matchMany   = flip (*=~)
   regexSource = reSource

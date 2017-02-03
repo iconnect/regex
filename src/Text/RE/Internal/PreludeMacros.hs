@@ -1,6 +1,11 @@
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#endif
 
 module Text.RE.Internal.PreludeMacros
   ( RegexType(..)
@@ -18,12 +23,12 @@ module Text.RE.Internal.PreludeMacros
   , preludeMacroDescriptor
   ) where
 
-import           Control.Applicative
 import           Data.Array
 import qualified Data.HashMap.Lazy              as HML
 import           Data.List
 import           Data.Maybe
 import           Data.Time
+import           Prelude.Compat
 import           Text.RE.Options
 import           Text.RE.Parsers
 import           Text.RE.TestBench

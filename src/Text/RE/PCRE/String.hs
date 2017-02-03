@@ -2,8 +2,12 @@
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# OPTIONS_GHC -fno-warn-orphans       #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#endif
 
-module Text.RE.PCRE.Sequence
+module Text.RE.PCRE.String
   ( (*=~)
   , (?=~)
   , (=~)
@@ -12,7 +16,7 @@ module Text.RE.PCRE.Sequence
   , module Text.RE.PCRE.RE
   ) where
 
-import qualified Data.Sequence                 as S
+
 import           Text.Regex.Base
 import           Text.RE
 import           Text.RE.Internal.AddCaptureNames
@@ -21,37 +25,37 @@ import qualified Text.Regex.PCRE               as PCRE
 
 
 -- | find all matches in text
-(*=~) :: (S.Seq Char)
+(*=~) :: String
       -> RE
-      -> Matches (S.Seq Char)
+      -> Matches String
 (*=~) bs rex = addCaptureNamesToMatches (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | find first matches in text
-(?=~) :: (S.Seq Char)
+(?=~) :: String
       -> RE
-      -> Match (S.Seq Char)
+      -> Match String
 (?=~) bs rex = addCaptureNamesToMatch (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | regex-base polymorphic match operator
-(=~) :: ( RegexContext PCRE.Regex (S.Seq Char) a
+(=~) :: ( RegexContext PCRE.Regex String a
         , RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption String
         )
-     => (S.Seq Char)
+     => String
      -> RE
      -> a
 (=~) bs rex = match (reRegex rex) bs
 
 -- | regex-base monadic, polymorphic match operator
 (=~~) :: ( Monad m
-         , RegexContext PCRE.Regex (S.Seq Char) a
+         , RegexContext PCRE.Regex String a
          , RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption String
          )
-      => (S.Seq Char)
+      => String
       -> RE
       -> m a
 (=~~) bs rex = matchM (reRegex rex) bs
 
-instance IsRegex RE (S.Seq Char) where
+instance IsRegex RE String where
   matchOnce   = flip (?=~)
   matchMany   = flip (*=~)
   regexSource = reSource

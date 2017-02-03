@@ -23,13 +23,21 @@ section.
 Setting Up: The Pragmas
 -----------------------
 
+First off, this pragma is a just technical pragma, combined with the
+`Prelude.Compat` import below used to avoid certain warnings while
+comiling against multiple versions of the compiler. It can be safely
+ignored.
+\begin{code}
+{-# LANGUAGE NoImplicitPrelude #-}
+\end{code}
+
 Haskell programs typically start with a few compiler pragmas to switch
 on the language extensions needed by the module. Because regex uses
 Template Haskell to check regular expressions at compile time `QuasiQuotes`
 should be enabled.
 
 \begin{code}
-{-# LANGUAGE QuasiQuotes                      #-}
+{-# LANGUAGE QuasiQuotes #-}
 \end{code}
 
 Use this command to configure ghci accordingly (not necessary if you
@@ -42,14 +50,14 @@ have launched ghci with `cabal repl`):
 literals](https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/guide-to-ghc-extensions/basic-syntax-extensions#overloadedstrings)
 are usually enabled in modern Haskell and we do so here.
 \begin{code}
-{-# LANGUAGE OverloadedStrings                #-}
+{-# LANGUAGE OverloadedStrings #-}
 \end{code}
 
 Because we are mimicking the REPL in this tutorial we will leave off the type
 signatures on the example calculations and disable the compiler
 warnings about missing type signatures.
 \begin{code}
-{-# OPTIONS_GHC -fno-warn-missing-signatures  #-}
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 \end{code}
 
 
@@ -98,9 +106,11 @@ import qualified Data.Text                      as T
 import           Text.Printf
 \end{code}
 
-And finally we will import a small specail toolkit will be used to help
+And finally we a special edition of the prelude (see the commentary for
+the pragma section above) and a small specail toolkit will be used to help
 manage the example calculations.
 \begin{code}
+import           Prelude.Compat
 import           TestKit
 \end{code}
 This allows simple calculations to be defined stylistically
@@ -270,7 +280,7 @@ The type of `*=~` in this module (imported from
 </div>
 with `Matches` defined in `Text.RE.Capture` thus:
 
-%include "Text/RE/Capture.lhs" "^data Matches "
+%include "src/Text/RE/Capture.lhs" "^data Matches "
 
 The critical component of the `Matches` type is the `[Match a]` in
 `allMatches`, containing the details all of each substring matched by
@@ -287,7 +297,7 @@ The type of `?=~` in this module (imported from
 with `Match` (referenced in the definition of `Matches` above) defined
 in `Text.RE.Capture` thus:
 
-%include "Text/RE/Capture.lhs" "^data Match "
+%include "src/Text/RE/Capture.lhs" "^data Match "
 
 Like `matchesSource` above, `matchSource` retains the original search
 string, but also a `CaptureNames` field listing all of the capture
@@ -301,7 +311,7 @@ on.
 
 Each captured substring is represented by the following `Capture` type:
 
-%include "Text/RE/Capture.lhs" "^data Capture "
+%include "src/Text/RE/Capture.lhs" "^data Capture "
 
 Here we list the whole original search string in `captureSource` and
 the text of the sub-string captured in `capturedText`. `captureOffset`
@@ -398,7 +408,7 @@ returning `"2016-01-09 2015-12-05 2015-10-05"`.
 The `Phi`, `Context` and `Location` types are defined in
 `Text.RE.Replace` as follows.
 
-%include "Text/RE/Replace.lhs" "^data Phi"
+%include "src/Text/RE/Replace.lhs" "^data Phi"
 
 The processing function gets applied to the captures specified by the
 `Context`, which can be directed to process `ALL` of the captures,
@@ -411,7 +421,7 @@ function accepts a processing function that takes the full `Match`
 context for each capture along with the `Location` and the `Capture`
 itself.
 
-%include "Text/RE/Replace.lhs" "replaceAllCaptures' ::"
+%include "src/Text/RE/Replace.lhs" "replaceAllCaptures' ::"
 
 The above fixup function can be extended to enclose whole date in
 square brackets and rewritten with the above more general replacement
@@ -487,7 +497,7 @@ types for each back end.)
 
 The `Options_` type is defined in `Text.RE.Options` as follows:
 
-%include "Text/RE/Options.lhs" "data Options_"
+%include "src/Text/RE/Options.lhs" "data Options_"
 
   * `_options_mode` is an experimental feature that controls the RE
     parser.
@@ -524,7 +534,7 @@ REs. Your configuration-type options are:
   * `SimpleRegexOptions` this is just a simple enum type that we use to
     encode the standard options:
 
-%include "Text/RE/Options.lhs" "^data SimpleRegexOptions"
+%include "src/Text/RE/Options.lhs" "^data SimpleRegexOptions"
 
   * `Mode`: you can specify the parser mode;
 
@@ -655,7 +665,7 @@ that it can associate the named captures with their cature ordinal.
 
 Here is the prototype scanner.
 
-%include "Text/RE/Internal/NamedCaptures.lhs" "scan ::"
+%include "src/Text/RE/Internal/NamedCaptures.lhs" "scan ::"
 
 Once the package has stabilised it should be rewritten with Alex.
 
@@ -669,7 +679,7 @@ Anti-Example: Scanning REs in the TestBench
 The [Text.RE.TestBench](TestBench.html) contains an almost
 identical parser to the above, written with recursive functions.
 
-%include "Text/RE/TestBench.lhs" "scan_re ::"
+%include "src/Text/RE/TestBench.lhs" "scan_re ::"
 
 Once some technical issues have been ersolved it will use the above
 scanner in [Text.RE.Internal.NamedCaptures](NamedCaptures.html).

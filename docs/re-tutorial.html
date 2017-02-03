@@ -56,14 +56,16 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 cabal repl examples/re-tutorial.lhs</code></pre>
 <p>Depending upon how you have configured and run <code>ghci</code> you may need to set one of <em>ghci</em>'s interctive settings — the topic of the next section.</p>
 <h2 id="setting-up-the-pragmas">Setting Up: The Pragmas</h2>
+First off, this pragma is a just technical pragma, combined with the <code>Prelude.Compat</code> import below used to avoid certain warnings while comiling against multiple versions of the compiler. It can be safely ignored.
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude #-}</span></code></pre></div>
 <p>Haskell programs typically start with a few compiler pragmas to switch on the language extensions needed by the module. Because regex uses Template Haskell to check regular expressions at compile time <code>QuasiQuotes</code> should be enabled.</p>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE QuasiQuotes                      #-}</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE QuasiQuotes #-}</span></code></pre></div>
 <p>Use this command to configure ghci accordingly (not necessary if you have launched ghci with <code>cabal repl</code>):</p>
 <pre><code>:seti -XQuasiQuotes</code></pre>
 <a href="https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/guide-to-ghc-extensions/basic-syntax-extensions#overloadedstrings">Overloaded string literals</a> are usually enabled in modern Haskell and we do so here.
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE OverloadedStrings                #-}</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE OverloadedStrings #-}</span></code></pre></div>
 Because we are mimicking the REPL in this tutorial we will leave off the type signatures on the example calculations and disable the compiler warnings about missing type signatures.
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# OPTIONS_GHC -fno-warn-missing-signatures  #-}</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# OPTIONS_GHC -fno-warn-missing-signatures #-}</span></code></pre></div>
 <h2 id="loading-up-the-imports">Loading Up: The Imports</h2>
 <p>We have two things to consider in the import to access the regex goodies, which will take the form:</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Text.RE</span>.&lt;regex-flavour&gt;.&lt;text-type&gt;?</code></pre></div>
@@ -91,8 +93,9 @@ We will also need access to a small selection of common libraries for our exampl
 <span class="kw">import           </span><span class="dt">Data.Maybe</span>
 <span class="kw">import qualified</span> <span class="dt">Data.Text</span>                      <span class="kw">as</span> <span class="dt">T</span>
 <span class="kw">import           </span><span class="dt">Text.Printf</span></code></pre></div>
-And finally we will import a small specail toolkit will be used to help manage the example calculations.
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import           </span><span class="dt">TestKit</span></code></pre></div>
+And finally we a special edition of the prelude (see the commentary for the pragma section above) and a small specail toolkit will be used to help manage the example calculations.
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import           </span><span class="dt">Prelude.Compat</span>
+<span class="kw">import           </span><span class="dt">TestKit</span></code></pre></div>
 This allows simple calculations to be defined stylistically in the source program, presented as calculations when rendered in HTML and tested that they have the expected result.
 <div class="replcodeblock">
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">  length []</code></pre></div>
@@ -579,8 +582,6 @@ scan_re (<span class="dt">RegexSource</span> src0) <span class="fu">=</span> loo
 <div class="includedcodeblock">
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">gen_all ::</span> <span class="dt">IO</span> ()
 gen_all <span class="fu">=</span> <span class="kw">do</span>
-    <span class="co">-- refresh the badges</span>
-    badges
     <span class="co">-- prepare HTML docs for the (literate) tools</span>
     pd <span class="st">&quot;re-gen-modules&quot;</span>
     pd <span class="st">&quot;re-include&quot;</span>
@@ -613,8 +614,8 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     putStrLn <span class="st">&quot;&gt;&gt; examples/re-tutorial.lhs&quot;</span>
   <span class="kw">where</span>
     pd fnm <span class="fu">=</span> <span class="kw">case</span> captureTextMaybe [cp|mnm|] <span class="fu">$</span> fnm <span class="fu">T.?=~</span> [re|^RE/(Tools/|Internal/)?${mnm}(@{%id})|] <span class="kw">of</span>
-        <span class="dt">Just</span> mnm <span class="ot">-&gt;</span> pandoc fnm (<span class="st">&quot;Text/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
-        <span class="dt">Nothing</span>  <span class="ot">-&gt;</span> pandoc fnm (  <span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)</code></pre></div>
+        <span class="dt">Just</span> mnm <span class="ot">-&gt;</span> pandoc fnm (<span class="st">&quot;src/Text/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
+        <span class="dt">Nothing</span>  <span class="ot">-&gt;</span> pandoc fnm (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)</code></pre></div>
 </div>
 <p>See <a href="re-pp.html">examples/re-pp.lhs</a></p>
 <h2 id="example-parsing-re-macros">Example: parsing RE macros</h2>

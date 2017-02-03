@@ -2,8 +2,12 @@
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# OPTIONS_GHC -fno-warn-orphans       #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#endif
 
-module Text.RE.PCRE.ByteString
+module Text.RE.PCRE.ByteString.Lazy
   ( (*=~)
   , (?=~)
   , (=~)
@@ -12,7 +16,7 @@ module Text.RE.PCRE.ByteString
   , module Text.RE.PCRE.RE
   ) where
 
-import qualified Data.ByteString               as B
+import qualified Data.ByteString.Lazy          as LBS
 import           Text.Regex.Base
 import           Text.RE
 import           Text.RE.Internal.AddCaptureNames
@@ -21,37 +25,37 @@ import qualified Text.Regex.PCRE               as PCRE
 
 
 -- | find all matches in text
-(*=~) :: B.ByteString
+(*=~) :: LBS.ByteString
       -> RE
-      -> Matches B.ByteString
+      -> Matches LBS.ByteString
 (*=~) bs rex = addCaptureNamesToMatches (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | find first matches in text
-(?=~) :: B.ByteString
+(?=~) :: LBS.ByteString
       -> RE
-      -> Match B.ByteString
+      -> Match LBS.ByteString
 (?=~) bs rex = addCaptureNamesToMatch (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | regex-base polymorphic match operator
-(=~) :: ( RegexContext PCRE.Regex B.ByteString a
+(=~) :: ( RegexContext PCRE.Regex LBS.ByteString a
         , RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption String
         )
-     => B.ByteString
+     => LBS.ByteString
      -> RE
      -> a
 (=~) bs rex = match (reRegex rex) bs
 
 -- | regex-base monadic, polymorphic match operator
 (=~~) :: ( Monad m
-         , RegexContext PCRE.Regex B.ByteString a
+         , RegexContext PCRE.Regex LBS.ByteString a
          , RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption String
          )
-      => B.ByteString
+      => LBS.ByteString
       -> RE
       -> m a
 (=~~) bs rex = matchM (reRegex rex) bs
 
-instance IsRegex RE B.ByteString where
+instance IsRegex RE LBS.ByteString where
   matchOnce   = flip (?=~)
   matchMany   = flip (*=~)
   regexSource = reSource

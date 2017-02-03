@@ -1,4 +1,5 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE RecordWildCards            #-}
@@ -41,6 +42,7 @@ import qualified Data.Sequence                  as S
 import qualified Data.Text                      as T
 import qualified Data.Text.Encoding             as TE
 import qualified Data.Text.Lazy                 as LT
+import           Prelude.Compat
 import           Text.Heredoc
 import           Text.RE.Capture
 import           Text.RE.CaptureID

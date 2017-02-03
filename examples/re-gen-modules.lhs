@@ -1,14 +1,16 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE CPP                        #-}
 
 module Main (main) where
 
-import           Control.Applicative
 import           Control.Exception
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import qualified Data.Text                                as T
+import           Prelude.Compat
 import qualified Shelly                                   as SH
 import           System.Directory
 import           System.Environment
@@ -108,7 +110,7 @@ import_re = [re|import qualified Data.ByteString.Lazy.Char8 *as LBS|]
 bs_re     = [re|LBS.ByteString|]
 
 mod_filepath :: ModPath -> FilePath
-mod_filepath mp = map tr mp ++ ".hs"
+mod_filepath mp = "src/" ++ map tr mp ++ ".hs"
   where
     tr '.' = '/'
     tr c   = c

@@ -34,6 +34,7 @@ Source-Repository this
     Tag:                0.0.0.2
 
 Library
+    Hs-Source-Dirs:     src
     Exposed-modules:
       Text.RE
       Text.RE.Capture
@@ -73,6 +74,7 @@ Library
       array                   >= 0.4            ,
       bytestring              >= 0.10.2.0       ,
       base                    >= 4       && < 5 ,
+      base-compat             >= 0.6.0          ,
       containers              >= 0.4            ,
       hashable                >= 1.2.3.3        ,
       heredoc                 >= 0.2.0.0        ,
@@ -110,8 +112,9 @@ Executable re-gen-modules
     Build-depends:
       regex                                     ,
       array                   >= 0.4            ,
-      bytestring              >= 0.10.2.0       ,
       base                    >= 4              ,
+      base-compat             >= 0.6.0          ,
+      bytestring              >= 0.10.2.0       ,
       directory               >= 1.2.1.0        ,
       regex-base              >= 0.93.2         ,
       regex-tdfa              >= 1.2.0          ,
@@ -133,8 +136,9 @@ Test-Suite re-gen-modules-test
     Build-depends:
       regex                                     ,
       array                   >= 0.4            ,
-      bytestring              >= 0.10.2.0       ,
       base                    >= 4       && < 5 ,
+      base-compat             >= 0.6.0          ,
+      bytestring              >= 0.10.2.0       ,
       directory               >= 1.2.1.0        ,
       regex-base              >= 0.93.2         ,
       regex-tdfa              >= 1.2.0          ,
@@ -157,8 +161,9 @@ Executable re-include
 
     Build-depends:
       regex                                     ,
+      base                    >= 4              ,
+      base-compat             >= 0.6.0          ,
       bytestring              >= 0.10.2.0       ,
-      base                    >= 4       && < 5 ,
       directory               >= 1.2.1.0        ,
       shelly                  >= 1.6.1.2        ,
       text                    >= 1.2.0.6
@@ -180,8 +185,9 @@ Test-Suite re-include-test
 
     Build-depends:
       regex                                     ,
-      bytestring              >= 0.10.2.0       ,
       base                    >= 4              ,
+      base-compat             >= 0.6.0          ,
+      bytestring              >= 0.10.2.0       ,
       directory               >= 1.2.1.0        ,
       shelly                  >= 1.6.1.2        ,
       text                    >= 1.2.0.6
@@ -201,8 +207,9 @@ Test-Suite re-nginx-log-processor-test
     Build-depends:
       regex                                     ,
       array                   >= 0.4            ,
+      base                    >= 4              ,
+      base-compat             >= 0.6.0          ,
       bytestring              >= 0.10.2.0       ,
-      base                    >= 4       && < 5 ,
       directory               >= 1.2.1.0        ,
       regex-base              >= 0.93.2         ,
       regex-tdfa              >= 1.2.0          ,
@@ -227,8 +234,9 @@ Executable re-nginx-log-processor
     Build-depends:
       regex                                     ,
       array                   >= 0.4            ,
+      base                    >= 4              ,
+      base-compat             >= 0.6.0          ,
       bytestring              >= 0.10.2.0       ,
-      base                    >= 4       && < 5 ,
       directory               >= 1.2.1.0        ,
       regex-base              >= 0.93.2         ,
       regex-tdfa              >= 1.2.0          ,
@@ -255,8 +263,9 @@ Executable re-pp
 
     Build-depends:
       regex                                     ,
+      base                    >= 4              ,
+      base-compat             >= 0.6.0          ,
       bytestring              >= 0.10.2.0       ,
-      base                    >= 4       && < 5 ,
       directory               >= 1.2.1.0        ,
       http-conduit            >= 2.1.7.2        ,
       shelly                  >= 1.6.1.2        ,
@@ -279,8 +288,9 @@ Test-Suite re-pp-test
 
     Build-depends:
       regex                                     ,
+      base                    >= 4              ,
+      base-compat             >= 0.6.0          ,
       bytestring              >= 0.10.2.0       ,
-      base                    >= 4       && < 5 ,
       directory               >= 1.2.1.0        ,
       http-conduit            >= 2.1.7.2        ,
       shelly                  >= 1.6.1.2        ,
@@ -304,8 +314,9 @@ Test-Suite re-tests
     Build-depends:
       regex                                     ,
       array                   >= 0.4            ,
+      base                    >= 4              ,
+      base-compat             >= 0.6.0          ,
       bytestring              >= 0.10.2.0       ,
-      base                    >= 4       && < 5 ,
       containers              >= 0.4            ,
       directory               >= 1.2.1.0        ,
       regex-base              >= 0.93.2         ,
@@ -319,7 +330,7 @@ Test-Suite re-tests
 
 
 Executable re-tutorial
-    Hs-Source-Dirs:     examples .
+    Hs-Source-Dirs:     examples
 
     Main-is:            re-tutorial.lhs
 
@@ -335,8 +346,9 @@ Executable re-tutorial
     Build-depends:
       regex                                     ,
       array                   >= 0.4            ,
+      base                    >= 4              ,
+      base-compat             >= 0.6.0          ,
       bytestring              >= 0.10.2.0       ,
-      base                    >= 4       && < 5 ,
       containers              >= 0.4            ,
       directory               >= 1.2.1.0        ,
       hashable                >= 1.2.3.3        ,
@@ -359,7 +371,7 @@ Executable re-tutorial
 
 Test-Suite re-tutorial-test
     type:               exitcode-stdio-1.0
-    Hs-Source-Dirs:     examples .
+    Hs-Source-Dirs:     examples
 
     Main-is:            re-tutorial.lhs
 
@@ -375,8 +387,9 @@ Test-Suite re-tutorial-test
     Build-depends:
       regex                                     ,
       array                   >= 0.4            ,
+      base                    >= 4              ,
+      base-compat             >= 0.6.0          ,
       bytestring              >= 0.10.2.0       ,
-      base                    >= 4       && < 5 ,
       containers              >= 0.4            ,
       directory               >= 1.2.1.0        ,
       hashable                >= 1.2.3.3        ,

@@ -87,10 +87,10 @@ data Capture a =
 
 \begin{code}
 instance Functor Matches where
-  fmap f Matches{..} =
+  fmap f Matches{..} = 
     Matches
       { matchesSource = f matchesSource
-      , allMatches   = map (fmap f) allMatches
+      , allMatches    = map (fmap f) allMatches
       }
 
 instance Functor Match where

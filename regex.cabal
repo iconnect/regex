@@ -34,7 +34,7 @@ Source-Repository this
     Tag:                0.0.0.2
 
 Library
-    Hs-Source-Dirs:     src
+    Hs-Source-Dirs:     .
     Exposed-modules:
       Text.RE
       Text.RE.Capture

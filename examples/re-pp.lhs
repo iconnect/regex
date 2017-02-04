@@ -203,7 +203,7 @@ gen_all = do
     putStrLn ">> examples/re-tutorial.lhs"
   where
     pd fnm = case captureTextMaybe [cp|mnm|] $ fnm T.?=~ [re|^RE/(Tools/|Internal/)?${mnm}(@{%id})|] of
-        Just mnm -> pandoc fnm ("src/Text/"<>fnm<>".lhs") ("docs/"<>mnm<>".html")
+        Just mnm -> pandoc fnm ("Text/"<>fnm<>".lhs") ("docs/"<>mnm<>".html")
         Nothing  -> pandoc fnm ("examples/"<>fnm<>".lhs") ("docs/"<>fnm<>".html")
 \end{code}
 

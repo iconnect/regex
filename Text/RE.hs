@@ -1,14 +1,97 @@
 {-# OPTIONS_GHC -fno-warn-dodgy-exports #-}
 
 module Text.RE
-  ( module Text.RE.Capture
-  , module Text.RE.CaptureID
-  , module Text.RE.Edit
-  , module Text.RE.IsRegex
-  , module Text.RE.LineNo
-  , module Text.RE.Options
-  , module Text.RE.Parsers
-  , module Text.RE.Replace
+  -- Capture
+  ( Matches(..)
+  , Match(..)
+  , Capture(..)
+  -- Matches functions
+  , anyMatches
+  , countMatches
+  , matches
+  , mainCaptures
+  -- Match functions
+  , matched
+  , matchedText
+  , matchCapture
+  , matchCaptures
+  , captureText
+  , captureTextMaybe
+  , capture
+  , captureMaybe
+  -- Capture functions
+  , hasCaptured
+  , capturePrefix
+  , captureSuffix
+  -- IsRegex
+  , IsRegex(..)
+  -- Options
+  , Options_(..)
+  , IsOption(..)
+  , Mode(..)
+  , MacroID(..)
+  , Macros
+  , emptyMacros
+  , SimpleRegexOptions(..)
+  -- CaptureID
+  , CaptureID(..)
+  , CaptureNames
+  , noCaptureNames
+  , CaptureName(..)
+  , CaptureOrdinal(..)
+  , findCaptureID
+  -- Edit
+  , Edits(..)
+  , Edit(..)
+  , LineEdit(..)
+  , applyEdits
+  , applyEdit
+  , applyLineEdit
+  -- LineNo
+  , LineNo(..)
+  , firstLine
+  , getLineNo
+  , lineNo
+  -- Parsers
+  , parseInteger
+  , parseHex
+  , parseDouble
+  , parseString
+  , parseSimpleString
+  , parseDate
+  , parseSlashesDate
+  , parseTimeOfDay
+  , parseTimeZone
+  , parseDateTime
+  , parseDateTime8601
+  , parseDateTimeCLF
+  , parseShortMonth
+  , shortMonthArray
+  , IPV4Address
+  , parseIPv4Address
+  , Severity(..)
+  , parseSeverity
+  , severityKeywords
+  -- Replace
+  , Replace(..)
+  , Replace_(..)
+  , replace_
+  , Phi(..)
+  , Context(..)
+  , Location(..)
+  , isTopLocation
+  , replace
+  , replaceAll
+  , replaceAllCaptures
+  , replaceAllCaptures'
+  , replaceAllCaptures_
+  , replaceAllCapturesM
+  , replaceCaptures
+  , replaceCaptures'
+  , replaceCaptures_
+  , replaceCapturesM
+  , expandMacros
+  , expandMacros'
   ) where
 
 import           Text.RE.Capture

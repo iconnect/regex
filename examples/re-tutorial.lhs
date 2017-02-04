@@ -23,13 +23,21 @@ section.
 Setting Up: The Pragmas
 -----------------------
 
+First off, this pragma is a just technical pragma, combined with the
+`Prelude.Compat` import below used to avoid certain warnings while
+comiling against multiple versions of the compiler. It can be safely
+ignored.
+\begin{code}
+{-# LANGUAGE NoImplicitPrelude #-}
+\end{code}
+
 Haskell programs typically start with a few compiler pragmas to switch
 on the language extensions needed by the module. Because regex uses
 Template Haskell to check regular expressions at compile time `QuasiQuotes`
 should be enabled.
 
 \begin{code}
-{-# LANGUAGE QuasiQuotes                      #-}
+{-# LANGUAGE QuasiQuotes #-}
 \end{code}
 
 Use this command to configure ghci accordingly (not necessary if you
@@ -42,14 +50,14 @@ have launched ghci with `cabal repl`):
 literals](https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/guide-to-ghc-extensions/basic-syntax-extensions#overloadedstrings)
 are usually enabled in modern Haskell and we do so here.
 \begin{code}
-{-# LANGUAGE OverloadedStrings                #-}
+{-# LANGUAGE OverloadedStrings #-}
 \end{code}
 
 Because we are mimicking the REPL in this tutorial we will leave off the type
 signatures on the example calculations and disable the compiler
 warnings about missing type signatures.
 \begin{code}
-{-# OPTIONS_GHC -fno-warn-missing-signatures  #-}
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 \end{code}
 
 
@@ -62,7 +70,7 @@ module Main(main) where
 
 *********************************************************
 *
-* WARNING: this is generated from pp-tutorial-master.lhs 
+* WARNING: this is generated from pp-tutorial-master.lhs
 *
 *********************************************************
 
@@ -107,9 +115,11 @@ import qualified Data.Text                      as T
 import           Text.Printf
 \end{code}
 
-And finally we will import a small specail toolkit will be used to help
+And finally we a special edition of the prelude (see the commentary for
+the pragma section above) and a small specail toolkit will be used to help
 manage the example calculations.
 \begin{code}
+import           Prelude.Compat
 import           TestKit
 \end{code}
 This allows simple calculations to be defined stylistically
@@ -856,4 +866,3 @@ main = runTests
   , evalme_LOA_00
   ]
 \end{code}
-

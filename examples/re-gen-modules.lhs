@@ -1,14 +1,16 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE CPP                        #-}
 
 module Main (main) where
 
-import           Control.Applicative
 import           Control.Exception
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import qualified Data.Text                                as T
+import           Prelude.Compat
 import qualified Shelly                                   as SH
 import           System.Directory
 import           System.Environment

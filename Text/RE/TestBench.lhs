@@ -1,7 +1,12 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#endif
 
 module Text.RE.TestBench
   ( MacroID(..)
@@ -23,17 +28,16 @@ module Text.RE.TestBench
   , formatMacroSources
   , formatMacroSource
   , testMacroDescriptors
--- , regexSource
   ) where
 
 import           Data.Array
-import           Control.Applicative
 import qualified Data.HashMap.Lazy              as HML
-import           Data.List
+import qualified Data.List                      as L
 import           Data.Maybe
 import           Data.Ord
 import           Data.String
 import           Text.Printf
+import           Prelude.Compat
 import           Text.RE.Capture
 import           Text.RE.Options
 import           Text.RE.Replace
@@ -209,7 +213,7 @@ formatMacroTable :: RegexType -> MacroEnv -> String
 formatMacroTable rty env = unlines $
   format_table macro_table_hdr
     [ macro_table_row rty mid md
-        | (mid,md) <- sortBy (comparing fst) $ HML.toList env
+        | (mid,md) <- L.sortBy (comparing fst) $ HML.toList env
         ]
 \end{code}
 
@@ -240,7 +244,7 @@ formatMacroSources :: RegexType
                    -> String
 formatMacroSources rty wc env = unlines $
     [ printf "%-20s : %s" (_MacroID mid) $ formatMacroSource rty wc env mid
-        | mid <- sort $ HML.keys env
+        | mid <- L.sort $ HML.keys env
         ]
 \end{code}
 
@@ -363,7 +367,7 @@ widths rows = listArray (minBound,maxBound)
 
 format_row :: Array Col Int -> TableRow -> [String]
 format_row cw_arr row =
-  [ ("|"++) $ intercalate "|"
+  [ ("|"++) $ L.intercalate "|"
       [ field cw_arr row c i | c<-[minBound..maxBound] ]
     | i <- [0..depth-1]
     ]

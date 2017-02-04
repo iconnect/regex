@@ -1,6 +1,8 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE CPP                        #-}
 
 module Text.RE.Tools.Grep
   ( grep
@@ -9,8 +11,8 @@ module Text.RE.Tools.Grep
   , grepScript
   ) where
 
-import           Control.Applicative
 import qualified Data.ByteString.Lazy.Char8               as LBS
+import           Prelude.Compat
 import           Text.Printf
 import           Text.RE.Capture
 import           Text.RE.IsRegex

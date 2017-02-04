@@ -1,5 +1,10 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#endif
 
 module Text.RE.Edit
   ( LineNo
@@ -11,9 +16,8 @@ module Text.RE.Edit
   , applyLineEdit
   ) where
 
-import           Control.Applicative
 import           Data.Maybe
-import           Data.Monoid
+import           Prelude.Compat
 import           Text.RE.Capture
 import           Text.RE.IsRegex
 import           Text.RE.LineNo

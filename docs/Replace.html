@@ -47,8 +47,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/Replace.lhs'>RE/Replace</a></ol><div class='content'>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/src/Text/RE/Replace.lhs'>RE/Replace</a></ol><div class='content'>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
+<span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
 <span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE FlexibleContexts           #-}</span>
@@ -90,6 +91,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import qualified</span> <span class="dt">Data.Text</span>                      <span class="kw">as</span> <span class="dt">T</span>
 <span class="kw">import qualified</span> <span class="dt">Data.Text.Encoding</span>             <span class="kw">as</span> <span class="dt">TE</span>
 <span class="kw">import qualified</span> <span class="dt">Data.Text.Lazy</span>                 <span class="kw">as</span> <span class="dt">LT</span>
+<span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">Text.Heredoc</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Capture</span>
 <span class="kw">import           </span><span class="dt">Text.RE.CaptureID</span>

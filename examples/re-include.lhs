@@ -1,4 +1,5 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TemplateHaskell            #-}
@@ -12,6 +13,7 @@ module Main
 import           Control.Applicative
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Data.Maybe
+import           Prelude.Compat
 import           System.Environment
 import           TestKit
 import           Text.RE.Edit

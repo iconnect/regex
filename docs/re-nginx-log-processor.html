@@ -48,7 +48,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </head>
 <body>
 <ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/examples/re-nginx-log-processor.lhs'>re-nginx-log-processor</a></ol><div class='content'>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
+<span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
 <span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
 <span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
@@ -71,6 +72,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Data.String</span>
 <span class="kw">import qualified</span> <span class="dt">Data.Text</span>                                <span class="kw">as</span> <span class="dt">T</span>
 <span class="kw">import           </span><span class="dt">Data.Time</span>
+<span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import qualified</span> <span class="dt">Shelly</span>                                   <span class="kw">as</span> <span class="dt">SH</span>
 <span class="kw">import           </span><span class="dt">System.Directory</span>
 <span class="kw">import           </span><span class="dt">System.Environment</span>

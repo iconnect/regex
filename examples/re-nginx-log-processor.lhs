@@ -1,4 +1,5 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TemplateHaskell            #-}
@@ -22,6 +23,7 @@ import           Data.Maybe
 import           Data.String
 import qualified Data.Text                                as T
 import           Data.Time
+import           Prelude.Compat
 import qualified Shelly                                   as SH
 import           System.Directory
 import           System.Environment
@@ -31,7 +33,7 @@ import           Text.RE.Options
 import           Text.RE.Parsers
 import           Text.RE.TestBench
 import           Text.RE.PCRE.ByteString.Lazy
-import qualified Text.RE.PCRE.String              as S
+import qualified Text.RE.PCRE.String                      as S
 import           Text.RE.Tools.Sed
 import           Text.Printf
 \end{code}

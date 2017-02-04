@@ -1,6 +1,11 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#endif
 
 module Text.RE.Tools.Sed
   ( SedScript
@@ -8,8 +13,8 @@ module Text.RE.Tools.Sed
   , sed'
   ) where
 
-import           Control.Applicative
 import qualified Data.ByteString.Lazy.Char8               as LBS
+import           Prelude.Compat
 import           Text.RE.Edit
 import           Text.RE.LineNo
 import           Text.RE.IsRegex

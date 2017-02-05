@@ -61,11 +61,21 @@ stack install regex
 Loading up the Tutorial into ghci
 ---------------------------------
 
+First unpack the source distribution.
 ```bash
 cabal unpack regex
 cd regex-*
+```
+
+Loading the tutorial into ghci with cabal:
+```
 cabal configure
-cabal repl examples/re-tutorial
+cabal repl re-tutorial
+```
+
+Loading the tutorial into ghci with stack:
+```
+stack --stack-yaml stack-8.0.yaml exec ghci -- -ghci-script lib/ghci examples/re-tutorial.lhs
 ```
 
 

@@ -1,0 +1,6 @@
+:set -Wall
+
+:seti -XOverloadedStrings
+:seti -XQuasiQuotes
+
+:set -iexamples

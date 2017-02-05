@@ -70,7 +70,7 @@ module Main(main) where
 
 *********************************************************
 *
-* WARNING: this is generated from pp-tutorial-master.lhs
+* WARNING: this is generated from pp-tutorial-master.lhs 
 *
 *********************************************************
 
@@ -866,3 +866,4 @@ main = runTests
   , evalme_LOA_00
   ]
 \end{code}
+

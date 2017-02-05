@@ -583,6 +583,7 @@ scan_re (<span class="dt">RegexSource</span> src0) <span class="fu">=</span> loo
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">gen_all ::</span> <span class="dt">IO</span> ()
 gen_all <span class="fu">=</span> <span class="kw">do</span>
     <span class="co">-- prepare HTML docs for the (literate) tools</span>
+    pd <span class="st">&quot;re-gen-cabals&quot;</span>
     pd <span class="st">&quot;re-gen-modules&quot;</span>
     pd <span class="st">&quot;re-include&quot;</span>
     pd <span class="st">&quot;re-nginx-log-processor&quot;</span>
@@ -614,7 +615,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     putStrLn <span class="st">&quot;&gt;&gt; examples/re-tutorial.lhs&quot;</span>
   <span class="kw">where</span>
     pd fnm <span class="fu">=</span> <span class="kw">case</span> captureTextMaybe [cp|mnm|] <span class="fu">$</span> fnm <span class="fu">T.?=~</span> [re|^RE/(Tools/|Internal/)?${mnm}(@{%id})|] <span class="kw">of</span>
-        <span class="dt">Just</span> mnm <span class="ot">-&gt;</span> pandoc fnm (<span class="st">&quot;src/Text/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
+        <span class="dt">Just</span> mnm <span class="ot">-&gt;</span> pandoc fnm (<span class="st">&quot;Text/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
         <span class="dt">Nothing</span>  <span class="ot">-&gt;</span> pandoc fnm (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)</code></pre></div>
 </div>
 <p>See <a href="re-pp.html">examples/re-pp.lhs</a></p>

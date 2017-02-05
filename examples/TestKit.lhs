@@ -7,6 +7,7 @@ module TestKit
   , runTests
   , checkThis
   , test_pp
+  , cmp
   ) where
 
 import           Control.Exception

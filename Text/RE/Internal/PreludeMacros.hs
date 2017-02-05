@@ -85,6 +85,7 @@ preludeMacroDescriptor rty env pm = case pm of
   PM_string_simple    -> string_simple_macro    rty env pm
   PM_id               -> id_macro               rty env pm
   PM_id'              -> id'_macro              rty env pm
+  PM_id_              -> id__macro              rty env pm
   PM_date             -> date_macro             rty env pm
   PM_date_slashes     -> date_slashes_macro     rty env pm
   PM_time             -> time_macro             rty env pm
@@ -111,6 +112,7 @@ data PreludeMacro
   -- identifiers
   | PM_id
   | PM_id'
+  | PM_id_
   -- dates & times
   | PM_date
   | PM_date_slashes
@@ -130,8 +132,12 @@ data PreludeMacro
 
 -- | naming the macros
 presentPreludeMacro :: PreludeMacro -> String
-presentPreludeMacro = (prelude_prefix++) . map tr . drop 3 . show
+presentPreludeMacro pm = case pm of
+    PM_id_  -> prelude_prefix++"id-"
+    _       -> fmt pm
   where
+    fmt = (prelude_prefix++) . map tr . drop 3 . show
+
     tr '_' = '.'
     tr c   = c
 
@@ -392,6 +398,53 @@ id'_macro rty env pm =
         , f "a'"
         , f "_a'"
         , f "a'b"
+        ]
+      where
+        f s = (s,s)
+
+    counter_samples =
+        [ ""
+        , "1"
+        , "_"
+        , "__"
+        , "__1"
+        , "1a"
+        , "'"
+        , "'a"
+        , "_'"
+        , "_1'"
+        ]
+
+id__macro :: RegexType
+          -> MacroEnv
+          -> PreludeMacro
+          -> Maybe MacroDescriptor
+id__macro rty env pm =
+  Just $ run_tests rty Just samples env pm
+    MacroDescriptor
+      { _md_source          = "_*[a-zA-Z][a-zA-Z0-9_'-]*"
+      , _md_samples         = map fst samples
+      , _md_counter_samples = counter_samples
+      , _md_test_results    = []
+      , _md_parser          = Nothing
+      , _md_description     = "an identifier with -s"
+      }
+  where
+    samples :: [(String,String)]
+    samples =
+        [ f "a"
+        , f "A"
+        , f "A1"
+        , f "a_"
+        , f "a1_B2"
+        , f "_abc"
+        , f "__abc"
+        , f "a'"
+        , f "_a'"
+        , f "a'b"
+        , f "a-"
+        , f "a1-B2"
+        , f "a1-B2-"
         ]
       where
         f s = (s,s)

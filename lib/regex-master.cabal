@@ -1,0 +1,200 @@
+Name:                   regex
+Version:                0.0.0.2
+Synopsis:               A Regular Expression Toolkit for regex-base
+Description:            A Regular Expression Toolkit for regex-base with
+                        Compile-time checking of RE syntax, data types for
+                        matches and captures, a text replacement toolkit,
+                        portable options, high-level AWK-like tools
+                        for building text processing apps, regular expression
+                        macros and test bench, a tutorial and copious examples.
+Homepage:               https://iconnect.github.io/regex
+Author:                 Chris Dornan
+License:                BSD3
+license-file:           LICENSE
+Maintainer:             chris.dornan@irisconnect.co.uk
+Copyright:              Chris Dornan 2016-2017
+Category:               Text
+Build-type:             Simple
+Stability:              rfc
+bug-reports:            https://github.com/iconnect/regex/issues
+
+extra-source-files:
+    README.md
+    changelog
+
+Cabal-version:          >= 1.16
+
+Source-repository head
+    type:               git
+    location:           https://github.com/iconnect/regex.git
+
+Source-Repository this
+    Type:               git
+    Location:           https://github.com/iconnect/regex.git
+    Tag:                0.0.0.2
+
+%-    array                   >= 0.4
+%-    base                    >= 4 && < 5
+%-    base-compat             >= 0.6.0
+%-    bytestring              >= 0.10.2.0
+%-    containers              >= 0.4
+%-    directory               >= 1.2.1.0
+%-    hashable                >= 1.2.3.3
+%-    heredoc                 >= 0.2.0.0
+%-    http-conduit            >= 2.1.7.2
+%-    regex-base              >= 0.93.2
+%-    regex-pcre-builtin      >= 0.94.4.8.8.35
+%-    regex-tdfa              >= 1.2.0
+%-    regex-tdfa-text         >= 1.0.0.3
+%-    shelly                  >= 1.6.1.2
+%-    smallcheck              >= 1.1.1
+%-    tasty                   >= 0.10.1.2
+%-    tasty-hunit             >= 0.9.2
+%-    tasty-smallcheck        >= 0.8.0.1
+%-    template-haskell        >= 2.7
+%-    text                    >= 1.2.0.6
+%-    time                    >= 1.4.2
+%-    time-locale-compat      >= 0.1.0.1
+%-    transformers            >= 0.2.2
+%-    unordered-containers    >= 0.2.5.1
+
+Library
+    Hs-Source-Dirs:     .
+    Exposed-modules:
+      Text.RE
+      Text.RE.Capture
+      Text.RE.CaptureID
+      Text.RE.Edit
+      Text.RE.Internal.NamedCaptures
+      Text.RE.Internal.PreludeMacros
+      Text.RE.Internal.QQ
+      Text.RE.IsRegex
+      Text.RE.LineNo
+      Text.RE.Options
+      Text.RE.Parsers
+      Text.RE.PCRE
+      Text.RE.PCRE.ByteString
+      Text.RE.PCRE.ByteString.Lazy
+      Text.RE.PCRE.RE
+      Text.RE.PCRE.Sequence
+      Text.RE.PCRE.String
+      Text.RE.Replace
+      Text.RE.TDFA
+      Text.RE.TDFA.ByteString
+      Text.RE.TDFA.ByteString.Lazy
+      Text.RE.TDFA.RE
+      Text.RE.TDFA.Sequence
+      Text.RE.TDFA.String
+      Text.RE.TDFA.Text
+      Text.RE.TDFA.Text.Lazy
+      Text.RE.TestBench
+      Text.RE.Tools.Grep
+      Text.RE.Tools.Lex
+      Text.RE.Tools.Sed
+
+    Other-modules:
+      Text.RE.Internal.AddCaptureNames
+
+%build-depends array bytestring base base-compat containers hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
+
+%test-exe re-gen-cabals
+    Hs-Source-Dirs:     examples
+
+    Main-is:            re-gen-cabals.lhs
+
+    Other-modules:
+      TestKit
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+        -Wall
+        -fwarn-tabs
+
+%build-depends regex array base base-compat containers bytestring directory regex-base regex-tdfa shelly text
+
+%test-exe re-gen-modules
+    Hs-Source-Dirs:     examples
+
+    Main-is:            re-gen-modules.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+        -Wall
+        -fwarn-tabs
+
+%build-depends regex array base base-compat bytestring directory regex-base regex-tdfa shelly text
+
+%test-exe re-include
+    Hs-Source-Dirs:     examples
+
+    Main-is: re-include.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+        -Wall
+        -fwarn-tabs
+
+    Other-modules:
+      TestKit
+
+%build-depends regex base base-compat bytestring directory shelly text
+
+%test-exe re-nginx-log-processor
+    Hs-Source-Dirs:     examples
+
+    Main-is:            re-nginx-log-processor.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+        -Wall
+        -fwarn-tabs
+
+%build-depends regex array base base-compat bytestring directory regex-base regex-tdfa shelly text time time-locale-compat transformers unordered-containers
+
+%test-exe re-pp
+    Hs-Source-Dirs:     examples
+
+    Main-is: re-pp.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+        -Wall
+        -fwarn-tabs
+
+    Other-modules:
+      TestKit
+
+%build-depends regex base base-compat bytestring directory http-conduit shelly text
+
+%test-exe re-tests
+    Hs-Source-Dirs:     examples
+
+    Main-is:            re-tests.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+        -Wall
+        -fwarn-tabs
+
+    Other-modules:
+      TestKit
+
+%build-depends regex array base base-compat bytestring containers directory regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin tasty tasty-hunit template-haskell text
+
+%test-exe re-tutorial
+    Hs-Source-Dirs:     examples
+
+    Main-is:            re-tutorial.lhs
+
+    Other-modules:
+      TestKit
+
+    Default-Language:   Haskell2010
+    Default-Extensions: QuasiQuotes
+    GHC-Options:
+        -Wall
+        -fwarn-tabs
+
+%build-depends regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
+
+-- Generated from lib/rgex-master.cabal with re-gen-cabals

@@ -172,6 +172,7 @@ Script to Generate All Tutorial Tests and Docs
 gen_all :: IO ()
 gen_all = do
     -- prepare HTML docs for the (literate) tools
+    pd "re-gen-cabals"
     pd "re-gen-modules"
     pd "re-include"
     pd "re-nginx-log-processor"

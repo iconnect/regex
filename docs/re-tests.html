@@ -48,14 +48,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </head>
 <body>
 <ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/examples/re-tests.lhs'>re-tests</a></ol><div class='content'>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
+<span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
 <span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
 <span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
 
 <span class="kw">module</span> <span class="dt">Main</span> (main) <span class="kw">where</span>
 
-<span class="kw">import           </span><span class="dt">Control.Applicative</span>
 <span class="kw">import           </span><span class="dt">Control.Exception</span>
 <span class="kw">import           </span><span class="dt">Data.Array</span>
 <span class="kw">import qualified</span> <span class="dt">Data.ByteString.Char8</span>          <span class="kw">as</span> <span class="dt">B</span>
@@ -68,6 +68,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import qualified</span> <span class="dt">Data.Text</span>                      <span class="kw">as</span> <span class="dt">T</span>
 <span class="kw">import qualified</span> <span class="dt">Data.Text.Lazy</span>                 <span class="kw">as</span> <span class="dt">LT</span>
 <span class="kw">import           </span><span class="dt">Language.Haskell.TH.Quote</span>
+<span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">Test.Tasty</span>
 <span class="kw">import           </span><span class="dt">Test.Tasty.HUnit</span>
 <span class="kw">import qualified</span> <span class="dt">Text.Regex.PCRE</span>                <span class="kw">as</span> <span class="dt">PCRE_</span>

@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="lib/styles.css" type="text/css" />
+  <link rel="stylesheet" href="lib/bs.css" type="text/css" />
+</head>
+<body>
+<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/examples/re-gen-cabals.lhs'>re-gen-cabals</a></ol><div class='content'>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
+<span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
+<span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
+<span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
+<span class="ot">{-# LANGUAGE CPP                        #-}</span>
+
+<span class="kw">module</span> <span class="dt">Main</span> (main) <span class="kw">where</span>
+
+<span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>               <span class="kw">as</span> <span class="dt">LBS</span>
+<span class="kw">import           </span><span class="dt">Data.Char</span>
+<span class="kw">import           </span><span class="dt">Data.IORef</span>
+<span class="kw">import qualified</span> <span class="dt">Data.List</span>                                <span class="kw">as</span> <span class="dt">L</span>
+<span class="kw">import qualified</span> <span class="dt">Data.Map</span>                                 <span class="kw">as</span> <span class="dt">Map</span>
+<span class="kw">import           </span><span class="dt">Data.Maybe</span>
+<span class="kw">import           </span><span class="dt">Data.Monoid</span>
+<span class="kw">import           </span><span class="dt">Prelude.Compat</span>
+<span class="kw">import           </span><span class="dt">System.Directory</span>
+<span class="kw">import           </span><span class="dt">System.Environment</span>
+<span class="kw">import           </span><span class="dt">System.Exit</span>
+<span class="kw">import           </span><span class="dt">System.IO</span>
+<span class="kw">import           </span><span class="dt">TestKit</span>
+<span class="kw">import           </span><span class="dt">Text.Printf</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TDFA.ByteString.Lazy</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span>
+
+
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> <span class="kw">do</span>
+  (pn,as) <span class="ot">&lt;-</span> (,) <span class="fu">&lt;$&gt;</span> getProgName <span class="fu">&lt;*&gt;</span> getArgs
+  <span class="kw">case</span> as <span class="kw">of</span>
+    []        <span class="ot">-&gt;</span> test
+    [<span class="st">&quot;test&quot;</span>]  <span class="ot">-&gt;</span> test
+    [<span class="st">&quot;gen&quot;</span>]   <span class="ot">-&gt;</span> gen  <span class="st">&quot;lib/regex-master.cabal&quot;</span> <span class="st">&quot;regex.cabal&quot;</span>
+    _         <span class="ot">-&gt;</span> <span class="kw">do</span>
+      hPutStrLn stderr <span class="fu">$</span> <span class="st">&quot;usage: &quot;</span> <span class="fu">++</span> pn <span class="fu">++</span> <span class="st">&quot; [test|gen]&quot;</span>
+      exitWith <span class="fu">$</span> <span class="dt">ExitFailure</span> <span class="dv">1</span>
+
+<span class="ot">test ::</span> <span class="dt">IO</span> ()
+test <span class="fu">=</span> <span class="kw">do</span>
+  createDirectoryIfMissing <span class="dt">False</span> <span class="st">&quot;tmp&quot;</span>
+  gen <span class="st">&quot;lib/regex-master.cabal&quot;</span> <span class="st">&quot;tmp/regex.cabal&quot;</span>
+  ok <span class="ot">&lt;-</span> cmp <span class="st">&quot;tmp/regex.cabal&quot;</span> <span class="st">&quot;regex.cabal&quot;</span>
+  <span class="kw">case</span> ok <span class="kw">of</span>
+    <span class="dt">True</span>  <span class="ot">-&gt;</span> return ()
+    <span class="dt">False</span> <span class="ot">-&gt;</span> exitWith <span class="fu">$</span> <span class="dt">ExitFailure</span> <span class="dv">1</span>
+
+<span class="ot">gen ::</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+gen in_f out_f <span class="fu">=</span> <span class="kw">do</span>
+    ctx <span class="ot">&lt;-</span> setup
+    sed (gc_script ctx) in_f out_f
+
+<span class="kw">data</span> <span class="dt">Ctx</span> <span class="fu">=</span>
+  <span class="dt">Ctx</span>
+    {<span class="ot"> _ctx_package_constraints ::</span> <span class="dt">IORef</span> (<span class="dt">Map.Map</span> <span class="dt">LBS.ByteString</span> <span class="dt">LBS.ByteString</span>)
+    ,<span class="ot"> _ctx_test_exe            ::</span> <span class="dt">IORef</span> (<span class="dt">Maybe</span> <span class="dt">TestExe</span>)
+    }
+
+<span class="kw">data</span> <span class="dt">TestExe</span> <span class="fu">=</span>
+  <span class="dt">TestExe</span>
+    {<span class="ot"> _te_test ::</span> <span class="dt">Bool</span>
+    ,<span class="ot"> _te_exe  ::</span> <span class="dt">Bool</span>
+    ,<span class="ot"> _te_name ::</span> <span class="dt">LBS.ByteString</span>
+    ,<span class="ot"> _te_text ::</span> <span class="dt">LBS.ByteString</span>
+    }
+  <span class="kw">deriving</span> (<span class="dt">Show</span>)
+
+<span class="ot">setup ::</span> <span class="dt">IO</span> <span class="dt">Ctx</span>
+setup <span class="fu">=</span> <span class="dt">Ctx</span> <span class="fu">&lt;$&gt;</span> (newIORef Map.empty) <span class="fu">&lt;*&gt;</span> (newIORef <span class="dt">Nothing</span>)
+
+<span class="ot">gc_script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">SedScript</span> <span class="dt">RE</span>
+gc_script ctx <span class="fu">=</span> <span class="dt">Select</span>
+    [ (,) [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]             <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> cond_gen                 ctx
+    , (,) [re|^%build-depends +${list}(@{%id-}( +@{%id-})+)$|] <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> build_depends_gen        ctx
+    , (,) [re|^%test +${i}(@{%id-})$|]                         <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> test_exe_gen <span class="dt">True</span>  <span class="dt">False</span> ctx
+    , (,) [re|^%exe +${i}(@{%id-})$|]                          <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> test_exe_gen <span class="dt">False</span> <span class="dt">True</span>  ctx
+    , (,) [re|^%test-exe +${i}(@{%id-})$|]                     <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> test_exe_gen <span class="dt">True</span>  <span class="dt">True</span>  ctx
+    , (,) [re|^.*$|]                                           <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> default_gen              ctx
+    ]
+
+cond_gen, build_depends_gen,
+<span class="ot">  default_gen ::</span> <span class="dt">Ctx</span>
+              <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
+              <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+              <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
+
+cond_gen <span class="dt">Ctx</span>{<span class="fu">..</span>} _ mtchs <span class="fu">=</span> <span class="kw">do</span>
+    modifyIORef _ctx_package_constraints <span class="fu">$</span> Map.insert pkg cond
+    return <span class="dt">Delete</span>
+  <span class="kw">where</span>
+    pkg  <span class="fu">=</span> captureText [cp|pkg|]  mtch
+    cond <span class="fu">=</span> captureText [cp|cond|] mtch
+
+    mtch <span class="fu">=</span> allMatches mtchs <span class="fu">!!</span> <span class="dv">0</span>
+
+build_depends_gen ctx<span class="fu">@</span><span class="dt">Ctx</span>{<span class="fu">..</span>} _ mtchs <span class="fu">=</span> <span class="kw">do</span>
+    mp <span class="ot">&lt;-</span> readIORef _ctx_package_constraints
+    put ctx <span class="fu">$</span> mk_build_depends mp lst
+  <span class="kw">where</span>
+    lst  <span class="fu">=</span> LBS.words <span class="fu">$</span> captureText [cp|list|] mtch
+    mtch <span class="fu">=</span> allMatches mtchs <span class="fu">!!</span> <span class="dv">0</span>
+
+default_gen ctx<span class="fu">@</span><span class="dt">Ctx</span>{<span class="fu">..</span>} _ mtchs <span class="fu">=</span> <span class="kw">do</span>
+    mb <span class="ot">&lt;-</span> readIORef _ctx_test_exe
+    <span class="kw">case</span> mb <span class="kw">of</span>
+      <span class="dt">Nothing</span> <span class="ot">-&gt;</span> return <span class="fu">$</span> <span class="dt">ReplaceWith</span> ln
+      <span class="dt">Just</span> te <span class="ot">-&gt;</span> <span class="kw">case</span> isSpace <span class="fu">$</span> LBS.head <span class="fu">$</span> ln<span class="fu">&lt;&gt;</span><span class="st">&quot;\n&quot;</span> <span class="kw">of</span>
+        <span class="dt">True</span>  <span class="ot">-&gt;</span> put ctx ln
+        <span class="dt">False</span> <span class="ot">-&gt;</span> adjust_le (<span class="fu">&lt;&gt;</span>ln) <span class="fu">&lt;$&gt;</span> close_test_exe ctx te
+  <span class="kw">where</span>
+    ln   <span class="fu">=</span> matchSource mtch
+    mtch <span class="fu">=</span> allMatches mtchs <span class="fu">!!</span> <span class="dv">0</span>
+
+<span class="ot">test_exe_gen ::</span> <span class="dt">Bool</span>
+             <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+             <span class="ot">-&gt;</span> <span class="dt">Ctx</span>
+             <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
+             <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+             <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
+test_exe_gen is_t is_e ctx _ mtchs <span class="fu">=</span> <span class="kw">do</span>
+    mb <span class="ot">&lt;-</span> readIORef  (_ctx_test_exe ctx)
+    le <span class="ot">&lt;-</span> maybe (return <span class="dt">Delete</span>) (close_test_exe ctx) mb
+    writeIORef (_ctx_test_exe ctx) <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span>
+      <span class="dt">TestExe</span>
+        { _te_test <span class="fu">=</span> is_t
+        , _te_exe  <span class="fu">=</span> is_e
+        , _te_name <span class="fu">=</span> i
+        , _te_text <span class="fu">=</span> <span class="st">&quot;&quot;</span>
+        }
+    return le
+  <span class="kw">where</span>
+    i    <span class="fu">=</span> captureText [cp|i|] mtch
+
+    mtch <span class="fu">=</span> allMatches mtchs <span class="fu">!!</span> <span class="dv">0</span>
+
+<span class="ot">close_test_exe ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">TestExe</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
+close_test_exe ctx<span class="fu">@</span><span class="dt">Ctx</span>{<span class="fu">..</span>} te <span class="fu">=</span> <span class="kw">do</span>
+  writeIORef _ctx_test_exe <span class="dt">Nothing</span>
+  put ctx <span class="fu">$</span> mconcat <span class="fu">$</span> concat <span class="fu">$</span>
+    [ [ mk_test_exe <span class="dt">False</span> te <span class="st">&quot;Executable&quot;</span> <span class="fu">|</span> _te_exe  te ]
+    , [ mk_test_exe <span class="dt">True</span>  te <span class="st">&quot;Test-Suite&quot;</span> <span class="fu">|</span> _te_test te ]
+    ]
+
+<span class="ot">put ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
+put <span class="dt">Ctx</span>{<span class="fu">..</span>} lbs <span class="fu">=</span> <span class="kw">do</span>
+    mb <span class="ot">&lt;-</span> readIORef _ctx_test_exe
+    <span class="kw">case</span> mb <span class="kw">of</span>
+      <span class="dt">Nothing</span> <span class="ot">-&gt;</span> return <span class="fu">$</span> <span class="dt">ReplaceWith</span> lbs
+      <span class="dt">Just</span> te <span class="ot">-&gt;</span> <span class="kw">do</span>
+        writeIORef _ctx_test_exe <span class="fu">$</span> <span class="dt">Just</span> te { _te_text <span class="fu">=</span> _te_text te <span class="fu">&lt;&gt;</span> lbs <span class="fu">&lt;&gt;</span> <span class="st">&quot;\n&quot;</span> }
+        return <span class="dt">Delete</span>
+
+<span class="ot">mk_test_exe ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">TestExe</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
+mk_test_exe is_t te te_lbs_kw <span class="fu">=</span> (<span class="fu">&lt;&gt;</span>_te_text te) <span class="fu">$</span> LBS.unlines <span class="fu">$</span> concat
+    [ [ LBS.pack <span class="fu">$</span> printf <span class="st">&quot;%s %s&quot;</span> (LBS.unpack te_lbs_kw) nm ]
+    , [ <span class="st">&quot;    type:               exitcode-stdio-1.0&quot;</span> <span class="fu">|</span> is_t ]
+    ]
+  <span class="kw">where</span>
+    nm <span class="fu">=</span> <span class="kw">case</span> is_t <span class="kw">of</span>
+      <span class="dt">True</span>  <span class="ot">-&gt;</span> LBS.unpack <span class="fu">$</span> _te_name te <span class="fu">&lt;&gt;</span> <span class="st">&quot;-test&quot;</span>
+      <span class="dt">False</span> <span class="ot">-&gt;</span> LBS.unpack <span class="fu">$</span> _te_name te
+
+<span class="ot">mk_build_depends ::</span> <span class="dt">Map.Map</span> <span class="dt">LBS.ByteString</span> <span class="dt">LBS.ByteString</span>
+                 <span class="ot">-&gt;</span> [<span class="dt">LBS.ByteString</span>]
+                 <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
+mk_build_depends mp pks <span class="fu">=</span> LBS.unlines <span class="fu">$</span>
+        (<span class="fu">:</span>) <span class="st">&quot;    Build-depends:&quot;</span> <span class="fu">$</span>
+          map fmt <span class="fu">$</span> zip (<span class="dt">True</span> <span class="fu">:</span> repeat <span class="dt">False</span>) <span class="fu">$</span>
+              L.sortBy comp pks
+  <span class="kw">where</span>
+    fmt (isf,pk) <span class="fu">=</span> LBS.pack <span class="fu">$</span>
+      printf <span class="st">&quot;      %c %-20s %s&quot;</span>
+        (<span class="kw">if</span> isf <span class="kw">then</span> <span class="ch">&#39; &#39;</span> <span class="kw">else</span> <span class="ch">&#39;,&#39;</span>)
+        (LBS.unpack pk)
+        (maybe <span class="st">&quot;&quot;</span> LBS.unpack <span class="fu">$</span> Map.lookup pk mp)
+
+    comp x y <span class="fu">=</span> <span class="kw">case</span> (x<span class="fu">==</span><span class="st">&quot;regex&quot;</span>,y<span class="fu">==</span><span class="st">&quot;regex&quot;</span>) <span class="kw">of</span>
+      (<span class="dt">True</span> ,<span class="dt">True</span> ) <span class="ot">-&gt;</span> <span class="dt">EQ</span>
+      (<span class="dt">True</span> ,<span class="dt">False</span>) <span class="ot">-&gt;</span> <span class="dt">LT</span>
+      (<span class="dt">False</span>,<span class="dt">True</span> ) <span class="ot">-&gt;</span> <span class="dt">GT</span>
+      (<span class="dt">False</span>,<span class="dt">False</span>) <span class="ot">-&gt;</span> compare x y
+
+<span class="ot">adjust_le ::</span> (<span class="dt">LBS.ByteString</span><span class="ot">-&gt;</span><span class="dt">LBS.ByteString</span>)
+          <span class="ot">-&gt;</span> <span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>
+          <span class="ot">-&gt;</span> <span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>
+adjust_le f le <span class="fu">=</span> <span class="kw">case</span> le <span class="kw">of</span>
+  <span class="dt">NoEdit</span>          <span class="ot">-&gt;</span> error <span class="st">&quot;adjust_le: not enough context&quot;</span>
+  <span class="dt">ReplaceWith</span> lbs <span class="ot">-&gt;</span> <span class="dt">ReplaceWith</span> <span class="fu">$</span> f lbs
+  <span class="dt">Delete</span>          <span class="ot">-&gt;</span> <span class="dt">ReplaceWith</span> <span class="fu">$</span> f <span class="st">&quot;&quot;</span></code></pre></div>
+</div>
+</body>
+</html>

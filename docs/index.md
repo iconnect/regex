@@ -87,6 +87,10 @@ provides an extended example of large-scale RE development with the regex test b
 is the starting point for the preprocessor that we use to generate the tutorial
 HTML and its derived test suite.
 
+### The Cabal Processor Example [examples/re-gen-cabals.lhs](re-gen-cabals.html)
+is the Sed preprocessor we use to generate our cabal file from the template
+in [lib/regex-master.cabal](https://github.com/iconnect/regex/blob/master/lib/regex-master.cabal).
+
 ### The Library Tests [examples/re-tests.lhs](re-tests.html)
 contains various test suites for exercising various components of the library.
 

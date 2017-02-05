@@ -4,7 +4,7 @@
 .ghci
 .hub
 .ghci
-tmp
+stack.yaml
 tmp
 
 

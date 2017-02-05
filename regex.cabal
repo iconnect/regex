@@ -33,6 +33,7 @@ Source-Repository this
     Location:           https://github.com/iconnect/regex.git
     Tag:                0.0.0.2
 
+
 Library
     Hs-Source-Dirs:     .
     Exposed-modules:
@@ -71,32 +72,83 @@ Library
       Text.RE.Internal.AddCaptureNames
 
     Build-depends:
-      array                   >= 0.4            ,
-      bytestring              >= 0.10.2.0       ,
-      base                    >= 4       && < 5 ,
-      base-compat             >= 0.6.0          ,
-      containers              >= 0.4            ,
-      hashable                >= 1.2.3.3        ,
-      heredoc                 >= 0.2.0.0        ,
-      regex-base              >= 0.93.2         ,
-      regex-tdfa              >= 1.2.0          ,
-      regex-tdfa-text         >= 1.0.0.3        ,
-      regex-pcre-builtin      >= 0.94.4.8.8.35  ,
-      smallcheck              >= 1.1.1          ,
-      tasty                   >= 0.10.1.2       ,
-      tasty-hunit             >= 0.9.2          ,
-      tasty-smallcheck        >= 0.8.0.1        ,
-      template-haskell        >= 2.7            ,
-      transformers            >= 0.2.2          ,
-      text                    >= 1.2.0.6        ,
-      time                    >= 1.4.2          ,
-      time-locale-compat      >= 0.1.0.1        ,
-      unordered-containers    >= 0.2.5.1
+        array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+Executable re-gen-cabals
+    Hs-Source-Dirs:     examples
+
+    Main-is:            re-gen-cabals.lhs
+
+    Other-modules:
+      TestKit
 
     Default-Language:   Haskell2010
     GHC-Options:
         -Wall
         -fwarn-tabs
+
+    Build-depends:
+        regex                
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-tdfa           >= 1.2.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
+
+Test-Suite re-gen-cabals-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-is:            re-gen-cabals.lhs
+
+    Other-modules:
+      TestKit
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+        -Wall
+        -fwarn-tabs
+
+    Build-depends:
+        regex                
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-tdfa           >= 1.2.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
 
 
 Executable re-gen-modules
@@ -110,16 +162,16 @@ Executable re-gen-modules
         -fwarn-tabs
 
     Build-depends:
-      regex                                     ,
-      array                   >= 0.4            ,
-      base                    >= 4              ,
-      base-compat             >= 0.6.0          ,
-      bytestring              >= 0.10.2.0       ,
-      directory               >= 1.2.1.0        ,
-      regex-base              >= 0.93.2         ,
-      regex-tdfa              >= 1.2.0          ,
-      shelly                  >= 1.6.1.2        ,
-      text                    >= 1.2.0.6
+        regex                
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-tdfa           >= 1.2.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
 
 
 Test-Suite re-gen-modules-test
@@ -134,16 +186,17 @@ Test-Suite re-gen-modules-test
         -fwarn-tabs
 
     Build-depends:
-      regex                                     ,
-      array                   >= 0.4            ,
-      base                    >= 4       && < 5 ,
-      base-compat             >= 0.6.0          ,
-      bytestring              >= 0.10.2.0       ,
-      directory               >= 1.2.1.0        ,
-      regex-base              >= 0.93.2         ,
-      regex-tdfa              >= 1.2.0          ,
-      shelly                  >= 1.6.1.2        ,
-      text                    >= 1.2.0.6
+        regex                
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-tdfa           >= 1.2.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
 
 
 Executable re-include
@@ -160,13 +213,13 @@ Executable re-include
       TestKit
 
     Build-depends:
-      regex                                     ,
-      base                    >= 4              ,
-      base-compat             >= 0.6.0          ,
-      bytestring              >= 0.10.2.0       ,
-      directory               >= 1.2.1.0        ,
-      shelly                  >= 1.6.1.2        ,
-      text                    >= 1.2.0.6
+        regex                
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
 
 
 Test-Suite re-include-test
@@ -184,13 +237,41 @@ Test-Suite re-include-test
       TestKit
 
     Build-depends:
-      regex                                     ,
-      base                    >= 4              ,
-      base-compat             >= 0.6.0          ,
-      bytestring              >= 0.10.2.0       ,
-      directory               >= 1.2.1.0        ,
-      shelly                  >= 1.6.1.2        ,
-      text                    >= 1.2.0.6
+        regex                
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
+
+
+Executable re-nginx-log-processor
+    Hs-Source-Dirs:     examples
+
+    Main-is:            re-nginx-log-processor.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+        -Wall
+        -fwarn-tabs
+
+    Build-depends:
+        regex                
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-tdfa           >= 1.2.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
 
 
 Test-Suite re-nginx-log-processor-test
@@ -205,47 +286,21 @@ Test-Suite re-nginx-log-processor-test
         -fwarn-tabs
 
     Build-depends:
-      regex                                     ,
-      array                   >= 0.4            ,
-      base                    >= 4              ,
-      base-compat             >= 0.6.0          ,
-      bytestring              >= 0.10.2.0       ,
-      directory               >= 1.2.1.0        ,
-      regex-base              >= 0.93.2         ,
-      regex-tdfa              >= 1.2.0          ,
-      shelly                  >= 1.6.1.2        ,
-      text                    >= 1.2.0.6        ,
-      time                    >= 1.4.2          ,
-      time-locale-compat      >= 0.1.0.1        ,
-      transformers            >= 0.3.0.0        ,
-      unordered-containers    >= 0.2.5.1
+        regex                
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-tdfa           >= 1.2.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
 
-
-Executable re-nginx-log-processor
-    Hs-Source-Dirs:     examples
-
-    Main-is:            re-nginx-log-processor.lhs
-
-    Default-Language:   Haskell2010
-    GHC-Options:
-        -Wall
-        -fwarn-tabs
-
-    Build-depends:
-      regex                                     ,
-      array                   >= 0.4            ,
-      base                    >= 4              ,
-      base-compat             >= 0.6.0          ,
-      bytestring              >= 0.10.2.0       ,
-      directory               >= 1.2.1.0        ,
-      regex-base              >= 0.93.2         ,
-      regex-tdfa              >= 1.2.0          ,
-      shelly                  >= 1.6.1.2        ,
-      text                    >= 1.2.0.6        ,
-      time                    >= 1.4.2          ,
-      time-locale-compat      >= 0.1.0.1        ,
-      transformers            >= 0.3.0.0        ,
-      unordered-containers    >= 0.2.5.1
 
 
 Executable re-pp
@@ -262,14 +317,14 @@ Executable re-pp
       TestKit
 
     Build-depends:
-      regex                                     ,
-      base                    >= 4              ,
-      base-compat             >= 0.6.0          ,
-      bytestring              >= 0.10.2.0       ,
-      directory               >= 1.2.1.0        ,
-      http-conduit            >= 2.1.7.2        ,
-      shelly                  >= 1.6.1.2        ,
-      text                    >= 1.2.0.6
+        regex                
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , http-conduit         >= 2.1.7.2
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
 
 
 Test-Suite re-pp-test
@@ -287,17 +342,49 @@ Test-Suite re-pp-test
       TestKit
 
     Build-depends:
-      regex                                     ,
-      base                    >= 4              ,
-      base-compat             >= 0.6.0          ,
-      bytestring              >= 0.10.2.0       ,
-      directory               >= 1.2.1.0        ,
-      http-conduit            >= 2.1.7.2        ,
-      shelly                  >= 1.6.1.2        ,
-      text                    >= 1.2.0.6
+        regex                
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , http-conduit         >= 2.1.7.2
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
 
 
-Test-Suite re-tests
+
+Executable re-tests
+    Hs-Source-Dirs:     examples
+
+    Main-is:            re-tests.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+        -Wall
+        -fwarn-tabs
+
+    Other-modules:
+      TestKit
+
+    Build-depends:
+        regex                
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+
+
+Test-Suite re-tests-test
     type:               exitcode-stdio-1.0
     Hs-Source-Dirs:     examples
 
@@ -312,21 +399,22 @@ Test-Suite re-tests
       TestKit
 
     Build-depends:
-      regex                                     ,
-      array                   >= 0.4            ,
-      base                    >= 4              ,
-      base-compat             >= 0.6.0          ,
-      bytestring              >= 0.10.2.0       ,
-      containers              >= 0.4            ,
-      directory               >= 1.2.1.0        ,
-      regex-base              >= 0.93.2         ,
-      regex-tdfa              >= 1.2.0          ,
-      regex-tdfa-text         >= 1.0.0.3        ,
-      regex-pcre-builtin      >= 0.94.4.8.8.35  ,
-      tasty                   >= 0.10.1.2       ,
-      tasty-hunit             >= 0.9.2          ,
-      template-haskell        >= 2.7            ,
-      text                    >= 1.2.0.6
+        regex                
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+
 
 
 Executable re-tutorial
@@ -344,30 +432,31 @@ Executable re-tutorial
         -fwarn-tabs
 
     Build-depends:
-      regex                                     ,
-      array                   >= 0.4            ,
-      base                    >= 4              ,
-      base-compat             >= 0.6.0          ,
-      bytestring              >= 0.10.2.0       ,
-      containers              >= 0.4            ,
-      directory               >= 1.2.1.0        ,
-      hashable                >= 1.2.3.3        ,
-      heredoc                 >= 0.2.0.0        ,
-      regex-base              >= 0.93.2         ,
-      regex-tdfa              >= 1.2.0          ,
-      regex-tdfa-text         >= 1.0.0.3        ,
-      regex-pcre-builtin      >= 0.94.4.8.8.35  ,
-      shelly                  >= 1.6.1.2        ,
-      smallcheck              >= 1.1.1          ,
-      tasty                   >= 0.10.1.2       ,
-      tasty-hunit             >= 0.9.2          ,
-      tasty-smallcheck        >= 0.8.0.1        ,
-      template-haskell        >= 2.7            ,
-      transformers            >= 0.2.2          ,
-      text                    >= 1.2.0.6        ,
-      time                    >= 1.4.2          ,
-      time-locale-compat      >= 0.1.0.1        ,
-      unordered-containers    >= 0.2.5.1
+        regex                
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
 
 Test-Suite re-tutorial-test
     type:               exitcode-stdio-1.0
@@ -385,27 +474,30 @@ Test-Suite re-tutorial-test
         -fwarn-tabs
 
     Build-depends:
-      regex                                     ,
-      array                   >= 0.4            ,
-      base                    >= 4              ,
-      base-compat             >= 0.6.0          ,
-      bytestring              >= 0.10.2.0       ,
-      containers              >= 0.4            ,
-      directory               >= 1.2.1.0        ,
-      hashable                >= 1.2.3.3        ,
-      heredoc                 >= 0.2.0.0        ,
-      regex-base              >= 0.93.2         ,
-      regex-tdfa              >= 1.2.0          ,
-      regex-tdfa-text         >= 1.0.0.3        ,
-      regex-pcre-builtin      >= 0.94.4.8.8.35  ,
-      shelly                  >= 1.6.1.2        ,
-      smallcheck              >= 1.1.1          ,
-      tasty                   >= 0.10.1.2       ,
-      tasty-hunit             >= 0.9.2          ,
-      tasty-smallcheck        >= 0.8.0.1        ,
-      template-haskell        >= 2.7            ,
-      transformers            >= 0.2.2          ,
-      text                    >= 1.2.0.6        ,
-      time                    >= 1.4.2          ,
-      time-locale-compat      >= 0.1.0.1        ,
-      unordered-containers    >= 0.2.5.1
+        regex                
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+-- Generated from lib/rgex-master.cabal with re-gen-cabals

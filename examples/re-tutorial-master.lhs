@@ -280,7 +280,7 @@ The type of `*=~` in this module (imported from
 </div>
 with `Matches` defined in `Text.RE.Capture` thus:
 
-%include "src/Text/RE/Capture.lhs" "^data Matches "
+%include "Text/RE/Capture.lhs" "^data Matches "
 
 The critical component of the `Matches` type is the `[Match a]` in
 `allMatches`, containing the details all of each substring matched by
@@ -297,7 +297,7 @@ The type of `?=~` in this module (imported from
 with `Match` (referenced in the definition of `Matches` above) defined
 in `Text.RE.Capture` thus:
 
-%include "src/Text/RE/Capture.lhs" "^data Match "
+%include "Text/RE/Capture.lhs" "^data Match "
 
 Like `matchesSource` above, `matchSource` retains the original search
 string, but also a `CaptureNames` field listing all of the capture
@@ -311,7 +311,7 @@ on.
 
 Each captured substring is represented by the following `Capture` type:
 
-%include "src/Text/RE/Capture.lhs" "^data Capture "
+%include "Text/RE/Capture.lhs" "^data Capture "
 
 Here we list the whole original search string in `captureSource` and
 the text of the sub-string captured in `capturedText`. `captureOffset`
@@ -408,7 +408,7 @@ returning `"2016-01-09 2015-12-05 2015-10-05"`.
 The `Phi`, `Context` and `Location` types are defined in
 `Text.RE.Replace` as follows.
 
-%include "src/Text/RE/Replace.lhs" "^data Phi"
+%include "Text/RE/Replace.lhs" "^data Phi"
 
 The processing function gets applied to the captures specified by the
 `Context`, which can be directed to process `ALL` of the captures,
@@ -421,7 +421,7 @@ function accepts a processing function that takes the full `Match`
 context for each capture along with the `Location` and the `Capture`
 itself.
 
-%include "src/Text/RE/Replace.lhs" "replaceAllCaptures' ::"
+%include "Text/RE/Replace.lhs" "replaceAllCaptures' ::"
 
 The above fixup function can be extended to enclose whole date in
 square brackets and rewritten with the above more general replacement
@@ -497,7 +497,7 @@ types for each back end.)
 
 The `Options_` type is defined in `Text.RE.Options` as follows:
 
-%include "src/Text/RE/Options.lhs" "data Options_"
+%include "Text/RE/Options.lhs" "data Options_"
 
   * `_options_mode` is an experimental feature that controls the RE
     parser.
@@ -534,7 +534,7 @@ REs. Your configuration-type options are:
   * `SimpleRegexOptions` this is just a simple enum type that we use to
     encode the standard options:
 
-%include "src/Text/RE/Options.lhs" "^data SimpleRegexOptions"
+%include "Text/RE/Options.lhs" "^data SimpleRegexOptions"
 
   * `Mode`: you can specify the parser mode;
 
@@ -665,7 +665,7 @@ that it can associate the named captures with their cature ordinal.
 
 Here is the prototype scanner.
 
-%include "src/Text/RE/Internal/NamedCaptures.lhs" "scan ::"
+%include "Text/RE/Internal/NamedCaptures.lhs" "scan ::"
 
 Once the package has stabilised it should be rewritten with Alex.
 
@@ -679,7 +679,7 @@ Anti-Example: Scanning REs in the TestBench
 The [Text.RE.TestBench](TestBench.html) contains an almost
 identical parser to the above, written with recursive functions.
 
-%include "src/Text/RE/TestBench.lhs" "scan_re ::"
+%include "Text/RE/TestBench.lhs" "scan_re ::"
 
 Once some technical issues have been ersolved it will use the above
 scanner in [Text.RE.Internal.NamedCaptures](NamedCaptures.html).

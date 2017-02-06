@@ -34,9 +34,9 @@ Helping Out
 
 If you have any feedback or suggestion then please drop me a line.
 
-  t: @cdornan
-  e: chris.dornan@irisconnect.co.uk
-  w: https://github.com/iconnect/regex/issues
+&nbsp;&nbsp;&nbsp;&nbsp;`t`: [@cdornan](https://twitter.com/cdornan)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;`e`: chris.dornan@irisconnect.co.uk<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;`w`: https://github.com/iconnect/regex/issues
 
 
 The Builds

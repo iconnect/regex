@@ -29,6 +29,16 @@ Schedule
 &nbsp;&nbsp;&#9744;&nbsp;**2017-03-20**&nbsp;&nbsp;1.0.0.0&nbsp;&nbsp;first stable release<br/>
 
 
+Helping Out
+-----------
+
+If you have any feedback or suggestion then please drop me a line.
+
+  t: @cdornan
+  e: chris.dornan@irisconnect.co.uk
+  w: https://github.com/iconnect/regex/issues
+
+
 The Builds
 ----------
 

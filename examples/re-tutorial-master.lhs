@@ -23,14 +23,6 @@ section.
 Setting Up: The Pragmas
 -----------------------
 
-First off, this pragma is a just technical pragma, combined with the
-`Prelude.Compat` import below used to avoid certain warnings while
-comiling against multiple versions of the compiler. It can be safely
-ignored.
-\begin{code}
-{-# LANGUAGE NoImplicitPrelude #-}
-\end{code}
-
 Haskell programs typically start with a few compiler pragmas to switch
 on the language extensions needed by the module. Because regex uses
 Template Haskell to check regular expressions at compile time `QuasiQuotes`
@@ -46,18 +38,19 @@ have launched ghci with `cabal repl`):
 :seti -XQuasiQuotes
 ```
 
-[Overloaded string
-literals](https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/guide-to-ghc-extensions/basic-syntax-extensions#overloadedstrings)
-are usually enabled in modern Haskell and we do so here.
-\begin{code}
-{-# LANGUAGE OverloadedStrings #-}
-\end{code}
-
 Because we are mimicking the REPL in this tutorial we will leave off the type
 signatures on the example calculations and disable the compiler
 warnings about missing type signatures.
 \begin{code}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+\end{code}
+
+This pragma is a just technical pragma, combined with the
+`Prelude.Compat` import below used to avoid certain warnings while
+comiling against multiple versions of the compiler. It can be safely
+ignored.
+\begin{code}
+{-# LANGUAGE NoImplicitPrelude #-}
 \end{code}
 
 

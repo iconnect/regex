@@ -116,10 +116,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Matches</span> <span class="kw">where</span>
-  fmap f <span class="dt">Matches</span>{<span class="fu">..</span>} <span class="fu">=</span>
+  fmap f <span class="dt">Matches</span>{<span class="fu">..</span>} <span class="fu">=</span> 
     <span class="dt">Matches</span>
       { matchesSource <span class="fu">=</span> f matchesSource
-      , allMatches   <span class="fu">=</span> map (fmap f) allMatches
+      , allMatches    <span class="fu">=</span> map (fmap f) allMatches
       }
 
 <span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Match</span> <span class="kw">where</span>

@@ -56,6 +56,7 @@ main = do
         [ "usage:"
         , "  "++prg "--help"
         , "  "++prg "[test]"
+        , "  "++prg "badges"
         , "  "++prg "all"
         , "  "++prg "doc (-|<in-file>) (-|<out-file>)"
         , "  "++prg "gen (-|<in-file>) (-|<out-file>)"

@@ -164,4 +164,4 @@ script:
 after_script:
   - travis_retry curl -L https://github.com/rubik/stack-hpc-coveralls/releases/download/v0.0.4.0/shc-linux-x64-$GHCVER.tar.bz2 | tar -xj
   - |
-    [ "$BUILD" == stack -a "$GHCVER" == 7.10.3 ] && ./shc --partial-coverage regex re-gen-modules-test re-include-test re-nginx-log-processor-test re-pp-test re-tests re-tutorial-test
+    [ "$BUILD" == stack -a "$GHCVER" == 7.10.3 ] && ./shc --partial-coverage regex re-gen-cabals-test re-gen-modules-test re-include-test re-nginx-log-processor-test re-pp-test re-tests-test re-tutorial-test

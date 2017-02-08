@@ -18,13 +18,13 @@ Build-type:             Simple
 Stability:              rfc
 bug-reports:            https://github.com/iconnect/regex/issues
 
-extra-source-files:
+Extra-Source-Files:
     README.md
     changelog
 
-Cabal-version:          >= 1.16
+Cabal-Version:          >= 1.16
 
-Source-repository head
+Source-Repository head
     type:               git
     location:           https://github.com/iconnect/regex.git
 
@@ -60,7 +60,7 @@ Source-Repository this
 
 Library
     Hs-Source-Dirs:     .
-    Exposed-modules:
+    Exposed-Modules:
       Text.RE
       Text.RE.Capture
       Text.RE.CaptureID
@@ -92,49 +92,54 @@ Library
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
 
-    Other-modules:
+    Other-Modules:
       Text.RE.Internal.AddCaptureNames
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
 
 %build-depends array bytestring base base-compat containers hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
 
 %test-exe re-gen-cabals
     Hs-Source-Dirs:     examples
 
-    Main-is:            re-gen-cabals.lhs
+    Main-Is:            re-gen-cabals.lhs
 
-    Other-modules:
+    Other-Modules:
       TestKit
 
     Default-Language:   Haskell2010
     GHC-Options:
-        -Wall
-        -fwarn-tabs
+      -Wall
+      -fwarn-tabs
 
 %build-depends regex array base base-compat containers bytestring directory regex-base regex-tdfa shelly text
 
 %test-exe re-gen-modules
     Hs-Source-Dirs:     examples
 
-    Main-is:            re-gen-modules.lhs
+    Main-Is:            re-gen-modules.lhs
 
     Default-Language:   Haskell2010
     GHC-Options:
-        -Wall
-        -fwarn-tabs
+      -Wall
+      -fwarn-tabs
 
 %build-depends regex array base base-compat bytestring directory regex-base regex-tdfa shelly text
 
 %test-exe re-include
     Hs-Source-Dirs:     examples
 
-    Main-is: re-include.lhs
+    Main-Is:            re-include.lhs
 
     Default-Language:   Haskell2010
     GHC-Options:
-        -Wall
-        -fwarn-tabs
+      -Wall
+      -fwarn-tabs
 
-    Other-modules:
+    Other-Modules:
       TestKit
 
 %build-depends regex base base-compat bytestring directory shelly text
@@ -142,26 +147,26 @@ Library
 %test-exe re-nginx-log-processor
     Hs-Source-Dirs:     examples
 
-    Main-is:            re-nginx-log-processor.lhs
+    Main-Is:            re-nginx-log-processor.lhs
 
     Default-Language:   Haskell2010
     GHC-Options:
-        -Wall
-        -fwarn-tabs
+      -Wall
+      -fwarn-tabs
 
 %build-depends regex array base base-compat bytestring directory regex-base regex-tdfa shelly text time time-locale-compat transformers unordered-containers
 
 %test-exe re-pp
     Hs-Source-Dirs:     examples
 
-    Main-is: re-pp.lhs
+    Main-Is:            re-pp.lhs
 
     Default-Language:   Haskell2010
     GHC-Options:
-        -Wall
-        -fwarn-tabs
+      -Wall
+      -fwarn-tabs
 
-    Other-modules:
+    Other-Modules:
       TestKit
 
 %build-depends regex base base-compat bytestring directory http-conduit shelly text
@@ -169,14 +174,14 @@ Library
 %test-exe re-tests
     Hs-Source-Dirs:     examples
 
-    Main-is:            re-tests.lhs
+    Main-Is:            re-tests.lhs
 
     Default-Language:   Haskell2010
     GHC-Options:
-        -Wall
-        -fwarn-tabs
+      -Wall
+      -fwarn-tabs
 
-    Other-modules:
+    Other-Modules:
       TestKit
 
 %build-depends regex array base base-compat bytestring containers directory regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin tasty tasty-hunit template-haskell text
@@ -184,16 +189,33 @@ Library
 %test-exe re-tutorial
     Hs-Source-Dirs:     examples
 
-    Main-is:            re-tutorial.lhs
+    Main-Is:            re-tutorial.lhs
 
-    Other-modules:
+    Other-Modules:
       TestKit
 
     Default-Language:   Haskell2010
     Default-Extensions: QuasiQuotes
     GHC-Options:
-        -Wall
-        -fwarn-tabs
+      -Wall
+      -fwarn-tabs
+
+%build-depends regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
+
+%test re-tutorial-os
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Language:   Haskell2010
+    Extensions:         OverloadedStrings
+    Default-Extensions: QuasiQuotes
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
 
 %build-depends regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
 

@@ -1,23 +1,93 @@
 \begin{code}
+{-# LANGUAGE NoImplicitPrelude          #-}
+{-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#endif
 
 module TestKit
-  ( Test
+  ( Vrn
+  , bumpVersion
+  , substVersion
+  , substVersion_
+  , Test
   , runTests
   , checkThis
   , test_pp
   , cmp
   ) where
 
+import           Control.Applicative
 import           Control.Exception
+import           Data.Maybe
 import qualified Data.Text                                as T
+import qualified Data.ByteString.Lazy.Char8               as LBS
+import           Prelude.Compat
 import qualified Shelly                                   as SH
 import           System.Directory
 import           System.Environment
 import           System.Exit
 import           System.IO
+import           Text.Printf
+import           Text.RE.TDFA
 \end{code}
+
+
+Vrn and friends
+---------------
+
+\begin{code}
+data Vrn = Vrn { _vrn_a, _vrn_b, _vrn_c, _vrn_d :: Int }
+  deriving (Show,Eq,Ord)
+
+-- | register a new version of the package
+bumpVersion :: String -> IO ()
+bumpVersion vrn_s = do
+    vrn0 <- read_current_version
+    case vrn > vrn0 of
+      True  -> write_current_version vrn
+      False -> error $
+        printf "version not later ~(%s > %s)" vrn_s $ present_vrn vrn0
+  where
+    vrn = parse_vrn vrn_s
+
+substVersion :: FilePath -> FilePath -> IO ()
+substVersion in_f out_f =
+    LBS.readFile in_f >>= substVersion_ >>= LBS.writeFile out_f
+
+substVersion_ :: (IsRegex RE a,Replace a) => a -> IO a
+substVersion_ txt =
+    flip replaceAll ms . pack_ . present_vrn <$> read_current_version
+  where
+    ms = txt *=~ [re|<<\$version\$>>|]
+
+read_current_version :: IO Vrn
+read_current_version = parse_vrn <$> readFile "lib/version.txt"
+
+write_current_version :: Vrn -> IO ()
+write_current_version = writeFile "lib/version.txt" . present_vrn
+
+present_vrn :: Vrn -> String
+present_vrn Vrn{..} = printf "%d.%d.%d.%d" _vrn_a _vrn_b _vrn_c _vrn_d
+
+parse_vrn :: String -> Vrn
+parse_vrn vrn_s = case matched m of
+    True  -> Vrn (p [cp|a|]) (p [cp|b|]) (p [cp|c|]) (p [cp|d|])
+    False -> error $ "not a valid version: " ++ vrn_s
+  where
+    p c  = fromMaybe oops $ parseInteger $ m !$$ c
+    m    = vrn_s ?=~ [re|^${a}(@{%natural})\.${b}(@{%natural})\.${c}(@{%natural})\.${d}(@{%natural})$|]
+
+    oops = error "parse_vrn"
+\end{code}
+
+
+Test and friends
+----------------
 
 \begin{code}
 data Test =

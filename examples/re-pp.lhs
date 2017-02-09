@@ -4,6 +4,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE OverloadedStrings          #-}
 
 module Main
@@ -26,7 +27,7 @@ import           TestKit
 import           Text.Printf
 import           Text.RE.Edit
 import           Text.RE.TDFA.ByteString.Lazy
-import           Text.RE.TDFA.Text                        as T
+import qualified Text.RE.TDFA.Text                        as TT
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
 \end{code}
@@ -41,6 +42,7 @@ main = do
     ["doc",fn,fn'] | is_file fn -> doc fn fn'
     ["gen",fn,fn'] | is_file fn -> gen fn fn'
     ["badges"]                  -> badges
+    ["bump-version",vrn]        -> bumpVersion vrn
     ["readme"]                  -> readme
     ["all"]                     -> gen_all
     _                           -> usage
@@ -58,6 +60,7 @@ main = do
         , "  "++prg "--help"
         , "  "++prg "[test]"
         , "  "++prg "badges"
+        , "  "++prg "bump-version <version>"
         , "  "++prg "all"
         , "  "++prg "doc (-|<in-file>) (-|<out-file>)"
         , "  "++prg "gen (-|<in-file>) (-|<out-file>)"
@@ -206,7 +209,7 @@ gen_all = do
     putStrLn ">> examples/re-tutorial.lhs"
     readme
   where
-    pd fnm = case captureTextMaybe [cp|mnm|] $ fnm T.?=~ [re|^RE/(Tools/|Internal/)?${mnm}(@{%id})|] of
+    pd fnm = case captureTextMaybe [cp|mnm|] $ fnm TT.?=~ [re|^RE/(Tools/|Internal/)?${mnm}(@{%id})|] of
         Just mnm -> pandoc_lhs fnm ("Text/"<>fnm<>".lhs") ("docs/"<>mnm<>".html")
         Nothing  -> pandoc_lhs fnm ("examples/"<>fnm<>".lhs") ("docs/"<>fnm<>".html")
 \end{code}
@@ -420,17 +423,20 @@ badges
 
 \begin{code}
 badges :: IO ()
-badges = mapM_ collect
-    [ (,) "hackage"         "https://img.shields.io/hackage/v/regex.svg"
-    , (,) "license"         "https://img.shields.io/badge/license-BSD3-brightgreen.svg"
-    , (,) "unix-build"      "https://img.shields.io/travis/iconnect/regex.svg?label=Linux%2BmacOS"
-    , (,) "windows-build"   "https://img.shields.io/appveyor/ci/engineerirngirisconnectcouk/regex.svg?label=Windows"
-    , (,) "coverage"        "https://img.shields.io/coveralls/iconnect/regex.svg"
-    ]
+badges = do
+    mapM_ collect
+      [ (,) "license"         "https://img.shields.io/badge/license-BSD3-brightgreen.svg"
+      , (,) "unix-build"      "https://img.shields.io/travis/iconnect/regex.svg?label=Linux%2BmacOS"
+      , (,) "windows-build"   "https://img.shields.io/appveyor/ci/engineerirngirisconnectcouk/regex.svg?label=Windows"
+      , (,) "coverage"        "https://img.shields.io/coveralls/iconnect/regex.svg"
+      ]
+    substVersion "lib/hackage-template.svg" $ badge_fn "hackage"
   where
     collect (nm,url) = do
       putStrLn $ "updating badge: " ++ nm
-      simpleHttp url >>= LBS.writeFile ("docs/badges/"++nm++".svg")
+      simpleHttp url >>= LBS.writeFile (badge_fn nm)
+
+    badge_fn nm = "docs/badges/"++nm++".svg"
 \end{code}
 
 
@@ -439,7 +445,7 @@ readme
 
 \begin{code}
 readme :: IO ()
-readme =
+readme = do
   fmap (const ()) $
     SH.shelly $ SH.verbosely $
       SH.run "pandoc"

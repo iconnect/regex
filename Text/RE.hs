@@ -15,8 +15,10 @@ module Text.RE
   , matchedText
   , matchCapture
   , matchCaptures
+  , (!$$)
   , captureText
   , captureTextMaybe
+  , (!$)
   , capture
   , captureMaybe
   -- Capture functions

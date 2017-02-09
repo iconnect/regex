@@ -49,7 +49,8 @@ test = do
 gen :: FilePath -> FilePath -> IO ()
 gen in_f out_f = do
     ctx <- setup
-    sed (gc_script ctx) in_f out_f
+    substVersion in_f "tmp/regex-vrn.cabal"
+    sed (gc_script ctx) "tmp/regex-vrn.cabal" out_f
 
 data Ctx =
   Ctx

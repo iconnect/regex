@@ -20,8 +20,10 @@ module Text.RE.Capture
   , matchedText
   , matchCapture
   , matchCaptures
+  , (!$$)
   , captureText
   , captureTextMaybe
+  , (!$)
   , capture
   , captureMaybe
   -- Capture functions
@@ -36,6 +38,8 @@ import           Data.Array
 import           Data.Maybe
 import           Text.Regex.Base
 import           Text.RE.CaptureID
+
+infixl 9 !$, !$$
 \end{code}
 
 
@@ -87,7 +91,7 @@ data Capture a =
 
 \begin{code}
 instance Functor Matches where
-  fmap f Matches{..} = 
+  fmap f Matches{..} =
     Matches
       { matchesSource = f matchesSource
       , allMatches    = map (fmap f) allMatches
@@ -151,6 +155,10 @@ matchCaptures Match{..} = case rangeSize (bounds matchArray) == 0 of
   True  -> Nothing
   False -> Just (matchArray!0,drop 1 $ elems matchArray)
 
+-- | a synonym of captureText
+(!$$) :: Match a -> CaptureID -> a
+(!$$) = flip captureText
+
 -- | look up the text of the nth capture, 0 being the match of the whole
 -- RE against the source text, 1, the first bracketed sub-expression to
 -- be matched and so on
@@ -165,6 +173,10 @@ captureTextMaybe cid mtch = do
     case hasCaptured cap of
       True  -> Just $ capturedText cap
       False -> Nothing
+
+-- | a synonym of capture
+(!$) :: Match a -> CaptureID -> Capture a
+(!$) = flip capture
 
 -- | look up the nth capture, 0 being the match of the whole RE against
 -- the source text, 1, the first bracketed sub-expression to be matched

@@ -1,37 +1,35 @@
-**[Build Status](https://iconnect.github.io/regex/build-status)**
+# regex
 
-[![Hackage](https://iconnect.github.io/regex/badges/hackage.svg)](https://hackage.haskell.org/package/regex)
-[![BSD3 License](https://iconnect.github.io/regex/badges/license.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
-[![Un*x build](https://iconnect.github.io/regex/badges/unix-build.svg)](https://travis-ci.org/iconnect/regex)
-[![Windows build](https://iconnect.github.io/regex/badges/windows-build.svg)](https://ci.appveyor.com/project/engineerirngirisconnectcouk/regex/branch/master)
-[![Coverage](https://iconnect.github.io/regex/badges/coverage.svg)](https://coveralls.io/github/iconnect/regex?branch=master)
+Regex is a regular expression toolkit for regex-base with:
 
-# regex: A Regular Expression Toolkit for regex-base
-
-regex extends regex-base with:
-
-  * a text-replacement toolkit
-  * special datatypes for many matches, first match and individual captures
-  * compile-time checking of RE syntax
-  * a unified means of controlling case-sensitivity and multi-line options
-  * high-level AWK-like tools for building text processing apps
+  * text-replacement operations with named captures;
+  * special datatypes for matches and captures;
+  * compile-time checking of RE syntax;
+  * a unified means of controlling case-sensitivity and multi-line options;
+  * high-level AWK-like tools for building text processing apps;
   * the option of using match operators with reduced polymorphism on the
-    text and/or result types
-  * regular expression macros including
-      + a number of useful RE macros
-      + a test bench for testing and documenting new macro environments
-  * built-in support for the TDFA and PCRE backends
-  * comprehensive documentation and copious examples
+    text and/or result types;
+  * regular expression macros including:
+      + a number of useful RE macros;
+      + a test bench for testing and documenting new macro environments;
+  * built-in support for the TDFA and PCRE backends;
+  * comprehensive documentation and copious examples.
+
+
+[Build Status](https://iconnect.github.io/regex/build-status)
+-------------------------------------------------------------
+
+[![Hackage](https://iconnect.github.io/regex/badges/hackage.svg)](https://hackage.haskell.org/package/regex) [![BSD3 License](https://iconnect.github.io/regex/badges/license.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29) [![Un*x build](https://iconnect.github.io/regex/badges/unix-build.svg)](https://travis-ci.org/iconnect/regex) [![Windows build](https://iconnect.github.io/regex/badges/windows-build.svg)](https://ci.appveyor.com/project/engineerirngirisconnectcouk/regex/branch/master) [![Coverage](https://iconnect.github.io/regex/badges/coverage.svg)](https://coveralls.io/github/iconnect/regex?branch=master)
 
 
 Schedule
 --------
 
-- [X] **2017-01-26**&nbsp;&nbsp;0.0.0.1&nbsp;&nbsp;Pre-release (I)<br/>
-- [X] **2017-01-30**&nbsp;&nbsp;0.0.0.2&nbsp;&nbsp;Pre-release (II)<br/>
-- [ ] **2017-02-06**&nbsp;&nbsp;0.0.1.0&nbsp;&nbsp;RFC<br/>
-- [ ] **2017-02-20**&nbsp;&nbsp;0.1.0.0&nbsp;&nbsp;a candidate stable release<br/>
-- [ ] **2017-03-20**&nbsp;&nbsp;1.0.0.0&nbsp;&nbsp;first stable release<br/>
+  * ~~2017-01-26  0.0.0.1  Pre-release (I)~~
+  * ~~2017-01-30  0.0.0.2  Pre-release (II)~~
+  * 2017-02-06  0.0.1.0  RFC
+  * 2017-02-20  0.1.0.0  a candidate stable release
+  * 2017-03-20  1.0.0.0  first stable release
 
 
 Helping Out

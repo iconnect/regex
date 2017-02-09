@@ -41,6 +41,7 @@ main = do
     ["doc",fn,fn'] | is_file fn -> doc fn fn'
     ["gen",fn,fn'] | is_file fn -> gen fn fn'
     ["badges"]                  -> badges
+    ["readme"]                  -> readme
     ["all"]                     -> gen_all
     _                           -> usage
   where
@@ -194,7 +195,7 @@ gen_all = do
     dm <- docMode
     loop dm "examples/re-tutorial-master.lhs" "tmp/re-tutorial.lhs"
     createDirectoryIfMissing False "tmp"
-    pandoc'
+    pandoc_lhs'
       "re-tutorial.lhs"
       "examples/re-tutorial.lhs"
       "tmp/re-tutorial.lhs"
@@ -203,10 +204,11 @@ gen_all = do
     gm <- genMode
     loop gm "examples/re-tutorial-master.lhs" "examples/re-tutorial.lhs"
     putStrLn ">> examples/re-tutorial.lhs"
+    readme
   where
     pd fnm = case captureTextMaybe [cp|mnm|] $ fnm T.?=~ [re|^RE/(Tools/|Internal/)?${mnm}(@{%id})|] of
-        Just mnm -> pandoc fnm ("Text/"<>fnm<>".lhs") ("docs/"<>mnm<>".html")
-        Nothing  -> pandoc fnm ("examples/"<>fnm<>".lhs") ("docs/"<>fnm<>".html")
+        Just mnm -> pandoc_lhs fnm ("Text/"<>fnm<>".lhs") ("docs/"<>mnm<>".html")
+        Nothing  -> pandoc_lhs fnm ("examples/"<>fnm<>".lhs") ("docs/"<>fnm<>".html")
 \end{code}
 
 
@@ -432,15 +434,36 @@ badges = mapM_ collect
 \end{code}
 
 
+readme
+------
+
+\begin{code}
+readme :: IO ()
+readme =
+  fmap (const ()) $
+    SH.shelly $ SH.verbosely $
+      SH.run "pandoc"
+        [ "-f", "markdown+grid_tables"
+        , "-t", "html"
+        , "-s"
+        , "-B", "lib/site-prebody-template.html"
+        , "-A", "lib/site-pstbody-template.html"
+        , "-c", "lib/du.css"
+        , "-o", "docs/index.html"
+        , "README.md"
+        ]
+\end{code}
+
+
 pandoc
 ------
 
 \begin{code}
-pandoc :: T.Text -> T.Text -> T.Text -> IO ()
-pandoc title in_file = pandoc' title in_file in_file
+pandoc_lhs :: T.Text -> T.Text -> T.Text -> IO ()
+pandoc_lhs title in_file = pandoc_lhs' title in_file in_file
 
-pandoc' :: T.Text -> T.Text -> T.Text -> T.Text -> IO ()
-pandoc' title repo_path in_file out_file = do
+pandoc_lhs' :: T.Text -> T.Text -> T.Text -> T.Text -> IO ()
+pandoc_lhs' title repo_path in_file out_file = do
   writeFile "tmp/bc.html" bc
   writeFile "tmp/ft.html" ft
   fmap (const ()) $

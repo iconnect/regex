@@ -1,5 +1,4 @@
-Macro Environment Tables
-========================
+%heading#macros The Macro Tables
 
 These tables document the macros for the standard environment and for the
 [examples/re-nginx-log-processor](../re-examples/nginx-log-processor.lhs).
@@ -19,6 +18,6 @@ The main tables have the following columns.
 
 **These tables best viewed raw.**
 
-  * The [Prelude macros for PCRE](prelude-PCRE.md) (and the [macro sources](prelude-PCRE.txt))
-  * The [Prelude macros for TDFA](prelude-TDFA.md) (and the [macro sources](prelude-TDFA.txt))
-  * The [nginx-log-processor macros (for PCRE)](nginx-log-processor-PCRE.md) ([and the macro sources](nginx-log-processor-PCRE.txt))
+  * The [Prelude macros for PCRE](pcre-macros.txt) (and the [macro sources](pcre-macros-src.txt))
+  * The [Prelude macros for TDFA](tdfa-macros.txt) (and the [macro sources](tdfa-macros-src.txt))
+  * The [nginx-log-processor macros (for PCRE)](pcre-nginx-log-processor.txt) ([and the macro sources](pcre-nginx-log-processor-src.txt))

@@ -1,6 +1,6 @@
 Name:                   regex
 Version:                0.0.0.2
-Synopsis:               A Regular Expression Toolkit for regex-base
+Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
                         matches and captures, a text replacement toolkit,
@@ -19,7 +19,7 @@ Stability:              rfc
 bug-reports:            https://github.com/iconnect/regex/issues
 
 Extra-Source-Files:
-    README.md
+    doc/README.md
     changelog
 
 Cabal-Version:          >= 1.16
@@ -308,10 +308,10 @@ Test-Suite re-nginx-log-processor-test
 
 
 
-Executable re-pp
+Executable re-prep
     Hs-Source-Dirs:     examples
 
-    Main-Is:            re-pp.lhs
+    Main-Is:            re-prep.lhs
 
     Default-Language:   Haskell2010
     GHC-Options:
@@ -327,16 +327,17 @@ Executable re-pp
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
       , directory            >= 1.2.1.0
+      , heredoc              >= 0.2.0.0
       , http-conduit         >= 2.1.7.2
       , shelly               >= 1.6.1.2
       , text                 >= 1.2.0.6
 
 
-Test-Suite re-pp-test
+Test-Suite re-prep-test
     type:               exitcode-stdio-1.0
     Hs-Source-Dirs:     examples
 
-    Main-Is:            re-pp.lhs
+    Main-Is:            re-prep.lhs
 
     Default-Language:   Haskell2010
     GHC-Options:
@@ -352,6 +353,7 @@ Test-Suite re-pp-test
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
       , directory            >= 1.2.1.0
+      , heredoc              >= 0.2.0.0
       , http-conduit         >= 2.1.7.2
       , shelly               >= 1.6.1.2
       , text                 >= 1.2.0.6

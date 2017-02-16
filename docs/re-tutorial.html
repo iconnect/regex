@@ -1,10 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta http-equiv="Content-Style-Type" content="text/css" />
-  <meta name="generator" content="pandoc" />
-  <title></title>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>regex – re-tutorial.lhs</title>
   <style type="text/css">code{white-space: pre;}</style>
   <style type="text/css">
 div.sourceCode { overflow-x: auto; }
@@ -43,11 +43,29 @@ code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Ann
 code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
 code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
   </style>
-  <link rel="stylesheet" href="lib/styles.css" type="text/css" />
-  <link rel="stylesheet" href="lib/bs.css" type="text/css" />
+  <link rel="stylesheet" href="lib/lhs-styles.css">
+  <link rel="stylesheet" href="lib/bs.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32"/>
+  <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="mask-icon" href="/safari-pinned-tab.svg"/>
+  <meta name="theme-color" content="#ffffff"/>
 </head>
 <body>
-<ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/examples/re-tutorial.lhs'>re-tutorial.lhs</a></ol><div class='content'>
+<div class='bcdiv'>
+  <ol class='breadcrumb'>
+    <li><a href="." style="Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a></li>
+    <li><a title='source file' href='https://github.com/iconnect/regex/blob/master/examples/re-tutorial.lhs'>re-tutorial.lhs</a></li>
+</ol>
+</div>
+<div class='litcontent'>
+<header>
+<h1 class="title">re-tutorial.lhs</h1>
+</header>
 <h1 id="the-regex-tutorial">The Regex Tutorial</h1>
 <p>This is a literate Haskell programme lightly processed to produce this web presentation and also to generate a test suite that verifies that each of the example calculations are generating the expected results. You can load it into ghci and try out the examples either by running <em>ghci</em> itself from the root folder of the regex package:</p>
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">ghci</span> examples/re-tutorial.lhs</code></pre></div>
@@ -184,7 +202,7 @@ The type of <code>*=~</code> in this module (imported from <code>Text.RE.TDFA.St
 <span class="kw">data</span> <span class="dt">Matches</span> a <span class="fu">=</span>
   <span class="dt">Matches</span>
     {<span class="ot"> matchesSource ::</span> <span class="fu">!</span>a          <span class="co">-- ^ the source text being matched</span>
-    ,<span class="ot"> allMatches    ::</span> [<span class="dt">Match</span> a]   <span class="co">-- ^ all captures found, left to right</span>
+    ,<span class="ot"> allMatches    ::</span> <span class="fu">!</span>[<span class="dt">Match</span> a]  <span class="co">-- ^ all captures found, left to right</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>)</code></pre></div>
 </div>
@@ -202,7 +220,7 @@ The type of <code>?=~</code> in this module (imported from <code>Text.RE.TDFA.St
 <span class="kw">data</span> <span class="dt">Match</span> a <span class="fu">=</span>
   <span class="dt">Match</span>
     {<span class="ot"> matchSource  ::</span> <span class="fu">!</span>a                <span class="co">-- ^ the whole source text</span>
-    ,<span class="ot"> captureNames ::</span> <span class="dt">CaptureNames</span>      <span class="co">-- ^ the RE&#39;s capture names</span>
+    ,<span class="ot"> captureNames ::</span> <span class="fu">!</span><span class="dt">CaptureNames</span>     <span class="co">-- ^ the RE&#39;s capture names</span>
     ,<span class="ot"> matchArray   ::</span> <span class="fu">!</span>(<span class="dt">Array</span> <span class="dt">CaptureOrdinal</span> (<span class="dt">Capture</span> a))
                                         <span class="co">-- ^ 0..n-1 captures,</span>
                                         <span class="co">-- starting with the</span>
@@ -239,10 +257,10 @@ By default regular expressions are of the multi-line case-sensitive variety so t
 <p>finds 2 matches, the '$' anchor matching each of the newlines, but only the first two lowercase hex numbers matching the RE. The case sensitivity and multiline-ness can be controled by selecting alternative parsers.</p>
 <table style="width:97%;">
 <colgroup>
-<col width="37%" />
-<col width="19%" />
-<col width="16%" />
-<col width="23%" />
+<col style="width: 37%" />
+<col style="width: 19%" />
+<col style="width: 16%" />
+<col style="width: 23%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -479,7 +497,7 @@ If you just need to specify some non-standard options while statically checking 
 <ul>
 <li><p>[Text.RE.Tools.Grep}(Grep.html): takes a regular expression and a file or lazy ByteString (depending upon the variant) and returns all of the matching lines. (Used in the <a href="re-include.html">include</a> example.)</p></li>
 <li><p>[Text.RE.Tools.Lex}(Lex.html): takes an association list of REs and token-generating functions and the input text and returns a list of tokens. This should never be used where performance is important (use Alex), except as a development prototype (used internally in <a href="NamedCaptures.html">Text.RE.Internal.NamedCaptures</a>).</p></li>
-<li><p>[Text.RE.Tools.Lex}(Sed.html) using <a href="Edit.html">Text.RE.Edit</a>: takes an association list of regular expressions and substitution actions, some input text and invokes the associated action on each line of the file that matches one of the REs, substituting the text returned from the action in the output stream. (Used in the <a href="re-include.html">include</a>, <a href="re-gen-modules.html">gen-modules</a>, <a href="re-nginx-log-processor.html">log-processor</a> and <a href="re-pp">tutorial-pp</a> examples.)</p></li>
+<li><p>[Text.RE.Tools.Lex}(Sed.html) using <a href="Edit.html">Text.RE.Edit</a>: takes an association list of regular expressions and substitution actions, some input text and invokes the associated action on each line of the file that matches one of the REs, substituting the text returned from the action in the output stream. (Used in the <a href="re-include.html">include</a>, <a href="re-gen-modules.html">gen-modules</a>, <a href="re-nginx-log-processor.html">log-processor</a> and <a href="re-prep">tutorial-pp</a> examples.)</p></li>
 </ul>
 <h2 id="the-examples">The Examples</h2>
 <p>The remaining sections have been given over to various standalone examples. All bar the first are taken from the package itself, each contributing to either the API or the tools used to prepare the documentation and test suites.</p>
@@ -585,7 +603,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     pd <span class="st">&quot;re-gen-modules&quot;</span>
     pd <span class="st">&quot;re-include&quot;</span>
     pd <span class="st">&quot;re-nginx-log-processor&quot;</span>
-    pd <span class="st">&quot;re-pp&quot;</span>
+    pd <span class="st">&quot;re-prep&quot;</span>
     pd <span class="st">&quot;re-tests&quot;</span>
     pd <span class="st">&quot;TestKit&quot;</span>
     pd <span class="st">&quot;RE/Capture&quot;</span>
@@ -602,7 +620,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     dm <span class="ot">&lt;-</span> docMode
     loop dm <span class="st">&quot;examples/re-tutorial-master.lhs&quot;</span> <span class="st">&quot;tmp/re-tutorial.lhs&quot;</span>
     createDirectoryIfMissing <span class="dt">False</span> <span class="st">&quot;tmp&quot;</span>
-    pandoc&#39;
+    pandoc_lhs&#39;
       <span class="st">&quot;re-tutorial.lhs&quot;</span>
       <span class="st">&quot;examples/re-tutorial.lhs&quot;</span>
       <span class="st">&quot;tmp/re-tutorial.lhs&quot;</span>
@@ -611,12 +629,16 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     gm <span class="ot">&lt;-</span> genMode
     loop gm <span class="st">&quot;examples/re-tutorial-master.lhs&quot;</span> <span class="st">&quot;examples/re-tutorial.lhs&quot;</span>
     putStrLn <span class="st">&quot;&gt;&gt; examples/re-tutorial.lhs&quot;</span>
+    pages
   <span class="kw">where</span>
-    pd fnm <span class="fu">=</span> <span class="kw">case</span> captureTextMaybe [cp|mnm|] <span class="fu">$</span> fnm <span class="fu">T.?=~</span> [re|^RE/(Tools/|Internal/)?${mnm}(@{%id})|] <span class="kw">of</span>
-        <span class="dt">Just</span> mnm <span class="ot">-&gt;</span> pandoc fnm (<span class="st">&quot;Text/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
-        <span class="dt">Nothing</span>  <span class="ot">-&gt;</span> pandoc fnm (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)</code></pre></div>
+    pd fnm <span class="fu">=</span> <span class="kw">case</span> (captureTextMaybe [cp|fdr|] mtch,captureTextMaybe [cp|mnm|] mtch) <span class="kw">of</span>
+        (<span class="dt">Nothing</span> ,<span class="dt">Just</span> mnm) <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;Text.RE.&quot;</span>          <span class="fu">&lt;&gt;</span>mnm) (<span class="st">&quot;Text/&quot;</span>    <span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
+        (<span class="dt">Just</span> fdr,<span class="dt">Just</span> mnm) <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;Text.RE.&quot;</span><span class="fu">&lt;&gt;</span>fdr<span class="fu">&lt;&gt;</span><span class="st">&quot;.&quot;</span><span class="fu">&lt;&gt;</span>mnm) (<span class="st">&quot;Text/&quot;</span>    <span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
+        _                   <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span> ) (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
+      <span class="kw">where</span>
+        mtch <span class="fu">=</span> fnm <span class="fu">TT.?=~</span> [re|^RE/(${fdr}(Tools|Internal)/)?${mnm}(@{%id})|]</code></pre></div>
 </div>
-<p>See <a href="re-pp.html">examples/re-pp.lhs</a></p>
+<p>See <a href="re-prep.html">examples/re-prep.lhs</a></p>
 <h2 id="example-parsing-re-macros">Example: parsing RE macros</h2>
 <p>The regex RE macros are parsed with code that looks similar to this.</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | expand the @{..} macos in the argument string using the given</span>
@@ -727,7 +749,7 @@ scan rex <span class="fu">=</span> grepScript
 </div>
 <p>See <a href="re-include.html">examples/re-include.lhs</a></p>
 <h2 id="example-literate-preprocessor">Example: literate preprocessor</h2>
-<p>The preprocessor that converts this literate Haskell program into a web page and a test suite that makes plenty of use of regex is in <a href="re-pp.html">examples/re-pp.lhs</a>.</p>
+<p>The preprocessor that converts this literate Haskell program into a web page and a test suite that makes plenty of use of regex is in <a href="re-prep.html">examples/re-prep.lhs</a>.</p>
 <h2 id="example-gen-modules">Example: gen-modules</h2>
 <p>The many TDFA and PCRE API modules (but <em>not</em> the <code>RE</code> modules) are all generated from <code>Text.RE.TDFA.ByteString.Lazy</code> with <a href="re-gen-modules.html">examples/re-gen-modules.lhs</a> which is also an application of regex.</p>
 </div>

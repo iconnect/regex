@@ -1,7 +1,8 @@
-<a href='.' title='Home'>Home</a> &gt; **Build Status**
+%heading#build The Live Build Status
 
-Build Status
-============
+All of the badges elsewhere represent the build status of the current version
+of regex in Hackage.  This page however collects the live status of the
+Travis-CI and AppVeyor pipelines that monitor the head of the repository.
 
 | Service      | O/S     | Build | GHC    | LTS  | extra-deps              | Status
 | ------------ | ------- | ----- | ------ | ---- | ----------------------- | ------

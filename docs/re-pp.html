@@ -45,6 +45,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   </style>
   <link rel="stylesheet" href="lib/styles.css" type="text/css" />
   <link rel="stylesheet" href="lib/bs.css" type="text/css" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="theme-color" content="#ffffff">
 </head>
 <body>
 <ol class='breadcrumb'><li><a href='.' title='Home'>Home</a></li> &gt; <a title='source file' href='https://github.com/iconnect/regex/blob/master/examples/re-pp.lhs'>re-pp</a></ol><div class='content'>
@@ -53,6 +59,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
 <span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
 <span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
+<span class="ot">{-# LANGUAGE FlexibleContexts           #-}</span>
 <span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
 
 <span class="kw">module</span> <span class="dt">Main</span>
@@ -72,10 +79,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">System.Directory</span>
 <span class="kw">import           </span><span class="dt">System.Environment</span>
 <span class="kw">import           </span><span class="dt">TestKit</span>
+<span class="kw">import           </span><span class="dt">Text.Heredoc</span>
 <span class="kw">import           </span><span class="dt">Text.Printf</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Edit</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TDFA.ByteString.Lazy</span>
-<span class="kw">import           </span><span class="dt">Text.RE.TDFA.Text</span>                        <span class="kw">as</span> <span class="dt">T</span>
+<span class="kw">import qualified</span> <span class="dt">Text.RE.TDFA.Text</span>                        <span class="kw">as</span> <span class="dt">TT</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Tools.Grep</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">main ::</span> <span class="dt">IO</span> ()
@@ -87,6 +95,8 @@ main <span class="fu">=</span> <span class="kw">do</span>
     [<span class="st">&quot;doc&quot;</span>,fn,fn&#39;] <span class="fu">|</span> is_file fn <span class="ot">-&gt;</span> doc fn fn&#39;
     [<span class="st">&quot;gen&quot;</span>,fn,fn&#39;] <span class="fu">|</span> is_file fn <span class="ot">-&gt;</span> gen fn fn&#39;
     [<span class="st">&quot;badges&quot;</span>]                  <span class="ot">-&gt;</span> badges
+    [<span class="st">&quot;bump-version&quot;</span>,vrn]        <span class="ot">-&gt;</span> bumpVersion vrn
+    [<span class="st">&quot;site&quot;</span>]                    <span class="ot">-&gt;</span> readme
     [<span class="st">&quot;all&quot;</span>]                     <span class="ot">-&gt;</span> gen_all
     _                           <span class="ot">-&gt;</span> usage
   <span class="kw">where</span>
@@ -97,14 +107,17 @@ main <span class="fu">=</span> <span class="kw">do</span>
 
     usage <span class="fu">=</span> <span class="kw">do</span>
       pnm <span class="ot">&lt;-</span> getProgName
-      <span class="kw">let</span> prg <span class="fu">=</span> ((pnm<span class="fu">++</span><span class="st">&quot; &quot;</span>)<span class="fu">++</span>)
+      <span class="kw">let</span> prg <span class="fu">=</span> ((<span class="st">&quot;  &quot;</span><span class="fu">++</span>pnm<span class="fu">++</span><span class="st">&quot; &quot;</span>)<span class="fu">++</span>)
       putStr <span class="fu">$</span> unlines
         [ <span class="st">&quot;usage:&quot;</span>
-        , <span class="st">&quot;  &quot;</span><span class="fu">++</span>prg <span class="st">&quot;--help&quot;</span>
-        , <span class="st">&quot;  &quot;</span><span class="fu">++</span>prg <span class="st">&quot;[test]&quot;</span>
-        , <span class="st">&quot;  &quot;</span><span class="fu">++</span>prg <span class="st">&quot;all&quot;</span>
-        , <span class="st">&quot;  &quot;</span><span class="fu">++</span>prg <span class="st">&quot;doc (-|&lt;in-file&gt;) (-|&lt;out-file&gt;)&quot;</span>
-        , <span class="st">&quot;  &quot;</span><span class="fu">++</span>prg <span class="st">&quot;gen (-|&lt;in-file&gt;) (-|&lt;out-file&gt;)&quot;</span>
+        , prg <span class="st">&quot;--help&quot;</span>
+        , prg <span class="st">&quot;[test]&quot;</span>
+        , prg <span class="st">&quot;badges&quot;</span>
+        , prg <span class="st">&quot;bump-version &lt;version&gt;&quot;</span>
+        , prg <span class="st">&quot;site&quot;</span>
+        , prg <span class="st">&quot;all&quot;</span>
+        , prg <span class="st">&quot;doc (-|&lt;in-file&gt;) (-|&lt;out-file&gt;)&quot;</span>
+        , prg <span class="st">&quot;gen (-|&lt;in-file&gt;) (-|&lt;out-file&gt;)&quot;</span>
         ]</code></pre></div>
 <h2 id="the-sed-script">The Sed Script</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the MODE determines whether we are generating documentation</span>
@@ -204,7 +217,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     dm <span class="ot">&lt;-</span> docMode
     loop dm <span class="st">&quot;examples/re-tutorial-master.lhs&quot;</span> <span class="st">&quot;tmp/re-tutorial.lhs&quot;</span>
     createDirectoryIfMissing <span class="dt">False</span> <span class="st">&quot;tmp&quot;</span>
-    pandoc&#39;
+    pandoc_lhs&#39;
       <span class="st">&quot;re-tutorial.lhs&quot;</span>
       <span class="st">&quot;examples/re-tutorial.lhs&quot;</span>
       <span class="st">&quot;tmp/re-tutorial.lhs&quot;</span>
@@ -213,10 +226,11 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     gm <span class="ot">&lt;-</span> genMode
     loop gm <span class="st">&quot;examples/re-tutorial-master.lhs&quot;</span> <span class="st">&quot;examples/re-tutorial.lhs&quot;</span>
     putStrLn <span class="st">&quot;&gt;&gt; examples/re-tutorial.lhs&quot;</span>
+    readme
   <span class="kw">where</span>
-    pd fnm <span class="fu">=</span> <span class="kw">case</span> captureTextMaybe [cp|mnm|] <span class="fu">$</span> fnm <span class="fu">T.?=~</span> [re|^RE/(Tools/|Internal/)?${mnm}(@{%id})|] <span class="kw">of</span>
-        <span class="dt">Just</span> mnm <span class="ot">-&gt;</span> pandoc fnm (<span class="st">&quot;Text/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
-        <span class="dt">Nothing</span>  <span class="ot">-&gt;</span> pandoc fnm (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)</code></pre></div>
+    pd fnm <span class="fu">=</span> <span class="kw">case</span> captureTextMaybe [cp|mnm|] <span class="fu">$</span> fnm <span class="fu">TT.?=~</span> [re|^RE/(Tools/|Internal/)?${mnm}(@{%id})|] <span class="kw">of</span>
+        <span class="dt">Just</span> mnm <span class="ot">-&gt;</span> pandoc_lhs fnm (<span class="st">&quot;Text/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
+        <span class="dt">Nothing</span>  <span class="ot">-&gt;</span> pandoc_lhs fnm (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)</code></pre></div>
 <h2 id="generating-the-tutorial">Generating the Tutorial</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">includeDoc ::</span> <span class="dt">LineNo</span>
            <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
@@ -369,23 +383,174 @@ scan rex <span class="fu">=</span> grepScript
       <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span></code></pre></div>
 <h2 id="badges">badges</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">badges ::</span> <span class="dt">IO</span> ()
-badges <span class="fu">=</span> mapM_ collect
-    [ (,) <span class="st">&quot;hackage&quot;</span>         <span class="st">&quot;https://img.shields.io/hackage/v/regex.svg&quot;</span>
-    , (,) <span class="st">&quot;license&quot;</span>         <span class="st">&quot;https://img.shields.io/badge/license-BSD3-brightgreen.svg&quot;</span>
-    , (,) <span class="st">&quot;unix-build&quot;</span>      <span class="st">&quot;https://img.shields.io/travis/iconnect/regex.svg?label=Linux%2BmacOS&quot;</span>
-    , (,) <span class="st">&quot;windows-build&quot;</span>   <span class="st">&quot;https://img.shields.io/appveyor/ci/engineerirngirisconnectcouk/regex.svg?label=Windows&quot;</span>
-    , (,) <span class="st">&quot;coverage&quot;</span>        <span class="st">&quot;https://img.shields.io/coveralls/iconnect/regex.svg&quot;</span>
-    ]
+badges <span class="fu">=</span> <span class="kw">do</span>
+    mapM_ collect
+      [ (,) <span class="st">&quot;license&quot;</span>         <span class="st">&quot;https://img.shields.io/badge/license-BSD3-brightgreen.svg&quot;</span>
+      , (,) <span class="st">&quot;unix-build&quot;</span>      <span class="st">&quot;https://img.shields.io/travis/iconnect/regex.svg?label=Linux%2BmacOS&quot;</span>
+      , (,) <span class="st">&quot;windows-build&quot;</span>   <span class="st">&quot;https://img.shields.io/appveyor/ci/engineerirngirisconnectcouk/regex.svg?label=Windows&quot;</span>
+      , (,) <span class="st">&quot;coverage&quot;</span>        <span class="st">&quot;https://img.shields.io/coveralls/iconnect/regex.svg&quot;</span>
+      ]
+    substVersion <span class="st">&quot;lib/hackage-template.svg&quot;</span> <span class="fu">$</span> badge_fn <span class="st">&quot;hackage&quot;</span>
   <span class="kw">where</span>
     collect (nm,url) <span class="fu">=</span> <span class="kw">do</span>
       putStrLn <span class="fu">$</span> <span class="st">&quot;updating badge: &quot;</span> <span class="fu">++</span> nm
-      simpleHttp url <span class="fu">&gt;&gt;=</span> LBS.writeFile (<span class="st">&quot;docs/badges/&quot;</span><span class="fu">++</span>nm<span class="fu">++</span><span class="st">&quot;.svg&quot;</span>)</code></pre></div>
-<h2 id="pandoc">pandoc</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">pandoc ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
-pandoc title in_file <span class="fu">=</span> pandoc&#39; title in_file in_file
+      simpleHttp url <span class="fu">&gt;&gt;=</span> LBS.writeFile (badge_fn nm)
 
-<span class="ot">pandoc&#39; ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
-pandoc&#39; title repo_path in_file out_file <span class="fu">=</span> <span class="kw">do</span>
+    badge_fn nm <span class="fu">=</span> <span class="st">&quot;docs/badges/&quot;</span><span class="fu">++</span>nm<span class="fu">++</span><span class="st">&quot;.svg&quot;</span></code></pre></div>
+<h2 id="readme">readme</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">readme ::</span> <span class="dt">IO</span> ()
+readme <span class="fu">=</span> <span class="kw">do</span>
+  prep_page   <span class="dt">MM_hackage</span> <span class="st">&quot;lib/readme-master.md&quot;</span> <span class="st">&quot;doc/README.md&quot;</span>
+  prep_page   <span class="dt">MM_github</span>  <span class="st">&quot;lib/readme-master.md&quot;</span> <span class="st">&quot;README.md&quot;</span>
+  prep_page   <span class="dt">MM_github</span>  <span class="st">&quot;lib/tables-master.md&quot;</span> <span class="st">&quot;README.md&quot;</span>
+  pandoc_page <span class="dt">MM_pandoc</span>  <span class="st">&quot;lib/readme-master.md&quot;</span> <span class="st">&quot;index&quot;</span>
+  pandoc_page <span class="dt">MM_pandoc</span>  <span class="st">&quot;lib/direct-master.md&quot;</span> <span class="st">&quot;directory&quot;</span>
+  pandoc_page <span class="dt">MM_pandoc</span>  <span class="st">&quot;lib/builds-master.md&quot;</span> <span class="st">&quot;build-status&quot;</span>
+  pandoc_page <span class="dt">MM_pandoc</span>  <span class="st">&quot;lib/tables-master.md&quot;</span> <span class="st">&quot;macros&quot;</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">pandoc_page ::</span> <span class="dt">MarkdownMode</span> <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+pandoc_page mmd in_fp pge <span class="fu">=</span> <span class="kw">do</span>
+  mt_lbs <span class="ot">&lt;-</span> LBS.readFile in_fp
+  (hdgs,md_lbs) <span class="ot">&lt;-</span> prep_page&#39; mmd mt_lbs
+  LBS.writeFile <span class="st">&quot;tmp/page_pre_body.html&quot;</span> <span class="fu">$</span> mk_pre_body_html pge hdgs
+  LBS.writeFile <span class="st">&quot;tmp/page_pst_body.html&quot;</span>   pst_body_html
+  LBS.writeFile <span class="st">&quot;tmp/page.markdown&quot;</span>        md_lbs
+  fmap (const ()) <span class="fu">$</span>
+    SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span>
+      SH.run <span class="st">&quot;pandoc&quot;</span>
+        [ <span class="st">&quot;-f&quot;</span>, <span class="st">&quot;markdown+grid_tables&quot;</span>
+        , <span class="st">&quot;-t&quot;</span>, <span class="st">&quot;html&quot;</span>
+        , <span class="st">&quot;-s&quot;</span>
+        , <span class="st">&quot;-H&quot;</span>, <span class="st">&quot;lib/favicons.html&quot;</span>
+        , <span class="st">&quot;-B&quot;</span>, <span class="st">&quot;tmp/page_pre_body.html&quot;</span>
+        , <span class="st">&quot;-A&quot;</span>, <span class="st">&quot;tmp/page_pst_body.html&quot;</span>
+        , <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;lib/styles.css&quot;</span>
+        , <span class="st">&quot;-o&quot;</span>, T.pack <span class="fu">$</span> <span class="st">&quot;docs/&quot;</span> <span class="fu">++</span> pge <span class="fu">++</span> <span class="st">&quot;.html&quot;</span>
+        , <span class="st">&quot;tmp/page.markdown&quot;</span>
+        ]
+
+<span class="kw">data</span> <span class="dt">Heading</span> <span class="fu">=</span>
+  <span class="dt">Heading</span>
+    {<span class="ot"> _hdg_id    ::</span> <span class="dt">LBS.ByteString</span>
+    ,<span class="ot"> _hdg_title ::</span> <span class="dt">LBS.ByteString</span>
+    }
+  <span class="kw">deriving</span> (<span class="dt">Show</span>)
+
+<span class="kw">data</span> <span class="dt">MarkdownMode</span>
+  <span class="fu">=</span> <span class="dt">MM_github</span>
+  <span class="fu">|</span> <span class="dt">MM_hackage</span>
+  <span class="fu">|</span> <span class="dt">MM_pandoc</span>
+  <span class="kw">deriving</span> (<span class="dt">Eq</span>,<span class="dt">Show</span>)
+
+<span class="ot">prep_page ::</span> <span class="dt">MarkdownMode</span> <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+prep_page mmd in_fp out_fp <span class="fu">=</span> <span class="kw">do</span>
+  lbs      <span class="ot">&lt;-</span> LBS.readFile in_fp
+  (_,lbs&#39;) <span class="ot">&lt;-</span> prep_page&#39; mmd lbs
+  LBS.writeFile out_fp lbs&#39;
+
+<span class="ot">prep_page&#39; ::</span> <span class="dt">MarkdownMode</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ([<span class="dt">Heading</span>],<span class="dt">LBS.ByteString</span>)
+prep_page&#39; mmd lbs <span class="fu">=</span> <span class="kw">do</span>
+    rf   <span class="ot">&lt;-</span> newIORef []
+    lbs&#39; <span class="ot">&lt;-</span> sed&#39; (scr rf) lbs
+    hdgs <span class="ot">&lt;-</span> reverse <span class="fu">&lt;$&gt;</span> readIORef rf
+    return (hdgs,lbs&#39;)
+  <span class="kw">where</span>
+    scr rf <span class="fu">=</span> <span class="dt">Select</span>
+      [ (,) [re|^%heading#${ide}(@{%id}) +${ttl}([^ ].*)$|] <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> heading mmd rf
+      , (,) [re|^.*$|]                                      <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
+      ]
+
+<span class="ot">heading ::</span> <span class="dt">MarkdownMode</span>
+        <span class="ot">-&gt;</span> <span class="dt">IORef</span> [<span class="dt">Heading</span>]
+        <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
+        <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
+        <span class="ot">-&gt;</span> <span class="dt">Location</span>
+        <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
+        <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
+heading mmd rf _ mtch _ _ <span class="fu">=</span> <span class="kw">do</span>
+    modifyIORef rf (<span class="dt">Heading</span> ide ttl<span class="fu">:</span>)
+    return <span class="fu">$</span> <span class="dt">Just</span> h2
+  <span class="kw">where</span>
+    h2 <span class="fu">=</span> <span class="kw">case</span> mmd <span class="kw">of</span>
+      <span class="dt">MM_github</span>  <span class="ot">-&gt;</span> <span class="st">&quot;## &quot;</span><span class="fu">&lt;&gt;</span>ttl
+      <span class="dt">MM_hackage</span> <span class="ot">-&gt;</span> <span class="st">&quot;## &quot;</span><span class="fu">&lt;&gt;</span>ttl
+      <span class="dt">MM_pandoc</span>  <span class="ot">-&gt;</span> <span class="st">&quot;&lt;h2 id=&#39;&quot;</span><span class="fu">&lt;&gt;</span>ide<span class="fu">&lt;&gt;</span><span class="st">&quot;&#39;&gt;&quot;</span><span class="fu">&lt;&gt;</span>ttl<span class="fu">&lt;&gt;</span><span class="st">&quot;&lt;/h2&gt;&quot;</span>
+
+    ide <span class="fu">=</span> mtch <span class="fu">!$$</span> [cp|ide|]
+    ttl <span class="fu">=</span> mtch <span class="fu">!$$</span> [cp|ttl|]
+
+<span class="ot">mk_pre_body_html ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">Heading</span>] <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
+mk_pre_body_html pge hdgs <span class="fu">=</span> hdr <span class="fu">&lt;&gt;</span> LBS.concat (map sec hdgs) <span class="fu">&lt;&gt;</span> ftr
+  <span class="kw">where</span>
+    pg_nav dst_pge title <span class="fu">=</span> LBS.concat
+      [ <span class="st">&quot;          &lt;li class=&#39;h2 &quot;</span>
+      , <span class="kw">if</span> pge<span class="fu">==</span>dst_pge <span class="kw">then</span> <span class="st">&quot;moi&quot;</span> <span class="kw">else</span> <span class="st">&quot;toi&quot;</span>
+      , <span class="st">&quot;&#39;&gt;&lt;a href=&#39;&quot;</span>
+      , LBS.pack dst_pge
+      , <span class="st">&quot;&#39;&gt;&quot;</span>
+      , LBS.pack title
+      , <span class="st">&quot;&lt;/a&gt;&lt;/li&gt;&quot;</span>
+      ]
+
+    hdr <span class="fu">=</span> [here|    &lt;div id=&quot;container&quot;&gt;
+    &lt;div id=&quot;nav&quot;&gt;
+      &lt;div id=&quot;header&quot;&gt;
+        &lt;a href=&quot;http://regex.uk&quot; style=&quot;Arial, &#39;Helvetica Neue&#39;, Helvetica, sans-serif;&quot; id=&quot;logo&quot; name=&quot;logo&quot;&gt;[&lt;span style=&#39;color:red;&#39;&gt;re&lt;/span&gt;|${&lt;span style=&#39;color:red;&#39;&gt;gex&lt;/span&gt;}(.*)|&lt;span/&gt;]&lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;section&quot; id=&quot;sections&quot;&gt;
+        &lt;ul class=&quot;section-nav&quot;&gt;
+|] <span class="fu">&lt;&gt;</span> LBS.unlines
+        [ pg_nav <span class="st">&quot;index&quot;</span>        <span class="st">&quot;Home&quot;</span>
+        , pg_nav <span class="st">&quot;directory&quot;</span>    <span class="st">&quot;Directory&quot;</span>
+        , pg_nav <span class="st">&quot;build-status&quot;</span> <span class="st">&quot;Build Status&quot;</span>
+        , pg_nav <span class="st">&quot;macros&quot;</span>       <span class="st">&quot;Macro Tables&quot;</span>
+        ] <span class="fu">&lt;&gt;</span> [here|        &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;section&quot; id=&quot;sections&quot;&gt;
+        &lt;ul class=&quot;section-nav&quot;&gt;
+|]
+
+    sec <span class="dt">Heading</span>{<span class="fu">..</span>} <span class="fu">=</span> LBS.unlines <span class="fu">$</span> map (<span class="st">&quot;          &quot;</span><span class="fu">&lt;&gt;</span>)
+              [ <span class="st">&quot;&lt;li class=&#39;h2&#39;&gt;&quot;</span>
+              , <span class="st">&quot;  &lt;a href=&#39;#&quot;</span><span class="fu">&lt;&gt;</span>_hdg_id<span class="fu">&lt;&gt;</span><span class="st">&quot;&#39;&gt;&quot;</span><span class="fu">&lt;&gt;</span>_hdg_title<span class="fu">&lt;&gt;</span><span class="st">&quot;&lt;/a&gt;&quot;</span>
+              , <span class="st">&quot;&lt;/li&gt;&quot;</span>
+              ]
+
+    ftr <span class="fu">=</span> [here|          &lt;/ul&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;extra section&quot; id=&quot;github&quot;&gt;
+        &lt;a href=&quot;https://github.com/iconnect/regex&quot;&gt;Code&lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;extra section&quot; id=&quot;github-issues&quot;&gt;
+        &lt;a href=&quot;https://github.com/iconnect/regex/issues&quot;&gt;Issues&lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;extra section&quot; id=&quot;travis&quot;&gt;
+        &lt;a href=&quot;http://travis-ci.org/iconnect/regex&quot;&gt;
+          &lt;img src=&quot;https://travis-ci.org/iconnect/regex.svg?branch=master&quot;&gt;
+          &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;extra section twitter&quot;&gt;
+        &lt;iframe allowtransparency=&quot;true&quot; frameborder=&quot;0&quot; scrolling=&quot;no&quot; style=&quot;width:162px; height:20px;&quot; src=&quot;https://platform.twitter.com/widgets/follow_button.html?screen_name=hregex&amp;amp;show_count=false&quot;&gt;
+        &lt;/iframe&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;extra section twitter&quot;&gt;
+        &lt;iframe allowtransparency=&quot;true&quot; frameborder=&quot;0&quot; scrolling=&quot;no&quot; style=&quot;width:162px; height:20px;&quot; src=&quot;https://platform.twitter.com/widgets/follow_button.html?screen_name=cdornan&amp;amp;show_count=false&quot;&gt;
+        &lt;/iframe&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;content&quot;&gt;
+|]
+
+<span class="ot">pst_body_html ::</span> <span class="dt">LBS.ByteString</span>
+pst_body_html <span class="fu">=</span> [here|      &lt;/div&gt;
+    &lt;/div&gt;
+|]</code></pre></div>
+<h2 id="pandoc">pandoc</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">pandoc_lhs ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+pandoc_lhs title in_file <span class="fu">=</span> pandoc_lhs&#39; title in_file in_file
+
+<span class="ot">pandoc_lhs&#39; ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+pandoc_lhs&#39; title repo_path in_file out_file <span class="fu">=</span> <span class="kw">do</span>
   writeFile <span class="st">&quot;tmp/bc.html&quot;</span> bc
   writeFile <span class="st">&quot;tmp/ft.html&quot;</span> ft
   fmap (const ()) <span class="fu">$</span>
@@ -394,6 +559,7 @@ pandoc&#39; title repo_path in_file out_file <span class="fu">=</span> <span cla
         [ <span class="st">&quot;-f&quot;</span>, <span class="st">&quot;markdown+lhs+grid_tables&quot;</span>
         , <span class="st">&quot;-t&quot;</span>, <span class="st">&quot;html&quot;</span>
         , <span class="st">&quot;-s&quot;</span>
+        , <span class="st">&quot;-H&quot;</span>, <span class="st">&quot;lib/favicons.html&quot;</span>
         , <span class="st">&quot;-B&quot;</span>, <span class="st">&quot;tmp/bc.html&quot;</span>
         , <span class="st">&quot;-A&quot;</span>, <span class="st">&quot;tmp/ft.html&quot;</span>
         , <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;lib/styles.css&quot;</span>

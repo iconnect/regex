@@ -66,7 +66,7 @@ prelude_tests = testGroup "Prelude"
   where
     tc rty m_env =
       testCase (show rty) $ do
-        dumpMacroTable "prelude" rty m_env
+        dumpMacroTable "macros" rty m_env
         assertBool "testMacroEnv" =<< testMacroEnv "prelude" rty m_env
 
 str, str' :: String

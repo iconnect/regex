@@ -607,7 +607,7 @@ regex conterparts.
     that matches one of the REs, substituting the text returned from the action
     in the output stream. (Used in the [include](re-include.html),
     [gen-modules](re-gen-modules.html),
-    [log-processor](re-nginx-log-processor.html) and [tutorial-pp](re-pp)
+    [log-processor](re-nginx-log-processor.html) and [tutorial-pp](re-prep)
     examples.)
 
 
@@ -685,9 +685,9 @@ The preprocessor used to prepare the literate programs for this
 package's website uses the following 'gen_all' diriver which uses
 REs to analyse file paths.
 
-%include "examples/re-pp.lhs" "^gen_all ::"
+%include "examples/re-prep.lhs" "^gen_all ::"
 
-See [examples/re-pp.lhs](re-pp.html)
+See [examples/re-prep.lhs](re-prep.html)
 
 
 Example: parsing RE macros
@@ -807,7 +807,7 @@ Example: literate preprocessor
 
 The preprocessor that converts this literate Haskell program into a web
 page and a test suite that makes plenty of use of regex is in
-[examples/re-pp.lhs](re-pp.html).
+[examples/re-prep.lhs](re-prep.html).
 
 
 Example: gen-modules

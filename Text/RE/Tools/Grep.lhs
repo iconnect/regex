@@ -9,6 +9,7 @@ module Text.RE.Tools.Grep
   , grepLines
   , GrepScript
   , grepScript
+  , linesMatched
   ) where
 
 import qualified Data.ByteString.Lazy.Char8               as LBS
@@ -49,12 +50,12 @@ grepScript scr = loop firstLine
       Just t  -> t : loop (succ i) lns
 
 report :: [Line] -> String
-report = unlines . map fmt . lines_matched
+report = unlines . map fmt . linesMatched
   where
     fmt Line{..} =
       printf "%05d %s" (getLineNo _ln_no) $
           LBS.unpack $ matchesSource _ln_matches
 
-lines_matched :: [Line] -> [Line]
-lines_matched = filter $ anyMatches . _ln_matches
+linesMatched :: [Line] -> [Line]
+linesMatched = filter $ anyMatches . _ln_matches
 \end{code}

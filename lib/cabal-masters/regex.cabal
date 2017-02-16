@@ -1,6 +1,6 @@
 Name:                   regex
-Version:                0.0.0.2
-Synopsis:               A Regular Expression Toolkit for regex-base
+Version:                <<$version$>>
+Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
                         matches and captures, a text replacement toolkit,
@@ -19,7 +19,7 @@ Stability:              rfc
 bug-reports:            https://github.com/iconnect/regex/issues
 
 Extra-Source-Files:
-    README.md
+    doc/README.md
     changelog
 
 Cabal-Version:          >= 1.16
@@ -31,7 +31,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.0.0.2
+    Tag:                <<$version$>>
 
 %-    array                   >= 0.4
 %-    base                    >= 4 && < 5
@@ -156,10 +156,10 @@ Library
 
 %build-depends regex array base base-compat bytestring directory regex-base regex-tdfa shelly text time time-locale-compat transformers unordered-containers
 
-%test-exe re-pp
+%test-exe re-prep
     Hs-Source-Dirs:     examples
 
-    Main-Is:            re-pp.lhs
+    Main-Is:            re-prep.lhs
 
     Default-Language:   Haskell2010
     GHC-Options:
@@ -169,7 +169,7 @@ Library
     Other-Modules:
       TestKit
 
-%build-depends regex base base-compat bytestring directory http-conduit shelly text
+%build-depends regex base base-compat bytestring directory heredoc http-conduit shelly text
 
 %test-exe re-tests
     Hs-Source-Dirs:     examples

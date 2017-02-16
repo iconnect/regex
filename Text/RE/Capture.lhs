@@ -10,6 +10,8 @@ module Text.RE.Capture
   ( Matches(..)
   , Match(..)
   , Capture(..)
+  , noMatch
+  , emptyMatchArray
   -- Matches functions
   , anyMatches
   , countMatches
@@ -20,8 +22,10 @@ module Text.RE.Capture
   , matchedText
   , matchCapture
   , matchCaptures
+  , (!$$)
   , captureText
   , captureTextMaybe
+  , (!$)
   , capture
   , captureMaybe
   -- Capture functions
@@ -36,6 +40,8 @@ import           Data.Array
 import           Data.Maybe
 import           Text.Regex.Base
 import           Text.RE.CaptureID
+
+infixl 9 !$, !$$
 \end{code}
 
 
@@ -46,7 +52,7 @@ import           Text.RE.CaptureID
 data Matches a =
   Matches
     { matchesSource :: !a          -- ^ the source text being matched
-    , allMatches    :: [Match a]   -- ^ all captures found, left to right
+    , allMatches    :: ![Match a]  -- ^ all captures found, left to right
     }
   deriving (Show,Eq)
 \end{code}
@@ -59,7 +65,7 @@ data Matches a =
 data Match a =
   Match
     { matchSource  :: !a                -- ^ the whole source text
-    , captureNames :: CaptureNames      -- ^ the RE's capture names
+    , captureNames :: !CaptureNames     -- ^ the RE's capture names
     , matchArray   :: !(Array CaptureOrdinal (Capture a))
                                         -- ^ 0..n-1 captures,
                                         -- starting with the
@@ -86,8 +92,18 @@ data Capture a =
 \end{code}
 
 \begin{code}
+-- | Construct a Match that does not match anything.
+noMatch :: a -> Match a
+noMatch t = Match t noCaptureNames emptyMatchArray
+
+-- | an empty array of Capture
+emptyMatchArray :: Array CaptureOrdinal (Capture a)
+emptyMatchArray = listArray (CaptureOrdinal 0,CaptureOrdinal $ -1) []
+\end{code}
+
+\begin{code}
 instance Functor Matches where
-  fmap f Matches{..} = 
+  fmap f Matches{..} =
     Matches
       { matchesSource = f matchesSource
       , allMatches    = map (fmap f) allMatches
@@ -151,6 +167,10 @@ matchCaptures Match{..} = case rangeSize (bounds matchArray) == 0 of
   True  -> Nothing
   False -> Just (matchArray!0,drop 1 $ elems matchArray)
 
+-- | a synonym of captureText
+(!$$) :: Match a -> CaptureID -> a
+(!$$) = flip captureText
+
 -- | look up the text of the nth capture, 0 being the match of the whole
 -- RE against the source text, 1, the first bracketed sub-expression to
 -- be matched and so on
@@ -165,6 +185,10 @@ captureTextMaybe cid mtch = do
     case hasCaptured cap of
       True  -> Just $ capturedText cap
       False -> Nothing
+
+-- | a synonym of capture
+(!$) :: Match a -> CaptureID -> Capture a
+(!$) = flip capture
 
 -- | look up the nth capture, 0 being the match of the whole RE against
 -- the source text, 1, the first bracketed sub-expression to be matched

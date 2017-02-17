@@ -24,7 +24,7 @@ See the [About page](http://about.regex.uk) for details.
 <ul class='contains-task-list'>
   <li class='task-list-item'><input type='checkbox' class='task-list-item-checkbox' checked='' disabled=''/>2017-01-26  v0.0.0.1  Pre-release (I)</li>
   <li class='task-list-item'><input type='checkbox' class='task-list-item-checkbox' checked='' disabled=''/>2017-01-30  v0.0.0.2  Pre-release (II)</li>
-  <li class='task-list-item'><input type='checkbox' class='task-list-item-checkbox' disabled=''/>2017-02-19  v0.1.0.0  [Proposed core API with presentable Haddocks](https://github.com/iconnect/regex/milestone/1)</li>
+  <li class='task-list-item'><input type='checkbox' class='task-list-item-checkbox' checked='' disabled=''/>2017-02-19  v0.1.0.0  [Proposed core API with presentable Haddocks](https://github.com/iconnect/regex/milestone/1)</li>
   <li class='task-list-item'><input type='checkbox' class='task-list-item-checkbox' disabled=''/>2017-02-26  v0.1.1.0  [Tutorials and examples finalized](https://github.com/iconnect/regex/milestone/2)</li>
   <li class='task-list-item'><input type='checkbox' class='task-list-item-checkbox' disabled=''/>2017-03-20  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)</li>
   <li class='task-list-item'><input type='checkbox' class='task-list-item-checkbox' disabled=''/>2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)</li>
@@ -71,7 +71,7 @@ The Haddocks can be found at http://hs.regex.uk.
 
 ## The Macro Tables
 
-The macro environments are an important part of the package and they
+The macro environments are an important part of the package and
 are documented [here](http://macros.regex.uk).
 
 

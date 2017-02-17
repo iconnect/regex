@@ -78,10 +78,10 @@ preludeMacroDescriptor :: RegexType
                        -> PreludeMacro
                        -> Maybe MacroDescriptor
 preludeMacroDescriptor rty env pm = case pm of
-  PM_nat          -> natural_macro          rty env pm
-  PM_hex      -> natural_hex_macro      rty env pm
-  PM_int          -> integer_macro          rty env pm
-  PM_frac          -> decimal_macro          rty env pm
+  PM_nat              -> natural_macro          rty env pm
+  PM_hex              -> natural_hex_macro      rty env pm
+  PM_int              -> integer_macro          rty env pm
+  PM_frac             -> decimal_macro          rty env pm
   PM_string           -> string_macro           rty env pm
   PM_string_simple    -> string_simple_macro    rty env pm
   PM_id               -> id_macro               rty env pm

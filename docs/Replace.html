@@ -470,7 +470,7 @@ parse_tpl_ unpack tpl mtch _ _ <span class="fu">=</span>
     <span class="dt">Just</span> <span class="fu">$</span> replaceAllCaptures&#39; <span class="dt">TOP</span> phi <span class="fu">$</span>
       tpl <span class="fu">$=~</span> [here|\$(\$|[0-9]+|\{([^{}]+)\})|]
   <span class="kw">where</span>
-    phi t_mtch _ _ <span class="fu">=</span> <span class="kw">case</span> captureMaybe c2 t_mtch <span class="kw">of</span>
+    phi t_mtch _ _ <span class="fu">=</span> <span class="kw">case</span> t_mtch <span class="fu">!$?</span> c2  <span class="kw">of</span>
       <span class="dt">Just</span> cap <span class="ot">-&gt;</span> this <span class="fu">$</span> <span class="dt">CID_name</span> <span class="fu">$</span> <span class="dt">CaptureName</span> txt
         <span class="kw">where</span>
           txt <span class="fu">=</span> T.pack <span class="fu">$</span> unpack <span class="fu">$</span> capturedText cap
@@ -481,7 +481,7 @@ parse_tpl_ unpack tpl mtch _ _ <span class="fu">=</span>
         s  <span class="fu">=</span> unpack t
         t  <span class="fu">=</span> capturedText <span class="fu">$</span> capture c1 t_mtch
 
-        this cid <span class="fu">=</span> capturedText <span class="fu">&lt;$&gt;</span> captureMaybe cid mtch
+        this cid <span class="fu">=</span> capturedText <span class="fu">&lt;$&gt;</span> mtch <span class="fu">!$?</span> cid
 
     c1 <span class="fu">=</span> <span class="dt">CID_ordinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="dv">1</span>
     c2 <span class="fu">=</span> <span class="dt">CID_ordinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="dv">2</span></code></pre></div>

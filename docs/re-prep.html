@@ -239,7 +239,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     putStrLn <span class="st">&quot;&gt;&gt; examples/re-tutorial.lhs&quot;</span>
     pages
   <span class="kw">where</span>
-    pd fnm <span class="fu">=</span> <span class="kw">case</span> (captureTextMaybe [cp|fdr|] mtch,captureTextMaybe [cp|mnm|] mtch) <span class="kw">of</span>
+    pd fnm <span class="fu">=</span> <span class="kw">case</span> (mtch <span class="fu">!$$?</span> [cp|fdr|],mtch <span class="fu">!$$?</span> [cp|mnm|]) <span class="kw">of</span>
         (<span class="dt">Nothing</span> ,<span class="dt">Just</span> mnm) <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;Text.RE.&quot;</span>          <span class="fu">&lt;&gt;</span>mnm) (<span class="st">&quot;Text/&quot;</span>    <span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
         (<span class="dt">Just</span> fdr,<span class="dt">Just</span> mnm) <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;Text.RE.&quot;</span><span class="fu">&lt;&gt;</span>fdr<span class="fu">&lt;&gt;</span><span class="st">&quot;.&quot;</span><span class="fu">&lt;&gt;</span>mnm) (<span class="st">&quot;Text/&quot;</span>    <span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
         _                   <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span> ) (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
@@ -257,7 +257,7 @@ includeDoc _ mtch _ _ <span class="fu">=</span> fmap <span class="dt">Just</span
     fp    <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|file|] mtch
     re_s  <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|rex|]  mtch
 
-    prs_s <span class="fu">=</span> fromMaybe (error <span class="st">&quot;includeDoc&quot;</span>) <span class="fu">.</span> parseString</code></pre></div>
+    prs_s <span class="fu">=</span> maybe (error <span class="st">&quot;includeDoc&quot;</span>) T.unpack <span class="fu">.</span> parseString</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mainDoc ::</span> <span class="dt">LineNo</span>
         <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
         <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
@@ -736,7 +736,7 @@ include <span class="fu">=</span> sed&#39; <span class="fu">$</span> <span class
     ]
   <span class="kw">where</span>
     incl _ mtch _ _ <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">&lt;$&gt;</span> LBS.readFile (prs_s <span class="fu">$</span> mtch <span class="fu">!$$</span> [cp|file|])
-    prs_s           <span class="fu">=</span> fromMaybe (error <span class="st">&quot;include&quot;</span>) <span class="fu">.</span> parseString</code></pre></div>
+    prs_s           <span class="fu">=</span> maybe (error <span class="st">&quot;include&quot;</span>) T.unpack <span class="fu">.</span> parseString</code></pre></div>
 <h2 id="branding">branding</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">branding ::</span> <span class="dt">LBS.ByteString</span>
 branding <span class="fu">=</span> [here|&lt;a href=&quot;.&quot; style=&quot;Arial, &#39;Helvetica Neue&#39;, Helvetica, sans-serif;&quot; id=&quot;branding&quot;&gt;[&lt;span style=&#39;color:red;&#39;&gt;re&lt;/span&gt;|${&lt;span style=&#39;color:red;&#39;&gt;gex&lt;/span&gt;}(.*)|&lt;span&gt;&lt;/span&gt;]&lt;/a&gt;|]</code></pre></div>

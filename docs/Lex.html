@@ -71,7 +71,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">module</span> <span class="dt">Text.RE.Tools.Lex</span> <span class="kw">where</span>
 
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
-<span class="kw">import           </span><span class="dt">Text.RE</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Capture</span>
+<span class="kw">import           </span><span class="dt">Text.RE.IsRegex</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Replace</span>
 
 
 <span class="ot">alex ::</span> <span class="dt">IsRegex</span> re s <span class="ot">=&gt;</span> [(re,<span class="dt">Match</span> s<span class="ot">-&gt;</span><span class="dt">Maybe</span> t)] <span class="ot">-&gt;</span> t <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> [t]

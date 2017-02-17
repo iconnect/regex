@@ -24,9 +24,10 @@ module Text.RE.Internal.PreludeMacros
   ) where
 
 import           Data.Array
-import qualified Data.HashMap.Lazy              as HML
+import qualified Data.HashMap.Lazy            as HML
 import           Data.List
 import           Data.Maybe
+import qualified Data.Text                    as T
 import           Data.Time
 import           Prelude.Compat
 import           Text.RE.Options
@@ -77,10 +78,10 @@ preludeMacroDescriptor :: RegexType
                        -> PreludeMacro
                        -> Maybe MacroDescriptor
 preludeMacroDescriptor rty env pm = case pm of
-  PM_natural          -> natural_macro          rty env pm
-  PM_natural_hex      -> natural_hex_macro      rty env pm
-  PM_integer          -> integer_macro          rty env pm
-  PM_decimal          -> decimal_macro          rty env pm
+  PM_nat          -> natural_macro          rty env pm
+  PM_hex      -> natural_hex_macro      rty env pm
+  PM_int          -> integer_macro          rty env pm
+  PM_frac          -> decimal_macro          rty env pm
   PM_string           -> string_macro           rty env pm
   PM_string_simple    -> string_simple_macro    rty env pm
   PM_id               -> id_macro               rty env pm
@@ -102,10 +103,10 @@ preludeMacroDescriptor rty env pm = case pm of
 -- | an enumeration of all of the prelude macros
 data PreludeMacro
   -- numbers
-  = PM_natural
-  | PM_natural_hex
-  | PM_integer
-  | PM_decimal
+  = PM_nat
+  | PM_hex
+  | PM_int
+  | PM_frac
   -- strings
   | PM_string
   | PM_string_simple
@@ -274,7 +275,7 @@ string_macro :: RegexType
              -> Maybe MacroDescriptor
 string_macro     PCRE _  _   = Nothing
 string_macro rty@TDFA env pm =
-  Just $ run_tests rty parseString samples env pm
+  Just $ run_tests rty (fmap T.unpack . parseString) samples env pm
     MacroDescriptor
       { _md_source          = "\"(?:[^\"\\]+|\\\\[\\\"])*\""
       , _md_samples         = map fst samples
@@ -305,7 +306,7 @@ string_simple_macro :: RegexType
                     -> PreludeMacro
                     -> Maybe MacroDescriptor
 string_simple_macro rty env pm =
-  Just $ run_tests rty parseSimpleString samples env pm
+  Just $ run_tests rty (fmap T.unpack . parseSimpleString) samples env pm
     MacroDescriptor
       { _md_source          = "\"[^\"[:cntrl:]]*\""
       , _md_samples         = map fst samples
@@ -694,7 +695,7 @@ shortmonth_macro rty env pm =
   Just $ run_tests rty parseShortMonth samples env pm
     MacroDescriptor
       { _md_source          = bracketedRegexSource $
-                                intercalate "|" $ elems shortMonthArray
+                                intercalate "|" $ map T.unpack $ elems shortMonthArray
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
       , _md_test_results    = []
@@ -800,14 +801,14 @@ syslog_severity_macro rty env pm =
 
     re_tdfa = bracketedRegexSource $
           intercalate "|" $
-            [ kw
+            [ T.unpack kw
               | (kw0,kws) <- map severityKeywords [minBound..maxBound]
               , kw <- kw0:kws
               ]
 
     re_pcre = bracketedRegexSource $
           intercalate "|" $
-            [ kw
+            [ T.unpack kw
               | (kw0,kws) <- map severityKeywords $
                                   filter (/=Err) [minBound..maxBound]
               , kw <- kw0:kws

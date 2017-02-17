@@ -77,9 +77,13 @@ matrix:
     compiler: ": #stack 8.0.1 osx"
     os: osx
 
+# macOS builds on Travis-CI have become highly problematic -- until this
+# is fixed will have to rely on manual testing in the dev environment
+
   allow_failures:
   - env: BUILD=cabal GHCVER=head  CABALVER=head HAPPYVER=1.19.5 ALEXVER=3.1.7
   - env: BUILD=stack ARGS="--resolver nightly"
+  - os: osx
 
 
 before_install:
@@ -164,4 +168,4 @@ script:
 after_script:
   - travis_retry curl -L https://github.com/rubik/stack-hpc-coveralls/releases/download/v0.0.4.0/shc-linux-x64-$GHCVER.tar.bz2 | tar -xj
   - |
-    [ "$BUILD" == stack -a "$GHCVER" == 7.10.3 ] && ./shc --partial-coverage regex re-gen-cabals-test re-gen-modules-test re-include-test re-nginx-log-processor-test re-pp-test re-tests-test re-tutorial-test
+    [ "$BUILD" == stack -a "$GHCVER" == 7.10.3 ] && ./shc --partial-coverage regex re-gen-cabals-test re-gen-modules-test re-include-test re-nginx-log-processor-test re-prep-test re-tests-test re-tutorial-test

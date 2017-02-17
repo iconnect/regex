@@ -30,8 +30,6 @@ import           Text.Printf
 import           Text.RE.Edit
 import           Text.RE.TDFA.ByteString.Lazy
 import qualified Text.RE.TDFA.Text                        as TT
-import           Text.RE.Tools.Grep
-import           Text.RE.Tools.Sed
 \end{code}
 
 \begin{code}
@@ -212,7 +210,7 @@ gen_all = do
     putStrLn ">> examples/re-tutorial.lhs"
     pages
   where
-    pd fnm = case (captureTextMaybe [cp|fdr|] mtch,captureTextMaybe [cp|mnm|] mtch) of
+    pd fnm = case (mtch !$$? [cp|fdr|],mtch !$$? [cp|mnm|]) of
         (Nothing ,Just mnm) -> pandoc_lhs ("Text.RE."          <>mnm) ("Text/"    <>fnm<>".lhs") ("docs/"<>mnm<>".html")
         (Just fdr,Just mnm) -> pandoc_lhs ("Text.RE."<>fdr<>"."<>mnm) ("Text/"    <>fnm<>".lhs") ("docs/"<>mnm<>".html")
         _                   -> pandoc_lhs ("examples/"<>fnm<>".lhs" ) ("examples/"<>fnm<>".lhs") ("docs/"<>fnm<>".html")
@@ -236,7 +234,7 @@ includeDoc _ mtch _ _ = fmap Just $
     fp    = prs_s $ captureText [cp|file|] mtch
     re_s  = prs_s $ captureText [cp|rex|]  mtch
 
-    prs_s = fromMaybe (error "includeDoc") . parseString
+    prs_s = maybe (error "includeDoc") T.unpack . parseString
 \end{code}
 
 \begin{code}
@@ -798,7 +796,7 @@ include = sed' $ Select
     ]
   where
     incl _ mtch _ _ = Just <$> LBS.readFile (prs_s $ mtch !$$ [cp|file|])
-    prs_s           = fromMaybe (error "include") . parseString
+    prs_s           = maybe (error "include") T.unpack . parseString
 \end{code}
 
 

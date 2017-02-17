@@ -1,17 +1,20 @@
 \begin{code}
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TemplateHaskell            #-}
-{-# LANGUAGE FlexibleInstances          #-}
-{-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE RecordWildCards            #-}
 
 module Text.RE.Internal.NamedCaptures
   ( cp
   , extractNamedCaptures
-  , namedCapturesTestTree
-  )
-  where
+  , idFormatTokenOptions
+  , Token(..)
+  , validToken
+  , formatTokens
+  , formatTokens'
+  , formatTokens0
+  , scan
+  ) where
 
 import           Data.Char
 import qualified Data.HashMap.Strict          as HM
@@ -19,15 +22,10 @@ import qualified Data.Text                    as T
 import           GHC.Generics
 import qualified Language.Haskell.TH          as TH
 import           Language.Haskell.TH.Quote
-import           Test.SmallCheck.Series
-import           Test.Tasty
-import           Test.Tasty.HUnit
-import           Test.Tasty.SmallCheck        as SC
 import           Text.Heredoc
 import           Text.RE
 import           Text.RE.Internal.PreludeMacros
 import           Text.RE.Internal.QQ
-import           Text.RE.Tools.Lex
 import           Text.Regex.PCRE
 
 
@@ -41,13 +39,6 @@ extractNamedCaptures :: String -> Either String (CaptureNames,String)
 extractNamedCaptures s = Right (analyseTokens tks,formatTokens tks)
   where
     tks = scan s
-
-namedCapturesTestTree :: TestTree
-namedCapturesTestTree = localOption (SmallCheckDepth 4) $
-  testGroup "NamedCaptures"
-    [ formatScanTestTree
-    , analyseTokensTestTree
-    ]
 \end{code}
 
 
@@ -63,8 +54,6 @@ data Token
   | BS          Char
   | Other       Char
   deriving (Show,Generic,Eq)
-
-instance Monad m => Serial m Token
 
 validToken :: Token -> Bool
 validToken tkn = case tkn of
@@ -161,9 +150,9 @@ data FormatTokenOptions =
 defFormatTokenOptions :: FormatTokenOptions
 defFormatTokenOptions =
   FormatTokenOptions
-    { _fto_regex_type     = Nothing
-    , _fto_min_caps       = False
-    , _fto_incl_caps = False
+    { _fto_regex_type = Nothing
+    , _fto_min_caps   = False
+    , _fto_incl_caps  = False
     }
 
 idFormatTokenOptions :: FormatTokenOptions
@@ -213,59 +202,4 @@ formatTokens0 = foldr f ""
           Bra     -> "("
           BS    c -> "\\" ++ [c]
           Other c -> [c]
-\end{code}
-
-
-Testing : FormatToken/Scan Properties
--------------------------------------
-
-\begin{code}
-formatScanTestTree :: TestTree
-formatScanTestTree =
-  testGroup "FormatToken/Scan Properties"
-    [ localOption (SmallCheckDepth 4) $
-        SC.testProperty "formatTokens == formatTokens0" $
-          \tks -> formatTokens tks == formatTokens0 tks
-    , localOption (SmallCheckDepth 4) $
-        SC.testProperty "scan . formatTokens' idFormatTokenOptions == id" $
-          \tks -> all validToken tks ==>
-                    scan (formatTokens' idFormatTokenOptions tks) == tks
-    ]
-\end{code}
-
-
-Testing : Analysing [Token] Unit Tests
---------------------------------------
-
-\begin{code}
-analyseTokensTestTree :: TestTree
-analyseTokensTestTree =
-  testGroup "Analysing [Token] Unit Tests"
-    [ tc [here|foobar|]                                       []
-    , tc [here||]                                             []
-    , tc [here|$([0-9]{4})|]                                  []
-    , tc [here|${x}()|]                                       [(1,"x")]
-    , tc [here|${}()|]                                        []
-    , tc [here|${}()${foo}()|]                                [(2,"foo")]
-    , tc [here|${x}(${y()})|]                                 [(1,"x")]
-    , tc [here|${x}(${y}())|]                                 [(1,"x"),(2,"y")]
-    , tc [here|${a}(${b{}())|]                                [(1,"a")]
-    , tc [here|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] [(1,"y"),(2,"m"),(3,"d")]
-    , tc [here|@$(@|\{${name}([^{}]+)\})|]                    [(2,"name")]
-    , tc [here|${y}[0-9]{4}|]                                 []
-    , tc [here|${}([0-9]{4})|]                                []
-    ]
-  where
-    tc s al =
-      testCase s $ assertEqual "CaptureNames"
-        (xnc s)
-        (HM.fromList
-          [ (CaptureName $ T.pack n,CaptureOrdinal i)
-              | (i,n)<-al
-              ]
-        )
-
-    xnc = either oops fst . extractNamedCaptures
-      where
-        oops = error "analyseTokensTestTree: unexpected parse failure"
 \end{code}

@@ -24,20 +24,13 @@ If you have any feedback or suggestion then please drop me a line.
 &nbsp;&nbsp;&nbsp;&nbsp;`w` https://github.com/iconnect/regex/issues
 
 
-%heading#web The Web Page
-
-We have a [web site](http://regex.uk) with a tutorial,
-a major example and and more examples than you can shake a stick at (most
-of them used in the package itself).
-
-
 %heading#macros The Macro Tables
 
 The macro environments are an important part of the package and they
 are documented [in these tables](macros).
 
 
-# Authors
+%heading#authors Authors
 
 This library was written and is currently maintained by Chris Dornan,
 <chris.dornan@irisconnect.com>.

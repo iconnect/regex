@@ -101,8 +101,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">System.Exit</span>
 <span class="kw">import           </span><span class="dt">System.IO</span>
 <span class="kw">import           </span><span class="dt">Text.Printf</span>
-<span class="kw">import           </span><span class="dt">Text.RE.TDFA</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Tools.Grep</span></code></pre></div>
+<span class="kw">import           </span><span class="dt">Text.RE.TDFA</span></code></pre></div>
 <h2 id="vrn-and-friends">Vrn and friends</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Vrn</span> <span class="fu">=</span> <span class="dt">Vrn</span> { _vrn_a, _vrn_b, _vrn_c,<span class="ot"> _vrn_d ::</span> <span class="dt">Int</span> }
   <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>,<span class="dt">Ord</span>)
@@ -149,7 +148,7 @@ parse_vrn vrn_s <span class="fu">=</span> <span class="kw">case</span> matched m
     <span class="dt">False</span> <span class="ot">-&gt;</span> error <span class="fu">$</span> <span class="st">&quot;not a valid version: &quot;</span> <span class="fu">++</span> vrn_s
   <span class="kw">where</span>
     p c  <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> parseInteger <span class="fu">$</span> m <span class="fu">!$$</span> c
-    m    <span class="fu">=</span> vrn_s <span class="fu">?=~</span> [re|^${a}(@{%natural})\.${b}(@{%natural})\.${c}(@{%natural})\.${d}(@{%natural})$|]
+    m    <span class="fu">=</span> vrn_s <span class="fu">?=~</span> [re|^${a}(@{%nat})\.${b}(@{%nat})\.${c}(@{%nat})\.${d}(@{%nat})$|]
 
     oops <span class="fu">=</span> error <span class="st">&quot;parse_vrn&quot;</span></code></pre></div>
 <h2 id="test-and-friends">Test and friends</h2>

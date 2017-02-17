@@ -13,13 +13,12 @@ module Main
 import           Control.Applicative
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Data.Maybe
+import qualified Data.Text                                as T
 import           Prelude.Compat
 import           System.Environment
 import           TestKit
 import           Text.RE.Edit
 import           Text.RE.TDFA.ByteString.Lazy
-import           Text.RE.Tools.Grep
-import           Text.RE.Tools.Sed
 \end{code}
 
 \begin{code}
@@ -68,7 +67,7 @@ include _ mtch _ _ = fmap Just $
     fp    = prs_s $ captureText [cp|file|] mtch
     re_s  = prs_s $ captureText [cp|rex|]  mtch
 
-    prs_s = fromMaybe (error "includeDoc") . parseString
+    prs_s = maybe (error "includeDoc") T.unpack . parseString
 \end{code}
 
 

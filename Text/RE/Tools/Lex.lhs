@@ -4,7 +4,9 @@
 module Text.RE.Tools.Lex where
 
 import           Prelude.Compat
-import           Text.RE
+import           Text.RE.Capture
+import           Text.RE.IsRegex
+import           Text.RE.Replace
 
 
 alex :: IsRegex re s => [(re,Match s->Maybe t)] -> t -> s -> [t]

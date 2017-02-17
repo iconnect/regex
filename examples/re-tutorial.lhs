@@ -63,7 +63,7 @@ module Main(main) where
 
 *********************************************************
 *
-* WARNING: this is generated from pp-tutorial-master.lhs 
+* WARNING: this is generated from pp-tutorial-master.lhs
 *
 *********************************************************
 
@@ -754,7 +754,7 @@ parse_tpl_ tpl mtch _ _ =
     Just $ replaceAllCaptures' TOP phi $
       tpl *=~ [re|\$${arg}(\$|[0-9]+|\{${name}([^{}]+)\})|]
   where
-    phi t_mtch _ _ = case captureMaybe [cp|name|] t_mtch of
+    phi t_mtch _ _ = case t_mtch !$? [cp|name|] of
       Just cap -> this $ CID_name $ CaptureName txt
         where
           txt = T.pack $ capturedText cap
@@ -764,7 +764,7 @@ parse_tpl_ tpl mtch _ _ =
       where
         t = capturedText $ capture [cp|arg|] t_mtch
 
-        this cid = capturedText <$> captureMaybe cid mtch
+        this cid = capturedText <$> mtch !$? cid
 
 my_replace :: RE -> Template-> String -> String
 my_replace rex tpl src = replaceAllCaptures' TOP (parse_tpl_ tpl) $ src *=~ rex
@@ -859,4 +859,3 @@ main = runTests
   , evalme_LOA_00
   ]
 \end{code}
-

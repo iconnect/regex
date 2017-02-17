@@ -23,7 +23,6 @@ import           System.IO
 import           TestKit
 import           Text.Printf
 import           Text.RE.TDFA.ByteString.Lazy
-import           Text.RE.Tools.Sed
 
 
 main :: IO ()

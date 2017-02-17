@@ -49,7 +49,7 @@ The Haddocks can be found at http://hs.regex.uk.
 
 %heading#macros The Macro Tables
 
-The macro environments are an important part of the package and they
+The macro environments are an important part of the package and
 are documented [here](http://macros.regex.uk).
 
 

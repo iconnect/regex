@@ -24,9 +24,11 @@ module Text.RE.Capture
   , matchCaptures
   , (!$$)
   , captureText
+  , (!$$?)
   , captureTextMaybe
   , (!$)
   , capture
+  , (!$?)
   , captureMaybe
   -- Capture functions
   , hasCaptured
@@ -167,7 +169,7 @@ matchCaptures Match{..} = case rangeSize (bounds matchArray) == 0 of
   True  -> Nothing
   False -> Just (matchArray!0,drop 1 $ elems matchArray)
 
--- | a synonym of captureText
+-- | an alternative for captureText
 (!$$) :: Match a -> CaptureID -> a
 (!$$) = flip captureText
 
@@ -177,16 +179,20 @@ matchCaptures Match{..} = case rangeSize (bounds matchArray) == 0 of
 captureText :: CaptureID -> Match a -> a
 captureText cid mtch = capturedText $ capture cid mtch
 
+-- | an alternative for captureTextMaybe
+(!$$?) :: Match a -> CaptureID -> Maybe a
+(!$$?) = flip captureTextMaybe
+
 -- | look up the text of the nth capture (0 being the match of the
 -- whole), returning Nothing if the Match doesn't contain the capture
 captureTextMaybe :: CaptureID -> Match a -> Maybe a
 captureTextMaybe cid mtch = do
-    cap <- captureMaybe cid mtch
+    cap <- mtch !$? cid
     case hasCaptured cap of
       True  -> Just $ capturedText cap
       False -> Nothing
 
--- | a synonym of capture
+-- | an alternative for capture
 (!$) :: Match a -> CaptureID -> Capture a
 (!$) = flip capture
 
@@ -194,9 +200,13 @@ captureTextMaybe cid mtch = do
 -- the source text, 1, the first bracketed sub-expression to be matched
 -- and so on
 capture :: CaptureID -> Match a -> Capture a
-capture cid mtch = fromMaybe oops $ captureMaybe cid mtch
+capture cid mtch = fromMaybe oops $ mtch !$? cid
   where
     oops = error $ "capture: out of bounds (" ++ show cid ++ ")"
+
+-- | an alternative for capture captureMaybe
+(!$?) :: Match a -> CaptureID -> Maybe (Capture a)
+(!$?) = flip captureMaybe
 
 -- | look up the nth capture, 0 being the match of the whole RE against
 -- the source text, 1, the first bracketed sub-expression to be matched
@@ -231,8 +241,6 @@ capturePrefix Capture{..} = before captureOffset captureSource
 captureSuffix :: Extract a => Capture a -> a
 captureSuffix Capture{..} = after (captureOffset+captureLength) captureSource
 \end{code}
-
-
 
 
 \begin{code}

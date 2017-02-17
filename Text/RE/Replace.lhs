@@ -463,7 +463,7 @@ parse_tpl_ unpack tpl mtch _ _ =
     Just $ replaceAllCaptures' TOP phi $
       tpl $=~ [here|\$(\$|[0-9]+|\{([^{}]+)\})|]
   where
-    phi t_mtch _ _ = case captureMaybe c2 t_mtch of
+    phi t_mtch _ _ = case t_mtch !$? c2  of
       Just cap -> this $ CID_name $ CaptureName txt
         where
           txt = T.pack $ unpack $ capturedText cap
@@ -474,7 +474,7 @@ parse_tpl_ unpack tpl mtch _ _ =
         s  = unpack t
         t  = capturedText $ capture c1 t_mtch
 
-        this cid = capturedText <$> captureMaybe cid mtch
+        this cid = capturedText <$> mtch !$? cid
 
     c1 = CID_ordinal $ CaptureOrdinal 1
     c2 = CID_ordinal $ CaptureOrdinal 2

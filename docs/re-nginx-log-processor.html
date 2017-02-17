@@ -101,7 +101,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Text.RE.TestBench</span>
 <span class="kw">import           </span><span class="dt">Text.RE.PCRE.ByteString.Lazy</span>
 <span class="kw">import qualified</span> <span class="dt">Text.RE.PCRE.String</span>                      <span class="kw">as</span> <span class="dt">S</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span>
 <span class="kw">import           </span><span class="dt">Text.Printf</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">main ::</span> <span class="dt">IO</span> ()
 main <span class="fu">=</span> <span class="kw">do</span>
@@ -372,7 +371,7 @@ user_macro env mid <span class="fu">=</span>
 pid_tid_macro env mid <span class="fu">=</span>
   runTests regexType parse_pid_tid samples env mid
     <span class="dt">MacroDescriptor</span>
-      { _md_source          <span class="fu">=</span> <span class="st">&quot;(?:@{%natural})#(?:@{%natural}):&quot;</span>
+      { _md_source          <span class="fu">=</span> <span class="st">&quot;(?:@{%nat})#(?:@{%nat}):&quot;</span>
       , _md_samples         <span class="fu">=</span> map fst samples
       , _md_counter_samples <span class="fu">=</span> counter_samples
       , _md_test_results    <span class="fu">=</span> []
@@ -509,8 +508,8 @@ access_re <span class="fu">=</span> <span class="dt">RegexSource</span> <span cl
   , <span class="st">&quot;(@{user})&quot;</span>
   , <span class="st">&quot;\\[(@{%datetime.clf})\\]&quot;</span>
   , <span class="st">&quot;(@{%string.simple})&quot;</span>
-  , <span class="st">&quot;(@{%natural})&quot;</span>
-  , <span class="st">&quot;(@{%natural})&quot;</span>
+  , <span class="st">&quot;(@{%nat})&quot;</span>
+  , <span class="st">&quot;(@{%nat})&quot;</span>
   , <span class="st">&quot;(@{%string.simple})&quot;</span>
   , <span class="st">&quot;(@{%string.simple})&quot;</span>
   , <span class="st">&quot;(@{%string.simple})&quot;</span>
@@ -608,7 +607,7 @@ parse_user <span class="fu">=</span> <span class="dt">Just</span> <span class="f
 <span class="co">--</span>
 
 <span class="ot">parse_pid_tid ::</span> <span class="dt">Replace</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)
-parse_pid_tid x <span class="fu">=</span> <span class="kw">case</span> allMatches <span class="fu">$</span> unpack_ x <span class="fu">S.*=~</span> [re|@{%natural}|] <span class="kw">of</span>
+parse_pid_tid x <span class="fu">=</span> <span class="kw">case</span> allMatches <span class="fu">$</span> unpack_ x <span class="fu">S.*=~</span> [re|@{%nat}|] <span class="kw">of</span>
     [cs,cs&#39;] <span class="ot">-&gt;</span> (,) <span class="fu">&lt;$&gt;</span> p cs <span class="fu">&lt;*&gt;</span> p cs&#39;
     _        <span class="ot">-&gt;</span> <span class="dt">Nothing</span>
   <span class="kw">where</span>

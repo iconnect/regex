@@ -17,7 +17,6 @@ import           System.Environment
 import           System.Exit
 import           System.IO
 import           Text.RE.TDFA.ByteString.Lazy
-import           Text.RE.Tools.Sed
 
 
 main :: IO ()

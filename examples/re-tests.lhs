@@ -3,7 +3,10 @@
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE TemplateHaskell            #-}
+{-# OPTIONS_GHC -fno-warn-orphans       #-}
 
 module Main (main) where
 
@@ -12,6 +15,7 @@ import           Data.Array
 import qualified Data.ByteString.Char8          as B
 import qualified Data.ByteString.Lazy.Char8     as LBS
 import qualified Data.Foldable                  as F
+import qualified Data.HashMap.Strict            as HM
 import           Data.Maybe
 import           Data.Monoid
 import qualified Data.Sequence                  as S
@@ -20,9 +24,13 @@ import qualified Data.Text                      as T
 import qualified Data.Text.Lazy                 as LT
 import           Language.Haskell.TH.Quote
 import           Prelude.Compat
+import           Test.SmallCheck.Series
 import           Test.Tasty
 import           Test.Tasty.HUnit
+import           Test.Tasty.SmallCheck          as SC
+import           Text.Heredoc
 import qualified Text.Regex.PCRE                as PCRE_
+
 import qualified Text.Regex.TDFA                as TDFA_
 import           Text.RE
 import           Text.RE.Internal.NamedCaptures
@@ -69,8 +77,8 @@ prelude_tests = testGroup "Prelude"
         dumpMacroTable "macros" rty m_env
         assertBool "testMacroEnv" =<< testMacroEnv "prelude" rty m_env
 
-str, str' :: String
-str       = "a bbbb aa b"
+str_, str' :: String
+str_      = "a bbbb aa b"
 str'      = "foo"
 
 regex_, regex_alt :: RE
@@ -159,35 +167,35 @@ parsing_tests :: TestTree
 parsing_tests = testGroup "Parsing"
   [ testCase "complete check (matchM/ByteString)" $ do
       r    <- compileRegex () $ reSource regex_
-      assertEqual "Match" (B.pack <$> regex_str_match) $ B.pack str ?=~ r
+      assertEqual "Match" (B.pack <$> regex_str_match) $ B.pack str_ ?=~ r
   , testCase "matched (matchM/Text)" $ do
       r     <- compileRegex () $ reSource regex_
-      assertEqual "matched" True $ matched $ T.pack str ?=~ r
+      assertEqual "matched" True $ matched $ T.pack str_ ?=~ r
   ]
 
 core_tests :: TestTree
 core_tests = testGroup "Match"
   [ testCase "text (=~~Text.Lazy)" $ do
-      txt <- LT.pack str =~~ [re|(a+) (b+)|] :: IO (LT.Text)
+      txt <- LT.pack str_ =~~ [re|(a+) (b+)|] :: IO (LT.Text)
       assertEqual "text" txt "a bbbb"
   , testCase "multi (=~~/String)" $ do
-      let sm = str =~ regex_ :: Match String
+      let sm = str_ =~ regex_ :: Match String
           m  = capture [cp|0|] sm
       assertEqual "captureSource" "a bbbb aa b" $ captureSource m
       assertEqual "capturedText"  "a bbbb"      $ capturedText  m
       assertEqual "capturePrefix" ""            $ capturePrefix m
       assertEqual "captureSuffix" " aa b"       $ captureSuffix m
   , testCase "complete (=~~/ByteString)" $ do
-      mtch <- B.pack str =~~ regex_ :: IO (Match B.ByteString)
+      mtch <- B.pack str_ =~~ regex_ :: IO (Match B.ByteString)
       assertEqual "Match" mtch $ B.pack <$> regex_str_match
   , testCase "complete (all,String)" $ do
-      let mtchs = str =~ regex_     :: Matches String
+      let mtchs = str_ =~ regex_     :: Matches String
       assertEqual "Matches" mtchs regex_str_matches
   , testCase "complete (all,reg_alt)" $ do
-      let mtchs = str =~ regex_alt  :: Matches String
+      let mtchs = str_ =~ regex_alt  :: Matches String
       assertEqual "Matches" mtchs regex_alt_str_matches
   , testCase "complete (=~~,all)" $ do
-      mtchs <- str =~~ regex_       :: IO (Matches String)
+      mtchs <- str_ =~~ regex_       :: IO (Matches String)
       assertEqual "Matches" mtchs regex_str_matches
   , testCase "fail (all)" $ do
       let mtchs = str' =~ regex_    :: Matches String
@@ -197,27 +205,27 @@ core_tests = testGroup "Match"
 replace_tests :: TestTree
 replace_tests = testGroup "Replace"
   [ testCase "String/single" $ do
-      let m = str =~ regex_ :: Match String
+      let m = str_ =~ regex_ :: Match String
           r = replaceCaptures' ALL fmt m
       assertEqual "replaceCaptures'" r "(0:0:(0:1:a) (0:2:bbbb)) aa b"
   , testCase "String/alt" $ do
-      let ms = str =~ regex_ :: Matches String
+      let ms = str_ =~ regex_ :: Matches String
           r  = replaceAllCaptures' ALL fmt ms
       chk r
   , testCase "String" $ do
-      let ms = str =~ regex_ :: Matches String
+      let ms = str_ =~ regex_ :: Matches String
           r  = replaceAllCaptures' ALL fmt ms
       chk r
   , testCase "ByteString" $ do
-      let ms = B.pack str =~ regex_ :: Matches B.ByteString
+      let ms = B.pack str_ =~ regex_ :: Matches B.ByteString
           r  = replaceAllCaptures' ALL fmt ms
       chk r
   , testCase "LBS.ByteString" $ do
-      let ms = LBS.pack str =~ regex_ :: Matches LBS.ByteString
+      let ms = LBS.pack str_ =~ regex_ :: Matches LBS.ByteString
           r  = replaceAllCaptures' ALL fmt ms
       chk r
   , testCase "Seq Char" $ do
-      let ms = S.fromList str =~ regex_ :: Matches (S.Seq Char)
+      let ms = S.fromList str_ =~ regex_ :: Matches (S.Seq Char)
           f  = \_ (Location i j) Capture{..} -> Just $ S.fromList $
                   "(" <> show i <> ":" <> show_co j <> ":" <>
                     F.toList capturedText <> ")"
@@ -225,11 +233,11 @@ replace_tests = testGroup "Replace"
       assertEqual "replaceAllCaptures'" r $
         S.fromList "(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))"
   , testCase "Text" $ do
-      let ms = T.pack str =~ regex_ :: Matches T.Text
+      let ms = T.pack str_ =~ regex_ :: Matches T.Text
           r  = replaceAllCaptures' ALL fmt ms
       chk r
   , testCase "LT.Text" $ do
-      let ms = LT.pack str =~ regex_ :: Matches LT.Text
+      let ms = LT.pack str_ =~ regex_ :: Matches LT.Text
           r  = replaceAllCaptures' ALL fmt ms
       chk r
   ]
@@ -439,4 +447,76 @@ pcre_prelude_macros = filter (/= PM_string) [minBound..maxBound]
 
 tdfa_prelude_macros :: [PreludeMacro]
 tdfa_prelude_macros = [minBound..maxBound]
+\end{code}
+
+
+Testing : FormatToken/Scan Properties
+-------------------------------------
+
+\begin{code}
+namedCapturesTestTree :: TestTree
+namedCapturesTestTree = localOption (SmallCheckDepth 4) $
+  testGroup "NamedCaptures"
+    [ formatScanTestTree
+    , analyseTokensTestTree
+    ]
+\end{code}
+
+\begin{code}
+instance Monad m => Serial m Token
+\end{code}
+
+
+Testing : FormatToken/Scan Properties
+-------------------------------------
+
+\begin{code}
+formatScanTestTree :: TestTree
+formatScanTestTree =
+  testGroup "FormatToken/Scan Properties"
+    [ localOption (SmallCheckDepth 4) $
+        SC.testProperty "formatTokens == formatTokens0" $
+          \tks -> formatTokens tks == formatTokens0 tks
+    , localOption (SmallCheckDepth 4) $
+        SC.testProperty "scan . formatTokens' idFormatTokenOptions == id" $
+          \tks -> all validToken tks ==>
+                    scan (formatTokens' idFormatTokenOptions tks) == tks
+    ]
+\end{code}
+
+
+Testing : Analysing [Token] Unit Tests
+--------------------------------------
+
+\begin{code}
+analyseTokensTestTree :: TestTree
+analyseTokensTestTree =
+  testGroup "Analysing [Token] Unit Tests"
+    [ tc [here|foobar|]                                       []
+    , tc [here||]                                             []
+    , tc [here|$([0-9]{4})|]                                  []
+    , tc [here|${x}()|]                                       [(1,"x")]
+    , tc [here|${}()|]                                        []
+    , tc [here|${}()${foo}()|]                                [(2,"foo")]
+    , tc [here|${x}(${y()})|]                                 [(1,"x")]
+    , tc [here|${x}(${y}())|]                                 [(1,"x"),(2,"y")]
+    , tc [here|${a}(${b{}())|]                                [(1,"a")]
+    , tc [here|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] [(1,"y"),(2,"m"),(3,"d")]
+    , tc [here|@$(@|\{${name}([^{}]+)\})|]                    [(2,"name")]
+    , tc [here|${y}[0-9]{4}|]                                 []
+    , tc [here|${}([0-9]{4})|]                                []
+    ]
+  where
+    tc s al =
+      testCase s $ assertEqual "CaptureNames"
+        (xnc s)
+        (HM.fromList
+          [ (CaptureName $ T.pack n,CaptureOrdinal i)
+              | (i,n)<-al
+              ]
+        )
+
+    xnc = either oops fst . extractNamedCaptures
+      where
+        oops = error "analyseTokensTestTree: unexpected parse failure"
 \end{code}

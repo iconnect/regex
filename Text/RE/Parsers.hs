@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-warnings-deprecations #-}
+{-# LANGUAGE OverloadedStrings                  #-}
 
 module Text.RE.Parsers
   ( parseInteger
@@ -25,6 +26,7 @@ module Text.RE.Parsers
 import           Data.Array
 import qualified Data.HashMap.Strict        as HM
 import           Data.Maybe
+import qualified Data.Text                  as T
 import           Data.Time
 import qualified Data.Time.Locale.Compat    as LC
 import           Data.Word
@@ -42,17 +44,11 @@ parseHex = readMaybe . ("0x"++) . unpack_
 parseDouble :: Replace a => a -> Maybe Double
 parseDouble = readMaybe . unpack_
 
-parseString :: Replace a => a -> Maybe String
+parseString :: Replace a => a -> Maybe T.Text
 parseString = readMaybe . unpack_
 
-parseSimpleString :: Replace a => a -> Maybe String
-parseSimpleString = topntail . unpack_
-  where
-    topntail  ('"':t) = topntail' $ reverse t
-    topntail  _       = Nothing
-
-    topntail' ('"':rt) = Just $ reverse rt
-    topntail' _        = Nothing
+parseSimpleString :: Replace a => a -> Maybe T.Text
+parseSimpleString = Just . T.dropEnd 1 . T.drop 1 . textify
 
 date_templates, time_templates, timezone_templates,
   date_time_8601_templates, date_time_templates :: [String]
@@ -106,11 +102,11 @@ parse_time tpls = prs . unpack_
           ]
 
 short_month_hm :: HM.HashMap String Int
-short_month_hm = HM.fromList [ (shortMonthArray!i,i) | i<-[1..12] ]
+short_month_hm = HM.fromList [ (T.unpack $ shortMonthArray!i,i) | i<-[1..12] ]
 
-shortMonthArray :: Array Int String
+shortMonthArray :: Array Int T.Text
 shortMonthArray = listArray (1,12) $
-  words "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec"
+  T.words "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec"
 
 type IPV4Address = (Word8,Word8,Word8,Word8)
 
@@ -141,9 +137,9 @@ data Severity
   deriving (Bounded,Enum,Ord,Eq,Show)
 
 parseSeverity :: Replace a => a -> Maybe Severity
-parseSeverity = flip HM.lookup severity_hm . unpack_
+parseSeverity = flip HM.lookup severity_hm . textify
 
-severity_hm :: HM.HashMap String Severity
+severity_hm :: HM.HashMap T.Text Severity
 severity_hm = HM.fromList
   [ (kw,pri)
       | pri<-[minBound..maxBound]
@@ -151,7 +147,7 @@ severity_hm = HM.fromList
       , kw <- kw0:kws
       ]
 
-severityKeywords :: Severity -> (String,[String])
+severityKeywords :: Severity -> (T.Text,[T.Text])
 severityKeywords pri = case pri of
   Emerg     -> (,) "emerg"    ["panic"]
   Alert     -> (,) "alert"    []

@@ -100,7 +100,7 @@ Library
       -Wall
       -fwarn-tabs
 
-%build-depends array bytestring base base-compat containers hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
+%build-depends array bytestring base base-compat containers hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin template-haskell text time time-locale-compat transformers unordered-containers
 
 %test-exe re-gen-cabals
     Hs-Source-Dirs:     examples
@@ -184,7 +184,7 @@ Library
     Other-Modules:
       TestKit
 
-%build-depends regex array base base-compat bytestring containers directory regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin tasty tasty-hunit template-haskell text
+%build-depends regex array base base-compat bytestring containers directory heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin smallcheck tasty tasty-hunit tasty-smallcheck template-haskell text unordered-containers
 
 %test-exe re-tutorial
     Hs-Source-Dirs:     examples

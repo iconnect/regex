@@ -35,7 +35,6 @@ import           System.Exit
 import           System.IO
 import           Text.Printf
 import           Text.RE.TDFA
-import           Text.RE.Tools.Grep
 \end{code}
 
 
@@ -88,7 +87,7 @@ parse_vrn vrn_s = case matched m of
     False -> error $ "not a valid version: " ++ vrn_s
   where
     p c  = fromMaybe oops $ parseInteger $ m !$$ c
-    m    = vrn_s ?=~ [re|^${a}(@{%natural})\.${b}(@{%natural})\.${c}(@{%natural})\.${d}(@{%natural})$|]
+    m    = vrn_s ?=~ [re|^${a}(@{%nat})\.${b}(@{%nat})\.${c}(@{%nat})\.${d}(@{%nat})$|]
 
     oops = error "parse_vrn"
 \end{code}

@@ -18,9 +18,11 @@ module Text.RE
   , matchCaptures
   , (!$$)
   , captureText
+  , (!$$?)
   , captureTextMaybe
   , (!$)
   , capture
+  , (!$?)
   , captureMaybe
   -- Capture functions
   , hasCaptured
@@ -95,6 +97,19 @@ module Text.RE
   , replaceCapturesM
   , expandMacros
   , expandMacros'
+  -- Tools.Grep
+  , grep
+  , grepLines
+  , GrepScript
+  , grepScript
+  , linesMatched
+  -- Tools.Lex
+  , alex
+  , alex'
+  -- Tools.Sed
+  , SedScript
+  , sed
+  , sed'
   ) where
 
 import           Text.RE.Capture
@@ -105,3 +120,6 @@ import           Text.RE.LineNo
 import           Text.RE.Options
 import           Text.RE.Parsers
 import           Text.RE.Replace
+import           Text.RE.Tools.Grep
+import           Text.RE.Tools.Lex
+import           Text.RE.Tools.Sed

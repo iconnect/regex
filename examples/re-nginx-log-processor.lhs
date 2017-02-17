@@ -34,7 +34,6 @@ import           Text.RE.Parsers
 import           Text.RE.TestBench
 import           Text.RE.PCRE.ByteString.Lazy
 import qualified Text.RE.PCRE.String                      as S
-import           Text.RE.Tools.Sed
 import           Text.Printf
 \end{code}
 
@@ -203,7 +202,7 @@ presentEvent Event{..} = LBS.pack $
   where
     (a,b,c,d) = _event_address
 
-    svrty_kw  = fst . severityKeywords
+    svrty_kw  = T.unpack . fst . severityKeywords
 
 class IsEvent a where
   mkEvent :: LineNo -> Source -> a -> Event
@@ -218,12 +217,12 @@ instance IsEvent Access where
       , _event_address  = _a_remote_addr
       , _event_details  = LBS.pack $
           printf "%s %d %d %s %s %s"
-            _a_request
-            _a_status
-            _a_body_bytes
-            _a_http_referrer
-            _a_http_user_agent
-            _a_other
+            (T.unpack _a_request        )
+                      _a_status
+                      _a_body_bytes
+            (T.unpack _a_http_referrer  )
+            (T.unpack _a_http_user_agent)
+            (T.unpack _a_other          )
       }
 
 instance IsEvent Error where
@@ -320,7 +319,7 @@ pid_tid_macro :: MacroEnv -> MacroID -> MacroDescriptor
 pid_tid_macro env mid =
   runTests regexType parse_pid_tid samples env mid
     MacroDescriptor
-      { _md_source          = "(?:@{%natural})#(?:@{%natural}):"
+      { _md_source          = "(?:@{%nat})#(?:@{%nat}):"
       , _md_samples         = map fst samples
       , _md_counter_samples = counter_samples
       , _md_test_results    = []
@@ -442,15 +441,15 @@ error_macro env mid =
 
 data Access =
   Access
-    { _a_remote_addr      :: IPV4Address
-    , _a_remote_user      :: User
-    , _a_time_local       :: UTCTime
-    , _a_request          :: String
-    , _a_status           :: Int
-    , _a_body_bytes       :: Int
-    , _a_http_referrer    :: String
-    , _a_http_user_agent  :: String
-    , _a_other            :: String
+    { _a_remote_addr      :: !IPV4Address
+    , _a_remote_user      :: !User
+    , _a_time_local       :: !UTCTime
+    , _a_request          :: !T.Text
+    , _a_status           :: !Int
+    , _a_body_bytes       :: !Int
+    , _a_http_referrer    :: !T.Text
+    , _a_http_user_agent  :: !T.Text
+    , _a_other            :: !T.Text
     }
   deriving (Eq,Show)
 \end{code}
@@ -463,8 +462,8 @@ access_re = RegexSource $ unwords
   , "(@{user})"
   , "\\[(@{%datetime.clf})\\]"
   , "(@{%string.simple})"
-  , "(@{%natural})"
-  , "(@{%natural})"
+  , "(@{%nat})"
+  , "(@{%nat})"
   , "(@{%string.simple})"
   , "(@{%string.simple})"
   , "(@{%string.simple})"
@@ -565,7 +564,7 @@ parse_user = Just . User . LBS.pack . unpack_
 --
 
 parse_pid_tid :: Replace a => a -> Maybe (Int,Int)
-parse_pid_tid x = case allMatches $ unpack_ x S.*=~ [re|@{%natural}|] of
+parse_pid_tid x = case allMatches $ unpack_ x S.*=~ [re|@{%nat}|] of
     [cs,cs'] -> (,) <$> p cs <*> p cs'
     _        -> Nothing
   where

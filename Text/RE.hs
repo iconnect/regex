@@ -1,7 +1,17 @@
 {-# OPTIONS_GHC -fno-warn-dodgy-exports #-}
+-- |
+-- Module      :  Text.RE
+-- Copyright   :  (C) 2016-17 Chris Dornan
+-- License     :  BSD3 (see the LICENSE file)
+-- Maintainer  :  Chris Dornan <chris.dornan@irisconnect.com>
+-- Stability   :  RFC
+-- Portability :  portable
 
 module Text.RE
   (
+  -- * Tutorial
+  -- $tutorial
+
   -- * How to use this library
   -- $use
 
@@ -13,7 +23,7 @@ module Text.RE
   , Match(..)
   , Capture(..)
   , noMatch
-  -- ** Match functions
+  -- ** Matches functions
   , anyMatches
   , countMatches
   , matches
@@ -132,16 +142,17 @@ import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Lex
 import           Text.RE.Tools.Sed
 
+-- $tutorial
+-- We have a regex tutorial at <http://tutorial.regex.uk>. These API
+-- docs are mainly for reference.
+
 -- $use
 --
--- As they say when you ask for directions in certain parts of Ireland,
--- I wouldn't staqrt from here. The things is that this module won't
--- provide you with any operators to match a regular expression against
--- text as it merely provides the toolkit for working with the output
--- of the match operators.  What you need to do is pick one of the
--- modules that do provide match operatorsand import it. All of these
--- modules will export the match operator you need plus the contents
--- of this module. So you do need to be familar with its contents.
+-- This module won't provide any operators to match a regular expression
+-- against text as it merely provides the toolkit for working with the
+-- output of the match operators.  You probably won't import it directly
+-- but import one of the modules that provides the match operators,
+-- which will in tuen re-export this module.
 --
 -- The module that you choose to import will depend upon two factors:
 --
@@ -156,32 +167,32 @@ import           Text.RE.Tools.Sed
 -- While we aim to provide all combinations of these choices, some of them
 -- are currently not available.  We have:
 --
--- * @Text.RE.PCRE@
--- * @Text.RE.PCRE.ByteString@
--- * @Text.RE.PCRE.ByteString.Lazy@
--- * @Text.RE.PCRE.RE@
--- * @Text.RE.PCRE.Sequence@
--- * @Text.RE.PCRE.String@
--- * @Text.RE.TDFA@
--- * @Text.RE.TDFA.ByteString@
--- * @Text.RE.TDFA.ByteString.Lazy@
--- * @Text.RE.TDFA.RE@
--- * @Text.RE.TDFA.Sequence@
--- * @Text.RE.TDFA.String@
--- * @Text.RE.TDFA.Text@
--- * @Text.RE.TDFA.Text.Lazy@
+-- * "Text.RE.PCRE"
+-- * "Text.RE.PCRE.ByteString"
+-- * "Text.RE.PCRE.ByteString.Lazy"
+-- * "Text.RE.PCRE.RE"
+-- * "Text.RE.PCRE.Sequence"
+-- * "Text.RE.PCRE.String"
+-- * "Text.RE.TDFA"
+-- * "Text.RE.TDFA.ByteString"
+-- * "Text.RE.TDFA.ByteString.Lazy"
+-- * "Text.RE.TDFA.RE"
+-- * "Text.RE.TDFA.Sequence"
+-- * "Text.RE.TDFA.String"
+-- * "Text.RE.TDFA.Text"
+-- * "Text.RE.TDFA.Text.Lazy"
 
 -- $operators
 --
--- The traditional @=~@ operator that is polymorphic in its result, as is
--- its monadic companion, @=~~@, but we recommend the two new operators,
--- especially if you are not familiar with the old operators.  We have
+-- The traditional @=~@ and @=~~@ operators are exported by the @regex@,
+-- but we recommend that you use the two new operators, especially if
+-- you are not familiar with the old operators.  We have:
 --
 -- * @txt ?=~ re@ searches for a single match yielding a value of type
---   @Match a@ where @a@ is the type of the text you are searching.
+--   'Match' @a@ where @a@ is the type of the text you are searching.
 --
 -- * @txt *=~ re@ searches for all non-overlapping matches in @txt@,
---   returning a value of type @Matches a@.
+--   returning a value of type 'Matches' @a@.
 --
 -- See the sections below for more information on these @Matches@ and
 -- @Match@ result types.

@@ -254,7 +254,7 @@ presentEvent <span class="dt">Event</span>{<span class="fu">..</span>} <span cla
   <span class="kw">where</span>
     (a,b,c,d) <span class="fu">=</span> _event_address
 
-    svrty_kw  <span class="fu">=</span> fst <span class="fu">.</span> severityKeywords
+    svrty_kw  <span class="fu">=</span> T.unpack <span class="fu">.</span> fst <span class="fu">.</span> severityKeywords
 
 <span class="kw">class</span> <span class="dt">IsEvent</span> a <span class="kw">where</span>
 <span class="ot">  mkEvent ::</span> <span class="dt">LineNo</span> <span class="ot">-&gt;</span> <span class="dt">Source</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Event</span>
@@ -269,12 +269,12 @@ presentEvent <span class="dt">Event</span>{<span class="fu">..</span>} <span cla
       , _event_address  <span class="fu">=</span> _a_remote_addr
       , _event_details  <span class="fu">=</span> LBS.pack <span class="fu">$</span>
           printf <span class="st">&quot;%s %d %d %s %s %s&quot;</span>
-            _a_request
-            _a_status
-            _a_body_bytes
-            _a_http_referrer
-            _a_http_user_agent
-            _a_other
+            (T.unpack _a_request        )
+                      _a_status
+                      _a_body_bytes
+            (T.unpack _a_http_referrer  )
+            (T.unpack _a_http_user_agent)
+            (T.unpack _a_other          )
       }
 
 <span class="kw">instance</span> <span class="dt">IsEvent</span> <span class="dt">Error</span> <span class="kw">where</span>
@@ -490,15 +490,15 @@ error_macro env mid <span class="fu">=</span>
 
 <span class="kw">data</span> <span class="dt">Access</span> <span class="fu">=</span>
   <span class="dt">Access</span>
-    {<span class="ot"> _a_remote_addr      ::</span> <span class="dt">IPV4Address</span>
-    ,<span class="ot"> _a_remote_user      ::</span> <span class="dt">User</span>
-    ,<span class="ot"> _a_time_local       ::</span> <span class="dt">UTCTime</span>
-    ,<span class="ot"> _a_request          ::</span> <span class="dt">String</span>
-    ,<span class="ot"> _a_status           ::</span> <span class="dt">Int</span>
-    ,<span class="ot"> _a_body_bytes       ::</span> <span class="dt">Int</span>
-    ,<span class="ot"> _a_http_referrer    ::</span> <span class="dt">String</span>
-    ,<span class="ot"> _a_http_user_agent  ::</span> <span class="dt">String</span>
-    ,<span class="ot"> _a_other            ::</span> <span class="dt">String</span>
+    {<span class="ot"> _a_remote_addr      ::</span> <span class="fu">!</span><span class="dt">IPV4Address</span>
+    ,<span class="ot"> _a_remote_user      ::</span> <span class="fu">!</span><span class="dt">User</span>
+    ,<span class="ot"> _a_time_local       ::</span> <span class="fu">!</span><span class="dt">UTCTime</span>
+    ,<span class="ot"> _a_request          ::</span> <span class="fu">!</span><span class="dt">T.Text</span>
+    ,<span class="ot"> _a_status           ::</span> <span class="fu">!</span><span class="dt">Int</span>
+    ,<span class="ot"> _a_body_bytes       ::</span> <span class="fu">!</span><span class="dt">Int</span>
+    ,<span class="ot"> _a_http_referrer    ::</span> <span class="fu">!</span><span class="dt">T.Text</span>
+    ,<span class="ot"> _a_http_user_agent  ::</span> <span class="fu">!</span><span class="dt">T.Text</span>
+    ,<span class="ot"> _a_other            ::</span> <span class="fu">!</span><span class="dt">T.Text</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Eq</span>,<span class="dt">Show</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">access_re ::</span> <span class="dt">RegexSource</span>

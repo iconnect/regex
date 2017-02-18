@@ -1,5 +1,6 @@
-- [X] 2017-01-26  0.0.0.1  Pre-release (I)
-- [X] 2017-01-30  0.0.0.2  Pre-release (II)
-- [ ] 2017-02-06  0.0.1.0  RFC
-- [ ] 2017-02-20  0.1.0.0  a candidate stable release
-- [ ] 2017-03-20  1.0.0.0  first stable release
+- [X] 2017-01-26  v0.0.0.1  Pre-release (I)
+- [X] 2017-01-30  v0.0.0.2  Pre-release (II)
+- [X] 2017-02-19  v0.1.0.0  [Proposed core API with presentable Haddocks](https://github.com/iconnect/regex/milestone/1)
+- [ ] 2017-02-26  v0.1.1.0  [Tutorials and examples finalized](https://github.com/iconnect/regex/milestone/2)
+- [ ] 2017-03-20  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
+- [ ] 2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)

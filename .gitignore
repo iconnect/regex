@@ -5,6 +5,7 @@
 .hub
 .ghci
 stack.yaml
+README.markdown
 tmp
 
 

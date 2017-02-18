@@ -80,6 +80,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Control.Applicative</span>
 <span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>               <span class="kw">as</span> <span class="dt">LBS</span>
 <span class="kw">import           </span><span class="dt">Data.Maybe</span>
+<span class="kw">import qualified</span> <span class="dt">Data.Text</span>                                <span class="kw">as</span> <span class="dt">T</span>
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">System.Environment</span>
 <span class="kw">import           </span><span class="dt">TestKit</span>
@@ -121,7 +122,7 @@ include _ mtch _ _ <span class="fu">=</span> fmap <span class="dt">Just</span> <
     fp    <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|file|] mtch
     re_s  <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|rex|]  mtch
 
-    prs_s <span class="fu">=</span> fromMaybe (error <span class="st">&quot;includeDoc&quot;</span>) <span class="fu">.</span> parseString</code></pre></div>
+    prs_s <span class="fu">=</span> maybe (error <span class="st">&quot;includeDoc&quot;</span>) T.unpack <span class="fu">.</span> parseString</code></pre></div>
 <h2 id="extracting-a-literate-fragment-from-a-haskell-program-text">Extracting a Literate Fragment from a Haskell Program Text</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">extract ::</span> FilePath <span class="ot">-&gt;</span> <span class="dt">RE</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">LBS.ByteString</span>
 extract fp rex <span class="fu">=</span> extr <span class="fu">.</span> LBS.lines <span class="fu">&lt;$&gt;</span> LBS.readFile fp

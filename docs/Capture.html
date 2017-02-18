@@ -88,9 +88,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   , matchCaptures
   , (<span class="fu">!$$</span>)
   , captureText
+  , (<span class="fu">!$$?</span>)
   , captureTextMaybe
   , (<span class="fu">!$</span>)
   , capture
+  , (<span class="fu">!$?</span>)
   , captureMaybe
   <span class="co">-- Capture functions</span>
   , hasCaptured
@@ -203,7 +205,7 @@ matchCaptures <span class="dt">Match</span>{<span class="fu">..</span>} <span cl
   <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Nothing</span>
   <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="dt">Just</span> (matchArray<span class="fu">!</span><span class="dv">0</span>,drop <span class="dv">1</span> <span class="fu">$</span> elems matchArray)
 
-<span class="co">-- | a synonym of captureText</span>
+<span class="co">-- | an alternative for captureText</span>
 <span class="ot">(!$$) ::</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> a
 (<span class="fu">!$$</span>) <span class="fu">=</span> flip captureText
 
@@ -213,16 +215,20 @@ matchCaptures <span class="dt">Match</span>{<span class="fu">..</span>} <span cl
 <span class="ot">captureText ::</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> a
 captureText cid mtch <span class="fu">=</span> capturedText <span class="fu">$</span> capture cid mtch
 
+<span class="co">-- | an alternative for captureTextMaybe</span>
+<span class="ot">(!$$?) ::</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a
+(<span class="fu">!$$?</span>) <span class="fu">=</span> flip captureTextMaybe
+
 <span class="co">-- | look up the text of the nth capture (0 being the match of the</span>
 <span class="co">-- whole), returning Nothing if the Match doesn&#39;t contain the capture</span>
 <span class="ot">captureTextMaybe ::</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a
 captureTextMaybe cid mtch <span class="fu">=</span> <span class="kw">do</span>
-    cap <span class="ot">&lt;-</span> captureMaybe cid mtch
+    cap <span class="ot">&lt;-</span> mtch <span class="fu">!$?</span> cid
     <span class="kw">case</span> hasCaptured cap <span class="kw">of</span>
       <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Just</span> <span class="fu">$</span> capturedText cap
       <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span>
 
-<span class="co">-- | a synonym of capture</span>
+<span class="co">-- | an alternative for capture</span>
 <span class="ot">(!$) ::</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> <span class="dt">Capture</span> a
 (<span class="fu">!$</span>) <span class="fu">=</span> flip capture
 
@@ -230,9 +236,13 @@ captureTextMaybe cid mtch <span class="fu">=</span> <span class="kw">do</span>
 <span class="co">-- the source text, 1, the first bracketed sub-expression to be matched</span>
 <span class="co">-- and so on</span>
 <span class="ot">capture ::</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Capture</span> a
-capture cid mtch <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> captureMaybe cid mtch
+capture cid mtch <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> mtch <span class="fu">!$?</span> cid
   <span class="kw">where</span>
     oops <span class="fu">=</span> error <span class="fu">$</span> <span class="st">&quot;capture: out of bounds (&quot;</span> <span class="fu">++</span> show cid <span class="fu">++</span> <span class="st">&quot;)&quot;</span>
+
+<span class="co">-- | an alternative for capture captureMaybe</span>
+<span class="ot">(!$?) ::</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">Capture</span> a)
+(<span class="fu">!$?</span>) <span class="fu">=</span> flip captureMaybe
 
 <span class="co">-- | look up the nth capture, 0 being the match of the whole RE against</span>
 <span class="co">-- the source text, 1, the first bracketed sub-expression to be matched</span>

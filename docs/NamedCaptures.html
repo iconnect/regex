@@ -68,17 +68,20 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </header>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
 <span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
-<span class="ot">{-# LANGUAGE FlexibleInstances          #-}</span>
-<span class="ot">{-# LANGUAGE MultiParamTypeClasses      #-}</span>
 <span class="ot">{-# LANGUAGE DeriveGeneric              #-}</span>
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.Internal.NamedCaptures</span>
   ( cp
   , extractNamedCaptures
-  , namedCapturesTestTree
-  )
-  <span class="kw">where</span>
+  , idFormatTokenOptions
+  , <span class="dt">Token</span>(<span class="fu">..</span>)
+  , validToken
+  , formatTokens
+  , formatTokens&#39;
+  , formatTokens0
+  , scan
+  ) <span class="kw">where</span>
 
 <span class="kw">import           </span><span class="dt">Data.Char</span>
 <span class="kw">import qualified</span> <span class="dt">Data.HashMap.Strict</span>          <span class="kw">as</span> <span class="dt">HM</span>
@@ -86,10 +89,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">GHC.Generics</span>
 <span class="kw">import qualified</span> <span class="dt">Language.Haskell.TH</span>          <span class="kw">as</span> <span class="dt">TH</span>
 <span class="kw">import           </span><span class="dt">Language.Haskell.TH.Quote</span>
-<span class="kw">import           </span><span class="dt">Test.SmallCheck.Series</span>
-<span class="kw">import           </span><span class="dt">Test.Tasty</span>
-<span class="kw">import           </span><span class="dt">Test.Tasty.HUnit</span>
-<span class="kw">import           </span><span class="dt">Test.Tasty.SmallCheck</span>        <span class="kw">as</span> <span class="dt">SC</span>
 <span class="kw">import           </span><span class="dt">Text.Heredoc</span>
 <span class="kw">import           </span><span class="dt">Text.RE</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Internal.PreludeMacros</span>
@@ -106,14 +105,7 @@ cp <span class="fu">=</span>
 <span class="ot">extractNamedCaptures ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">String</span> (<span class="dt">CaptureNames</span>,<span class="dt">String</span>)
 extractNamedCaptures s <span class="fu">=</span> <span class="dt">Right</span> (analyseTokens tks,formatTokens tks)
   <span class="kw">where</span>
-    tks <span class="fu">=</span> scan s
-
-<span class="ot">namedCapturesTestTree ::</span> <span class="dt">TestTree</span>
-namedCapturesTestTree <span class="fu">=</span> localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">4</span>) <span class="fu">$</span>
-  testGroup <span class="st">&quot;NamedCaptures&quot;</span>
-    [ formatScanTestTree
-    , analyseTokensTestTree
-    ]</code></pre></div>
+    tks <span class="fu">=</span> scan s</code></pre></div>
 <h2 id="token">Token</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Token</span>
   <span class="fu">=</span> <span class="dt">ECap</span> (<span class="dt">Maybe</span> <span class="dt">String</span>)
@@ -123,8 +115,6 @@ namedCapturesTestTree <span class="fu">=</span> localOption (<span class="dt">Sm
   <span class="fu">|</span> <span class="dt">BS</span>          <span class="dt">Char</span>
   <span class="fu">|</span> <span class="dt">Other</span>       <span class="dt">Char</span>
   <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Generic</span>,<span class="dt">Eq</span>)
-
-<span class="kw">instance</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">Serial</span> m <span class="dt">Token</span>
 
 <span class="ot">validToken ::</span> <span class="dt">Token</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
 validToken tkn <span class="fu">=</span> <span class="kw">case</span> tkn <span class="kw">of</span>
@@ -196,9 +186,9 @@ formatTokens <span class="fu">=</span> formatTokens&#39; defFormatTokenOptions
 <span class="ot">defFormatTokenOptions ::</span> <span class="dt">FormatTokenOptions</span>
 defFormatTokenOptions <span class="fu">=</span>
   <span class="dt">FormatTokenOptions</span>
-    { _fto_regex_type     <span class="fu">=</span> <span class="dt">Nothing</span>
-    , _fto_min_caps       <span class="fu">=</span> <span class="dt">False</span>
-    , _fto_incl_caps <span class="fu">=</span> <span class="dt">False</span>
+    { _fto_regex_type <span class="fu">=</span> <span class="dt">Nothing</span>
+    , _fto_min_caps   <span class="fu">=</span> <span class="dt">False</span>
+    , _fto_incl_caps  <span class="fu">=</span> <span class="dt">False</span>
     }
 
 <span class="ot">idFormatTokenOptions ::</span> <span class="dt">FormatTokenOptions</span>
@@ -245,49 +235,6 @@ formatTokens0 <span class="fu">=</span> foldr f <span class="st">&quot;&quot;</s
           <span class="dt">Bra</span>     <span class="ot">-&gt;</span> <span class="st">&quot;(&quot;</span>
           <span class="dt">BS</span>    c <span class="ot">-&gt;</span> <span class="st">&quot;\\&quot;</span> <span class="fu">++</span> [c]
           <span class="dt">Other</span> c <span class="ot">-&gt;</span> [c]</code></pre></div>
-<h2 id="testing-formattokenscan-properties">Testing : FormatToken/Scan Properties</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatScanTestTree ::</span> <span class="dt">TestTree</span>
-formatScanTestTree <span class="fu">=</span>
-  testGroup <span class="st">&quot;FormatToken/Scan Properties&quot;</span>
-    [ localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">4</span>) <span class="fu">$</span>
-        SC.testProperty <span class="st">&quot;formatTokens == formatTokens0&quot;</span> <span class="fu">$</span>
-          \tks <span class="ot">-&gt;</span> formatTokens tks <span class="fu">==</span> formatTokens0 tks
-    , localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">4</span>) <span class="fu">$</span>
-        SC.testProperty <span class="st">&quot;scan . formatTokens&#39; idFormatTokenOptions == id&quot;</span> <span class="fu">$</span>
-          \tks <span class="ot">-&gt;</span> all validToken tks <span class="fu">==&gt;</span>
-                    scan (formatTokens&#39; idFormatTokenOptions tks) <span class="fu">==</span> tks
-    ]</code></pre></div>
-<h2 id="testing-analysing-token-unit-tests">Testing : Analysing <a href="#token">Token</a> Unit Tests</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">analyseTokensTestTree ::</span> <span class="dt">TestTree</span>
-analyseTokensTestTree <span class="fu">=</span>
-  testGroup <span class="st">&quot;Analysing [Token] Unit Tests&quot;</span>
-    [ tc [here|foobar|]                                       []
-    , tc [here||]                                             []
-    , tc [here|$([0-9]{4})|]                                  []
-    , tc [here|${x}()|]                                       [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>)]
-    , tc [here|${}()|]                                        []
-    , tc [here|${}()${foo}()|]                                [(<span class="dv">2</span>,<span class="st">&quot;foo&quot;</span>)]
-    , tc [here|${x}(${y()})|]                                 [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>)]
-    , tc [here|${x}(${y}())|]                                 [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>),(<span class="dv">2</span>,<span class="st">&quot;y&quot;</span>)]
-    , tc [here|${a}(${b{}())|]                                [(<span class="dv">1</span>,<span class="st">&quot;a&quot;</span>)]
-    , tc [here|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] [(<span class="dv">1</span>,<span class="st">&quot;y&quot;</span>),(<span class="dv">2</span>,<span class="st">&quot;m&quot;</span>),(<span class="dv">3</span>,<span class="st">&quot;d&quot;</span>)]
-    , tc [here|@$(@|\{${name}([^{}]+)\})|]                    [(<span class="dv">2</span>,<span class="st">&quot;name&quot;</span>)]
-    , tc [here|${y}[0-9]{4}|]                                 []
-    , tc [here|${}([0-9]{4})|]                                []
-    ]
-  <span class="kw">where</span>
-    tc s al <span class="fu">=</span>
-      testCase s <span class="fu">$</span> assertEqual <span class="st">&quot;CaptureNames&quot;</span>
-        (xnc s)
-        (HM.fromList
-          [ (<span class="dt">CaptureName</span> <span class="fu">$</span> T.pack n,<span class="dt">CaptureOrdinal</span> i)
-              <span class="fu">|</span> (i,n)<span class="ot">&lt;-</span>al
-              ]
-        )
-
-    xnc <span class="fu">=</span> either oops fst <span class="fu">.</span> extractNamedCaptures
-      <span class="kw">where</span>
-        oops <span class="fu">=</span> error <span class="st">&quot;analyseTokensTestTree: unexpected parse failure&quot;</span></code></pre></div>
 </div>
 </body>
 </html>

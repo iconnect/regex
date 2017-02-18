@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                0.0.0.2
+Version:                0.1.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
@@ -19,7 +19,7 @@ Stability:              rfc
 bug-reports:            https://github.com/iconnect/regex/issues
 
 Extra-Source-Files:
-    doc/README.md
+    README.markdown
     changelog
 
 Cabal-Version:          >= 1.16
@@ -31,7 +31,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.0.0.2
+    Tag:                0.1.0.0
 
 
 Library

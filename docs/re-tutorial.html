@@ -631,7 +631,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     putStrLn <span class="st">&quot;&gt;&gt; examples/re-tutorial.lhs&quot;</span>
     pages
   <span class="kw">where</span>
-    pd fnm <span class="fu">=</span> <span class="kw">case</span> (captureTextMaybe [cp|fdr|] mtch,captureTextMaybe [cp|mnm|] mtch) <span class="kw">of</span>
+    pd fnm <span class="fu">=</span> <span class="kw">case</span> (mtch <span class="fu">!$$?</span> [cp|fdr|],mtch <span class="fu">!$$?</span> [cp|mnm|]) <span class="kw">of</span>
         (<span class="dt">Nothing</span> ,<span class="dt">Just</span> mnm) <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;Text.RE.&quot;</span>          <span class="fu">&lt;&gt;</span>mnm) (<span class="st">&quot;Text/&quot;</span>    <span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
         (<span class="dt">Just</span> fdr,<span class="dt">Just</span> mnm) <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;Text.RE.&quot;</span><span class="fu">&lt;&gt;</span>fdr<span class="fu">&lt;&gt;</span><span class="st">&quot;.&quot;</span><span class="fu">&lt;&gt;</span>mnm) (<span class="st">&quot;Text/&quot;</span>    <span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
         _                   <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span> ) (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
@@ -679,7 +679,7 @@ parse_tpl_ tpl mtch _ _ <span class="fu">=</span>
     <span class="dt">Just</span> <span class="fu">$</span> replaceAllCaptures&#39; <span class="dt">TOP</span> phi <span class="fu">$</span>
       tpl <span class="fu">*=~</span> [re|\$${arg}(\$|[0-9]+|\{${name}([^{}]+)\})|]
   <span class="kw">where</span>
-    phi t_mtch _ _ <span class="fu">=</span> <span class="kw">case</span> captureMaybe [cp|name|] t_mtch <span class="kw">of</span>
+    phi t_mtch _ _ <span class="fu">=</span> <span class="kw">case</span> t_mtch <span class="fu">!$?</span> [cp|name|] <span class="kw">of</span>
       <span class="dt">Just</span> cap <span class="ot">-&gt;</span> this <span class="fu">$</span> <span class="dt">CID_name</span> <span class="fu">$</span> <span class="dt">CaptureName</span> txt
         <span class="kw">where</span>
           txt <span class="fu">=</span> T.pack <span class="fu">$</span> capturedText cap
@@ -689,7 +689,7 @@ parse_tpl_ tpl mtch _ _ <span class="fu">=</span>
       <span class="kw">where</span>
         t <span class="fu">=</span> capturedText <span class="fu">$</span> capture [cp|arg|] t_mtch
 
-        this cid <span class="fu">=</span> capturedText <span class="fu">&lt;$&gt;</span> captureMaybe cid mtch
+        this cid <span class="fu">=</span> capturedText <span class="fu">&lt;$&gt;</span> mtch <span class="fu">!$?</span> cid
 
 <span class="ot">my_replace ::</span> <span class="dt">RE</span> <span class="ot">-&gt;</span> <span class="dt">Template</span><span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
 my_replace rex tpl src <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">TOP</span> (parse_tpl_ tpl) <span class="fu">$</span> src <span class="fu">*=~</span> rex</code></pre></div>

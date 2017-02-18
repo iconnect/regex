@@ -1,17 +1,34 @@
 {-# OPTIONS_GHC -fno-warn-dodgy-exports #-}
+-- |
+-- Module      :  Text.RE
+-- Copyright   :  (C) 2016-17 Chris Dornan
+-- License     :  BSD3 (see the LICENSE file)
+-- Maintainer  :  Chris Dornan <chris.dornan@irisconnect.com>
+-- Stability   :  RFC
+-- Portability :  portable
 
 module Text.RE
-  -- Capture
-  ( Matches(..)
+  (
+  -- * Tutorial
+  -- $tutorial
+
+  -- * How to use this library
+  -- $use
+
+  -- ** The Match Operators
+  -- $operators
+
+  -- * Matches, Match, Capture Types and Functions
+    Matches(..)
   , Match(..)
   , Capture(..)
   , noMatch
-  -- Matches functions
+  -- ** Matches functions
   , anyMatches
   , countMatches
   , matches
   , mainCaptures
-  -- Match functions
+  -- ** Match functions
   , matched
   , matchedText
   , matchCapture
@@ -24,13 +41,13 @@ module Text.RE
   , capture
   , (!$?)
   , captureMaybe
-  -- Capture functions
+  -- ** Capture functions
   , hasCaptured
   , capturePrefix
   , captureSuffix
-  -- IsRegex
+  -- * IsRegex
   , IsRegex(..)
-  -- Options
+  -- * Options
   , Options_(..)
   , IsOption(..)
   , Mode(..)
@@ -38,26 +55,26 @@ module Text.RE
   , Macros
   , emptyMacros
   , SimpleRegexOptions(..)
-  -- CaptureID
+  -- * CaptureID
   , CaptureID(..)
   , CaptureNames
   , noCaptureNames
   , CaptureName(..)
   , CaptureOrdinal(..)
   , findCaptureID
-  -- Edit
+  -- * Edit
   , Edits(..)
   , Edit(..)
   , LineEdit(..)
   , applyEdits
   , applyEdit
   , applyLineEdit
-  -- LineNo
+  -- * LineNo
   , LineNo(..)
   , firstLine
   , getLineNo
   , lineNo
-  -- Parsers
+  -- * Parsers
   , parseInteger
   , parseHex
   , parseDouble
@@ -77,7 +94,7 @@ module Text.RE
   , Severity(..)
   , parseSeverity
   , severityKeywords
-  -- Replace
+  -- * Replace
   , Replace(..)
   , Replace_(..)
   , replace_
@@ -97,16 +114,17 @@ module Text.RE
   , replaceCapturesM
   , expandMacros
   , expandMacros'
-  -- Tools.Grep
+  -- * Tools
+  -- ** Grep
   , grep
   , grepLines
   , GrepScript
   , grepScript
   , linesMatched
-  -- Tools.Lex
+  -- ** Lex
   , alex
   , alex'
-  -- Tools.Sed
+  -- ** Sed
   , SedScript
   , sed
   , sed'
@@ -123,3 +141,58 @@ import           Text.RE.Replace
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Lex
 import           Text.RE.Tools.Sed
+
+-- $tutorial
+-- We have a regex tutorial at <http://tutorial.regex.uk>. These API
+-- docs are mainly for reference.
+
+-- $use
+--
+-- This module won't provide any operators to match a regular expression
+-- against text as it merely provides the toolkit for working with the
+-- output of the match operators.  You probably won't import it directly
+-- but import one of the modules that provides the match operators,
+-- which will in tuen re-export this module.
+--
+-- The module that you choose to import will depend upon two factors:
+--
+-- * Which flavour of regular expression do you want to use? If you want
+--   Posix flavour REs then you want the TDFA modules, otherwise its
+--   PCRE for Perl-style REs.
+--
+-- * What type of text do you want to match: (slow) @String@s, @ByteString@,
+--   @ByteString.Lazy@, @Text@, @Text.Lazy@ or the anachronistic @Seq Char@
+--   or indeed a good old-fashioned polymorphic operators?
+--
+-- While we aim to provide all combinations of these choices, some of them
+-- are currently not available.  We have:
+--
+-- * "Text.RE.PCRE"
+-- * "Text.RE.PCRE.ByteString"
+-- * "Text.RE.PCRE.ByteString.Lazy"
+-- * "Text.RE.PCRE.RE"
+-- * "Text.RE.PCRE.Sequence"
+-- * "Text.RE.PCRE.String"
+-- * "Text.RE.TDFA"
+-- * "Text.RE.TDFA.ByteString"
+-- * "Text.RE.TDFA.ByteString.Lazy"
+-- * "Text.RE.TDFA.RE"
+-- * "Text.RE.TDFA.Sequence"
+-- * "Text.RE.TDFA.String"
+-- * "Text.RE.TDFA.Text"
+-- * "Text.RE.TDFA.Text.Lazy"
+
+-- $operators
+--
+-- The traditional @=~@ and @=~~@ operators are exported by the @regex@,
+-- but we recommend that you use the two new operators, especially if
+-- you are not familiar with the old operators.  We have:
+--
+-- * @txt ?=~ re@ searches for a single match yielding a value of type
+--   'Match' @a@ where @a@ is the type of the text you are searching.
+--
+-- * @txt *=~ re@ searches for all non-overlapping matches in @txt@,
+--   returning a value of type 'Matches' @a@.
+--
+-- See the sections below for more information on these @Matches@ and
+-- @Match@ result types.

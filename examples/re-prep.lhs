@@ -452,8 +452,8 @@ pages
 \begin{code}
 pages :: IO ()
 pages = do
-  prep_page   MM_hackage "lib/md/index.md"    "doc/README.md"
-  prep_page   MM_github  "lib/md/index.md"    "README.md"
+  prep_page   MM_hackage "lib/md/index.md" "README.markdown"
+  prep_page   MM_github  "lib/md/index.md" "README.md"
   mapM_ pandoc_page [minBound..maxBound]
 \end{code}
 
@@ -683,9 +683,10 @@ task_list :: MarkdownMode               -- ^ what flavour of md are we generatin
           -> Capture LBS.ByteString     -- ^ the capture weare replacing (unsuded)
           -> IO (Maybe LBS.ByteString)  -- ^ the replacement text, or Nothing to indicate no change to this line
 task_list mmd rf chk _ mtch _ _ =
-  case mmd==MM_github of
-    True  -> return Nothing
-    False -> do
+  case mmd of
+    MM_github  -> return Nothing
+    MM_hackage -> return $ Just $ "&nbsp;&nbsp;&nbsp;&nbsp;"<>cb<>"&nbsp;&nbsp;"<>itm<>"\n"
+    MM_pandoc  -> do
       in_tl <- readIORef rf
       writeIORef rf True
       return $ tl_line in_tl chk
@@ -696,9 +697,13 @@ task_list mmd rf chk _ mtch _ _ =
       , "<input type='checkbox' class='task-list-item-checkbox'"
       , if enbl then " checked=''" else ""
       , " disabled=''/>"
-      , mtch !$$ [cp|itm|]
+      , itm
       , "</li>"
       ]
+
+    cb  = if chk then "&#x2612;" else "&#x2610;"
+
+    itm = mtch !$$ [cp|itm|]
 
 -- | replacement function used for 'other' lines -- terminate any task
 -- list that was being generated

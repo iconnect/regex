@@ -19,7 +19,7 @@ Stability:              rfc
 bug-reports:            https://github.com/iconnect/regex/issues
 
 Extra-Source-Files:
-    doc/README.md
+    README.markdown
     changelog
 
 Cabal-Version:          >= 1.16

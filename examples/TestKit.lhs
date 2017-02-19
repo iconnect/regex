@@ -18,6 +18,7 @@ module TestKit
   , runTests
   , checkThis
   , test_pp
+  , include
   , cmp
   ) where
 
@@ -162,6 +163,24 @@ test_pp lab loop test_file gold_file = do
   where
     tmp_pth = "tmp/mod.lhs"
 \end{code}
+
+
+simple include processor
+------------------------
+
+\begin{code}
+include :: LBS.ByteString -> IO LBS.ByteString
+include = sed' $ Select
+    [ (,) [re|^%include ${file}(@{%string})$|] $ EDIT_fun TOP   incl
+    , (,) [re|^.*$|]                           $ EDIT_fun TOP $ \_ _ _ _->return Nothing
+    ]
+  where
+    incl _ mtch _ _ = Just <$> LBS.readFile (prs_s $ mtch !$$ [cp|file|])
+    prs_s           = maybe (error "include") T.unpack . parseString
+\end{code}
+
+cmp
+---
 
 \begin{code}
 cmp :: T.Text -> T.Text -> IO Bool

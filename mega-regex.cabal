@@ -1,4 +1,4 @@
-Name:                   regex
+Name:                   mega-regex
 Version:                0.1.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
@@ -7,20 +7,34 @@ Description:            A Regular Expression Toolkit for regex-base with
                         portable options, high-level AWK-like tools
                         for building text processing apps, regular expression
                         macros and test bench, a tutorial and copious examples.
-Homepage:               https://iconnect.github.io/regex
+Homepage:               http://regex.uk
 Author:                 Chris Dornan
 License:                BSD3
 license-file:           LICENSE
-Maintainer:             chris.dornan@irisconnect.co.uk
+Maintainer:             Chris Dornan <chris@regex.uk>
 Copyright:              Chris Dornan 2016-2017
 Category:               Text
 Build-type:             Simple
-Stability:              rfc
-bug-reports:            https://github.com/iconnect/regex/issues
+Stability:              RFC
+bug-reports:            http://issues.regex.uk
 
 Extra-Source-Files:
     README.markdown
     changelog
+    data/access-errors.log
+    data/access.log
+    data/error.log
+    data/events.log
+    data/include-result.lhs
+    data/pp-result-doc.lhs
+    data/pp-result-gen.lhs
+    data/pp-test.lhs
+    lib/cabal-masters/regex.cabal
+    lib/version.txt
+    src/Text/RE/TDFA/ByteString/Lazy.hs
+    docs/pcre-nginx-log-processor.txt
+    docs/tdfa-macros.txt
+    docs/pcre-macros.txt
 
 Cabal-Version:          >= 1.16
 
@@ -32,6 +46,7 @@ Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
     Tag:                0.1.0.0
+
 
 
 Library
@@ -94,6 +109,7 @@ Library
       , time-locale-compat   >= 0.1.0.1
       , transformers         >= 0.2.2
       , unordered-containers >= 0.2.5.1
+
 
 
 Executable re-gen-cabals
@@ -555,4 +571,5 @@ Test-Suite re-tutorial-os-test
       , unordered-containers >= 0.2.5.1
 
 
--- Generated from lib/rgex-master.cabal with re-gen-cabals
+
+-- Generated from lib/cabal-masters/mega-regex with re-gen-cabals

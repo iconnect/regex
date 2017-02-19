@@ -31,7 +31,7 @@ main = do
   case as of
     []        -> test
     ["test"]  -> test
-    ["gen"]   -> gen  "lib/cabal-masters/regex.cabal" "regex.cabal"
+    ["gen"]   -> gen  "lib/cabal-masters/mega-regex.cabal" "mega-regex.cabal"
     _         -> do
       hPutStrLn stderr $ "usage: " ++ pn ++ " [test|gen]"
       exitWith $ ExitFailure 1
@@ -39,8 +39,8 @@ main = do
 test :: IO ()
 test = do
   createDirectoryIfMissing False "tmp"
-  gen "lib/cabal-masters/regex.cabal" "tmp/regex.cabal"
-  ok <- cmp "tmp/regex.cabal" "regex.cabal"
+  gen "lib/cabal-masters/mega-regex.cabal" "tmp/mega-regex.cabal"
+  ok <- cmp "tmp/mega-regex.cabal" "mega-regex.cabal"
   case ok of
     True  -> return ()
     False -> exitWith $ ExitFailure 1
@@ -48,8 +48,9 @@ test = do
 gen :: FilePath -> FilePath -> IO ()
 gen in_f out_f = do
     ctx <- setup
-    substVersion in_f "tmp/regex-vrn.cabal"
-    sed (gc_script ctx) "tmp/regex-vrn.cabal" out_f
+    LBS.writeFile out_f =<<
+      sed' (gc_script ctx) =<< substVersion_ =<< include =<<
+        LBS.readFile in_f
 
 data Ctx =
   Ctx

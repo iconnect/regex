@@ -790,21 +790,6 @@ pandoc_lhs' title repo_path in_file out_file = do
 \end{code}
 
 
-simple include processor
-------------------------
-
-\begin{code}
-include :: LBS.ByteString -> IO LBS.ByteString
-include = sed' $ Select
-    [ (,) [re|^%include ${file}(@{%string})$|] $ EDIT_fun TOP   incl
-    , (,) [re|^.*$|]                           $ EDIT_fun TOP $ \_ _ _ _->return Nothing
-    ]
-  where
-    incl _ mtch _ _ = Just <$> LBS.readFile (prs_s $ mtch !$$ [cp|file|])
-    prs_s           = maybe (error "include") T.unpack . parseString
-\end{code}
-
-
 branding
 --------
 

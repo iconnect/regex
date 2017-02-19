@@ -1,4 +1,4 @@
-Name:                   regex
+Name:                   mega-regex
 Version:                <<$version$>>
 Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
@@ -21,6 +21,20 @@ bug-reports:            http://issues.regex.uk
 Extra-Source-Files:
     README.markdown
     changelog
+    data/access-errors.log
+    data/access.log
+    data/error.log
+    data/events.log
+    data/include-result.lhs
+    data/pp-result-doc.lhs
+    data/pp-result-gen.lhs
+    data/pp-test.lhs
+    lib/cabal-masters/regex.cabal
+    lib/version.txt
+    src/Text/RE/TDFA/ByteString/Lazy.hs
+    docs/pcre-nginx-log-processor.txt
+    docs/tdfa-macros.txt
+    docs/pcre-macros.txt
 
 Cabal-Version:          >= 1.16
 
@@ -36,5 +50,7 @@ Source-Repository this
 %include "lib/cabal-masters/constraints-incl.cabal"
 
 %include "lib/cabal-masters/library-incl.cabal"
+
+%include "lib/cabal-masters/executables-incl.cabal"
 
 -- Generated from lib/cabal-masters/mega-regex with re-gen-cabals

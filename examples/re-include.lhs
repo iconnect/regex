@@ -50,18 +50,18 @@ The Sed Script
 loop :: FilePath -> FilePath -> IO ()
 loop =
   sed $ Select
-    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] $ EDIT_fun TOP   include
+    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] $ EDIT_fun TOP   include_file
     , (,) [re|^.*$|]                                              $ EDIT_fun TOP $ \_ _ _ _->return Nothing
     ]
 \end{code}
 
 \begin{code}
-include :: LineNo
-        -> Match LBS.ByteString
-        -> Location
-        -> Capture LBS.ByteString
-        -> IO (Maybe LBS.ByteString)
-include _ mtch _ _ = fmap Just $
+include_file :: LineNo
+             -> Match LBS.ByteString
+             -> Location
+             -> Capture LBS.ByteString
+             -> IO (Maybe LBS.ByteString)
+include_file _ mtch _ _ = fmap Just $
     extract fp =<< compileRegex () re_s
   where
     fp    = prs_s $ captureText [cp|file|] mtch

@@ -1,0 +1,17 @@
+Extra-Source-Files:
+    README.markdown
+    changelog
+    data/access-errors.log
+    data/access.log
+    data/error.log
+    data/events.log
+    data/include-result.lhs
+    data/pp-result-doc.lhs
+    data/pp-result-gen.lhs
+    data/pp-test.lhs
+    lib/cabal-masters/regex.cabal
+    lib/version.txt
+    src/Text/RE/TDFA/ByteString/Lazy.hs
+    docs/pcre-nginx-log-processor.txt
+    docs/tdfa-macros.txt
+    docs/pcre-macros.txt

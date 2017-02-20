@@ -36,6 +36,8 @@ See the [About page](http://about.regex.uk) for details.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-19  v0.2.0.0  [Package split into regex and regex-examples](https://github.com/iconnect/regex/milestone/5)
 
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-20  v0.2.0.1  [Remove library from regex-examples](https://github.com/iconnect/regex/issues/43)
+
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-02-26  v0.3.0.0  [API adjustments, tutorials and examples finalized](https://github.com/iconnect/regex/milestone/2)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-03-20  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)

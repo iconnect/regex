@@ -18,9 +18,7 @@ Build-type:             Simple
 Stability:              RFC
 bug-reports:            http://issues.regex.uk
 
-Extra-Source-Files:
-    README.markdown
-    changelog
+%include "lib/cabal-masters/test-extra-source-files-incl.cabal"
 
 Cabal-Version:          >= 1.16
 
@@ -36,5 +34,7 @@ Source-Repository this
 %include "lib/cabal-masters/constraints-incl.cabal"
 
 %include "lib/cabal-masters/library-incl.cabal"
+
+%include "lib/cabal-masters/executables-incl.cabal"
 
 -- Generated from lib/cabal-masters/mega-regex with re-gen-cabals

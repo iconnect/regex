@@ -1,6 +1,13 @@
 -*-change-log-*-
 
-0.1.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-02-17
+0.2.0.1 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-02-20
+  * remove library from regex-examples (#43)
+
+0.2.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-02-19
+  * Split off the tutorial tests and examples into regex-examples,
+    leaving just the library in regex
+
+0.1.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-02-18
   * Cabal file generated from a DRY template
   * Library dependencies minimised, test depndencies moved into
     examples/re-tests

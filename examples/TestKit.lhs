@@ -10,14 +10,18 @@
 #endif
 
 module TestKit
-  ( Vrn
+  ( Vrn(..)
+  , presentVrn
+  , parseVrn
   , bumpVersion
   , substVersion
   , substVersion_
+  , readCurrentVersion
   , Test
   , runTests
   , checkThis
   , test_pp
+  , include
   , cmp
   ) where
 
@@ -45,10 +49,23 @@ Vrn and friends
 data Vrn = Vrn { _vrn_a, _vrn_b, _vrn_c, _vrn_d :: Int }
   deriving (Show,Eq,Ord)
 
+presentVrn :: Vrn -> String
+presentVrn Vrn{..} = printf "%d.%d.%d.%d" _vrn_a _vrn_b _vrn_c _vrn_d
+
+parseVrn :: String -> Vrn
+parseVrn vrn_s = case matched m of
+    True  -> Vrn (p [cp|a|]) (p [cp|b|]) (p [cp|c|]) (p [cp|d|])
+    False -> error $ "not a valid version: " ++ vrn_s
+  where
+    p c  = fromMaybe oops $ parseInteger $ m !$$ c
+    m    = vrn_s ?=~ [re|^${a}(@{%nat})\.${b}(@{%nat})\.${c}(@{%nat})\.${d}(@{%nat})$|]
+
+    oops = error "parseVrn"
+
 -- | register a new version of the package
 bumpVersion :: String -> IO ()
 bumpVersion vrn_s = do
-    vrn0 <- read_current_version
+    vrn0 <- readCurrentVersion
     rex' <- compileRegex () $ printf "- \\[[xX]\\].*%d\\.%d\\.%d\\.%d" _vrn_a _vrn_b _vrn_c _vrn_d
     nada <- null . linesMatched <$> grepLines rex' "lib/md/roadmap-incl.md"
     M.when nada $
@@ -62,9 +79,9 @@ bumpVersion vrn_s = do
         write_current_version vrn
         substVersion "lib/hackage-template.svg" "docs/badges/hackage.svg"
       False -> error $
-        printf "version not later ~(%s > %s)" vrn_s $ present_vrn vrn0
+        printf "version not later ~(%s > %s)" vrn_s $ presentVrn vrn0
   where
-    vrn@Vrn{..} = parse_vrn vrn_s
+    vrn@Vrn{..} = parseVrn vrn_s
 
 substVersion :: FilePath -> FilePath -> IO ()
 substVersion in_f out_f =
@@ -72,28 +89,15 @@ substVersion in_f out_f =
 
 substVersion_ :: (IsRegex RE a,Replace a) => a -> IO a
 substVersion_ txt =
-    flip replaceAll ms . pack_ . present_vrn <$> read_current_version
+    flip replaceAll ms . pack_ . presentVrn <$> readCurrentVersion
   where
     ms = txt *=~ [re|<<\$version\$>>|]
 
-read_current_version :: IO Vrn
-read_current_version = parse_vrn <$> readFile "lib/version.txt"
+readCurrentVersion :: IO Vrn
+readCurrentVersion = parseVrn <$> readFile "lib/version.txt"
 
 write_current_version :: Vrn -> IO ()
-write_current_version = writeFile "lib/version.txt" . present_vrn
-
-present_vrn :: Vrn -> String
-present_vrn Vrn{..} = printf "%d.%d.%d.%d" _vrn_a _vrn_b _vrn_c _vrn_d
-
-parse_vrn :: String -> Vrn
-parse_vrn vrn_s = case matched m of
-    True  -> Vrn (p [cp|a|]) (p [cp|b|]) (p [cp|c|]) (p [cp|d|])
-    False -> error $ "not a valid version: " ++ vrn_s
-  where
-    p c  = fromMaybe oops $ parseInteger $ m !$$ c
-    m    = vrn_s ?=~ [re|^${a}(@{%nat})\.${b}(@{%nat})\.${c}(@{%nat})\.${d}(@{%nat})$|]
-
-    oops = error "parse_vrn"
+write_current_version = writeFile "lib/version.txt" . presentVrn
 \end{code}
 
 
@@ -162,6 +166,24 @@ test_pp lab loop test_file gold_file = do
   where
     tmp_pth = "tmp/mod.lhs"
 \end{code}
+
+
+simple include processor
+------------------------
+
+\begin{code}
+include :: LBS.ByteString -> IO LBS.ByteString
+include = sed' $ Select
+    [ (,) [re|^%include ${file}(@{%string})$|] $ EDIT_fun TOP   incl
+    , (,) [re|^.*$|]                           $ EDIT_fun TOP $ \_ _ _ _->return Nothing
+    ]
+  where
+    incl _ mtch _ _ = Just <$> LBS.readFile (prs_s $ mtch !$$ [cp|file|])
+    prs_s           = maybe (error "include") T.unpack . parseString
+\end{code}
+
+cmp
+---
 
 \begin{code}
 cmp :: T.Text -> T.Text -> IO Bool

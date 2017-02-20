@@ -77,14 +77,18 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="ot">#endif</span>
 
 <span class="kw">module</span> <span class="dt">TestKit</span>
-  ( <span class="dt">Vrn</span>
+  ( <span class="dt">Vrn</span>(<span class="fu">..</span>)
+  , presentVrn
+  , parseVrn
   , bumpVersion
   , substVersion
   , substVersion_
+  , readCurrentVersion
   , <span class="dt">Test</span>
   , runTests
   , checkThis
   , test_pp
+  , include
   , cmp
   ) <span class="kw">where</span>
 
@@ -106,10 +110,23 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Vrn</span> <span class="fu">=</span> <span class="dt">Vrn</span> { _vrn_a, _vrn_b, _vrn_c,<span class="ot"> _vrn_d ::</span> <span class="dt">Int</span> }
   <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>,<span class="dt">Ord</span>)
 
+<span class="ot">presentVrn ::</span> <span class="dt">Vrn</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+presentVrn <span class="dt">Vrn</span>{<span class="fu">..</span>} <span class="fu">=</span> printf <span class="st">&quot;%d.%d.%d.%d&quot;</span> _vrn_a _vrn_b _vrn_c _vrn_d
+
+<span class="ot">parseVrn ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Vrn</span>
+parseVrn vrn_s <span class="fu">=</span> <span class="kw">case</span> matched m <span class="kw">of</span>
+    <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Vrn</span> (p [cp|a|]) (p [cp|b|]) (p [cp|c|]) (p [cp|d|])
+    <span class="dt">False</span> <span class="ot">-&gt;</span> error <span class="fu">$</span> <span class="st">&quot;not a valid version: &quot;</span> <span class="fu">++</span> vrn_s
+  <span class="kw">where</span>
+    p c  <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> parseInteger <span class="fu">$</span> m <span class="fu">!$$</span> c
+    m    <span class="fu">=</span> vrn_s <span class="fu">?=~</span> [re|^${a}(@{%nat})\.${b}(@{%nat})\.${c}(@{%nat})\.${d}(@{%nat})$|]
+
+    oops <span class="fu">=</span> error <span class="st">&quot;parseVrn&quot;</span>
+
 <span class="co">-- | register a new version of the package</span>
 <span class="ot">bumpVersion ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 bumpVersion vrn_s <span class="fu">=</span> <span class="kw">do</span>
-    vrn0 <span class="ot">&lt;-</span> read_current_version
+    vrn0 <span class="ot">&lt;-</span> readCurrentVersion
     rex&#39; <span class="ot">&lt;-</span> compileRegex () <span class="fu">$</span> printf <span class="st">&quot;- \\[[xX]\\].*%d\\.%d\\.%d\\.%d&quot;</span> _vrn_a _vrn_b _vrn_c _vrn_d
     nada <span class="ot">&lt;-</span> null <span class="fu">.</span> linesMatched <span class="fu">&lt;$&gt;</span> grepLines rex&#39; <span class="st">&quot;lib/md/roadmap-incl.md&quot;</span>
     M.when nada <span class="fu">$</span>
@@ -123,9 +140,9 @@ bumpVersion vrn_s <span class="fu">=</span> <span class="kw">do</span>
         write_current_version vrn
         substVersion <span class="st">&quot;lib/hackage-template.svg&quot;</span> <span class="st">&quot;docs/badges/hackage.svg&quot;</span>
       <span class="dt">False</span> <span class="ot">-&gt;</span> error <span class="fu">$</span>
-        printf <span class="st">&quot;version not later ~(%s &gt; %s)&quot;</span> vrn_s <span class="fu">$</span> present_vrn vrn0
+        printf <span class="st">&quot;version not later ~(%s &gt; %s)&quot;</span> vrn_s <span class="fu">$</span> presentVrn vrn0
   <span class="kw">where</span>
-    vrn<span class="fu">@</span><span class="dt">Vrn</span>{<span class="fu">..</span>} <span class="fu">=</span> parse_vrn vrn_s
+    vrn<span class="fu">@</span><span class="dt">Vrn</span>{<span class="fu">..</span>} <span class="fu">=</span> parseVrn vrn_s
 
 <span class="ot">substVersion ::</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 substVersion in_f out_f <span class="fu">=</span>
@@ -133,28 +150,15 @@ substVersion in_f out_f <span class="fu">=</span>
 
 <span class="ot">substVersion_ ::</span> (<span class="dt">IsRegex</span> <span class="dt">RE</span> a,<span class="dt">Replace</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a
 substVersion_ txt <span class="fu">=</span>
-    flip replaceAll ms <span class="fu">.</span> pack_ <span class="fu">.</span> present_vrn <span class="fu">&lt;$&gt;</span> read_current_version
+    flip replaceAll ms <span class="fu">.</span> pack_ <span class="fu">.</span> presentVrn <span class="fu">&lt;$&gt;</span> readCurrentVersion
   <span class="kw">where</span>
     ms <span class="fu">=</span> txt <span class="fu">*=~</span> [re|&lt;&lt;\$version\$&gt;&gt;|]
 
-<span class="ot">read_current_version ::</span> <span class="dt">IO</span> <span class="dt">Vrn</span>
-read_current_version <span class="fu">=</span> parse_vrn <span class="fu">&lt;$&gt;</span> readFile <span class="st">&quot;lib/version.txt&quot;</span>
+<span class="ot">readCurrentVersion ::</span> <span class="dt">IO</span> <span class="dt">Vrn</span>
+readCurrentVersion <span class="fu">=</span> parseVrn <span class="fu">&lt;$&gt;</span> readFile <span class="st">&quot;lib/version.txt&quot;</span>
 
 <span class="ot">write_current_version ::</span> <span class="dt">Vrn</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
-write_current_version <span class="fu">=</span> writeFile <span class="st">&quot;lib/version.txt&quot;</span> <span class="fu">.</span> present_vrn
-
-<span class="ot">present_vrn ::</span> <span class="dt">Vrn</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
-present_vrn <span class="dt">Vrn</span>{<span class="fu">..</span>} <span class="fu">=</span> printf <span class="st">&quot;%d.%d.%d.%d&quot;</span> _vrn_a _vrn_b _vrn_c _vrn_d
-
-<span class="ot">parse_vrn ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Vrn</span>
-parse_vrn vrn_s <span class="fu">=</span> <span class="kw">case</span> matched m <span class="kw">of</span>
-    <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Vrn</span> (p [cp|a|]) (p [cp|b|]) (p [cp|c|]) (p [cp|d|])
-    <span class="dt">False</span> <span class="ot">-&gt;</span> error <span class="fu">$</span> <span class="st">&quot;not a valid version: &quot;</span> <span class="fu">++</span> vrn_s
-  <span class="kw">where</span>
-    p c  <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> parseInteger <span class="fu">$</span> m <span class="fu">!$$</span> c
-    m    <span class="fu">=</span> vrn_s <span class="fu">?=~</span> [re|^${a}(@{%nat})\.${b}(@{%nat})\.${c}(@{%nat})\.${d}(@{%nat})$|]
-
-    oops <span class="fu">=</span> error <span class="st">&quot;parse_vrn&quot;</span></code></pre></div>
+write_current_version <span class="fu">=</span> writeFile <span class="st">&quot;lib/version.txt&quot;</span> <span class="fu">.</span> presentVrn</code></pre></div>
 <h2 id="test-and-friends">Test and friends</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Test</span> <span class="fu">=</span>
   <span class="dt">Test</span>
@@ -213,6 +217,16 @@ test_pp lab loop test_file gold_file <span class="fu">=</span> <span class="kw">
         exitWith <span class="fu">$</span> <span class="dt">ExitFailure</span> <span class="dv">1</span>
   <span class="kw">where</span>
     tmp_pth <span class="fu">=</span> <span class="st">&quot;tmp/mod.lhs&quot;</span></code></pre></div>
+<h2 id="simple-include-processor">simple include processor</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">include ::</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">LBS.ByteString</span>
+include <span class="fu">=</span> sed&#39; <span class="fu">$</span> <span class="dt">Select</span>
+    [ (,) [re|^%include ${file}(@{%string})$|] <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span>   incl
+    , (,) [re|^.*$|]                           <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
+    ]
+  <span class="kw">where</span>
+    incl _ mtch _ _ <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">&lt;$&gt;</span> LBS.readFile (prs_s <span class="fu">$</span> mtch <span class="fu">!$$</span> [cp|file|])
+    prs_s           <span class="fu">=</span> maybe (error <span class="st">&quot;include&quot;</span>) T.unpack <span class="fu">.</span> parseString</code></pre></div>
+<h2 id="cmp">cmp</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">cmp ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span>
 cmp src dst <span class="fu">=</span> handle hdl <span class="fu">$</span> <span class="kw">do</span>
     _ <span class="ot">&lt;-</span> SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span>

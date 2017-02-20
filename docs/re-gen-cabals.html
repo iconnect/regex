@@ -82,7 +82,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import qualified</span> <span class="dt">Data.Map</span>                                 <span class="kw">as</span> <span class="dt">Map</span>
 <span class="kw">import           </span><span class="dt">Data.Maybe</span>
 <span class="kw">import           </span><span class="dt">Data.Monoid</span>
+<span class="kw">import qualified</span> <span class="dt">Data.Text</span>                                <span class="kw">as</span> <span class="dt">T</span>
+<span class="kw">import qualified</span> <span class="dt">Data.Text.Encoding</span>                       <span class="kw">as</span> <span class="dt">TE</span>
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
+<span class="kw">import qualified</span> <span class="dt">Shelly</span>                                   <span class="kw">as</span> <span class="dt">SH</span>
 <span class="kw">import           </span><span class="dt">System.Directory</span>
 <span class="kw">import           </span><span class="dt">System.Environment</span>
 <span class="kw">import           </span><span class="dt">System.Exit</span>
@@ -98,16 +101,21 @@ main <span class="fu">=</span> <span class="kw">do</span>
   <span class="kw">case</span> as <span class="kw">of</span>
     []        <span class="ot">-&gt;</span> test
     [<span class="st">&quot;test&quot;</span>]  <span class="ot">-&gt;</span> test
-    [<span class="st">&quot;gen&quot;</span>]   <span class="ot">-&gt;</span> gen  <span class="st">&quot;lib/cabal-masters/regex.cabal&quot;</span> <span class="st">&quot;regex.cabal&quot;</span>
+    [<span class="st">&quot;sdist&quot;</span>] <span class="ot">-&gt;</span> sdist
+    [<span class="st">&quot;gen&quot;</span>]   <span class="ot">-&gt;</span> <span class="kw">do</span>
+      gen  <span class="st">&quot;lib/cabal-masters/mega-regex.cabal&quot;</span>     <span class="st">&quot;lib/mega-regex.cabal&quot;</span>
+      gen  <span class="st">&quot;lib/cabal-masters/regex.cabal&quot;</span>          <span class="st">&quot;lib/regex.cabal&quot;</span>
+      gen  <span class="st">&quot;lib/cabal-masters/regex-examples.cabal&quot;</span> <span class="st">&quot;lib/regex-examples.cabal&quot;</span>
+      establish <span class="st">&quot;mega-regex&quot;</span> <span class="st">&quot;regex&quot;</span>
     _         <span class="ot">-&gt;</span> <span class="kw">do</span>
-      hPutStrLn stderr <span class="fu">$</span> <span class="st">&quot;usage: &quot;</span> <span class="fu">++</span> pn <span class="fu">++</span> <span class="st">&quot; [test|gen]&quot;</span>
+      hPutStrLn stderr <span class="fu">$</span> <span class="st">&quot;usage: &quot;</span> <span class="fu">++</span> pn <span class="fu">++</span> <span class="st">&quot; [test|sdist|gen]&quot;</span>
       exitWith <span class="fu">$</span> <span class="dt">ExitFailure</span> <span class="dv">1</span>
 
 <span class="ot">test ::</span> <span class="dt">IO</span> ()
 test <span class="fu">=</span> <span class="kw">do</span>
   createDirectoryIfMissing <span class="dt">False</span> <span class="st">&quot;tmp&quot;</span>
-  gen <span class="st">&quot;lib/cabal-masters/regex.cabal&quot;</span> <span class="st">&quot;tmp/regex.cabal&quot;</span>
-  ok <span class="ot">&lt;-</span> cmp <span class="st">&quot;tmp/regex.cabal&quot;</span> <span class="st">&quot;regex.cabal&quot;</span>
+  gen <span class="st">&quot;lib/cabal-masters/mega-regex.cabal&quot;</span> <span class="st">&quot;tmp/mega-regex.cabal&quot;</span>
+  ok <span class="ot">&lt;-</span> cmp <span class="st">&quot;tmp/mega-regex.cabal&quot;</span> <span class="st">&quot;lib/mega-regex.cabal&quot;</span>
   <span class="kw">case</span> ok <span class="kw">of</span>
     <span class="dt">True</span>  <span class="ot">-&gt;</span> return ()
     <span class="dt">False</span> <span class="ot">-&gt;</span> exitWith <span class="fu">$</span> <span class="dt">ExitFailure</span> <span class="dv">1</span>
@@ -115,8 +123,9 @@ test <span class="fu">=</span> <span class="kw">do</span>
 <span class="ot">gen ::</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 gen in_f out_f <span class="fu">=</span> <span class="kw">do</span>
     ctx <span class="ot">&lt;-</span> setup
-    substVersion in_f <span class="st">&quot;tmp/regex-vrn.cabal&quot;</span>
-    sed (gc_script ctx) <span class="st">&quot;tmp/regex-vrn.cabal&quot;</span> out_f
+    LBS.writeFile out_f <span class="fu">=&lt;&lt;</span>
+      sed&#39; (gc_script ctx) <span class="fu">=&lt;&lt;</span> substVersion_ <span class="fu">=&lt;&lt;</span> include <span class="fu">=&lt;&lt;</span>
+        LBS.readFile in_f
 
 <span class="kw">data</span> <span class="dt">Ctx</span> <span class="fu">=</span>
   <span class="dt">Ctx</span>
@@ -255,6 +264,58 @@ adjust_le f le <span class="fu">=</span> <span class="kw">case</span> le <span c
   <span class="dt">NoEdit</span>          <span class="ot">-&gt;</span> error <span class="st">&quot;adjust_le: not enough context&quot;</span>
   <span class="dt">ReplaceWith</span> lbs <span class="ot">-&gt;</span> <span class="dt">ReplaceWith</span> <span class="fu">$</span> f lbs
   <span class="dt">Delete</span>          <span class="ot">-&gt;</span> <span class="dt">ReplaceWith</span> <span class="fu">$</span> f <span class="st">&quot;&quot;</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">sdist ::</span> <span class="dt">IO</span> ()
+sdist <span class="fu">=</span> <span class="kw">do</span>
+  sdist&#39;    <span class="st">&quot;regex&quot;</span>
+  sdist&#39;    <span class="st">&quot;regex-examples&quot;</span>
+  establish <span class="st">&quot;mega-regex&quot;</span> <span class="st">&quot;regex&quot;</span>
+  vrn_t <span class="ot">&lt;-</span> T.pack <span class="fu">.</span> presentVrn <span class="fu">&lt;$&gt;</span> readCurrentVersion
+  smy_t <span class="ot">&lt;-</span> summary
+  SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span>
+    SH.run_ <span class="st">&quot;git&quot;</span> [<span class="st">&quot;tag&quot;</span>,vrn_t,<span class="st">&quot;-m&quot;</span>,smy_t]
+
+<span class="ot">sdist&#39; ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+sdist&#39; nm <span class="fu">=</span> <span class="kw">do</span>
+  establish nm nm
+  SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span> <span class="kw">do</span>
+    SH.cp readme <span class="st">&quot;README.markdown&quot;</span>
+    SH.run_ <span class="st">&quot;cabal&quot;</span> [<span class="st">&quot;clean&quot;</span>]
+    SH.run_ <span class="st">&quot;cabal&quot;</span> [<span class="st">&quot;configure&quot;</span>]
+    SH.run_ <span class="st">&quot;cabal&quot;</span> [<span class="st">&quot;sdist&quot;</span>]
+    vrn <span class="ot">&lt;-</span> SH.liftIO readCurrentVersion
+    <span class="kw">let</span> tb <span class="fu">=</span> nm<span class="fu">&lt;&gt;</span><span class="st">&quot;-&quot;</span><span class="fu">&lt;&gt;</span>T.pack(presentVrn vrn)<span class="fu">&lt;&gt;</span><span class="st">&quot;.tar.gz&quot;</span>
+    SH.cp (SH.fromText <span class="fu">$</span> <span class="st">&quot;dist/&quot;</span><span class="fu">&lt;&gt;</span>tb) <span class="fu">$</span> SH.fromText <span class="fu">$</span> <span class="st">&quot;releases/&quot;</span><span class="fu">&lt;&gt;</span>tb
+  <span class="kw">where</span>
+    readme <span class="fu">=</span> SH.fromText <span class="fu">$</span> <span class="st">&quot;lib/README-&quot;</span><span class="fu">&lt;&gt;</span>nm<span class="fu">&lt;&gt;</span><span class="st">&quot;.md&quot;</span>
+
+<span class="ot">establish ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+establish nm nm&#39; <span class="fu">=</span> SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span> <span class="kw">do</span>
+    SH.rm_f <span class="st">&quot;mega-regex.cabal&quot;</span>
+    SH.rm_f <span class="st">&quot;regex.cabal&quot;</span>
+    SH.rm_f <span class="st">&quot;regex-examples.cabal&quot;</span>
+    SH.cp (SH.fromText sf) (SH.fromText df)
+  <span class="kw">where</span>
+    sf <span class="fu">=</span> <span class="st">&quot;lib/&quot;</span><span class="fu">&lt;&gt;</span>nm<span class="fu">&lt;&gt;</span><span class="st">&quot;.cabal&quot;</span>
+    df <span class="fu">=</span> nm&#39;<span class="fu">&lt;&gt;</span><span class="st">&quot;.cabal&quot;</span>
+
+<span class="ot">summary ::</span> <span class="dt">IO</span> <span class="dt">T.Text</span>
+summary <span class="fu">=</span> <span class="kw">do</span>
+  vrn <span class="ot">&lt;-</span> SH.liftIO readCurrentVersion
+  <span class="kw">let</span> vrn_res <span class="fu">=</span> concat
+        [ show <span class="fu">$</span> _vrn_a vrn
+        , <span class="st">&quot;\\.&quot;</span>
+        , show <span class="fu">$</span> _vrn_b vrn
+        , <span class="st">&quot;\\.&quot;</span>
+        , show <span class="fu">$</span> _vrn_c vrn
+        , <span class="st">&quot;\\.&quot;</span>
+        , show <span class="fu">$</span> _vrn_d vrn
+        ]
+  rex <span class="ot">&lt;-</span> compileRegex () <span class="fu">$</span> <span class="st">&quot;- \\[[xX]\\] +@{%date} +v&quot;</span><span class="fu">++</span>vrn_res<span class="fu">++</span><span class="st">&quot; +\\[?${smy}([^]]+)&quot;</span>
+  lns <span class="ot">&lt;-</span> linesMatched <span class="fu">&lt;$&gt;</span> grepLines rex <span class="st">&quot;lib/md/roadmap-incl.md&quot;</span>
+  <span class="kw">case</span> lns <span class="kw">of</span>
+    [<span class="dt">Line</span> _ (<span class="dt">Matches</span> _ [mtch])] <span class="ot">-&gt;</span> return <span class="fu">$</span> TE.decodeUtf8 <span class="fu">$</span> LBS.toStrict <span class="fu">$</span> mtch <span class="fu">!$$</span> [cp|smy|]
+    _ <span class="ot">-&gt;</span> error <span class="st">&quot;failed to locate the summary text in the roadmap&quot;</span></code></pre></div>
+<p>let vrn_res = concat [ show $ _vrn_a vrn, &quot;\.&quot;, show $ _vrn_b vrn, &quot;\.&quot;, show $ _vrn_c vrn, &quot;\.&quot;, show $ _vrn_d vrn ]</p>
 </div>
 </body>
 </html>

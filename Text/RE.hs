@@ -116,6 +116,7 @@ module Text.RE
   , expandMacros'
   -- * Tools
   -- ** Grep
+  , Line(..)
   , grep
   , grepLines
   , GrepScript

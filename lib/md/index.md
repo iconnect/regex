@@ -1,8 +1,15 @@
-# regex
+# <<$title$>>
 
 %include "lib/md/summary-incl.md"
 
 See the [About page](http://about.regex.uk) for details.
+
+
+%heading#twopackages regex and regex-examples
+
+  * the `regex` package contains the regex library
+  * the `regex-examples` package contains the tutorial, tests
+    and example programs
 
 
 %heading#roadmap Road Map

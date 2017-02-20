@@ -5,7 +5,8 @@
 {-# LANGUAGE CPP                        #-}
 
 module Text.RE.Tools.Grep
-  ( grep
+  ( Line(..)
+  , grep
   , grepLines
   , GrepScript
   , grepScript

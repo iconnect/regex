@@ -1,7 +1,8 @@
-Name:                   mega-regex
-Version:                0.1.0.0
-Synopsis:               Toolkit for regex-base
-Description:            A Regular Expression Toolkit for regex-base with
+Name:                   regex-examples
+Version:                0.2.0.0
+Synopsis:               Tutorial, tests and example programs for regex
+Description:            Tutorial, tests and example programs for regex,
+                        a Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
                         matches and captures, a text replacement toolkit,
                         portable options, high-level AWK-like tools
@@ -29,12 +30,29 @@ Extra-Source-Files:
     data/pp-result-doc.lhs
     data/pp-result-gen.lhs
     data/pp-test.lhs
+    lib/cabal-masters/constraints-incl.cabal
+    lib/cabal-masters/executables-incl.cabal
+    lib/cabal-masters/library-incl.cabal
+    lib/cabal-masters/mega-regex.cabal
     lib/cabal-masters/regex.cabal
+    lib/cabal-masters/regex-examples.cabal
+    lib/cabal-masters/test-extra-source-files-incl.cabal
+    lib/mega-regex.cabal
     lib/version.txt
-    src/Text/RE/TDFA/ByteString/Lazy.hs
     docs/pcre-nginx-log-processor.txt
     docs/tdfa-macros.txt
     docs/pcre-macros.txt
+    src/Text/RE/PCRE/ByteString.hs
+    src/Text/RE/PCRE/ByteString/Lazy.hs
+    src/Text/RE/PCRE/Sequence.hs
+    src/Text/RE/PCRE/String.hs
+    src/Text/RE/TDFA/ByteString.hs
+    src/Text/RE/TDFA/ByteString/Lazy.hs
+    src/Text/RE/TDFA/Sequence.hs
+    src/Text/RE/TDFA/String.hs
+    src/Text/RE/TDFA/Text.hs
+    src/Text/RE/TDFA/Text/Lazy.hs
+
 
 Cabal-Version:          >= 1.16
 
@@ -45,7 +63,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.1.0.0
+    Tag:                0.2.0.0
 
 
 
@@ -126,7 +144,7 @@ Executable re-gen-cabals
       -fwarn-tabs
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -154,7 +172,7 @@ Test-Suite re-gen-cabals-test
       -fwarn-tabs
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -179,7 +197,7 @@ Executable re-gen-modules
       -fwarn-tabs
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -203,7 +221,7 @@ Test-Suite re-gen-modules-test
       -fwarn-tabs
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -230,7 +248,7 @@ Executable re-include
       TestKit
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -254,7 +272,7 @@ Test-Suite re-include-test
       TestKit
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -275,7 +293,7 @@ Executable re-nginx-log-processor
       -fwarn-tabs
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -303,7 +321,7 @@ Test-Suite re-nginx-log-processor-test
       -fwarn-tabs
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -334,7 +352,7 @@ Executable re-prep
       TestKit
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -360,7 +378,7 @@ Test-Suite re-prep-test
       TestKit
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -386,7 +404,7 @@ Executable re-tests
       TestKit
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -422,7 +440,7 @@ Test-Suite re-tests-test
       TestKit
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -459,7 +477,7 @@ Executable re-tutorial
       -fwarn-tabs
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -501,7 +519,7 @@ Test-Suite re-tutorial-test
       -fwarn-tabs
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -545,7 +563,7 @@ Test-Suite re-tutorial-os-test
       -fwarn-tabs
 
     Build-depends:
-        regex                
+        regex                == 0.2.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0

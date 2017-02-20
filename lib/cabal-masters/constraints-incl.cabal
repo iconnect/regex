@@ -1,3 +1,4 @@
+%-    regex                   == <<$version$>>
 %-    array                   >= 0.4
 %-    base                    >= 4 && < 5
 %-    base-compat             >= 0.6.0

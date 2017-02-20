@@ -15,7 +15,10 @@ import qualified Data.List                                as L
 import qualified Data.Map                                 as Map
 import           Data.Maybe
 import           Data.Monoid
+import qualified Data.Text                                as T
+import qualified Data.Text.Encoding                       as TE
 import           Prelude.Compat
+import qualified Shelly                                   as SH
 import           System.Directory
 import           System.Environment
 import           System.Exit
@@ -31,16 +34,21 @@ main = do
   case as of
     []        -> test
     ["test"]  -> test
-    ["gen"]   -> gen  "lib/cabal-masters/mega-regex.cabal" "mega-regex.cabal"
+    ["sdist"] -> sdist
+    ["gen"]   -> do
+      gen  "lib/cabal-masters/mega-regex.cabal"     "lib/mega-regex.cabal"
+      gen  "lib/cabal-masters/regex.cabal"          "lib/regex.cabal"
+      gen  "lib/cabal-masters/regex-examples.cabal" "lib/regex-examples.cabal"
+      establish "mega-regex" "regex"
     _         -> do
-      hPutStrLn stderr $ "usage: " ++ pn ++ " [test|gen]"
+      hPutStrLn stderr $ "usage: " ++ pn ++ " [test|sdist|gen]"
       exitWith $ ExitFailure 1
 
 test :: IO ()
 test = do
   createDirectoryIfMissing False "tmp"
   gen "lib/cabal-masters/mega-regex.cabal" "tmp/mega-regex.cabal"
-  ok <- cmp "tmp/mega-regex.cabal" "mega-regex.cabal"
+  ok <- cmp "tmp/mega-regex.cabal" "lib/mega-regex.cabal"
   case ok of
     True  -> return ()
     False -> exitWith $ ExitFailure 1
@@ -190,3 +198,60 @@ adjust_le f le = case le of
   ReplaceWith lbs -> ReplaceWith $ f lbs
   Delete          -> ReplaceWith $ f ""
 \end{code}
+
+\begin{code}
+sdist :: IO ()
+sdist = do
+  sdist'    "regex"
+  sdist'    "regex-examples"
+  establish "mega-regex" "regex"
+  vrn_t <- T.pack . presentVrn <$> readCurrentVersion
+  smy_t <- summary
+  SH.shelly $ SH.verbosely $
+    SH.run_ "git" ["tag",vrn_t,"-m",smy_t]
+
+sdist' :: T.Text -> IO ()
+sdist' nm = do
+  establish nm nm
+  SH.shelly $ SH.verbosely $ do
+    SH.cp readme "README.markdown"
+    SH.run_ "cabal" ["clean"]
+    SH.run_ "cabal" ["configure"]
+    SH.run_ "cabal" ["sdist"]
+    vrn <- SH.liftIO readCurrentVersion
+    let tb = nm<>"-"<>T.pack(presentVrn vrn)<>".tar.gz"
+    SH.cp (SH.fromText $ "dist/"<>tb) $ SH.fromText $ "releases/"<>tb
+  where
+    readme = SH.fromText $ "lib/README-"<>nm<>".md"
+
+establish :: T.Text -> T.Text -> IO ()
+establish nm nm' = SH.shelly $ SH.verbosely $ do
+    SH.rm_f "mega-regex.cabal"
+    SH.rm_f "regex.cabal"
+    SH.rm_f "regex-examples.cabal"
+    SH.cp (SH.fromText sf) (SH.fromText df)
+  where
+    sf = "lib/"<>nm<>".cabal"
+    df = nm'<>".cabal"
+
+summary :: IO T.Text
+summary = do
+  vrn <- SH.liftIO readCurrentVersion
+  let vrn_res = concat
+        [ show $ _vrn_a vrn
+        , "\\."
+        , show $ _vrn_b vrn
+        , "\\."
+        , show $ _vrn_c vrn
+        , "\\."
+        , show $ _vrn_d vrn
+        ]
+  rex <- compileRegex () $ "- \\[[xX]\\] +@{%date} +v"++vrn_res++" +\\[?${smy}([^]]+)"
+  lns <- linesMatched <$> grepLines rex "lib/md/roadmap-incl.md"
+  case lns of
+    [Line _ (Matches _ [mtch])] -> return $ TE.decodeUtf8 $ LBS.toStrict $ mtch !$$ [cp|smy|]
+    _ -> error "failed to locate the summary text in the roadmap"
+\end{code}
+
+
+let vrn_res = concat [ show $ _vrn_a vrn, "\\.", show $ _vrn_b vrn, "\\.", show $ _vrn_c vrn, "\\.", show $ _vrn_d vrn ]

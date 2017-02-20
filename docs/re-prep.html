@@ -416,8 +416,9 @@ badges <span class="fu">=</span> <span class="kw">do</span>
 <h2 id="pages">pages</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">pages ::</span> <span class="dt">IO</span> ()
 pages <span class="fu">=</span> <span class="kw">do</span>
-  prep_page   <span class="dt">MM_hackage</span> <span class="st">&quot;lib/md/index.md&quot;</span> <span class="st">&quot;README.markdown&quot;</span>
-  prep_page   <span class="dt">MM_github</span>  <span class="st">&quot;lib/md/index.md&quot;</span> <span class="st">&quot;README.md&quot;</span>
+  prep_page <span class="st">&quot;regex&quot;</span>          <span class="dt">MM_hackage</span> <span class="st">&quot;lib/md/index.md&quot;</span> <span class="st">&quot;lib/README-regex.md&quot;</span>
+  prep_page <span class="st">&quot;regex-examples&quot;</span> <span class="dt">MM_hackage</span> <span class="st">&quot;lib/md/index.md&quot;</span> <span class="st">&quot;lib/README-regex-examples.md&quot;</span>
+  prep_page <span class="st">&quot;regex&quot;</span>          <span class="dt">MM_github</span>  <span class="st">&quot;lib/md/index.md&quot;</span> <span class="st">&quot;README.md&quot;</span>
   mapM_ pandoc_page [minBound<span class="fu">..</span>maxBound]</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Page</span>
   <span class="fu">=</span> <span class="dt">PG_index</span>
@@ -461,29 +462,32 @@ page_title pg <span class="fu">=</span> <span class="kw">case</span> pg <span cl
   <span class="dt">PG_changelog</span>    <span class="ot">-&gt;</span> <span class="st">&quot;Change Log&quot;</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">pandoc_page ::</span> <span class="dt">Page</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 pandoc_page pg <span class="fu">=</span> <span class="kw">do</span>
-  mt_lbs <span class="ot">&lt;-</span> LBS.readFile <span class="fu">$</span> page_master_file pg
+  mt_lbs <span class="ot">&lt;-</span> setup_ttl <span class="fu">&lt;$&gt;</span> LBS.readFile (page_master_file pg)
   (hdgs,md_lbs) <span class="ot">&lt;-</span> prep_page&#39; <span class="dt">MM_pandoc</span> mt_lbs
   LBS.writeFile <span class="st">&quot;tmp/metadata.markdown&quot;</span>  <span class="fu">$</span> LBS.unlines [<span class="st">&quot;---&quot;</span>,<span class="st">&quot;title: &quot;</span><span class="fu">&lt;&gt;</span>page_title pg,<span class="st">&quot;---&quot;</span>]
   LBS.writeFile <span class="st">&quot;tmp/heading.markdown&quot;</span>   <span class="fu">$</span> page_heading pg
   LBS.writeFile <span class="st">&quot;tmp/page_pre_body.html&quot;</span> <span class="fu">$</span> mk_pre_body_html pg hdgs
   LBS.writeFile <span class="st">&quot;tmp/page_pst_body.html&quot;</span>   pst_body_html
   LBS.writeFile <span class="st">&quot;tmp/page.markdown&quot;</span>        md_lbs
-  fmap (const ()) <span class="fu">$</span>
-    SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span>
-      SH.run <span class="st">&quot;pandoc&quot;</span>
-        [ <span class="st">&quot;-f&quot;</span>, <span class="st">&quot;markdown+grid_tables+autolink_bare_uris&quot;</span>
-        , <span class="st">&quot;-t&quot;</span>, <span class="st">&quot;html5&quot;</span>
-        , <span class="st">&quot;-T&quot;</span>, <span class="st">&quot;regex&quot;</span>
-        , <span class="st">&quot;-s&quot;</span>
-        , <span class="st">&quot;-H&quot;</span>, <span class="st">&quot;lib/favicons.html&quot;</span>
-        , <span class="st">&quot;-B&quot;</span>, <span class="st">&quot;tmp/page_pre_body.html&quot;</span>
-        , <span class="st">&quot;-A&quot;</span>, <span class="st">&quot;tmp/page_pst_body.html&quot;</span>
-        , <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;lib/styles.css&quot;</span>
-        , <span class="st">&quot;-o&quot;</span>, T.pack <span class="fu">$</span> page_docs_file pg
-        , <span class="st">&quot;tmp/metadata.markdown&quot;</span>
-        , <span class="st">&quot;tmp/heading.markdown&quot;</span>
-        , <span class="st">&quot;tmp/page.markdown&quot;</span>
-        ]
+  SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span>
+    SH.run_ <span class="st">&quot;pandoc&quot;</span>
+      [ <span class="st">&quot;-f&quot;</span>, <span class="st">&quot;markdown+grid_tables+autolink_bare_uris&quot;</span>
+      , <span class="st">&quot;-t&quot;</span>, <span class="st">&quot;html5&quot;</span>
+      , <span class="st">&quot;-T&quot;</span>, <span class="st">&quot;regex&quot;</span>
+      , <span class="st">&quot;-s&quot;</span>
+      , <span class="st">&quot;-H&quot;</span>, <span class="st">&quot;lib/favicons.html&quot;</span>
+      , <span class="st">&quot;-B&quot;</span>, <span class="st">&quot;tmp/page_pre_body.html&quot;</span>
+      , <span class="st">&quot;-A&quot;</span>, <span class="st">&quot;tmp/page_pst_body.html&quot;</span>
+      , <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;lib/styles.css&quot;</span>
+      , <span class="st">&quot;-o&quot;</span>, T.pack <span class="fu">$</span> page_docs_file pg
+      , <span class="st">&quot;tmp/metadata.markdown&quot;</span>
+      , <span class="st">&quot;tmp/heading.markdown&quot;</span>
+      , <span class="st">&quot;tmp/page.markdown&quot;</span>
+      ]
+  <span class="kw">where</span>
+    setup_ttl <span class="fu">=</span> <span class="kw">case</span> pg <span class="kw">of</span>
+      <span class="dt">PG_index</span> <span class="ot">-&gt;</span> set_title <span class="st">&quot;regex&quot;</span>
+      _        <span class="ot">-&gt;</span> id
 
 <span class="kw">data</span> <span class="dt">Heading</span> <span class="fu">=</span>
   <span class="dt">Heading</span>
@@ -503,11 +507,19 @@ page_heading <span class="dt">PG_index</span> <span class="fu">=</span> <span cl
 page_heading pg       <span class="fu">=</span>
   <span class="st">&quot;&lt;p class=&#39;pagebc&#39;&gt;&lt;a href=&#39;.&#39; title=&#39;Home&#39;&gt;Home&lt;/a&gt; &amp;raquo; **&quot;</span><span class="fu">&lt;&gt;</span>page_title pg<span class="fu">&lt;&gt;</span><span class="st">&quot;**&lt;/p&gt;\n&quot;</span>
 
-<span class="ot">prep_page ::</span> <span class="dt">MarkdownMode</span> <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
-prep_page mmd in_fp out_fp <span class="fu">=</span> <span class="kw">do</span>
-  lbs      <span class="ot">&lt;-</span> LBS.readFile in_fp
+<span class="ot">prep_page ::</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">MarkdownMode</span> <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+prep_page ttl mmd in_fp out_fp <span class="fu">=</span> <span class="kw">do</span>
+  lbs      <span class="ot">&lt;-</span> set_title ttl <span class="fu">&lt;$&gt;</span> LBS.readFile in_fp
   (_,lbs&#39;) <span class="ot">&lt;-</span> prep_page&#39; mmd lbs
   LBS.writeFile out_fp lbs&#39;
+
+<span class="ot">set_title ::</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
+set_title ttl lbs <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> flip sed&#39; lbs <span class="fu">$</span> <span class="dt">Pipe</span>
+    [ (,) [re|&lt;&lt;\$title\$&gt;&gt;|] <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="fu">$</span> <span class="dt">Just</span> ttl
+    ]
+  <span class="kw">where</span>
+    <span class="co">-- runIdentity added to base in 4.9 only</span>
+    oops <span class="fu">=</span> error <span class="st">&quot;set_title&quot;</span>
 
 <span class="ot">prep_page&#39; ::</span> <span class="dt">MarkdownMode</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ([<span class="dt">Heading</span>],<span class="dt">LBS.ByteString</span>)
 prep_page&#39; mmd lbs <span class="fu">=</span> <span class="kw">do</span>
@@ -733,15 +745,6 @@ pandoc_lhs&#39; title repo_path in_file out_file <span class="fu">=</span> <span
       [ <span class="st">&quot;https://github.com/iconnect/regex/blob/master/&quot;</span>
       , LBS.pack <span class="fu">$</span> T.unpack repo_path
       ]</code></pre></div>
-<h2 id="simple-include-processor">simple include processor</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">include ::</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">LBS.ByteString</span>
-include <span class="fu">=</span> sed&#39; <span class="fu">$</span> <span class="dt">Select</span>
-    [ (,) [re|^%include ${file}(@{%string})$|] <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span>   incl
-    , (,) [re|^.*$|]                           <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
-    ]
-  <span class="kw">where</span>
-    incl _ mtch _ _ <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">&lt;$&gt;</span> LBS.readFile (prs_s <span class="fu">$</span> mtch <span class="fu">!$$</span> [cp|file|])
-    prs_s           <span class="fu">=</span> maybe (error <span class="st">&quot;include&quot;</span>) T.unpack <span class="fu">.</span> parseString</code></pre></div>
 <h2 id="branding">branding</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">branding ::</span> <span class="dt">LBS.ByteString</span>
 branding <span class="fu">=</span> [here|&lt;a href=&quot;.&quot; style=&quot;Arial, &#39;Helvetica Neue&#39;, Helvetica, sans-serif;&quot; id=&quot;branding&quot;&gt;[&lt;span style=&#39;color:red;&#39;&gt;re&lt;/span&gt;|${&lt;span style=&#39;color:red;&#39;&gt;gex&lt;/span&gt;}(.*)|&lt;span&gt;&lt;/span&gt;]&lt;/a&gt;|]</code></pre></div>

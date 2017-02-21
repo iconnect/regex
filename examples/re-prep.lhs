@@ -567,7 +567,7 @@ prep_page' :: MarkdownMode -> LBS.ByteString -> IO ([Heading],LBS.ByteString)
 prep_page' mmd lbs = do
     rf_h <- newIORef []
     rf_t <- newIORef False
-    lbs1 <- sed' (scr rf_h rf_t) =<< include lbs
+    lbs1 <- fmap (tweak_md mmd) $ sed' (scr rf_h rf_t) =<< include lbs
     lbs2 <- fromMaybe "" <$> fin_task_list' mmd rf_t
     hdgs <- reverse <$> readIORef rf_h
     return (hdgs,lbs1<>lbs2)
@@ -799,6 +799,22 @@ pandoc_lhs' title repo_path in_file out_file = do
       [ "https://github.com/iconnect/regex/blob/master/"
       , LBS.pack $ T.unpack repo_path
       ]
+\end{code}
+
+
+tweak_md
+--------
+
+\begin{code}
+tweak_md :: MarkdownMode -> LBS.ByteString -> LBS.ByteString
+tweak_md MM_github  lbs = lbs
+tweak_md MM_pandoc  lbs = lbs
+tweak_md MM_hackage lbs = fromMaybe oops $ flip sed' lbs $ Pipe
+    [ (,) [re|<br/>$|] $ EDIT_fun TOP $ \_ _ _ _->return $ Just "\n"
+    ]
+  where
+    -- runIdentity added to base in 4.9 only
+    oops = error "tweak_md"
 \end{code}
 
 

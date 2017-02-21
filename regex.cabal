@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                0.2.0.1
+Version:                0.2.0.2
 Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
@@ -62,7 +62,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.2.0.1
+    Tag:                0.2.0.2
 
 
 
@@ -143,7 +143,7 @@ Executable re-gen-cabals
       -fwarn-tabs
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -171,7 +171,7 @@ Test-Suite re-gen-cabals-test
       -fwarn-tabs
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -196,7 +196,7 @@ Executable re-gen-modules
       -fwarn-tabs
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -220,7 +220,7 @@ Test-Suite re-gen-modules-test
       -fwarn-tabs
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -247,7 +247,7 @@ Executable re-include
       TestKit
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -271,7 +271,7 @@ Test-Suite re-include-test
       TestKit
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -292,7 +292,7 @@ Executable re-nginx-log-processor
       -fwarn-tabs
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -320,7 +320,7 @@ Test-Suite re-nginx-log-processor-test
       -fwarn-tabs
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -351,7 +351,7 @@ Executable re-prep
       TestKit
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -377,7 +377,7 @@ Test-Suite re-prep-test
       TestKit
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -403,7 +403,7 @@ Executable re-tests
       TestKit
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -439,7 +439,7 @@ Test-Suite re-tests-test
       TestKit
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -476,7 +476,7 @@ Executable re-tutorial
       -fwarn-tabs
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -518,7 +518,7 @@ Test-Suite re-tutorial-test
       -fwarn-tabs
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -562,7 +562,7 @@ Test-Suite re-tutorial-os-test
       -fwarn-tabs
 
     Build-depends:
-        regex                == 0.2.0.1
+        regex                == 0.2.0.2
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0

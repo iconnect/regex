@@ -176,7 +176,7 @@ import_re <span class="fu">=</span> [re|import qualified Data.ByteString.Lazy.Ch
 bs_re     <span class="fu">=</span> [re|LBS.ByteString|]
 
 <span class="ot">mod_filepath ::</span> <span class="dt">ModPath</span> <span class="ot">-&gt;</span> FilePath
-mod_filepath mp <span class="fu">=</span> map tr mp <span class="fu">++</span> <span class="st">&quot;.hs&quot;</span>
+mod_filepath mp <span class="fu">=</span> <span class="st">&quot;src/&quot;</span> <span class="fu">++</span> map tr mp <span class="fu">++</span> <span class="st">&quot;.hs&quot;</span>
   <span class="kw">where</span>
     tr <span class="ch">&#39;.&#39;</span> <span class="fu">=</span> <span class="ch">&#39;/&#39;</span>
     tr c   <span class="fu">=</span> c

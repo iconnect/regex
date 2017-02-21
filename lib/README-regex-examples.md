@@ -1,6 +1,6 @@
 # regex-examples
 
-Regex is a regular expression toolkit for regex-base with:
+regex is a regular expression toolkit for regex-base with:
 
   * text-replacement operations with named captures;
   * special datatypes for matches and captures;
@@ -37,6 +37,8 @@ See the [About page](http://about.regex.uk) for details.
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-19  v0.2.0.0  [Package split into regex and regex-examples](https://github.com/iconnect/regex/milestone/5)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-20  v0.2.0.1  [Remove library from regex-examples](https://github.com/iconnect/regex/issues/43)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-21  v0.2.0.2  [Fix tests for Hackage](https://github.com/iconnect/regex/issues/45)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-02-26  v0.3.0.0  [API adjustments, tutorials and examples finalized](https://github.com/iconnect/regex/milestone/2)
 

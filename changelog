@@ -1,5 +1,9 @@
 -*-change-log-*-
 
+0.2.0.2 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-02-21
+  * Fix re-gen-modules-test for Hackage (#45)
+  * Minor style tweks to README/index
+
 0.2.0.1 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-02-20
   * remove library from regex-examples (#43)
 

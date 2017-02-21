@@ -34,6 +34,7 @@ See the [About page](http://about.regex.uk) for details.
 - [X] 2017-02-19  v0.2.0.0  [Package split into regex and regex-examples](https://github.com/iconnect/regex/milestone/5)
 - [X] 2017-02-20  v0.2.0.1  [Remove library from regex-examples](https://github.com/iconnect/regex/issues/43)
 - [X] 2017-02-21  v0.2.0.2  [Fix tests for Hackage](https://github.com/iconnect/regex/issues/45)
+- [X] 2017-02-21  v0.2.0.3  Tweak README/index layout
 - [ ] 2017-02-26  v0.3.0.0  [API adjustments, tutorials and examples finalized](https://github.com/iconnect/regex/milestone/2)
 - [ ] 2017-03-20  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 - [ ] 2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)
@@ -66,10 +67,8 @@ See the [Tutorial page](http://tutorial.regex.uk) and
 
 If you have any feedback or suggestion then please drop us a line.
 
-&nbsp;&nbsp;&nbsp;&nbsp;`t` [&#64;hregex](https://twitter.com/hregex)
-
-&nbsp;&nbsp;&nbsp;&nbsp;`e` maintainers@regex.uk
-
+&nbsp;&nbsp;&nbsp;&nbsp;`t` [&#64;hregex](https://twitter.com/hregex)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;`e` maintainers@regex.uk<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;`w` http://issues.regex.uk
 
 The [Contact page](http://contact.regex.uk) has more details.

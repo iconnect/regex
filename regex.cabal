@@ -21,6 +21,37 @@ bug-reports:            http://issues.regex.uk
 Extra-Source-Files:
     README.markdown
     changelog
+    data/access-errors.log
+    data/access.log
+    data/error.log
+    data/events.log
+    data/include-result.lhs
+    data/pp-result-doc.lhs
+    data/pp-result-gen.lhs
+    data/pp-test.lhs
+    lib/cabal-masters/constraints-incl.cabal
+    lib/cabal-masters/executables-incl.cabal
+    lib/cabal-masters/library-incl.cabal
+    lib/cabal-masters/mega-regex.cabal
+    lib/cabal-masters/regex.cabal
+    lib/cabal-masters/regex-examples.cabal
+    lib/cabal-masters/test-extra-source-files-incl.cabal
+    lib/mega-regex.cabal
+    lib/version.txt
+    docs/pcre-nginx-log-processor.txt
+    docs/tdfa-macros.txt
+    docs/pcre-macros.txt
+    src/Text/RE/PCRE/ByteString.hs
+    src/Text/RE/PCRE/ByteString/Lazy.hs
+    src/Text/RE/PCRE/Sequence.hs
+    src/Text/RE/PCRE/String.hs
+    src/Text/RE/TDFA/ByteString.hs
+    src/Text/RE/TDFA/ByteString/Lazy.hs
+    src/Text/RE/TDFA/Sequence.hs
+    src/Text/RE/TDFA/String.hs
+    src/Text/RE/TDFA/Text.hs
+    src/Text/RE/TDFA/Text/Lazy.hs
+
 
 Cabal-Version:          >= 1.16
 
@@ -89,6 +120,466 @@ Library
       , regex-pcre-builtin   >= 0.94.4.8.8.35
       , regex-tdfa           >= 1.2.0
       , regex-tdfa-text      >= 1.0.0.3
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+
+Executable re-gen-cabals
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-gen-cabals.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-tdfa           >= 1.2.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
+
+Test-Suite re-gen-cabals-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-gen-cabals.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-tdfa           >= 1.2.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
+
+
+Executable re-gen-modules
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-gen-modules.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-tdfa           >= 1.2.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
+
+Test-Suite re-gen-modules-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-gen-modules.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-tdfa           >= 1.2.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
+
+
+Executable re-include
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-include.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Other-Modules:
+      TestKit
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
+
+Test-Suite re-include-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-include.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Other-Modules:
+      TestKit
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
+
+
+Executable re-nginx-log-processor
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-nginx-log-processor.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-tdfa           >= 1.2.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+Test-Suite re-nginx-log-processor-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-nginx-log-processor.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , regex-base           >= 0.93.2
+      , regex-tdfa           >= 1.2.0
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+
+Executable re-prep
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-prep.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Other-Modules:
+      TestKit
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , heredoc              >= 0.2.0.0
+      , http-conduit         >= 2.1.7.2
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
+
+Test-Suite re-prep-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-prep.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Other-Modules:
+      TestKit
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , heredoc              >= 0.2.0.0
+      , http-conduit         >= 2.1.7.2
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
+
+
+Executable re-tests
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tests.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Other-Modules:
+      TestKit
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , unordered-containers >= 0.2.5.1
+
+
+Test-Suite re-tests-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tests.lhs
+
+    Default-Language:   Haskell2010
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Other-Modules:
+      TestKit
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , unordered-containers >= 0.2.5.1
+
+
+
+Executable re-tutorial
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Language:   Haskell2010
+    Default-Extensions: QuasiQuotes
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+Test-Suite re-tutorial-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Language:   Haskell2010
+    Default-Extensions: QuasiQuotes
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+
+Test-Suite re-tutorial-os-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Language:   Haskell2010
+    Extensions:         OverloadedStrings
+    Default-Extensions: QuasiQuotes
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+
+    Build-depends:
+        regex                == 0.2.0.3
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
       , text                 >= 1.2.0.6
       , time                 >= 1.4.2

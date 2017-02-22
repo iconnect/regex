@@ -43,10 +43,8 @@ See the [Tutorial page](http://tutorial.regex.uk) and
 
 If you have any feedback or suggestion then please drop us a line.
 
-&nbsp;&nbsp;&nbsp;&nbsp;`t` [&#64;hregex](https://twitter.com/hregex)
-
-&nbsp;&nbsp;&nbsp;&nbsp;`e` maintainers@regex.uk
-
+&nbsp;&nbsp;&nbsp;&nbsp;`t` [&#64;hregex](https://twitter.com/hregex)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;`e` maintainers@regex.uk<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;`w` http://issues.regex.uk
 
 The [Contact page](http://contact.regex.uk) has more details.

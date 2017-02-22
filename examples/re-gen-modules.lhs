@@ -109,7 +109,7 @@ import_re = [re|import qualified Data.ByteString.Lazy.Char8 *as LBS|]
 bs_re     = [re|LBS.ByteString|]
 
 mod_filepath :: ModPath -> FilePath
-mod_filepath mp = map tr mp ++ ".hs"
+mod_filepath mp = "src/" ++ map tr mp ++ ".hs"
   where
     tr '.' = '/'
     tr c   = c

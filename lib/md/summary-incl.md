@@ -1,4 +1,4 @@
-Regex is a regular expression toolkit for regex-base with:
+regex is a regular expression toolkit for regex-base with:
 
   * text-replacement operations with named captures;
   * special datatypes for matches and captures;

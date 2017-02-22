@@ -42,8 +42,9 @@ test = do
 test' :: (ModPath,SedScript RE) -> IO Bool
 test' (mp,scr) = do
     putStrLn mp
-    sed scr (mod_filepath source_mp) tmp_pth
-    cmp     (T.pack tmp_pth) (T.pack $ mod_filepath mp)
+    tp <- is_text_present
+    sed scr (mod_filepath tp source_mp) tmp_pth
+    cmp     (T.pack tmp_pth) (T.pack $ mod_filepath tp mp)
   where
     tmp_pth = "tmp/prog.hs"
 
@@ -55,7 +56,8 @@ gen = do
 gen' :: (ModPath,SedScript RE) -> IO ()
 gen' (mp,scr) = do
   putStrLn mp
-  sed scr (mod_filepath source_mp) (mod_filepath mp)
+  tp <- is_text_present
+  sed scr (mod_filepath tp source_mp) (mod_filepath tp mp)
 
 tdfa_edits :: [(ModPath,SedScript RE)]
 tdfa_edits =
@@ -108,11 +110,18 @@ module_re = [re|Text.RE.TDFA.ByteString.Lazy|]
 import_re = [re|import qualified Data.ByteString.Lazy.Char8 *as LBS|]
 bs_re     = [re|LBS.ByteString|]
 
-mod_filepath :: ModPath -> FilePath
-mod_filepath mp = "src/" ++ map tr mp ++ ".hs"
+mod_filepath :: Bool -> ModPath -> FilePath
+mod_filepath text_present mp = pfx ++ map tr mp ++ ".hs"
   where
+    pfx = case text_present of
+      True  -> ""
+      False -> "src/"
+
     tr '.' = '/'
     tr c   = c
+
+is_text_present :: IO Bool
+is_text_present = doesDirectoryExist "Text"
 
 cmp :: T.Text -> T.Text -> IO Bool
 cmp src dst = handle hdl $ do

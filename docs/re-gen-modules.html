@@ -109,8 +109,9 @@ test <span class="fu">=</span> <span class="kw">do</span>
 <span class="ot">test&#39; ::</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span> <span class="dt">RE</span>) <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span>
 test&#39; (mp,scr) <span class="fu">=</span> <span class="kw">do</span>
     putStrLn mp
-    sed scr (mod_filepath source_mp) tmp_pth
-    cmp     (T.pack tmp_pth) (T.pack <span class="fu">$</span> mod_filepath mp)
+    tp <span class="ot">&lt;-</span> is_text_present
+    sed scr (mod_filepath tp source_mp) tmp_pth
+    cmp     (T.pack tmp_pth) (T.pack <span class="fu">$</span> mod_filepath tp mp)
   <span class="kw">where</span>
     tmp_pth <span class="fu">=</span> <span class="st">&quot;tmp/prog.hs&quot;</span>
 
@@ -122,7 +123,8 @@ gen <span class="fu">=</span> <span class="kw">do</span>
 <span class="ot">gen&#39; ::</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span> <span class="dt">RE</span>) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 gen&#39; (mp,scr) <span class="fu">=</span> <span class="kw">do</span>
   putStrLn mp
-  sed scr (mod_filepath source_mp) (mod_filepath mp)
+  tp <span class="ot">&lt;-</span> is_text_present
+  sed scr (mod_filepath tp source_mp) (mod_filepath tp mp)
 
 <span class="ot">tdfa_edits ::</span> [(<span class="dt">ModPath</span>,<span class="dt">SedScript</span> <span class="dt">RE</span>)]
 tdfa_edits <span class="fu">=</span>
@@ -175,11 +177,18 @@ module_re <span class="fu">=</span> [re|Text.RE.TDFA.ByteString.Lazy|]
 import_re <span class="fu">=</span> [re|import qualified Data.ByteString.Lazy.Char8 *as LBS|]
 bs_re     <span class="fu">=</span> [re|LBS.ByteString|]
 
-<span class="ot">mod_filepath ::</span> <span class="dt">ModPath</span> <span class="ot">-&gt;</span> FilePath
-mod_filepath mp <span class="fu">=</span> <span class="st">&quot;src/&quot;</span> <span class="fu">++</span> map tr mp <span class="fu">++</span> <span class="st">&quot;.hs&quot;</span>
+<span class="ot">mod_filepath ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">ModPath</span> <span class="ot">-&gt;</span> FilePath
+mod_filepath text_present mp <span class="fu">=</span> pfx <span class="fu">++</span> map tr mp <span class="fu">++</span> <span class="st">&quot;.hs&quot;</span>
   <span class="kw">where</span>
+    pfx <span class="fu">=</span> <span class="kw">case</span> text_present <span class="kw">of</span>
+      <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="st">&quot;&quot;</span>
+      <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="st">&quot;src/&quot;</span>
+
     tr <span class="ch">&#39;.&#39;</span> <span class="fu">=</span> <span class="ch">&#39;/&#39;</span>
     tr c   <span class="fu">=</span> c
+
+<span class="ot">is_text_present ::</span> <span class="dt">IO</span> <span class="dt">Bool</span>
+is_text_present <span class="fu">=</span> doesDirectoryExist <span class="st">&quot;Text&quot;</span>
 
 <span class="ot">cmp ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span>
 cmp src dst <span class="fu">=</span> handle hdl <span class="fu">$</span> <span class="kw">do</span>

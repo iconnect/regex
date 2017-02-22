@@ -42,6 +42,8 @@ See the [About page](http://about.regex.uk) for details.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-21  v0.2.0.3  Tweak README/index layout
 
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-22  v0.2.0.4  [Repair re-gen-modules-test for Windows](https://github.com/iconnect/regex/issues/47)
+
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-02-26  v0.3.0.0  [API adjustments, tutorials and examples finalized](https://github.com/iconnect/regex/milestone/2)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-03-20  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)

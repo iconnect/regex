@@ -12,7 +12,6 @@ module Main
   ) where
 
 import           Control.Applicative
-import qualified Control.Monad                            as M
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Data.IORef
 import           Data.Maybe
@@ -26,7 +25,6 @@ import           System.Directory
 import           System.Environment
 import           TestKit
 import           Text.Heredoc
-import           Text.Printf
 import           Text.RE.Edit
 import           Text.RE.TDFA.ByteString.Lazy
 import qualified Text.RE.TDFA.Text                        as TT
@@ -49,8 +47,8 @@ main = do
   where
     is_file = not . (== "--") . take 2
 
-    doc fn fn' = docMode >>= \dm -> loop dm fn fn'
-    gen fn fn' = genMode >>= \gm -> loop gm fn fn'
+    doc fn fn' =                    prep_tut Doc fn fn'
+    gen fn fn' = genMode >>= \gm -> prep_tut gm  fn fn'
 
     usage = do
       pnm <- getProgName
@@ -77,85 +75,60 @@ The Sed Script
 -- or a Haskell testsuite and includes any IO-accessible state
 -- needed by the relevant processor
 data MODE
-  = Doc DocState  -- ^ document-generation state
+  = Doc           -- ^ generating mardown+lhs input for pandoc
   | Gen GenState  -- ^ adjusting-the-program-for-testing state
 \end{code}
 
 The `DocState` is initialised to `Outside` and flips though the different
 states as it traverses a code block, so that we can wrap code
-blocks in special <div class="replcodeblock"> blocks when their
+blocks in special `<div class="replcodeblock">` blocks when their
 first line indicates that it contains a REPL calculation, which the
 style sheet can pick up and present accordingly.
-
-\begin{code}
-data DocMode
-  = Outside     -- not inside a begin{code} ... \end{code} block
-  | Beginning   -- at the start of a begin{code} ... \end{code} block
-  | InsideRepl  -- inside a REPL code block
-  | InsideProg  -- inside a non-REPL code block
-  deriving (Eq,Show)
-
-type DocState = IORef DocMode
-
-genMode :: IO MODE
-genMode = Gen <$> newIORef []
-\end{code}
 
 \begin{code}
 -- | the state is the accumulated test function identifiers for
 -- generating the list of them gets added to the end of the programme
 type GenState = IORef [String]
 
-docMode :: IO MODE
-docMode = Doc <$> newIORef Outside
+genMode :: IO MODE
+genMode = Gen <$> newIORef []
 \end{code}
 
 
 \begin{code}
-loop :: MODE -> FilePath -> FilePath -> IO ()
-loop mode =
+prep_tut :: MODE -> FilePath -> FilePath -> IO ()
+prep_tut mode =
   sed $ Select
-    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|]      $ EDIT_fun TOP $ inclde mode
-    , (,) [re|^%main ${arg}(top|bottom)$|]                             $ EDIT_gen     $ main_  mode
-    , (,) [re|^\\begin\{code\}$|]                                      $ EDIT_gen     $ begin  mode
-    , (,) [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}).*$|] $ EDIT_fun TOP $ evalme mode
-    , (,) [re|^\\end\{code\}$|]                                        $ EDIT_fun TOP $ end    mode
-    , (,) [re|^.*$|]                                                   $ EDIT_fun TOP $ other  mode
+    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] $ Function TOP $ inclde   mode
+    , (,) [re|^%main ${arg}(top|bottom)$|]                        $ LineEdit     $ main_    mode
+    , (,) [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}) \(${ans}([^)]+)\) \$ *${exp}(.*)$|]
+                                                                  $ Function TOP $ evalme   mode
+    , (,) [re|^.*$|]                                              $ Function TOP $ passthru
     ]
 \end{code}
 
 \begin{code}
-inclde, evalme, end,
-  other :: MODE
-        -> LineNo
-        -> Match LBS.ByteString
-        -> Location
-        -> Capture LBS.ByteString
-        -> IO (Maybe LBS.ByteString)
+inclde,
+  evalme :: MODE
+         -> LineNo
+         -> Match LBS.ByteString
+         -> Location
+         -> Capture LBS.ByteString
+         -> IO (Maybe LBS.ByteString)
 
-main_,
-  begin :: MODE
-        -> LineNo
-        -> Matches LBS.ByteString
-        -> IO (LineEdit LBS.ByteString)
+main_ :: MODE
+      -> LineNo
+      -> Matches LBS.ByteString
+      -> IO (LineEdit LBS.ByteString)
 
-inclde (Doc _ ) = includeDoc
+inclde  Doc     = includeDoc
 inclde (Gen _ ) = passthru
 
-main_  (Doc _ ) = mainDoc
+main_   Doc     = delete
 main_  (Gen gs) = mainGen    gs
 
-begin  (Doc ds) = beginDoc   ds
-begin  (Gen _ ) = passthru_g
-
-evalme (Doc ds) = evalmeDoc  ds
+evalme  Doc     = evalmeDoc
 evalme (Gen gs) = evalmeGen  gs
-
-end    (Doc ds) = endDoc     ds
-end    (Gen _ ) = passthru
-
-other  (Doc ds) = otherDoc   ds
-other  (Gen _ ) = passthru
 
 passthru :: LineNo
          -> Match LBS.ByteString
@@ -164,10 +137,10 @@ passthru :: LineNo
          -> IO (Maybe LBS.ByteString)
 passthru _ _ _ _ = return Nothing
 
-passthru_g :: LineNo
-           -> Matches LBS.ByteString
-           -> IO (LineEdit LBS.ByteString)
-passthru_g _ _ = return NoEdit
+delete :: LineNo
+       -> Matches LBS.ByteString
+       -> IO (LineEdit LBS.ByteString)
+delete _ _ = return Delete
 \end{code}
 
 
@@ -196,8 +169,7 @@ gen_all = do
     pd "RE/Tools/Sed"
     pd "RE/Internal/NamedCaptures"
     -- render the tutorial in HTML
-    dm <- docMode
-    loop dm "examples/re-tutorial-master.lhs" "tmp/re-tutorial.lhs"
+    prep_tut Doc "examples/re-tutorial-master.lhs" "tmp/re-tutorial.lhs"
     createDirectoryIfMissing False "tmp"
     pandoc_lhs'
       "re-tutorial.lhs"
@@ -206,7 +178,7 @@ gen_all = do
       "docs/re-tutorial.html"
     -- generate the tutorial-based tests
     gm <- genMode
-    loop gm "examples/re-tutorial-master.lhs" "examples/re-tutorial.lhs"
+    prep_tut gm "examples/re-tutorial-master.lhs" "examples/re-tutorial.lhs"
     putStrLn ">> examples/re-tutorial.lhs"
     pages
   where
@@ -238,54 +210,15 @@ includeDoc _ mtch _ _ = fmap Just $
 \end{code}
 
 \begin{code}
-mainDoc :: LineNo
-        -> Matches LBS.ByteString
-        -> IO (LineEdit LBS.ByteString)
-mainDoc _ _ = return Delete
-\end{code}
-
-\begin{code}
-beginDoc :: DocState
-         -> LineNo
-         -> Matches LBS.ByteString
-         -> IO (LineEdit LBS.ByteString)
-beginDoc ds _ _ = writeIORef ds Beginning >> return Delete
-\end{code}
-
-\begin{code}
-evalmeDoc, endDoc, otherDoc :: DocState
-                            -> LineNo
-                            -> Match LBS.ByteString
-                            -> Location
-                            -> Capture LBS.ByteString
-                            -> IO (Maybe LBS.ByteString)
-
-evalmeDoc ds lno _ _ _ = do
-  dm <- readIORef ds
-  M.when (dm/=Beginning) $
-    bad_state "evalme" lno dm
-  writeIORef ds InsideRepl
-  return $ Just $ "<div class=\"replcodeblock\">\n"<>begin_code
-
-endDoc    ds lno _ _ _ = do
-  dm <- readIORef ds
-  case dm of
-    Outside    -> bad_state "end" lno dm
-    Beginning  -> return $ Just $ begin_code <> "\n" <> end_code
-    InsideRepl -> return $ Just $ end_code   <> "\n</div>"
-    InsideProg -> return   Nothing
-
-otherDoc  ds _ mtch _ _ = do
-  dm <- readIORef ds
-  case dm of
-    Beginning -> do
-      writeIORef ds InsideProg
-      return $ Just $ begin_code <> "\n" <> matchSource mtch
-    _ -> return Nothing
-
-bad_state :: String -> LineNo -> DocMode -> IO a
-bad_state lab lno dm = error $
-  printf "Bad document syntax: %s: %d: %s" lab (getLineNo lno) $ show dm
+evalmeDoc :: LineNo
+          -> Match LBS.ByteString
+          -> Location
+          -> Capture LBS.ByteString
+          -> IO (Maybe LBS.ByteString)
+evalmeDoc _ mtch _ _ = return $ Just $ replace mtch $ LBS.intercalate "\n"
+  [ "ghci> ${exp}"
+  , "${ans}"
+  ]
 \end{code}
 
 
@@ -300,9 +233,9 @@ evalmeGen :: GenState
           -> Capture LBS.ByteString
           -> IO (Maybe LBS.ByteString)
 evalmeGen gs _ mtch0 _ _ = Just <$>
-    replaceCapturesM replace_ ALL f mtch0
+    replaceCapturesM replaceMethods ALL f mtch0
   where
-    f mtch loc cap = case _loc_capture loc of
+    f mtch loc cap = case locationCapture loc of
       2 -> do
           modifyIORef gs (ide:)
           return $ Just $ LBS.pack $ show ide
@@ -353,8 +286,6 @@ begin_code, end_code :: LBS.ByteString
 begin_code = "\\"<>"begin{code}"
 end_code   = "\\"<>"end{code}"
 \end{code}
-
-
 
 \begin{code}
 mk_list :: [String] -> [LBS.ByteString]
@@ -462,6 +393,7 @@ pages = do
 data Page
   = PG_index
   | PG_about
+  | PG_reblog
   | PG_contact
   | PG_build_status
   | PG_installation
@@ -490,6 +422,7 @@ page_title :: Page -> LBS.ByteString
 page_title pg = case pg of
   PG_index        -> "Home"
   PG_about        -> "About"
+  PG_reblog       -> "Blog"
   PG_contact      -> "Contact"
   PG_build_status -> "Build Status"
   PG_installation -> "Installation"
@@ -557,7 +490,7 @@ prep_page ttl mmd in_fp out_fp = do
 
 set_title :: LBS.ByteString -> LBS.ByteString -> LBS.ByteString
 set_title ttl lbs = fromMaybe oops $ flip sed' lbs $ Pipe
-    [ (,) [re|<<\$title\$>>|] $ EDIT_fun TOP $ \_ _ _ _->return $ Just ttl
+    [ (,) [re|<<\$title\$>>|] $ Function TOP $ \_ _ _ _->return $ Just ttl
     ]
   where
     -- runIdentity added to base in 4.9 only
@@ -573,10 +506,10 @@ prep_page' mmd lbs = do
     return (hdgs,lbs1<>lbs2)
   where
     scr rf_h rf_t = Select
-      [ (,) [re|^%heading#${ide}(@{%id}) +${ttl}([^ ].*)$|] $ EDIT_fun TOP $ heading       mmd rf_t rf_h
-      , (,) [re|^- \[ \] +${itm}(.*)$|]                     $ EDIT_fun TOP $ task_list     mmd rf_t False
-      , (,) [re|^- \[[Xx]\] +${itm}(.*)$|]                  $ EDIT_fun TOP $ task_list     mmd rf_t True
-      , (,) [re|^.*$|]                                      $ EDIT_fun TOP $ fin_task_list mmd rf_t
+      [ (,) [re|^%heading#${ide}(@{%id}) +${ttl}([^ ].*)$|] $ Function TOP $ heading       mmd rf_t rf_h
+      , (,) [re|^- \[ \] +${itm}(.*)$|]                     $ Function TOP $ task_list     mmd rf_t False
+      , (,) [re|^- \[[Xx]\] +${itm}(.*)$|]                  $ Function TOP $ task_list     mmd rf_t True
+      , (,) [re|^.*$|]                                      $ Function TOP $ fin_task_list mmd rf_t
       ]
 
 heading :: MarkdownMode
@@ -639,30 +572,35 @@ mk_pre_body_html pg hdgs = hdr <> LBS.concat (map nav [minBound..maxBound]) <> f
     ftr = [here|          </ul>
       </div>
       <div class="supplementary widget" id="github">
-        <a href="https://github.com/iconnect/regex"><img src="images/code.svg" alt="github code" /> Code</a>
+        <a href="http://code.regex.uk"><img src="images/code.svg" alt="github code" /> Code</a>
       </div>
       <div class="supplementary widget" id="github-issues">
-        <a href="https://github.com/iconnect/regex/issues"><img src="images/issue-opened.svg" alt="github code" /> Issues</a>
+        <a href="http://issues.regex.uk"><img src="images/issue-opened.svg" alt="github issues" /> Issues</a>
       </div>
       <div class="widget-divider">&nbsp;</div>
-      <div class="supplementary widget" id="build-status">
+      <div class="supplementary widget" id="blog-badge">
+        <a href="http://blog.regex.uk">
+          <img src="badges/blog.svg" alt="regex blog" />
+        </a>
+      </div>
+      <div class="supplementary widget" id="hackage-badge">
         <a href="https://hackage.haskell.org/package/regex">
           <img src="badges/hackage.svg" alt="hackage version" />
         </a>
       </div>
-      <div class="supplementary widget" id="build-status">
+      <div class="supplementary widget" id="build-status-badge">
         <a href="build-status">
           <img src="badges/build-status.svg" alt="build status" />
         </a>
       </div>
       <div class="supplementary widget" id="maintainers-contact">
         <a href="mailto:maintainers@regex.uk">
-          <img src="badges/maintainers-contact.svg" alt="build status" />
+          <img src="badges/maintainers-contact.svg" alt="maintainers contact" />
         </a>
       </div>
       <div class="supplementary widget" id="feedback-contact">
         <a href="mailto:feedback@regex.uk">
-          <img src="badges/feedback-contact.svg" alt="build status" />
+          <img src="badges/feedback-contact.svg" alt="deedback contact" />
         </a>
       </div>
       <div class="supplementary widget twitter">
@@ -676,7 +614,7 @@ mk_pre_body_html pg hdgs = hdr <> LBS.concat (map nav [minBound..maxBound]) <> f
 pst_body_html :: LBS.ByteString
 pst_body_html = [here|      </div>
     </div>
-|]
+|] <> tracking
 \end{code}
 
 
@@ -793,7 +731,7 @@ pandoc_lhs' title repo_path in_file out_file = do
 
     ft = LBS.concat
       [ "</div>"
-      ]
+      ] <> tracking
 
     repo_url = LBS.concat
       [ "https://github.com/iconnect/regex/blob/master/"
@@ -807,12 +745,17 @@ tweak_md
 
 \begin{code}
 tweak_md :: MarkdownMode -> LBS.ByteString -> LBS.ByteString
-tweak_md MM_github  lbs = lbs
-tweak_md MM_pandoc  lbs = lbs
-tweak_md MM_hackage lbs = fromMaybe oops $ flip sed' lbs $ Pipe
-    [ (,) [re|<br/>$|] $ EDIT_fun TOP $ \_ _ _ _->return $ Just "\n"
-    ]
+tweak_md mm lbs = case mm of
+    MM_github  -> lbs
+    MM_pandoc  -> awk
+      [ (,) [re|<https?://${rest}([^)]+)>|] $ Template "[${rest}]($0)"
+      ]
+    MM_hackage -> awk
+      [ (,) [re|<br/>$|] $ Template "\n"
+      ]
   where
+    awk = fromMaybe oops . flip sed' lbs . Pipe
+
     -- runIdentity added to base in 4.9 only
     oops = error "tweak_md"
 \end{code}
@@ -823,7 +766,26 @@ branding
 
 \begin{code}
 branding :: LBS.ByteString
-branding = [here|<a href="." style="Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a>|]
+branding = [here|<a href="." style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a>|]
+\end{code}
+
+
+tracking
+--------
+
+\begin{code}
+tracking :: LBS.ByteString
+tracking = [here|    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-92650418-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+|]
 \end{code}
 
 
@@ -833,9 +795,8 @@ testing
 \begin{code}
 test :: IO ()
 test = do
-  dm <- docMode
-  test_pp "pp-doc" (loop dm) "data/pp-test.lhs" "data/pp-result-doc.lhs"
+  test_pp "pp-doc" (prep_tut Doc) "data/pp-test.lhs" "data/pp-result-doc.lhs"
   gm <- genMode
-  test_pp "pp-gen" (loop gm) "data/pp-test.lhs" "data/pp-result-gen.lhs"
+  test_pp "pp-gen" (prep_tut gm ) "data/pp-test.lhs" "data/pp-result-gen.lhs"
   putStrLn "tests passed"
 \end{code}

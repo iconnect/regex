@@ -44,7 +44,7 @@ An (self-)include directive
 
 A one-line evalme fragment.
 \begin{code}
-evalme_PPT_00 = checkThis "evalme_PPT_00" 0 $
+evalme_PPT_00 = checkThis "" 0 $
   length []
 \end{code}
 
@@ -60,7 +60,6 @@ And the main bottom stuff.
 main :: IO ()
 main = runTests
   [ evalme_PPT_01
-  , evalme_PPT_00
   ]
 \end{code}
 

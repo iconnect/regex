@@ -142,12 +142,12 @@ docMode <span class="fu">=</span> <span class="dt">Doc</span> <span class="fu">&
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">loop ::</span> <span class="dt">MODE</span> <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 loop mode <span class="fu">=</span>
   sed <span class="fu">$</span> <span class="dt">Select</span>
-    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|]      <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> include mode
-    , (,) [re|^%main ${arg}(top|bottom)$|]                             <span class="fu">$</span> <span class="dt">EDIT_gen</span>     <span class="fu">$</span> main_   mode
-    , (,) [re|^\\begin\{code\}$|]                                      <span class="fu">$</span> <span class="dt">EDIT_gen</span>     <span class="fu">$</span> begin   mode
-    , (,) [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}).*$|] <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> evalme  mode
-    , (,) [re|^\\end\{code\}$|]                                        <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> end     mode
-    , (,) [re|^.*$|]                                                   <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> other   mode
+    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|]      <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> include mode
+    , (,) [re|^%main ${arg}(top|bottom)$|]                             <span class="fu">$</span> <span class="dt">LineEdit</span>     <span class="fu">$</span> main_   mode
+    , (,) [re|^\\begin\{code\}$|]                                      <span class="fu">$</span> <span class="dt">LineEdit</span>     <span class="fu">$</span> begin   mode
+    , (,) [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}).*$|] <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> evalme  mode
+    , (,) [re|^\\end\{code\}$|]                                        <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> end     mode
+    , (,) [re|^.*$|]                                                   <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> other   mode
     ]</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">include, evalme, end,
 <span class="ot">  other ::</span> <span class="dt">MODE</span>
@@ -294,9 +294,9 @@ bad_state lab lno dm <span class="fu">=</span> error <span class="fu">$</span>
           <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
           <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
 evalmeGen gs _ mtch0 _ _ <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">&lt;$&gt;</span>
-    replaceCapturesM replace_ <span class="dt">ALL</span> f mtch0
+    replaceCapturesM replaceMethods <span class="dt">ALL</span> f mtch0
   <span class="kw">where</span>
-    f mtch loc cap <span class="fu">=</span> <span class="kw">case</span> _loc_capture loc <span class="kw">of</span>
+    f mtch loc cap <span class="fu">=</span> <span class="kw">case</span> locationCapture loc <span class="kw">of</span>
       <span class="dv">2</span> <span class="ot">-&gt;</span> <span class="kw">do</span>
           modifyIORef gs (ide<span class="fu">:</span>)
           return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> LBS.pack <span class="fu">$</span> show ide
@@ -455,8 +455,8 @@ prep_page&#39; mmd lbs <span class="fu">=</span> <span class="kw">do</span>
     return (hdgs,lbs&#39;)
   <span class="kw">where</span>
     scr rf <span class="fu">=</span> <span class="dt">Select</span>
-      [ (,) [re|^%heading#${ide}(@{%id}) +${ttl}([^ ].*)$|] <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> heading mmd rf
-      , (,) [re|^.*$|]                                      <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
+      [ (,) [re|^%heading#${ide}(@{%id}) +${ttl}([^ ].*)$|] <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> heading mmd rf
+      , (,) [re|^.*$|]                                      <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
       ]
 
 <span class="ot">heading ::</span> <span class="dt">MarkdownMode</span>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"
+    xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>the regex blog</title>
+        <link>http://blog.regex.uk</link>
+        <description><![CDATA[Writing Haskell and the regex package.]]></description>
+        <atom:link href="http://blog.regex.uk/rss.xml" rel="self"
+                   type="application/rss+xml" />
+        <lastBuildDate>Sun, 26 Feb 2017 00:00:00 UT</lastBuildDate>
+        <item>
+    <title>HaskellX Bytes Talk: Why Regular Expressions Matter</title>
+    <link>http://blog.regex.uk/posts/2017-02-26-0-haskellx-bytes-why-res-matter.html</link>
+    <description><![CDATA[<p class="subheading">
+HaskellX Bytes Talk at <a href="https://skillsmatter.com/contact-us">CodeNode</a>, London, <strong>2017-05-08T1830+0100</strong> by Chris Dornan (<a href="https://skillsmatter.com/meetups/9160-why-regular-expressions-matter-with-chris-dornan">Skills Matter page</a>)
+</p>
+<p>In this talk I will look at how Regular Expressions have been supported in Haskell and how well they should be supported. (Spoiler alert: I don’t think they have been supported well enough.) Some technically excellent packages are available which have been widely adopted but there is strong evidence that they are not as easy to use as developers expect and a wide variety of alternative packages have been proposed, none of which have attracted enough support to supplant the original.</p>
+<p>I will speculate on why this situation has come about and why I think the new ‘regex’ package will fix all of this. (Another spoiler alert: it is built on top of the technically excellent, de facto standard ‘regex-base’ packages that get used when Haskell folks really, really can’t avoid using regular expressions.)</p>]]></description>
+    <pubDate>Sun, 26 Feb 2017 00:00:00 UT</pubDate>
+    <guid>http://blog.regex.uk/posts/2017-02-26-0-haskellx-bytes-why-res-matter.html</guid>
+    <dc:creator>Chris Dornan</dc:creator>
+</item>
+
+    </channel>
+</rss>

@@ -58,7 +58,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <body>
 <div class='bcdiv'>
   <ol class='breadcrumb'>
-    <li><a href="." style="Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a></li>
+    <li><a href="." style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a></li>
     <li><a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/TestBench.lhs'>Text.RE.TestBench</a></li>
 </ol>
 </div>
@@ -192,7 +192,7 @@ testMacroEnv lab rty m_env <span class="fu">=</span> <span class="kw">case</span
   []    <span class="ot">-&gt;</span> return <span class="dt">True</span>
   fails <span class="ot">-&gt;</span> <span class="kw">do</span>
     putStrLn <span class="fu">$</span> lab&#39; <span class="fu">++</span> <span class="st">&quot; has failing tests for these macros: &quot;</span>
-    putStr   <span class="fu">$</span> unlines <span class="fu">$</span> [ <span class="st">&quot;  &quot;</span><span class="fu">++</span>_MacroID mid <span class="fu">|</span> mid<span class="ot">&lt;-</span>fails ]
+    putStr   <span class="fu">$</span> unlines <span class="fu">$</span> [ <span class="st">&quot;  &quot;</span><span class="fu">++</span>getMacroID mid <span class="fu">|</span> mid<span class="ot">&lt;-</span>fails ]
     putStrLn <span class="fu">$</span> <span class="st">&quot;The whole table:&quot;</span>
     putStrLn <span class="fu">$</span> <span class="st">&quot;========================================================&quot;</span>
     putStr   <span class="fu">$</span> formatMacroTable rty m_env
@@ -275,13 +275,13 @@ formatMacroSummary rty env mid <span class="fu">=</span> maybe oops prep <span c
           [ln] <span class="ot">-&gt;</span> (,) ln []
           lns_ <span class="ot">-&gt;</span> (,) <span class="st">&quot;&quot;</span> lns_
 
-    oops <span class="fu">=</span> error <span class="fu">$</span> _MacroID mid <span class="fu">++</span> <span class="st">&quot;: macro not defined in this environment&quot;</span></code></pre></div>
+    oops <span class="fu">=</span> error <span class="fu">$</span> getMacroID mid <span class="fu">++</span> <span class="st">&quot;: macro not defined in this environment&quot;</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatMacroSources ::</span> <span class="dt">RegexType</span>
                    <span class="ot">-&gt;</span> <span class="dt">WithCaptures</span>
                    <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span>
                    <span class="ot">-&gt;</span> <span class="dt">String</span>
 formatMacroSources rty wc env <span class="fu">=</span> unlines <span class="fu">$</span>
-    [ printf <span class="st">&quot;%-20s : %s&quot;</span> (_MacroID mid) <span class="fu">$</span> formatMacroSource rty wc env mid
+    [ printf <span class="st">&quot;%-20s : %s&quot;</span> (getMacroID mid) <span class="fu">$</span> formatMacroSource rty wc env mid
         <span class="fu">|</span> mid <span class="ot">&lt;-</span> L.sort <span class="fu">$</span> HML.keys env
         ]</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatMacroSource ::</span> <span class="dt">RegexType</span>
@@ -292,7 +292,7 @@ formatMacroSources rty wc env <span class="fu">=</span> unlines <span class="fu"
 formatMacroSource rty wc env mid <span class="fu">=</span>
     mdRegexSource rty wc env <span class="fu">$</span> fromMaybe oops <span class="fu">$</span> HML.lookup mid env
   <span class="kw">where</span>
-    oops <span class="fu">=</span> error <span class="fu">$</span> <span class="st">&quot;formatMacroSource: not found: &quot;</span> <span class="fu">++</span> _MacroID mid</code></pre></div>
+    oops <span class="fu">=</span> error <span class="fu">$</span> <span class="st">&quot;formatMacroSource: not found: &quot;</span> <span class="fu">++</span> getMacroID mid</code></pre></div>
 <h2 id="testmacrodescriptors-regexsource">testMacroDescriptors, regexSource</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">testMacroDescriptors ::</span> [<span class="dt">MacroDescriptor</span>] <span class="ot">-&gt;</span> [<span class="dt">TestResult</span>]
 testMacroDescriptors <span class="fu">=</span> concat <span class="fu">.</span> map _md_test_results
@@ -337,7 +337,7 @@ macro_table_row rty mid md <span class="fu">=</span>
                 <span class="ot">-&gt;</span> [<span class="dt">String</span>]
 macro_attribute rty mid <span class="dt">MacroDescriptor</span>{<span class="fu">..</span>} c <span class="fu">=</span>
     <span class="kw">case</span> c <span class="kw">of</span>
-      <span class="dt">C_name</span>          <span class="ot">-&gt;</span> [_MacroID mid]
+      <span class="dt">C_name</span>          <span class="ot">-&gt;</span> [getMacroID mid]
       <span class="dt">C_caps</span>          <span class="ot">-&gt;</span> [show <span class="fu">$</span> min_captures rty <span class="fu">$</span> scan_re _md_source]
       <span class="dt">C_regex</span>         <span class="ot">-&gt;</span> [regexSource rty <span class="dt">ExclCaptures</span> _md_source]
       <span class="dt">C_examples</span>      <span class="ot">-&gt;</span> _md_samples
@@ -548,9 +548,18 @@ test_diagnostic mid is_neg rty tst msg <span class="fu">=</span>
     <span class="dt">TestResult</span> <span class="fu">$</span>
       printf <span class="st">&quot;%-20s [%s %s] : %s (%s)&quot;</span> mid_s neg_s rty_s msg tst
   <span class="kw">where</span>
-    mid_s <span class="fu">=</span> _MacroID mid
+    mid_s <span class="fu">=</span> getMacroID mid
     neg_s <span class="fu">=</span> <span class="kw">if</span> is_neg <span class="kw">then</span> <span class="st">&quot;-ve&quot;</span> <span class="kw">else</span> <span class="st">&quot;+ve&quot;</span><span class="ot"> ::</span> <span class="dt">String</span>
     rty_s <span class="fu">=</span> show rty</code></pre></div>
-</div>
+</div>    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-92650418-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
 </body>
 </html>

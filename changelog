@@ -1,9 +1,16 @@
 -*-change-log-*-
 
+0.3.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-02-26
+  * Clean up API to use camelCase conventions
+  * Use -Werror in development and testing, -Warn for Hackage
+  * Integrate the regex blog
+  * Better presentation of ghci tryouts in the Tutorial
+  * Various minor README upgrades and fixes
+
 0.2.0.4 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-02-22
   * Repair re-gen-modules-test for Windows
 
-0.2.0.4 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-02-21
+0.2.0.3 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-02-21
   * README/index layout tweak
 
 0.2.0.2 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-02-21

@@ -121,7 +121,7 @@ script ctx = Select
     ]
   where
     on rex src prs =
-      (,) (rex lpo) $ EDIT_fun TOP $ process_line ctx src prs
+      (,) (rex lpo) $ Function TOP $ process_line ctx src prs
 
     parse_def      = fmap capturedText . matchCapture
 \end{code}
@@ -556,7 +556,7 @@ newtype User =
   deriving (IsString,Ord,Eq,Show)
 
 parse_user :: Replace a => a -> Maybe User
-parse_user = Just . User . LBS.pack . unpack_
+parse_user = Just . User . LBS.pack . unpackE
 
 
 --
@@ -564,7 +564,7 @@ parse_user = Just . User . LBS.pack . unpack_
 --
 
 parse_pid_tid :: Replace a => a -> Maybe (Int,Int)
-parse_pid_tid x = case allMatches $ unpack_ x S.*=~ [re|@{%nat}|] of
+parse_pid_tid x = case allMatches $ unpackE x S.*=~ [re|@{%nat}|] of
     [cs,cs'] -> (,) <$> p cs <*> p cs'
     _        -> Nothing
   where

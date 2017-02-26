@@ -9,28 +9,38 @@ import           Data.Maybe
 import qualified Data.Text                      as T
 
 
+-- | CaptureID identifies captures, either by number
+-- (e.g., [cp|1|]) or name (e.g., [cp|foo|]).
 data CaptureID
-  = CID_ordinal CaptureOrdinal
-  | CID_name    CaptureName
+  = IsCaptureOrdinal CaptureOrdinal
+  | IsCaptureName    CaptureName
   deriving (Show,Ord,Eq)
 
+-- | the dictionary for named captures stored in compiled regular
+-- expressions associates
 type CaptureNames = HMS.HashMap CaptureName CaptureOrdinal
 
+-- | an empty 'CaptureNames' dictionary
 noCaptureNames :: CaptureNames
 noCaptureNames = HMS.empty
 
+-- | a 'CaptureName' is just the text of the name
 newtype CaptureName = CaptureName { getCaptureName :: T.Text }
   deriving (Show,Ord,Eq)
 
 instance Hashable CaptureName where
   hashWithSalt i = hashWithSalt i . getCaptureName
 
+-- | a 'CaptureOrdinal' is just the number of the capture, starting
+-- with 0 for the whole of the text matched, then in leftmost,
+-- outermost
 newtype CaptureOrdinal = CaptureOrdinal { getCaptureOrdinal :: Int }
   deriving (Show,Ord,Eq,Enum,Ix,Num)
 
+-- | look up a 'CaptureID' in the 'CaptureNames' dictionary
 findCaptureID :: CaptureID -> CaptureNames -> Int
-findCaptureID (CID_ordinal o) _   = getCaptureOrdinal o
-findCaptureID (CID_name    n) hms =
+findCaptureID (IsCaptureOrdinal o) _   = getCaptureOrdinal o
+findCaptureID (IsCaptureName    n) hms =
     getCaptureOrdinal $ fromMaybe oops $ HMS.lookup n hms
   where
     oops = error $ unlines $

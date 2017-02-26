@@ -29,10 +29,9 @@ data Edits m re s
   | Pipe   [(re,Edit m s)]
 
 data Edit m s
-  = EDIT_tpl s
-  | EDIT_phi (Phi s)
-  | EDIT_fun Context (LineNo->Match s->Location->Capture s->m (Maybe s))
-  | EDIT_gen         (LineNo->Matches s->m (LineEdit s))
+  = Template s
+  | Function Context (LineNo->Match s->Location->Capture s->m (Maybe s))
+  | LineEdit         (LineNo->Matches s->m (LineEdit s))
 
 data LineEdit s
   = NoEdit
@@ -60,10 +59,9 @@ applyEdit anl lno re edit s =
   case allMatches acs of
     [] -> return Nothing
     _  -> fmap Just $ case edit of
-      EDIT_tpl tpl   -> return $ anl $ replaceAll         tpl acs
-      EDIT_phi phi   -> return $ anl $ replaceAllCaptures phi acs
-      EDIT_fun ctx f -> anl <$> replaceAllCapturesM replace_ ctx (f lno) acs
-      EDIT_gen     g -> fromMaybe s' . applyLineEdit anl <$> g lno acs
+      Template tpl   -> return $ anl $ replaceAll         tpl acs
+      Function ctx f -> anl <$> replaceAllCapturesM replaceMethods ctx (f lno) acs
+      LineEdit     g -> fromMaybe s' . applyLineEdit anl <$> g lno acs
   where
     s'  = anl s
     acs = matchMany re s
@@ -80,9 +78,9 @@ select_edit_scripts :: (IsRegex re s,Monad m,Functor m)
                     -> m s
 select_edit_scripts lno ps0 s = select ps0
   where
-    select []           = return $ appendNewline s
+    select []           = return $ appendNewlineE s
     select ((re,es):ps) =
-      applyEdit appendNewline lno re es s >>= maybe (select ps) return
+      applyEdit appendNewlineE lno re es s >>= maybe (select ps) return
 
 pipe_edit_scripts :: (IsRegex re s,Monad m,Functor m)
                   => LineNo
@@ -90,7 +88,7 @@ pipe_edit_scripts :: (IsRegex re s,Monad m,Functor m)
                   -> s
                   -> m s
 pipe_edit_scripts lno ez s0 =
-    appendNewline <$> foldr f (return s0) ez
+    appendNewlineE <$> foldr f (return s0) ez
   where
     f (re,es) act = do
       s <- act

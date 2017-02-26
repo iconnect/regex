@@ -17,7 +17,6 @@ Here we have a couple of single-line vanilla code fragment.
 And here is an empty one.
 \begin{code}
 \end{code}
-\begin{code}
 
 The top main stuff:
 
@@ -41,18 +40,17 @@ evalme_PPT_01 = checkThis "" (Just 0) $
 
 
 A one-line evalme fragment.
-<div class="replcodeblock">
 \begin{code}
+evalme_PPT_00 = checkThis "" 0 $
   length []
 \end{code}
-</div>
 
 An evalme fragment spread over a couple of lines.
-<div class="replcodeblock">
 \begin{code}
+ghci> 
+Just 0
   length <$>
     Just []
 \end{code}
-</div>
 
 And the main bottom stuff.

@@ -7,9 +7,12 @@ See the [About page](http://about.regex.uk) for details.
 
 %heading#twopackages regex and regex-examples
 
-  * the `regex` package contains the regex library
+The library and tutorial, tests and examples have been split across
+two packages:
+
+  * the `regex` package contains the regex library and
   * the `regex-examples` package contains the tutorial, tests
-    and example programs
+    and example programs.
 
 
 %heading#roadmap Road Map
@@ -17,6 +20,12 @@ See the [About page](http://about.regex.uk) for details.
 %include "lib/md/roadmap-incl.md"
 
 See the [Roadmap page](http://roadmap.regex.uk) for details.
+
+
+%heading#blogrm The regex blog
+
+Check out the [regex blog](http://blog.regex.uk) for news articles and
+discussion concerning all things regex.
 
 
 %heading#build Build Status
@@ -67,7 +76,7 @@ A handy overview of the regex.uk domain can be found
 [here](http://directory.regex.uk).
 
 
-%heading#examples The Changelog
+%heading#rmchangelog The Changelog
 
 The `changelog` is posted [here](http://changelog.regex.uk).
 

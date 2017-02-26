@@ -119,10 +119,9 @@ This allows simple calculations to be defined stylistically
 in the source program, presented as calculations when rendered
 in HTML and tested that they have the expected result.
 \begin{code}
-evalme_LOA_00 = checkThis "evalme_LOA_00" 0 $
-  length []
+evalme_LOA_00 = checkThis "evalme_LOA_00" (0) $ length []
 \end{code}
-This trivial example calculation will be tested for equality to 0.
+This trivial example calculation will be tested for zero-ness.
 
 
 Matching with the regex-base Operators
@@ -132,8 +131,7 @@ regex supports the regex-base polymorphic match operators. Used in a
 `Bool` context `=~` will evaluate to True iff the string on the left matches
 the RE on the right.
 \begin{code}
-evalme_TRD_00 = checkThis "evalme_TRD_00" True $
-  ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Bool)
+evalme_TRD_00 = checkThis "evalme_TRD_00" (True) $ ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Bool)
 \end{code}
 Note that we enclose the RE itself in `[re|` ... `|]` quasi quote brackets,
 allowing the compiler to run some regex code at compile time to verify that
@@ -143,24 +141,19 @@ string contains a matching sub-string.
 
 Used in an `Int` context `=~` will count the number of matches in the target string.
 \begin{code}
-evalme_TRD_01 = checkThis "evalme_TRD_01" 2 $
-  ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Int)
+evalme_TRD_01 = checkThis "evalme_TRD_01" (2) $ ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Int)
 \end{code}
 
 To determine the string that has matched the modaic `=~~` operator can be used
 in a `Maybe` context.
 \begin{code}
-evalme_TRD_02 = checkThis "evalme_TRD_02" (Just "2016-01-09") $
-  ("2016-01-09 2015-12-5 2015-10-05" =~~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Maybe String)
+evalme_TRD_02 = checkThis "evalme_TRD_02" (Just "2016-01-09") $ ("2016-01-09 2015-12-5 2015-10-05" =~~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Maybe String)
 \end{code}
-This should evaluate to `Just "2016-01-09"`.
 
 A `=~` in a `[[String]]` extracts all of the matched substrings:
 \begin{code}
-evalme_TRD_04 = checkThis "evalme_TRD_04" [["2016-01-09"],["2015-10-05"]] $
-  ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: [[String]])
+evalme_TRD_04 = checkThis "evalme_TRD_04" ([["2016-01-09"],["2015-10-05"]]) $ ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: [[String]])
 \end{code}
-yields `[["2016-01-09"],["2015-10-05"]]`.
 
 regex provides special operators and types for extracting the first
 match or all of the non-overlapping substrings matching a regular expression
@@ -177,18 +170,14 @@ first-match operator, `?=~`, yields the result of attempting to find the first
 match. (It's result type will be explained below.) The boolean `matched`
 function can be used to test whether a match was found.
 \begin{code}
-evalme_SGL_01 = checkThis "evalme_SGL_01" True $
-  matched $ "2016-01-09 2015-12-5 2015-10-05" ?=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+evalme_SGL_01 = checkThis "evalme_SGL_01" (True) $ matched $ "2016-01-09 2015-12-5 2015-10-05" ?=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
-This should yield `True`.
 
 To get the matched text use `matchText`, which returns `Nothing` if no match was
 found in the search string.
 \begin{code}
-evalme_SGL_02 = checkThis "evalme_SGL_02" (Just "2016-01-09") $
-  matchedText $ "2016-01-09 2015-12-5 2015-10-05" ?=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+evalme_SGL_02 = checkThis "evalme_SGL_02" (Just "2016-01-09") $ matchedText $ "2016-01-09 2015-12-5 2015-10-05" ?=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
-This should yield `Just "2016-01-09"`.
 
 
 Multiple Matches with `*=~`
@@ -197,22 +186,18 @@ Multiple Matches with `*=~`
 Use `*=~` to locate all of the non-overlapping substrings that matches a RE.
 `anyMatches` will return `True` iff any matches are found (and they will be).
 \begin{code}
-evalme_MLT_01 = checkThis "evalme_MLT_01" True $
-  anyMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+evalme_MLT_01 = checkThis "evalme_MLT_01" (True) $ anyMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
 
 `countMatches` will tell us how many sub-strings matched (2).
 \begin{code}
-evalme_MLT_02 = checkThis "evalme_MLT_02" 2 $
-  countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+evalme_MLT_02 = checkThis "evalme_MLT_02" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
 
 `matches` will return all of the matches.
 \begin{code}
-evalme_MLT_03 = checkThis "evalme_MLT_03" ["2016-01-09","2015-10-05"] $
-  matches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+evalme_MLT_03 = checkThis "evalme_MLT_03" (["2016-01-09","2015-10-05"]) $ matches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
-This should yield `["2016-01-09","2015-10-05"]`.
 
 
 Simple Text Replacement
@@ -243,10 +228,8 @@ uk_dates src =
 \end{code}
 with
 \begin{code}
-evalme_RPL_01 = checkThis "evalme_RPL_01" "09/01/2016 2015-12-5 05/10/2015" $
-  uk_dates "2016-01-09 2015-12-5 2015-10-05"
+evalme_RPL_01 = checkThis "evalme_RPL_01" ("09/01/2016 2015-12-5 05/10/2015") $ uk_dates "2016-01-09 2015-12-5 2015-10-05"
 \end{code}
-yielding `"09/01/2016 2015-12-5 05/10/2015"`.
 
 The same function written with numbered captures:
 \begin{code}
@@ -256,8 +239,7 @@ uk_dates' src =
 \end{code}
 with
 \begin{code}
-evalme_RPL_02 = checkThis "evalme_RPL_02" "09/01/2016 2015-12-5 05/10/2015" $
-  uk_dates' "2016-01-09 2015-12-5 2015-10-05"
+evalme_RPL_02 = checkThis "evalme_RPL_02" ("09/01/2016 2015-12-5 05/10/2015") $ uk_dates' "2016-01-09 2015-12-5 2015-10-05"
 \end{code}
 yielding the same result.
 
@@ -333,8 +315,7 @@ Simple Options
 By default regular expressions are of the multi-line case-sensitive
 variety so this query
 \begin{code}
-evalme_SOP_01 = checkThis "evalme_SOP_01" 2 $
-  countMatches $ "0a\nbb\nFe\nA5" *=~ [re|[0-9a-f]{2}$|]
+evalme_SOP_01 = checkThis "evalme_SOP_01" (2) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [re|[0-9a-f]{2}$|]
 \end{code}
 finds 2 matches, the '$' anchor matching each of the newlines, but only
 the first two lowercase hex numbers matching the RE. The case sensitivity
@@ -354,30 +335,25 @@ and multiline-ness can be controled by selecting alternative parsers.
 
 So while the default setup
 \begin{code}
-evalme_SOP_02 = checkThis "evalme_SOP_02" 2 $
-  countMatches $ "0a\nbb\nFe\nA5" *=~ [reMultilineSensitive|[0-9a-f]{2}$|]
+evalme_SOP_02 = checkThis "evalme_SOP_02" (2) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [reMultilineSensitive|[0-9a-f]{2}$|]
 \end{code}
 finds 2 matches, a case-insensitive RE
 \begin{code}
-evalme_SOP_03 = checkThis "evalme_SOP_03" 4 $
-  countMatches $ "0a\nbb\nFe\nA5" *=~ [reMultilineInsensitive|[0-9a-f]{2}$|]
+evalme_SOP_03 = checkThis "evalme_SOP_03" (4) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [reMultilineInsensitive|[0-9a-f]{2}$|]
 \end{code}
 finds 4 matches, while a non-multiline RE
 \begin{code}
-evalme_SOP_04 = checkThis "evalme_SOP_04" 0 $
-  countMatches $ "0a\nbb\nFe\nA5" *=~ [reBlockSensitive|[0-9a-f]{2}$|]
+evalme_SOP_04 = checkThis "evalme_SOP_04" (0) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [reBlockSensitive|[0-9a-f]{2}$|]
 \end{code}
 finds no matches but a non-multiline, case-insensitive match
 \begin{code}
-evalme_SOP_05 = checkThis "evalme_SOP_05" 1 $
-  countMatches $ "0a\nbb\nFe\nA5" *=~ [reBlockInsensitive|[0-9a-f]{2}$|]
+evalme_SOP_05 = checkThis "evalme_SOP_05" (1) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [reBlockInsensitive|[0-9a-f]{2}$|]
 \end{code}
 finds the final match.
 
 For the hard of typing the shortforms are available.
 \begin{code}
-evalme_SOP_06 = checkThis "evalme_SOP_06" True $
-  matched $ "SuperCaliFragilisticExpialidocious" ?=~ [reMI|supercalifragilisticexpialidocious|]
+evalme_SOP_06 = checkThis "evalme_SOP_06" (True) $ matched $ "SuperCaliFragilisticExpialidocious" ?=~ [reMI|supercalifragilisticexpialidocious|]
 \end{code}
 
 
@@ -385,32 +361,37 @@ Using Functions to Replace Text
 -------------------------------
 
 Sometimes you will need to process each string captured by an RE with a
-function. `replaceAllCaptures` takes a `Phi` and a `Matches` and
-applies the function to each captured substring according to the
-`Context` specified in `Phi`, as we can see in the following example function
-to clean up all of the mis-formatted dates in the argument string,
+function. `replaceAllCaptures` takes a `Context`, a substitution
+function and a `Matches` and applies the function to each captured
+substring according to the `Context`, as we can see in the following
+example function to clean up all of the mis-formatted dates in the
+argument string,
 \begin{code}
 fixup_dates :: String -> String
 fixup_dates src =
-    replaceAllCaptures phi $ src *=~ [re|([0-9]+)-([0-9]+)-([0-9]+)|]
+    replaceAllCaptures SUB phi $ src *=~ [re|([0-9]+)-([0-9]+)-([0-9]+)|]
   where
-    phi = Phi SUB $ \loc s -> case _loc_capture loc of
-      1 -> printf "%04d" (read s :: Int)
-      2 -> printf "%02d" (read s :: Int)
-      3 -> printf "%02d" (read s :: Int)
-      _ -> error "fixup_date"
+    phi _ loc cap = Just $ case locationCapture loc of
+        1 -> printf "%04d" (read s :: Int)
+        2 -> printf "%02d" (read s :: Int)
+        3 -> printf "%02d" (read s :: Int)
+        _ -> error "fixup_dates"
+      where
+        s = capturedText cap
 \end{code}
 which will fix up our running example
 \begin{code}
-evalme_RPF_01 = checkThis "evalme_RPF_01" "2016-01-09 2015-12-05 2015-10-05" $
-  fixup_dates "2016-01-09 2015-12-5 2015-10-05"
+evalme_RPF_01 = checkThis "evalme_RPF_01" ("2016-01-09 2015-12-05 2015-10-05") $ fixup_dates "2016-01-09 2015-12-5 2015-10-05"
 \end{code}
-returning `"2016-01-09 2015-12-05 2015-10-05"`.
 
-The `Phi`, `Context` and `Location` types are defined in
-`Text.RE.Replace` as follows.
+The `replaceAllCaptures` function is of type
 
-%include "Text/RE/Replace.lhs" "^data Phi"
+%include "Text/RE/Replace.lhs" "replaceAllCaptures ::"
+
+and the `Context` and `Location` types are defined in
+`Text.RE.Replace` as follows,
+
+%include "Text/RE/Replace.lhs" "^data Context"
 
 The processing function gets applied to the captures specified by the
 `Context`, which can be directed to process `ALL` of the captures,
@@ -418,22 +399,23 @@ including the substring captured by the whole RE and all of the
 subsidiary capture, or just the `TOP`, `0` capture that the whole RE
 matches, or just the `SUB` (subsidiary) captures, as was the case above.
 
-If this doesn't provide enough flexibility, the `replaceAllCaptures'`
-function accepts a processing function that takes the full `Match`
-context for each capture along with the `Location` and the `Capture`
-itself.
+The substitution function takes the `Match` corresponding to the current
+redex being processed, the `Location` information specifying redex _n_
+redex and capure _i_, and the `Capure` being substituted. Our substitution
+function didn't need the `Match` context so it ignored it.
 
-%include "Text/RE/Replace.lhs" "replaceAllCaptures' ::"
+The substition function either return `Nothing` to indicate that no
+substitution should be made or the replacement text.
 
-The above fixup function can be extended to enclose whole date in
-square brackets and rewritten with the above more general replacement
-function.
+The above fixup function could be extended to enclose whole date in
+square brackets by specifing an `ALL` context and a `0` case for the
+substitution function.
 \begin{code}
 fixup_and_reformat_dates :: String -> String
 fixup_and_reformat_dates src =
-    replaceAllCaptures' ALL f $ src *=~ [re|([0-9]+)-([0-9]+)-([0-9]+)|]
+    replaceAllCaptures ALL f $ src *=~ [re|([0-9]+)-([0-9]+)-([0-9]+)|]
   where
-    f _ loc cap = Just $ case _loc_capture loc of
+    f _ loc cap = Just $ case locationCapture loc of
         0 -> printf "[%s]"       txt
         1 -> printf "%04d" (read txt :: Int)
         2 -> printf "%02d" (read txt :: Int)
@@ -444,10 +426,8 @@ fixup_and_reformat_dates src =
 \end{code}
 The `fixup_and_reformat_dates` applied to our running example,
 \begin{code}
-evalme_RPF_02 = checkThis "evalme_RPF_02" "[2016-01-09] [2015-12-05] [2015-10-05]" $
-  fixup_and_reformat_dates "2016-01-09 2015-12-5 2015-10-05"
+evalme_RPF_02 = checkThis "evalme_RPF_02" ("[2016-01-09] [2015-12-05] [2015-10-05]") $ fixup_and_reformat_dates "2016-01-09 2015-12-5 2015-10-05"
 \end{code}
-yields `"[2016-01-09] [2015-12-05] [2015-10-05]"`.
 
 `Text.RE.Replace` provides analagous functions for replacing the
 test of a single `Match` returned from `?=~`.
@@ -463,8 +443,7 @@ RE macros are enclosed in `@{` ... '}'. By convention the macros in
 the standard environment start with a '%'. `@{%date}` will match an
 ISO 8601 date, this
 \begin{code}
-evalme_MAC_00 = checkThis "evalme_MAC_00" 2 $
-  countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|@{%date}|]
+evalme_MAC_00 = checkThis "evalme_MAC_00" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|@{%date}|]
 \end{code}
 picking out the two dates.
 
@@ -501,15 +480,15 @@ The `Options_` type is defined in `Text.RE.Options` as follows:
 
 %include "Text/RE/Options.lhs" "data Options_"
 
-  * `_options_mode` is an experimental feature that controls the RE
+  * `optionsMode` is an experimental feature that controls the RE
     parser.
 
-  * `_options_macs` contains the macro definitions used to compile
+  * `optionsMacs` contains the macro definitions used to compile
     the REs (see above Macros section);
 
-  * `_options_comp` contains the back end compile-time options;
+  * `optionsComp` contains the back end compile-time options;
 
-  * `_options_exec` contains the back end execution-time options.
+  * `optionsExec` contains the back end execution-time options.
 
 (For more information on the options provided by the back ends see the
 decumentation for `regex-tdfa` and `regex-pcre` as apropriate.)
@@ -560,18 +539,10 @@ check_for_failure = either error id
 \end{code}
 
 \begin{code}
-evalme_OPT_00 = checkThis "evalme_OPT_00" 2 $
-  countMatches $
-    "2016-01-09 2015-12-5 2015-10-05" *=~
-      check_for_failure
-        (compileRegex () "@{%date}")
+evalme_OPT_00 = checkThis "evalme_OPT_00" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ check_for_failure (compileRegex () "@{%date}")
 \end{code}
 \begin{code}
-evalme_OPT_01 = checkThis "evalme_OPT_01" 1 $
-  countMatches $
-    "0a\nbb\nFe\nA5" *=~
-      check_for_failure
-        (compileRegex BlockInsensitive "[0-9a-f]{2}$")
+evalme_OPT_01 = checkThis "evalme_OPT_01" (1) $ countMatches $ "0a\nbb\nFe\nA5" *=~ check_for_failure (compileRegex BlockInsensitive "[0-9a-f]{2}$")
 \end{code}
 
 This will allow you to compile regular expressions when the either the
@@ -585,9 +556,7 @@ If you just need to specify some non-standard options while statically
 checking the validity of the RE (with the default options) then you can
 use the `re_` parser:
 \begin{code}
-evalme_REU_01 = checkThis "evalme_REU_01" 1 $
-  countMatches $
-    "0a\nbb\nFe\nA5" *=~ [re_|[0-9a-f]{2}$|] BlockInsensitive
+evalme_REU_01 = checkThis "evalme_REU_01" (1) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [re_|[0-9a-f]{2}$|] BlockInsensitive
 \end{code}
 Any option `o` such that `IsOption o RE CompOption ExecOption` (i.e.,
 any option type accepted by `compileRegex` above) can be used with
@@ -712,7 +681,7 @@ expandMacros_ :: (MacroID->Maybe String) -> String -> String
 expandMacros_ lu = fixpoint e_m
   where
     e_m re_s =
-        replaceAllCaptures' TOP phi $ re_s *=~ [re|@$(@|\{${name}([^{}]+)\})|]
+        replaceAllCaptures TOP phi $ re_s *=~ [re|@$(@|\{${name}([^{}]+)\})|]
 
     phi mtch _ cap = case txt == "@@" of
         True  -> Just   "@"
@@ -730,8 +699,7 @@ fixpoint f = chk . iterate f
 
 For example:
 \begin{code}
-evalme_PMC_00 = checkThis "evalme_PMC_00" "foo MacroID {_MacroID = \"bar\"} baz" $
-  expandMacros_ (Just . show) "foo @{bar} baz"
+evalme_PMC_00 = checkThis "evalme_PMC_00" ("foo MacroID {getMacroID = \"bar\"} baz") $ expandMacros_ (Just . show) "foo @{bar} baz"
 \end{code}
 
 See [Text.RE.Replace](Replace.html) for details.
@@ -745,29 +713,29 @@ The regex replacement templates are parsed with code similar to this.
 \begin{code}
 type Template = String
 
-parse_tpl_ :: Template
-           -> Match String
-           -> Location
-           -> Capture String
-           -> Maybe String
-parse_tpl_ tpl mtch _ _ =
-    Just $ replaceAllCaptures' TOP phi $
+parseTemplateE' :: Template
+                -> Match String
+                -> Location
+                -> Capture String
+                -> Maybe String
+parseTemplateE' tpl mtch _ _ =
+    Just $ replaceAllCaptures TOP phi $
       tpl *=~ [re|\$${arg}(\$|[0-9]+|\{${name}([^{}]+)\})|]
   where
     phi t_mtch _ _ = case t_mtch !$? [cp|name|] of
-      Just cap -> this $ CID_name $ CaptureName txt
+      Just cap -> this $ IsCaptureName $ CaptureName txt
         where
           txt = T.pack $ capturedText cap
       Nothing -> case t == "$" of
         True  -> Just t
-        False -> this $ CID_ordinal $ CaptureOrdinal $ read t
+        False -> this $ IsCaptureOrdinal $ CaptureOrdinal $ read t
       where
         t = capturedText $ capture [cp|arg|] t_mtch
 
         this cid = capturedText <$> mtch !$? cid
 
 my_replace :: RE -> Template-> String -> String
-my_replace rex tpl src = replaceAllCaptures' TOP (parse_tpl_ tpl) $ src *=~ rex
+my_replace rex tpl src = replaceAllCaptures TOP (parseTemplateE' tpl) $ src *=~ rex
 \end{code}
 
 It can be tested with our date-reformater example.
@@ -780,8 +748,7 @@ date_reformat = my_replace [re|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] "$
 This should yield `"2016/01/11"`:
 
 \begin{code}
-evalme_TPL_00 = checkThis "evalme_TPL_00" "2016/01/11" $
-  date_reformat "2016-01-11"
+evalme_TPL_00 = checkThis "evalme_TPL_00" ("2016/01/11") $ date_reformat "2016-01-11"
 \end{code}
 
 See [Text.RE.Replace](Replace.html)

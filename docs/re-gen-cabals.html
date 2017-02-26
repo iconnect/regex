@@ -58,7 +58,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <body>
 <div class='bcdiv'>
   <ol class='breadcrumb'>
-    <li><a href="." style="Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a></li>
+    <li><a href="." style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a></li>
     <li><a title='source file' href='https://github.com/iconnect/regex/blob/master/examples/re-gen-cabals.lhs'>examples/re-gen-cabals.lhs</a></li>
 </ol>
 </div>
@@ -129,7 +129,8 @@ gen in_f out_f <span class="fu">=</span> <span class="kw">do</span>
 
 <span class="kw">data</span> <span class="dt">Ctx</span> <span class="fu">=</span>
   <span class="dt">Ctx</span>
-    {<span class="ot"> _ctx_package_constraints ::</span> <span class="dt">IORef</span> (<span class="dt">Map.Map</span> <span class="dt">LBS.ByteString</span> <span class="dt">LBS.ByteString</span>)
+    {<span class="ot"> _ctx_w_error             ::</span> <span class="dt">IORef</span> <span class="dt">Bool</span>
+    ,<span class="ot"> _ctx_package_constraints ::</span> <span class="dt">IORef</span> (<span class="dt">Map.Map</span> <span class="dt">LBS.ByteString</span> <span class="dt">LBS.ByteString</span>)
     ,<span class="ot"> _ctx_test_exe            ::</span> <span class="dt">IORef</span> (<span class="dt">Maybe</span> <span class="dt">TestExe</span>)
     }
 
@@ -143,23 +144,28 @@ gen in_f out_f <span class="fu">=</span> <span class="kw">do</span>
   <span class="kw">deriving</span> (<span class="dt">Show</span>)
 
 <span class="ot">setup ::</span> <span class="dt">IO</span> <span class="dt">Ctx</span>
-setup <span class="fu">=</span> <span class="dt">Ctx</span> <span class="fu">&lt;$&gt;</span> (newIORef Map.empty) <span class="fu">&lt;*&gt;</span> (newIORef <span class="dt">Nothing</span>)
+setup <span class="fu">=</span> <span class="dt">Ctx</span> <span class="fu">&lt;$&gt;</span> (newIORef <span class="dt">True</span>) <span class="fu">&lt;*&gt;</span> (newIORef Map.empty) <span class="fu">&lt;*&gt;</span> (newIORef <span class="dt">Nothing</span>)
 
 <span class="ot">gc_script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">SedScript</span> <span class="dt">RE</span>
 gc_script ctx <span class="fu">=</span> <span class="dt">Select</span>
-    [ (,) [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]             <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> cond_gen                 ctx
-    , (,) [re|^%build-depends +${list}(@{%id-}( +@{%id-})+)$|] <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> build_depends_gen        ctx
-    , (,) [re|^%test +${i}(@{%id-})$|]                         <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> test_exe_gen <span class="dt">True</span>  <span class="dt">False</span> ctx
-    , (,) [re|^%exe +${i}(@{%id-})$|]                          <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> test_exe_gen <span class="dt">False</span> <span class="dt">True</span>  ctx
-    , (,) [re|^%test-exe +${i}(@{%id-})$|]                     <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> test_exe_gen <span class="dt">True</span>  <span class="dt">True</span>  ctx
-    , (,) [re|^.*$|]                                           <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> default_gen              ctx
+    [ (,) [re|^%Werror$|]                                      <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> w_error_gen              ctx
+    , (,) [re|^%Wwarn$|]                                       <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> w_warn_gen               ctx
+    , (,) [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]             <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> cond_gen                 ctx
+    , (,) [re|^%build-depends +${list}(@{%id-}( +@{%id-})+)$|] <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> build_depends_gen        ctx
+    , (,) [re|^%test +${i}(@{%id-})$|]                         <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> test_exe_gen <span class="dt">True</span>  <span class="dt">False</span> ctx
+    , (,) [re|^%exe +${i}(@{%id-})$|]                          <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> test_exe_gen <span class="dt">False</span> <span class="dt">True</span>  ctx
+    , (,) [re|^%test-exe +${i}(@{%id-})$|]                     <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> test_exe_gen <span class="dt">True</span>  <span class="dt">True</span>  ctx
+    , (,) [re|^.*$|]                                           <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> default_gen              ctx
     ]
 
-cond_gen, build_depends_gen,
+w_error_gen, w_warn_gen, cond_gen, build_depends_gen,
 <span class="ot">  default_gen ::</span> <span class="dt">Ctx</span>
               <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
               <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
               <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
+
+w_error_gen <span class="dt">Ctx</span>{<span class="fu">..</span>} _ _ <span class="fu">=</span> writeIORef _ctx_w_error <span class="dt">True</span>  <span class="fu">&gt;&gt;</span> return <span class="dt">Delete</span>
+w_warn_gen  <span class="dt">Ctx</span>{<span class="fu">..</span>} _ _ <span class="fu">=</span> writeIORef _ctx_w_error <span class="dt">False</span> <span class="fu">&gt;&gt;</span> return <span class="dt">Delete</span>
 
 cond_gen <span class="dt">Ctx</span>{<span class="fu">..</span>} _ mtchs <span class="fu">=</span> <span class="kw">do</span>
     modifyIORef _ctx_package_constraints <span class="fu">$</span> Map.insert pkg cond
@@ -171,8 +177,9 @@ cond_gen <span class="dt">Ctx</span>{<span class="fu">..</span>} _ mtchs <span c
     mtch <span class="fu">=</span> allMatches mtchs <span class="fu">!!</span> <span class="dv">0</span>
 
 build_depends_gen ctx<span class="fu">@</span><span class="dt">Ctx</span>{<span class="fu">..</span>} _ mtchs <span class="fu">=</span> <span class="kw">do</span>
+    we <span class="ot">&lt;-</span> readIORef _ctx_w_error
     mp <span class="ot">&lt;-</span> readIORef _ctx_package_constraints
-    put ctx <span class="fu">$</span> mk_build_depends mp lst
+    put ctx <span class="fu">$</span> mk_build_depends we mp lst
   <span class="kw">where</span>
     lst  <span class="fu">=</span> LBS.words <span class="fu">$</span> captureText [cp|list|] mtch
     mtch <span class="fu">=</span> allMatches mtchs <span class="fu">!!</span> <span class="dv">0</span>
@@ -237,14 +244,24 @@ mk_test_exe is_t te te_lbs_kw <span class="fu">=</span> (<span class="fu">&lt;&g
       <span class="dt">True</span>  <span class="ot">-&gt;</span> LBS.unpack <span class="fu">$</span> _te_name te <span class="fu">&lt;&gt;</span> <span class="st">&quot;-test&quot;</span>
       <span class="dt">False</span> <span class="ot">-&gt;</span> LBS.unpack <span class="fu">$</span> _te_name te
 
-<span class="ot">mk_build_depends ::</span> <span class="dt">Map.Map</span> <span class="dt">LBS.ByteString</span> <span class="dt">LBS.ByteString</span>
+<span class="ot">mk_build_depends ::</span> <span class="dt">Bool</span>
+                 <span class="ot">-&gt;</span> <span class="dt">Map.Map</span> <span class="dt">LBS.ByteString</span> <span class="dt">LBS.ByteString</span>
                  <span class="ot">-&gt;</span> [<span class="dt">LBS.ByteString</span>]
                  <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
-mk_build_depends mp pks <span class="fu">=</span> LBS.unlines <span class="fu">$</span>
-        (<span class="fu">:</span>) <span class="st">&quot;    Build-depends:&quot;</span> <span class="fu">$</span>
-          map fmt <span class="fu">$</span> zip (<span class="dt">True</span> <span class="fu">:</span> repeat <span class="dt">False</span>) <span class="fu">$</span>
-              L.sortBy comp pks
+mk_build_depends we mp pks <span class="fu">=</span> LBS.unlines <span class="fu">$</span>
+        [ <span class="st">&quot;    Default-Language:   Haskell2010&quot;</span>
+        , <span class="st">&quot;    GHC-Options:&quot;</span>
+        , <span class="st">&quot;      -Wall&quot;</span>
+        , <span class="st">&quot;      -fwarn-tabs&quot;</span>
+        , <span class="st">&quot;      &quot;</span> <span class="fu">&lt;&gt;</span> w_error_or_warn
+        , <span class="st">&quot;&quot;</span>
+        , <span class="st">&quot;    Build-depends:&quot;</span>
+        ] <span class="fu">++</span> (map fmt <span class="fu">$</span> zip (<span class="dt">True</span> <span class="fu">:</span> repeat <span class="dt">False</span>) <span class="fu">$</span> L.sortBy comp pks)
   <span class="kw">where</span>
+    w_error_or_warn <span class="fu">=</span> <span class="kw">case</span> we <span class="kw">of</span>
+      <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="st">&quot;-Werror&quot;</span>
+      <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="st">&quot;-Wwarn&quot;</span>
+
     fmt (isf,pk) <span class="fu">=</span> LBS.pack <span class="fu">$</span>
       printf <span class="st">&quot;      %c %-20s %s&quot;</span>
         (<span class="kw">if</span> isf <span class="kw">then</span> <span class="ch">&#39; &#39;</span> <span class="kw">else</span> <span class="ch">&#39;,&#39;</span>)
@@ -316,6 +333,15 @@ summary <span class="fu">=</span> <span class="kw">do</span>
     [<span class="dt">Line</span> _ (<span class="dt">Matches</span> _ [mtch])] <span class="ot">-&gt;</span> return <span class="fu">$</span> TE.decodeUtf8 <span class="fu">$</span> LBS.toStrict <span class="fu">$</span> mtch <span class="fu">!$$</span> [cp|smy|]
     _ <span class="ot">-&gt;</span> error <span class="st">&quot;failed to locate the summary text in the roadmap&quot;</span></code></pre></div>
 <p>let vrn_res = concat [ show $ _vrn_a vrn, &quot;\.&quot;, show $ _vrn_b vrn, &quot;\.&quot;, show $ _vrn_c vrn, &quot;\.&quot;, show $ _vrn_d vrn ]</p>
-</div>
+</div>    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-92650418-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
 </body>
 </html>

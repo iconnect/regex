@@ -59,7 +59,7 @@ main = defaultMain $
     [ prelude_tests
     , parsing_tests
     , core_tests
-    , replace_tests
+    , replaceMethodstests
     , options_tests
     , namedCapturesTestTree
     , many_tests
@@ -202,55 +202,55 @@ core_tests = testGroup "Match"
       assertEqual "not.anyMatches" False $ anyMatches mtchs
   ]
 
-replace_tests :: TestTree
-replace_tests = testGroup "Replace"
+replaceMethodstests :: TestTree
+replaceMethodstests = testGroup "Replace"
   [ testCase "String/single" $ do
       let m = str_ =~ regex_ :: Match String
-          r = replaceCaptures' ALL fmt m
-      assertEqual "replaceCaptures'" r "(0:0:(0:1:a) (0:2:bbbb)) aa b"
+          r = replaceCaptures ALL fmt m
+      assertEqual "replaceCaptures" r "(0:0:(0:1:a) (0:2:bbbb)) aa b"
   , testCase "String/alt" $ do
       let ms = str_ =~ regex_ :: Matches String
-          r  = replaceAllCaptures' ALL fmt ms
+          r  = replaceAllCaptures ALL fmt ms
       chk r
   , testCase "String" $ do
       let ms = str_ =~ regex_ :: Matches String
-          r  = replaceAllCaptures' ALL fmt ms
+          r  = replaceAllCaptures ALL fmt ms
       chk r
   , testCase "ByteString" $ do
       let ms = B.pack str_ =~ regex_ :: Matches B.ByteString
-          r  = replaceAllCaptures' ALL fmt ms
+          r  = replaceAllCaptures ALL fmt ms
       chk r
   , testCase "LBS.ByteString" $ do
       let ms = LBS.pack str_ =~ regex_ :: Matches LBS.ByteString
-          r  = replaceAllCaptures' ALL fmt ms
+          r  = replaceAllCaptures ALL fmt ms
       chk r
   , testCase "Seq Char" $ do
       let ms = S.fromList str_ =~ regex_ :: Matches (S.Seq Char)
           f  = \_ (Location i j) Capture{..} -> Just $ S.fromList $
                   "(" <> show i <> ":" <> show_co j <> ":" <>
                     F.toList capturedText <> ")"
-          r  = replaceAllCaptures' ALL f ms
-      assertEqual "replaceAllCaptures'" r $
+          r  = replaceAllCaptures ALL f ms
+      assertEqual "replaceAllCaptures" r $
         S.fromList "(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))"
   , testCase "Text" $ do
       let ms = T.pack str_ =~ regex_ :: Matches T.Text
-          r  = replaceAllCaptures' ALL fmt ms
+          r  = replaceAllCaptures ALL fmt ms
       chk r
   , testCase "LT.Text" $ do
       let ms = LT.pack str_ =~ regex_ :: Matches LT.Text
-          r  = replaceAllCaptures' ALL fmt ms
+          r  = replaceAllCaptures ALL fmt ms
       chk r
   ]
   where
     chk r =
       assertEqual
-        "replaceAllCaptures'"
+        "replaceAllCaptures"
         r
         "(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))"
 
     fmt :: (IsString s,Replace s) => a -> Location -> Capture s -> Maybe s
-    fmt _ (Location i j) Capture{..} = Just $ "(" <> pack_ (show i) <> ":" <>
-      pack_ (show_co j) <> ":" <> capturedText <> ")"
+    fmt _ (Location i j) Capture{..} = Just $ "(" <> packE (show i) <> ":" <>
+      packE (show_co j) <> ":" <> capturedText <> ")"
 
     show_co (CaptureOrdinal j) = show j
 
@@ -360,10 +360,10 @@ misc_tests = testGroup "Miscelaneous Tests"
             , TDFA.reBlockInsensitive
             , TDFA.re_
             ]
-        , testCase  "TDFA.regexType"           $ TDFA   @=? TDFA.regexType
-        , testCase  "TDFA.reOptions"           $ Simple @=? _options_mode (TDFA.reOptions tdfa_re)
-        , testCase  "TDFA.makeOptions md"      $ Block  @=? _options_mode (makeOptions Block :: Options_ TDFA.RE TDFA_.CompOption TDFA_.ExecOption)
-        , testCase  "TDFA.preludeTestsFailing" $ []     @=? TDFA.preludeTestsFailing
+        , testCase  "TDFA.regexType"           $ TDFA    @=? TDFA.regexType
+        , testCase  "TDFA.reOptions"           $ assert_empty_macs $ optionsMacs (TDFA.reOptions tdfa_re)
+        , testCase  "TDFA.makeOptions md"      $ assert_empty_macs $ optionsMacs tdfa_opts
+        , testCase  "TDFA.preludeTestsFailing" $ []      @=? TDFA.preludeTestsFailing
         , ne_string "TDFA.preludeTable"          TDFA.preludeTable
         , ne_string "TDFA.preludeSources"        TDFA.preludeSources
         , testGroup "TDFA.preludeSummary"
@@ -386,10 +386,10 @@ misc_tests = testGroup "Miscelaneous Tests"
             , PCRE.reBlockInsensitive
             , PCRE.re_
             ]
-        , testCase  "PCRE.regexType"           $ PCRE   @=? PCRE.regexType
-        , testCase  "PCRE.reOptions"           $ Simple @=? _options_mode (PCRE.reOptions pcre_re)
-        , testCase  "PCRE.makeOptions md"      $ Block  @=? _options_mode (makeOptions Block :: Options_ PCRE.RE PCRE_.CompOption PCRE_.ExecOption)
-        , testCase  "PCRE.preludeTestsFailing" $ []     @=? PCRE.preludeTestsFailing
+        , testCase  "PCRE.regexType"           $ PCRE    @=? PCRE.regexType
+        , testCase  "PCRE.reOptions"           $ assert_empty_macs $ optionsMacs (PCRE.reOptions pcre_re)
+        , testCase  "PCRE.makeOptions md"      $ assert_empty_macs $ optionsMacs pcre_opts
+        , testCase  "PCRE.preludeTestsFailing" $ []      @=? PCRE.preludeTestsFailing
         , ne_string "PCRE.preludeTable"          PCRE.preludeTable
         , ne_string "PCRE.preludeTable"          PCRE.preludeSources
         , testGroup "PCRE.preludeSummary"
@@ -403,10 +403,18 @@ misc_tests = testGroup "Miscelaneous Tests"
         ]
     ]
   where
-    tdfa_re = fromMaybe oops $ TDFA.compileRegex () ".*"
-    pcre_re = fromMaybe oops $ PCRE.compileRegex () ".*"
+    tdfa_re   = fromMaybe oops $ TDFA.compileRegex tdfa_opts ".*"
+    pcre_re   = fromMaybe oops $ PCRE.compileRegex pcre_opts ".*"
 
-    oops = error "misc_tests"
+    tdfa_opts = makeOptions no_macs_t :: Options_ TDFA.RE TDFA_.CompOption TDFA_.ExecOption
+    pcre_opts = makeOptions no_macs_p :: Options_ PCRE.RE PCRE_.CompOption PCRE_.ExecOption
+
+    no_macs_t = HM.fromList [] :: Macros TDFA.RE
+    no_macs_p = HM.fromList [] :: Macros PCRE.RE
+
+    oops      = error "misc_tests"
+
+    assert_empty_macs = assertBool "macros not empty" . HM.null
 
 qq_tc :: String -> (QuasiQuoter->String->a) -> TestTree
 qq_tc sc prj = testCase sc $

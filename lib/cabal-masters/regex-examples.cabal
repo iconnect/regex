@@ -32,6 +32,7 @@ Source-Repository this
     Location:           https://github.com/iconnect/regex.git
     Tag:                <<$version$>>
 
+%Wwarn
 %include "lib/cabal-masters/constraints-incl.cabal"
 
 %include "lib/cabal-masters/executables-incl.cabal"

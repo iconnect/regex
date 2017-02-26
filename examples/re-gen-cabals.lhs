@@ -62,7 +62,8 @@ gen in_f out_f = do
 
 data Ctx =
   Ctx
-    { _ctx_package_constraints :: IORef (Map.Map LBS.ByteString LBS.ByteString)
+    { _ctx_w_error             :: IORef Bool
+    , _ctx_package_constraints :: IORef (Map.Map LBS.ByteString LBS.ByteString)
     , _ctx_test_exe            :: IORef (Maybe TestExe)
     }
 
@@ -76,11 +77,13 @@ data TestExe =
   deriving (Show)
 
 setup :: IO Ctx
-setup = Ctx <$> (newIORef Map.empty) <*> (newIORef Nothing)
+setup = Ctx <$> (newIORef True) <*> (newIORef Map.empty) <*> (newIORef Nothing)
 
 gc_script :: Ctx -> SedScript RE
 gc_script ctx = Select
-    [ (,) [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]             $ LineEdit $ cond_gen                 ctx
+    [ (,) [re|^%Werror$|]                                      $ LineEdit $ w_error_gen              ctx
+    , (,) [re|^%Wwarn$|]                                       $ LineEdit $ w_warn_gen               ctx
+    , (,) [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]             $ LineEdit $ cond_gen                 ctx
     , (,) [re|^%build-depends +${list}(@{%id-}( +@{%id-})+)$|] $ LineEdit $ build_depends_gen        ctx
     , (,) [re|^%test +${i}(@{%id-})$|]                         $ LineEdit $ test_exe_gen True  False ctx
     , (,) [re|^%exe +${i}(@{%id-})$|]                          $ LineEdit $ test_exe_gen False True  ctx
@@ -88,11 +91,14 @@ gc_script ctx = Select
     , (,) [re|^.*$|]                                           $ LineEdit $ default_gen              ctx
     ]
 
-cond_gen, build_depends_gen,
+w_error_gen, w_warn_gen, cond_gen, build_depends_gen,
   default_gen :: Ctx
               -> LineNo
               -> Matches LBS.ByteString
               -> IO (LineEdit LBS.ByteString)
+
+w_error_gen Ctx{..} _ _ = writeIORef _ctx_w_error True  >> return Delete
+w_warn_gen  Ctx{..} _ _ = writeIORef _ctx_w_error False >> return Delete
 
 cond_gen Ctx{..} _ mtchs = do
     modifyIORef _ctx_package_constraints $ Map.insert pkg cond
@@ -104,8 +110,9 @@ cond_gen Ctx{..} _ mtchs = do
     mtch = allMatches mtchs !! 0
 
 build_depends_gen ctx@Ctx{..} _ mtchs = do
+    we <- readIORef _ctx_w_error
     mp <- readIORef _ctx_package_constraints
-    put ctx $ mk_build_depends mp lst
+    put ctx $ mk_build_depends we mp lst
   where
     lst  = LBS.words $ captureText [cp|list|] mtch
     mtch = allMatches mtchs !! 0
@@ -170,14 +177,24 @@ mk_test_exe is_t te te_lbs_kw = (<>_te_text te) $ LBS.unlines $ concat
       True  -> LBS.unpack $ _te_name te <> "-test"
       False -> LBS.unpack $ _te_name te
 
-mk_build_depends :: Map.Map LBS.ByteString LBS.ByteString
+mk_build_depends :: Bool
+                 -> Map.Map LBS.ByteString LBS.ByteString
                  -> [LBS.ByteString]
                  -> LBS.ByteString
-mk_build_depends mp pks = LBS.unlines $
-        (:) "    Build-depends:" $
-          map fmt $ zip (True : repeat False) $
-              L.sortBy comp pks
+mk_build_depends we mp pks = LBS.unlines $
+        [ "    Default-Language:   Haskell2010"
+        , "    GHC-Options:"
+        , "      -Wall"
+        , "      -fwarn-tabs"
+        , "      " <> w_error_or_warn
+        , ""
+        , "    Build-depends:"
+        ] ++ (map fmt $ zip (True : repeat False) $ L.sortBy comp pks)
   where
+    w_error_or_warn = case we of
+      True  -> "-Werror"
+      False -> "-Wwarn"
+
     fmt (isf,pk) = LBS.pack $
       printf "      %c %-20s %s"
         (if isf then ' ' else ',')

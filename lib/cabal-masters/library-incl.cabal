@@ -35,9 +35,4 @@ Library
     Other-Modules:
       Text.RE.Internal.AddCaptureNames
 
-    Default-Language:   Haskell2010
-    GHC-Options:
-      -Wall
-      -fwarn-tabs
-
 %build-depends array bytestring base base-compat containers hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin template-haskell text time time-locale-compat transformers unordered-containers

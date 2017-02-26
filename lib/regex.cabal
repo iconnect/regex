@@ -76,6 +76,7 @@ Library
     GHC-Options:
       -Wall
       -fwarn-tabs
+      -Wwarn
 
     Build-depends:
         array                >= 0.4

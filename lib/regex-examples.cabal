@@ -79,6 +79,7 @@ Executable re-gen-cabals
     GHC-Options:
       -Wall
       -fwarn-tabs
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -107,6 +108,7 @@ Test-Suite re-gen-cabals-test
     GHC-Options:
       -Wall
       -fwarn-tabs
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -132,6 +134,7 @@ Executable re-gen-modules
     GHC-Options:
       -Wall
       -fwarn-tabs
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -156,6 +159,7 @@ Test-Suite re-gen-modules-test
     GHC-Options:
       -Wall
       -fwarn-tabs
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -176,13 +180,14 @@ Executable re-include
 
     Main-Is:            re-include.lhs
 
+    Other-Modules:
+      TestKit
+
     Default-Language:   Haskell2010
     GHC-Options:
       -Wall
       -fwarn-tabs
-
-    Other-Modules:
-      TestKit
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -200,13 +205,14 @@ Test-Suite re-include-test
 
     Main-Is:            re-include.lhs
 
+    Other-Modules:
+      TestKit
+
     Default-Language:   Haskell2010
     GHC-Options:
       -Wall
       -fwarn-tabs
-
-    Other-Modules:
-      TestKit
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -228,6 +234,7 @@ Executable re-nginx-log-processor
     GHC-Options:
       -Wall
       -fwarn-tabs
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -256,6 +263,7 @@ Test-Suite re-nginx-log-processor-test
     GHC-Options:
       -Wall
       -fwarn-tabs
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -280,13 +288,14 @@ Executable re-prep
 
     Main-Is:            re-prep.lhs
 
+    Other-Modules:
+      TestKit
+
     Default-Language:   Haskell2010
     GHC-Options:
       -Wall
       -fwarn-tabs
-
-    Other-Modules:
-      TestKit
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -306,13 +315,14 @@ Test-Suite re-prep-test
 
     Main-Is:            re-prep.lhs
 
+    Other-Modules:
+      TestKit
+
     Default-Language:   Haskell2010
     GHC-Options:
       -Wall
       -fwarn-tabs
-
-    Other-Modules:
-      TestKit
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -332,13 +342,14 @@ Executable re-tests
 
     Main-Is:            re-tests.lhs
 
+    Other-Modules:
+      TestKit
+
     Default-Language:   Haskell2010
     GHC-Options:
       -Wall
       -fwarn-tabs
-
-    Other-Modules:
-      TestKit
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -368,13 +379,14 @@ Test-Suite re-tests-test
 
     Main-Is:            re-tests.lhs
 
+    Other-Modules:
+      TestKit
+
     Default-Language:   Haskell2010
     GHC-Options:
       -Wall
       -fwarn-tabs
-
-    Other-Modules:
-      TestKit
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -407,11 +419,12 @@ Executable re-tutorial
     Other-Modules:
       TestKit
 
-    Default-Language:   Haskell2010
     Default-Extensions: QuasiQuotes
+    Default-Language:   Haskell2010
     GHC-Options:
       -Wall
       -fwarn-tabs
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -449,11 +462,12 @@ Test-Suite re-tutorial-test
     Other-Modules:
       TestKit
 
-    Default-Language:   Haskell2010
     Default-Extensions: QuasiQuotes
+    Default-Language:   Haskell2010
     GHC-Options:
       -Wall
       -fwarn-tabs
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4
@@ -492,12 +506,13 @@ Test-Suite re-tutorial-os-test
     Other-Modules:
       TestKit
 
-    Default-Language:   Haskell2010
     Extensions:         OverloadedStrings
     Default-Extensions: QuasiQuotes
+    Default-Language:   Haskell2010
     GHC-Options:
       -Wall
       -fwarn-tabs
+      -Wwarn
 
     Build-depends:
         regex                == 0.2.0.4

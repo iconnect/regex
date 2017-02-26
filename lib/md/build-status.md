@@ -12,7 +12,7 @@ Travis-CI and AppVeyor pipelines that monitor the head of the repository.
 |              | Linux   | stack | 7.8.4  | 2.22 | regex-tdfa-text-1.0.0.3 | -Werror |
 |              | Linux   | stack | 8.0.1  | 7.18 |                         | -Werror |
 |              | Linux   | cabal | 7.10.3 |      |                         | -Werror |
-|              | macOS   | stack | 7.8.4  |      |                         | -Werror |
-|              | macOS   | stack | 8.0.1  |      |                         | -Werror |
+|              | macOS   | stack | 7.8.4  | 2.22 |                         | -Werror |
+|              | macOS   | stack | 8.0.1  | 7.18 |                         | -Werror |
 | AppVeyor     | Windows | stack | 8.0.1  | 7.18 |                         | -Werror |  [![Windows build](https://ci.appveyor.com/api/projects/status/9gqs37u3h1mlc02b?svg=true)](https://ci.appveyor.com/project/engineerirngirisconnectcouk/regex/branch/master)
 | coveralls.io | Linux   | stack | 7.10.3 | 6.29 |                         | -Werror |  [![Coverage](https://coveralls.io/repos/github/iconnect/regex/badge.svg?branch=master)](https://coveralls.io/github/iconnect/regex?branch=master)

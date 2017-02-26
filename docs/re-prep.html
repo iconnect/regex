@@ -79,7 +79,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   ) <span class="kw">where</span>
 
 <span class="kw">import           </span><span class="dt">Control.Applicative</span>
-<span class="kw">import qualified</span> <span class="dt">Control.Monad</span>                            <span class="kw">as</span> <span class="dt">M</span>
 <span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>               <span class="kw">as</span> <span class="dt">LBS</span>
 <span class="kw">import           </span><span class="dt">Data.IORef</span>
 <span class="kw">import           </span><span class="dt">Data.Maybe</span>
@@ -93,7 +92,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">System.Environment</span>
 <span class="kw">import           </span><span class="dt">TestKit</span>
 <span class="kw">import           </span><span class="dt">Text.Heredoc</span>
-<span class="kw">import           </span><span class="dt">Text.Printf</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Edit</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TDFA.ByteString.Lazy</span>
 <span class="kw">import qualified</span> <span class="dt">Text.RE.TDFA.Text</span>                        <span class="kw">as</span> <span class="dt">TT</span></code></pre></div>
@@ -113,8 +111,8 @@ main <span class="fu">=</span> <span class="kw">do</span>
   <span class="kw">where</span>
     is_file <span class="fu">=</span> not <span class="fu">.</span> (<span class="fu">==</span> <span class="st">&quot;--&quot;</span>) <span class="fu">.</span> take <span class="dv">2</span>
 
-    doc fn fn&#39; <span class="fu">=</span> docMode <span class="fu">&gt;&gt;=</span> \dm <span class="ot">-&gt;</span> loop dm fn fn&#39;
-    gen fn fn&#39; <span class="fu">=</span> genMode <span class="fu">&gt;&gt;=</span> \gm <span class="ot">-&gt;</span> loop gm fn fn&#39;
+    doc fn fn&#39; <span class="fu">=</span>                    prep_tut <span class="dt">Doc</span> fn fn&#39;
+    gen fn fn&#39; <span class="fu">=</span> genMode <span class="fu">&gt;&gt;=</span> \gm <span class="ot">-&gt;</span> prep_tut gm  fn fn&#39;
 
     usage <span class="fu">=</span> <span class="kw">do</span>
       pnm <span class="ot">&lt;-</span> getProgName
@@ -135,62 +133,45 @@ main <span class="fu">=</span> <span class="kw">do</span>
 <span class="co">-- or a Haskell testsuite and includes any IO-accessible state</span>
 <span class="co">-- needed by the relevant processor</span>
 <span class="kw">data</span> <span class="dt">MODE</span>
-  <span class="fu">=</span> <span class="dt">Doc</span> <span class="dt">DocState</span>  <span class="co">-- ^ document-generation state</span>
+  <span class="fu">=</span> <span class="dt">Doc</span>           <span class="co">-- ^ generating mardown+lhs input for pandoc</span>
   <span class="fu">|</span> <span class="dt">Gen</span> <span class="dt">GenState</span>  <span class="co">-- ^ adjusting-the-program-for-testing state</span></code></pre></div>
-The <code>DocState</code> is initialised to <code>Outside</code> and flips though the different states as it traverses a code block, so that we can wrap code blocks in special
-<div class="replcodeblock">
-<p>blocks when their first line indicates that it contains a REPL calculation, which the style sheet can pick up and present accordingly.</p>
-
-<p>block | Beginning -- at the start of a begin{code} ... \end{code} block | InsideRepl -- inside a REPL code block | InsideProg -- inside a non-REPL code block deriving (Eq,Show)</p>
-<p>type DocState = IORef DocMode</p>
-<p>genMode :: IO MODE genMode = Gen &lt;$&gt; newIORef [] \end{code}</p>
+<p>The <code>DocState</code> is initialised to <code>Outside</code> and flips though the different states as it traverses a code block, so that we can wrap code blocks in special <code>&lt;div class=&quot;replcodeblock&quot;&gt;</code> blocks when their first line indicates that it contains a REPL calculation, which the style sheet can pick up and present accordingly.</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the state is the accumulated test function identifiers for</span>
 <span class="co">-- generating the list of them gets added to the end of the programme</span>
 <span class="kw">type</span> <span class="dt">GenState</span> <span class="fu">=</span> <span class="dt">IORef</span> [<span class="dt">String</span>]
 
-<span class="ot">docMode ::</span> <span class="dt">IO</span> <span class="dt">MODE</span>
-docMode <span class="fu">=</span> <span class="dt">Doc</span> <span class="fu">&lt;$&gt;</span> newIORef <span class="dt">Outside</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">loop ::</span> <span class="dt">MODE</span> <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
-loop mode <span class="fu">=</span>
+<span class="ot">genMode ::</span> <span class="dt">IO</span> <span class="dt">MODE</span>
+genMode <span class="fu">=</span> <span class="dt">Gen</span> <span class="fu">&lt;$&gt;</span> newIORef []</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prep_tut ::</span> <span class="dt">MODE</span> <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+prep_tut mode <span class="fu">=</span>
   sed <span class="fu">$</span> <span class="dt">Select</span>
-    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|]      <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> inclde mode
-    , (,) [re|^%main ${arg}(top|bottom)$|]                             <span class="fu">$</span> <span class="dt">LineEdit</span>     <span class="fu">$</span> main_  mode
-    , (,) [re|^\\begin\{code\}$|]                                      <span class="fu">$</span> <span class="dt">LineEdit</span>     <span class="fu">$</span> begin  mode
-    , (,) [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}).*$|] <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> evalme mode
-    , (,) [re|^\\end\{code\}$|]                                        <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> end    mode
-    , (,) [re|^.*$|]                                                   <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> other  mode
+    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> inclde   mode
+    , (,) [re|^%main ${arg}(top|bottom)$|]                        <span class="fu">$</span> <span class="dt">LineEdit</span>     <span class="fu">$</span> main_    mode
+    , (,) [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}) \(${ans}([^)]+)\) \$ *${exp}(.*)$|]
+                                                                  <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> evalme   mode
+    , (,) [re|^.*$|]                                              <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> passthru
     ]</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">inclde, evalme, end,
-<span class="ot">  other ::</span> <span class="dt">MODE</span>
-        <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
-        <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
-        <span class="ot">-&gt;</span> <span class="dt">Location</span>
-        <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
-        <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">inclde,
+<span class="ot">  evalme ::</span> <span class="dt">MODE</span>
+         <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
+         <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
+         <span class="ot">-&gt;</span> <span class="dt">Location</span>
+         <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
+         <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
 
-main_,
-<span class="ot">  begin ::</span> <span class="dt">MODE</span>
-        <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
-        <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
-        <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
+<span class="ot">main_ ::</span> <span class="dt">MODE</span>
+      <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
+      <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+      <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
 
-inclde (<span class="dt">Doc</span> _ ) <span class="fu">=</span> includeDoc
+inclde  <span class="dt">Doc</span>     <span class="fu">=</span> includeDoc
 inclde (<span class="dt">Gen</span> _ ) <span class="fu">=</span> passthru
 
-main_  (<span class="dt">Doc</span> _ ) <span class="fu">=</span> mainDoc
+main_   <span class="dt">Doc</span>     <span class="fu">=</span> delete
 main_  (<span class="dt">Gen</span> gs) <span class="fu">=</span> mainGen    gs
 
-begin  (<span class="dt">Doc</span> ds) <span class="fu">=</span> beginDoc   ds
-begin  (<span class="dt">Gen</span> _ ) <span class="fu">=</span> passthru_g
-
-evalme (<span class="dt">Doc</span> ds) <span class="fu">=</span> evalmeDoc  ds
+evalme  <span class="dt">Doc</span>     <span class="fu">=</span> evalmeDoc
 evalme (<span class="dt">Gen</span> gs) <span class="fu">=</span> evalmeGen  gs
-
-end    (<span class="dt">Doc</span> ds) <span class="fu">=</span> endDoc     ds
-end    (<span class="dt">Gen</span> _ ) <span class="fu">=</span> passthru
-
-other  (<span class="dt">Doc</span> ds) <span class="fu">=</span> otherDoc   ds
-other  (<span class="dt">Gen</span> _ ) <span class="fu">=</span> passthru
 
 <span class="ot">passthru ::</span> <span class="dt">LineNo</span>
          <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
@@ -199,10 +180,10 @@ other  (<span class="dt">Gen</span> _ ) <span class="fu">=</span> passthru
          <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
 passthru _ _ _ _ <span class="fu">=</span> return <span class="dt">Nothing</span>
 
-<span class="ot">passthru_g ::</span> <span class="dt">LineNo</span>
-           <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
-           <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
-passthru_g _ _ <span class="fu">=</span> return <span class="dt">NoEdit</span></code></pre></div>
+<span class="ot">delete ::</span> <span class="dt">LineNo</span>
+       <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+       <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
+delete _ _ <span class="fu">=</span> return <span class="dt">Delete</span></code></pre></div>
 <h2 id="script-to-generate-the-whole-web-site">Script to Generate the Whole Web Site</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">gen_all ::</span> <span class="dt">IO</span> ()
 gen_all <span class="fu">=</span> <span class="kw">do</span>
@@ -225,8 +206,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     pd <span class="st">&quot;RE/Tools/Sed&quot;</span>
     pd <span class="st">&quot;RE/Internal/NamedCaptures&quot;</span>
     <span class="co">-- render the tutorial in HTML</span>
-    dm <span class="ot">&lt;-</span> docMode
-    loop dm <span class="st">&quot;examples/re-tutorial-master.lhs&quot;</span> <span class="st">&quot;tmp/re-tutorial.lhs&quot;</span>
+    prep_tut <span class="dt">Doc</span> <span class="st">&quot;examples/re-tutorial-master.lhs&quot;</span> <span class="st">&quot;tmp/re-tutorial.lhs&quot;</span>
     createDirectoryIfMissing <span class="dt">False</span> <span class="st">&quot;tmp&quot;</span>
     pandoc_lhs&#39;
       <span class="st">&quot;re-tutorial.lhs&quot;</span>
@@ -235,7 +215,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
       <span class="st">&quot;docs/re-tutorial.html&quot;</span>
     <span class="co">-- generate the tutorial-based tests</span>
     gm <span class="ot">&lt;-</span> genMode
-    loop gm <span class="st">&quot;examples/re-tutorial-master.lhs&quot;</span> <span class="st">&quot;examples/re-tutorial.lhs&quot;</span>
+    prep_tut gm <span class="st">&quot;examples/re-tutorial-master.lhs&quot;</span> <span class="st">&quot;examples/re-tutorial.lhs&quot;</span>
     putStrLn <span class="st">&quot;&gt;&gt; examples/re-tutorial.lhs&quot;</span>
     pages
   <span class="kw">where</span>
@@ -258,48 +238,15 @@ includeDoc _ mtch _ _ <span class="fu">=</span> fmap <span class="dt">Just</span
     re_s  <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|rex|]  mtch
 
     prs_s <span class="fu">=</span> maybe (error <span class="st">&quot;includeDoc&quot;</span>) T.unpack <span class="fu">.</span> parseString</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mainDoc ::</span> <span class="dt">LineNo</span>
-        <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
-        <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
-mainDoc _ _ <span class="fu">=</span> return <span class="dt">Delete</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">beginDoc ::</span> <span class="dt">DocState</span>
-         <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
-         <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
-         <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
-beginDoc ds _ _ <span class="fu">=</span> writeIORef ds <span class="dt">Beginning</span> <span class="fu">&gt;&gt;</span> return <span class="dt">Delete</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">evalmeDoc, endDoc,<span class="ot"> otherDoc ::</span> <span class="dt">DocState</span>
-                            <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
-                            <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
-                            <span class="ot">-&gt;</span> <span class="dt">Location</span>
-                            <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
-                            <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
-
-evalmeDoc ds lno _ _ _ <span class="fu">=</span> <span class="kw">do</span>
-  dm <span class="ot">&lt;-</span> readIORef ds
-  M.when (dm<span class="fu">/=</span><span class="dt">Beginning</span>) <span class="fu">$</span>
-    bad_state <span class="st">&quot;evalme&quot;</span> lno dm
-  writeIORef ds <span class="dt">InsideRepl</span>
-  return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="st">&quot;&lt;div class=\&quot;replcodeblock\&quot;&gt;\n&quot;</span><span class="fu">&lt;&gt;</span>begin_code
-
-endDoc    ds lno _ _ _ <span class="fu">=</span> <span class="kw">do</span>
-  dm <span class="ot">&lt;-</span> readIORef ds
-  <span class="kw">case</span> dm <span class="kw">of</span>
-    <span class="dt">Outside</span>    <span class="ot">-&gt;</span> bad_state <span class="st">&quot;end&quot;</span> lno dm
-    <span class="dt">Beginning</span>  <span class="ot">-&gt;</span> return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> begin_code <span class="fu">&lt;&gt;</span> <span class="st">&quot;\n&quot;</span> <span class="fu">&lt;&gt;</span> end_code
-    <span class="dt">InsideRepl</span> <span class="ot">-&gt;</span> return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> end_code   <span class="fu">&lt;&gt;</span> <span class="st">&quot;\n&lt;/div&gt;&quot;</span>
-    <span class="dt">InsideProg</span> <span class="ot">-&gt;</span> return   <span class="dt">Nothing</span>
-
-otherDoc  ds _ mtch _ _ <span class="fu">=</span> <span class="kw">do</span>
-  dm <span class="ot">&lt;-</span> readIORef ds
-  <span class="kw">case</span> dm <span class="kw">of</span>
-    <span class="dt">Beginning</span> <span class="ot">-&gt;</span> <span class="kw">do</span>
-      writeIORef ds <span class="dt">InsideProg</span>
-      return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> begin_code <span class="fu">&lt;&gt;</span> <span class="st">&quot;\n&quot;</span> <span class="fu">&lt;&gt;</span> matchSource mtch
-    _ <span class="ot">-&gt;</span> return <span class="dt">Nothing</span>
-
-<span class="ot">bad_state ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">LineNo</span> <span class="ot">-&gt;</span> <span class="dt">DocMode</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> a
-bad_state lab lno dm <span class="fu">=</span> error <span class="fu">$</span>
-  printf <span class="st">&quot;Bad document syntax: %s: %d: %s&quot;</span> lab (getLineNo lno) <span class="fu">$</span> show dm</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">evalmeDoc ::</span> <span class="dt">LineNo</span>
+          <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
+          <span class="ot">-&gt;</span> <span class="dt">Location</span>
+          <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
+          <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
+evalmeDoc _ mtch _ _ <span class="fu">=</span> return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> replace mtch <span class="fu">$</span> LBS.intercalate <span class="st">&quot;\n&quot;</span>
+  [ <span class="st">&quot;ghci&gt; ${exp}&quot;</span>
+  , <span class="st">&quot;${ans}&quot;</span>
+  ]</code></pre></div>
 <h2 id="generating-the-tests">Generating the Tests</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">evalmeGen ::</span> <span class="dt">GenState</span>
           <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
@@ -774,10 +721,9 @@ tracking <span class="fu">=</span> [here|    &lt;script&gt;
 <h2 id="testing">testing</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">test ::</span> <span class="dt">IO</span> ()
 test <span class="fu">=</span> <span class="kw">do</span>
-  dm <span class="ot">&lt;-</span> docMode
-  test_pp <span class="st">&quot;pp-doc&quot;</span> (loop dm) <span class="st">&quot;data/pp-test.lhs&quot;</span> <span class="st">&quot;data/pp-result-doc.lhs&quot;</span>
+  test_pp <span class="st">&quot;pp-doc&quot;</span> (prep_tut <span class="dt">Doc</span>) <span class="st">&quot;data/pp-test.lhs&quot;</span> <span class="st">&quot;data/pp-result-doc.lhs&quot;</span>
   gm <span class="ot">&lt;-</span> genMode
-  test_pp <span class="st">&quot;pp-gen&quot;</span> (loop gm) <span class="st">&quot;data/pp-test.lhs&quot;</span> <span class="st">&quot;data/pp-result-gen.lhs&quot;</span>
+  test_pp <span class="st">&quot;pp-gen&quot;</span> (prep_tut gm ) <span class="st">&quot;data/pp-test.lhs&quot;</span> <span class="st">&quot;data/pp-result-gen.lhs&quot;</span>
   putStrLn <span class="st">&quot;tests passed&quot;</span></code></pre></div>
 </div>    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

@@ -110,10 +110,9 @@ This allows simple calculations to be defined stylistically
 in the source program, presented as calculations when rendered
 in HTML and tested that they have the expected result.
 \begin{code}
-evalme_LOA_00 = checkThis "" 0 $
-  length []
+evalme_LOA_00 = checkThis "" (0) $ length []
 \end{code}
-This trivial example calculation will be tested for equality to 0.
+This trivial example calculation will be tested for zero-ness.
 
 
 Matching with the regex-base Operators
@@ -123,8 +122,7 @@ regex supports the regex-base polymorphic match operators. Used in a
 `Bool` context `=~` will evaluate to True iff the string on the left matches
 the RE on the right.
 \begin{code}
-evalme_TRD_00 = checkThis "" True $
-  ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Bool)
+evalme_TRD_00 = checkThis "" (True) $ ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Bool)
 \end{code}
 Note that we enclose the RE itself in `[re|` ... `|]` quasi quote brackets,
 allowing the compiler to run some regex code at compile time to verify that
@@ -134,24 +132,19 @@ string contains a matching sub-string.
 
 Used in an `Int` context `=~` will count the number of matches in the target string.
 \begin{code}
-evalme_TRD_01 = checkThis "" 2 $
-  ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Int)
+evalme_TRD_01 = checkThis "" (2) $ ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Int)
 \end{code}
 
 To determine the string that has matched the modaic `=~~` operator can be used
 in a `Maybe` context.
 \begin{code}
-evalme_TRD_02 = checkThis "" (Just "2016-01-09") $
-  ("2016-01-09 2015-12-5 2015-10-05" =~~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Maybe String)
+evalme_TRD_02 = checkThis "" (Just "2016-01-09") $ ("2016-01-09 2015-12-5 2015-10-05" =~~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Maybe String)
 \end{code}
-This should evaluate to `Just "2016-01-09"`.
 
 A `=~` in a `[[String]]` extracts all of the matched substrings:
 \begin{code}
-evalme_TRD_04 = checkThis "" [["2016-01-09"],["2015-10-05"]] $
-  ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: [[String]])
+evalme_TRD_04 = checkThis "" ([["2016-01-09"],["2015-10-05"]]) $ ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: [[String]])
 \end{code}
-yields `[["2016-01-09"],["2015-10-05"]]`.
 
 regex provides special operators and types for extracting the first
 match or all of the non-overlapping substrings matching a regular expression
@@ -168,18 +161,14 @@ first-match operator, `?=~`, yields the result of attempting to find the first
 match. (It's result type will be explained below.) The boolean `matched`
 function can be used to test whether a match was found.
 \begin{code}
-evalme_SGL_01 = checkThis "" True $
-  matched $ "2016-01-09 2015-12-5 2015-10-05" ?=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+evalme_SGL_01 = checkThis "" (True) $ matched $ "2016-01-09 2015-12-5 2015-10-05" ?=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
-This should yield `True`.
 
 To get the matched text use `matchText`, which returns `Nothing` if no match was
 found in the search string.
 \begin{code}
-evalme_SGL_02 = checkThis "" (Just "2016-01-09") $
-  matchedText $ "2016-01-09 2015-12-5 2015-10-05" ?=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+evalme_SGL_02 = checkThis "" (Just "2016-01-09") $ matchedText $ "2016-01-09 2015-12-5 2015-10-05" ?=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
-This should yield `Just "2016-01-09"`.
 
 
 Multiple Matches with `*=~`
@@ -188,22 +177,18 @@ Multiple Matches with `*=~`
 Use `*=~` to locate all of the non-overlapping substrings that matches a RE.
 `anyMatches` will return `True` iff any matches are found (and they will be).
 \begin{code}
-evalme_MLT_01 = checkThis "" True $
-  anyMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+evalme_MLT_01 = checkThis "" (True) $ anyMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
 
 `countMatches` will tell us how many sub-strings matched (2).
 \begin{code}
-evalme_MLT_02 = checkThis "" 2 $
-  countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+evalme_MLT_02 = checkThis "" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
 
 `matches` will return all of the matches.
 \begin{code}
-evalme_MLT_03 = checkThis "" ["2016-01-09","2015-10-05"] $
-  matches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+evalme_MLT_03 = checkThis "" (["2016-01-09","2015-10-05"]) $ matches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
-This should yield `["2016-01-09","2015-10-05"]`.
 
 
 Simple Text Replacement
@@ -234,10 +219,8 @@ uk_dates src =
 \end{code}
 with
 \begin{code}
-evalme_RPL_01 = checkThis "" "09/01/2016 2015-12-5 05/10/2015" $
-  uk_dates "2016-01-09 2015-12-5 2015-10-05"
+evalme_RPL_01 = checkThis "" ("09/01/2016 2015-12-5 05/10/2015") $ uk_dates "2016-01-09 2015-12-5 2015-10-05"
 \end{code}
-yielding `"09/01/2016 2015-12-5 05/10/2015"`.
 
 The same function written with numbered captures:
 \begin{code}
@@ -247,8 +230,7 @@ uk_dates' src =
 \end{code}
 with
 \begin{code}
-evalme_RPL_02 = checkThis "" "09/01/2016 2015-12-5 05/10/2015" $
-  uk_dates' "2016-01-09 2015-12-5 2015-10-05"
+evalme_RPL_02 = checkThis "" ("09/01/2016 2015-12-5 05/10/2015") $ uk_dates' "2016-01-09 2015-12-5 2015-10-05"
 \end{code}
 yielding the same result.
 
@@ -324,8 +306,7 @@ Simple Options
 By default regular expressions are of the multi-line case-sensitive
 variety so this query
 \begin{code}
-evalme_SOP_01 = checkThis "" 2 $
-  countMatches $ "0a\nbb\nFe\nA5" *=~ [re|[0-9a-f]{2}$|]
+evalme_SOP_01 = checkThis "" (2) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [re|[0-9a-f]{2}$|]
 \end{code}
 finds 2 matches, the '$' anchor matching each of the newlines, but only
 the first two lowercase hex numbers matching the RE. The case sensitivity
@@ -345,30 +326,25 @@ and multiline-ness can be controled by selecting alternative parsers.
 
 So while the default setup
 \begin{code}
-evalme_SOP_02 = checkThis "" 2 $
-  countMatches $ "0a\nbb\nFe\nA5" *=~ [reMultilineSensitive|[0-9a-f]{2}$|]
+evalme_SOP_02 = checkThis "" (2) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [reMultilineSensitive|[0-9a-f]{2}$|]
 \end{code}
 finds 2 matches, a case-insensitive RE
 \begin{code}
-evalme_SOP_03 = checkThis "" 4 $
-  countMatches $ "0a\nbb\nFe\nA5" *=~ [reMultilineInsensitive|[0-9a-f]{2}$|]
+evalme_SOP_03 = checkThis "" (4) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [reMultilineInsensitive|[0-9a-f]{2}$|]
 \end{code}
 finds 4 matches, while a non-multiline RE
 \begin{code}
-evalme_SOP_04 = checkThis "" 0 $
-  countMatches $ "0a\nbb\nFe\nA5" *=~ [reBlockSensitive|[0-9a-f]{2}$|]
+evalme_SOP_04 = checkThis "" (0) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [reBlockSensitive|[0-9a-f]{2}$|]
 \end{code}
 finds no matches but a non-multiline, case-insensitive match
 \begin{code}
-evalme_SOP_05 = checkThis "" 1 $
-  countMatches $ "0a\nbb\nFe\nA5" *=~ [reBlockInsensitive|[0-9a-f]{2}$|]
+evalme_SOP_05 = checkThis "" (1) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [reBlockInsensitive|[0-9a-f]{2}$|]
 \end{code}
 finds the final match.
 
 For the hard of typing the shortforms are available.
 \begin{code}
-evalme_SOP_06 = checkThis "" True $
-  matched $ "SuperCaliFragilisticExpialidocious" ?=~ [reMI|supercalifragilisticexpialidocious|]
+evalme_SOP_06 = checkThis "" (True) $ matched $ "SuperCaliFragilisticExpialidocious" ?=~ [reMI|supercalifragilisticexpialidocious|]
 \end{code}
 
 
@@ -396,10 +372,8 @@ fixup_dates src =
 \end{code}
 which will fix up our running example
 \begin{code}
-evalme_RPF_01 = checkThis "" "2016-01-09 2015-12-05 2015-10-05" $
-  fixup_dates "2016-01-09 2015-12-5 2015-10-05"
+evalme_RPF_01 = checkThis "" ("2016-01-09 2015-12-05 2015-10-05") $ fixup_dates "2016-01-09 2015-12-5 2015-10-05"
 \end{code}
-returning `"2016-01-09 2015-12-05 2015-10-05"`.
 
 The `replaceAllCaptures` function is of type
 
@@ -443,10 +417,8 @@ fixup_and_reformat_dates src =
 \end{code}
 The `fixup_and_reformat_dates` applied to our running example,
 \begin{code}
-evalme_RPF_02 = checkThis "" "[2016-01-09] [2015-12-05] [2015-10-05]" $
-  fixup_and_reformat_dates "2016-01-09 2015-12-5 2015-10-05"
+evalme_RPF_02 = checkThis "" ("[2016-01-09] [2015-12-05] [2015-10-05]") $ fixup_and_reformat_dates "2016-01-09 2015-12-5 2015-10-05"
 \end{code}
-yields `"[2016-01-09] [2015-12-05] [2015-10-05]"`.
 
 `Text.RE.Replace` provides analagous functions for replacing the
 test of a single `Match` returned from `?=~`.
@@ -462,8 +434,7 @@ RE macros are enclosed in `@{` ... '}'. By convention the macros in
 the standard environment start with a '%'. `@{%date}` will match an
 ISO 8601 date, this
 \begin{code}
-evalme_MAC_00 = checkThis "" 2 $
-  countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|@{%date}|]
+evalme_MAC_00 = checkThis "" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|@{%date}|]
 \end{code}
 picking out the two dates.
 
@@ -559,18 +530,10 @@ check_for_failure = either error id
 \end{code}
 
 \begin{code}
-evalme_OPT_00 = checkThis "" 2 $
-  countMatches $
-    "2016-01-09 2015-12-5 2015-10-05" *=~
-      check_for_failure
-        (compileRegex () "@{%date}")
+evalme_OPT_00 = checkThis "" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ check_for_failure (compileRegex () "@{%date}")
 \end{code}
 \begin{code}
-evalme_OPT_01 = checkThis "" 1 $
-  countMatches $
-    "0a\nbb\nFe\nA5" *=~
-      check_for_failure
-        (compileRegex BlockInsensitive "[0-9a-f]{2}$")
+evalme_OPT_01 = checkThis "" (1) $ countMatches $ "0a\nbb\nFe\nA5" *=~ check_for_failure (compileRegex BlockInsensitive "[0-9a-f]{2}$")
 \end{code}
 
 This will allow you to compile regular expressions when the either the
@@ -584,9 +547,7 @@ If you just need to specify some non-standard options while statically
 checking the validity of the RE (with the default options) then you can
 use the `re_` parser:
 \begin{code}
-evalme_REU_01 = checkThis "" 1 $
-  countMatches $
-    "0a\nbb\nFe\nA5" *=~ [re_|[0-9a-f]{2}$|] BlockInsensitive
+evalme_REU_01 = checkThis "" (1) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [re_|[0-9a-f]{2}$|] BlockInsensitive
 \end{code}
 Any option `o` such that `IsOption o RE CompOption ExecOption` (i.e.,
 any option type accepted by `compileRegex` above) can be used with
@@ -729,8 +690,7 @@ fixpoint f = chk . iterate f
 
 For example:
 \begin{code}
-evalme_PMC_00 = checkThis "" "foo MacroID {getMacroID = \"bar\"} baz" $
-  expandMacros_ (Just . show) "foo @{bar} baz"
+evalme_PMC_00 = checkThis "" ("foo MacroID {getMacroID = \"bar\"} baz") $ expandMacros_ (Just . show) "foo @{bar} baz"
 \end{code}
 
 See [Text.RE.Replace](Replace.html) for details.
@@ -779,8 +739,7 @@ date_reformat = my_replace [re|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] "$
 This should yield `"2016/01/11"`:
 
 \begin{code}
-evalme_TPL_00 = checkThis "" "2016/01/11" $
-  date_reformat "2016-01-11"
+evalme_TPL_00 = checkThis "" ("2016/01/11") $ date_reformat "2016-01-11"
 \end{code}
 
 See [Text.RE.Replace](Replace.html)

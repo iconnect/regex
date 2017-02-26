@@ -18,7 +18,7 @@ module Text.RE
   -- ** The Match Operators
   -- $operators
 
-  -- * Matches, Match, Capture Types and Functions
+  -- * Matches, Match & Capture
     Matches(..)
   , Match(..)
   , Capture(..)

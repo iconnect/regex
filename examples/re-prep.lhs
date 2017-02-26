@@ -738,12 +738,17 @@ tweak_md
 
 \begin{code}
 tweak_md :: MarkdownMode -> LBS.ByteString -> LBS.ByteString
-tweak_md MM_github  lbs = lbs
-tweak_md MM_pandoc  lbs = lbs
-tweak_md MM_hackage lbs = fromMaybe oops $ flip sed' lbs $ Pipe
-    [ (,) [re|<br/>$|] $ Function TOP $ \_ _ _ _->return $ Just "\n"
-    ]
+tweak_md mm lbs = case mm of
+    MM_github  -> lbs
+    MM_pandoc  -> awk
+      [ (,) [re|<https?://${rest}([^)]+)>|] $ Template "[${rest}]($0)"
+      ]
+    MM_hackage -> awk
+      [ (,) [re|<br/>$|] $ Template "\n"
+      ]
   where
+    awk = fromMaybe oops . flip sed' lbs . Pipe
+
     -- runIdentity added to base in 4.9 only
     oops = error "tweak_md"
 \end{code}

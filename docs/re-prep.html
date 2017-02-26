@@ -694,12 +694,17 @@ pandoc_lhs&#39; title repo_path in_file out_file <span class="fu">=</span> <span
       ]</code></pre></div>
 <h2 id="tweak_md">tweak_md</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">tweak_md ::</span> <span class="dt">MarkdownMode</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
-tweak_md <span class="dt">MM_github</span>  lbs <span class="fu">=</span> lbs
-tweak_md <span class="dt">MM_pandoc</span>  lbs <span class="fu">=</span> lbs
-tweak_md <span class="dt">MM_hackage</span> lbs <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> flip sed&#39; lbs <span class="fu">$</span> <span class="dt">Pipe</span>
-    [ (,) [re|&lt;br/&gt;$|] <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="fu">$</span> <span class="dt">Just</span> <span class="st">&quot;\n&quot;</span>
-    ]
+tweak_md mm lbs <span class="fu">=</span> <span class="kw">case</span> mm <span class="kw">of</span>
+    <span class="dt">MM_github</span>  <span class="ot">-&gt;</span> lbs
+    <span class="dt">MM_pandoc</span>  <span class="ot">-&gt;</span> awk
+      [ (,) [re|&lt;https?://${rest}([^)]+)&gt;|] <span class="fu">$</span> <span class="dt">Template</span> <span class="st">&quot;[${rest}]($0)&quot;</span>
+      ]
+    <span class="dt">MM_hackage</span> <span class="ot">-&gt;</span> awk
+      [ (,) [re|&lt;br/&gt;$|] <span class="fu">$</span> <span class="dt">Template</span> <span class="st">&quot;\n&quot;</span>
+      ]
   <span class="kw">where</span>
+    awk <span class="fu">=</span> fromMaybe oops <span class="fu">.</span> flip sed&#39; lbs <span class="fu">.</span> <span class="dt">Pipe</span>
+
     <span class="co">-- runIdentity added to base in 4.9 only</span>
     oops <span class="fu">=</span> error <span class="st">&quot;tweak_md&quot;</span></code></pre></div>
 <h2 id="branding">branding</h2>

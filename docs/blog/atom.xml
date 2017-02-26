@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>the regex blog</title>
+    <link href="http://blog.regex.uk/atom.xml" rel="self" />
+    <link href="http://blog.regex.uk" />
+    <id>http://blog.regex.uk/atom.xml</id>
+    <author>
+        <name>Chris Dornan</name>
+        <email>chris@regex.uk</email>
+    </author>
+    <updated>2017-03-21T00:00:00Z</updated>
+    <entry>
+    <title>HaskellX Bytes Talk: Why Regular Expressions Matter</title>
+    <link href="http://blog.regex.uk/posts/2017-03-21-0-haskellx-bytes-why-res-matter.html" />
+    <id>http://blog.regex.uk/posts/2017-03-21-0-haskellx-bytes-why-res-matter.html</id>
+    <published>2017-03-21T00:00:00Z</published>
+    <updated>2017-03-21T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<p class="subheading">
+HaskellX Bytes Talk at <a href="https://skillsmatter.com/contact-us">CodeNode</a>, London, <strong>2017-05-08T1830+0100</strong>
+</p>
+<p>In this talk I will look at how Regular Expressions have been supported in Haskell and how well they should be supported. (Spoiler alert: I don’t think they have been supported well enough.) Some technically excellent packages are available which have been widely adopted but there is strong evidence that they are not as easy to use as developers expect and a wide variety of alternative packages have been proposed, none of which have attracted enough support to supplant the original.</p>
+<p>I will speculate on why this situation has come about and why I think the new ‘regex’ package will fix all of this. (Another spoiler alert: it is built on top of the technically excellent, de facto standard ‘regex-base’ packages that get used when Haskell folks really, really can’t avoid using regular expressions.)</p>]]></summary>
+</entry>
+<entry>
+    <title>Sed + Haskell = AWK</title>
+    <link href="http://blog.regex.uk/posts/2017-02-26-06-sed-plus-haskell-equals-awk.html" />
+    <id>http://blog.regex.uk/posts/2017-02-26-06-sed-plus-haskell-equals-awk.html</id>
+    <published>2017-02-26T00:00:00Z</published>
+    <updated>2017-02-26T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></summary>
+</entry>
+<entry>
+    <title>The Options of regex</title>
+    <link href="http://blog.regex.uk/posts/2017-02-26-05-the-options-of-regex.html" />
+    <id>http://blog.regex.uk/posts/2017-02-26-05-the-options-of-regex.html</id>
+    <published>2017-02-26T00:00:00Z</published>
+    <updated>2017-02-26T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></summary>
+</entry>
+<entry>
+    <title>Simple Text Replacement</title>
+    <link href="http://blog.regex.uk/posts/2017-02-26-04-simple-text-replacement.html" />
+    <id>http://blog.regex.uk/posts/2017-02-26-04-simple-text-replacement.html</id>
+    <published>2017-02-26T00:00:00Z</published>
+    <updated>2017-02-26T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></summary>
+</entry>
+<entry>
+    <title>Introducing regex</title>
+    <link href="http://blog.regex.uk/posts/2017-02-26-03-introducing-regex.html" />
+    <id>http://blog.regex.uk/posts/2017-02-26-03-introducing-regex.html</id>
+    <published>2017-02-26T00:00:00Z</published>
+    <updated>2017-02-26T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></summary>
+</entry>
+<entry>
+    <title>Regular Expressions and Haskell</title>
+    <link href="http://blog.regex.uk/posts/2017-02-26-02-res-and-haskell.html" />
+    <id>http://blog.regex.uk/posts/2017-02-26-02-res-and-haskell.html</id>
+    <published>2017-02-26T00:00:00Z</published>
+    <updated>2017-02-26T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></summary>
+</entry>
+<entry>
+    <title>Why Regular Expressions Matter</title>
+    <link href="http://blog.regex.uk/posts/2017-02-26-01-why-res-matter.html" />
+    <id>http://blog.regex.uk/posts/2017-02-26-01-why-res-matter.html</id>
+    <published>2017-02-26T00:00:00Z</published>
+    <updated>2017-02-26T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></summary>
+</entry>
+<entry>
+    <title>A Test Post</title>
+    <link href="http://blog.regex.uk/posts/2017-02-25-01-test.html" />
+    <id>http://blog.regex.uk/posts/2017-02-25-01-test.html</id>
+    <published>2017-02-25T00:00:00Z</published>
+    <updated>2017-02-25T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></summary>
+</entry>
+
+</feed>

@@ -21,7 +21,7 @@
     <div id="container">
     <div id="sidebar">
       <div id="corner">
-        <a href="." style="Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a>
+        <a href="." style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a>
       </div>
       <div class="widget" id="pages">
         <ul class="page-nav">
@@ -35,7 +35,7 @@
             <li class='secnav'><a href='#api'>The API</a></li>
             <li class='secnav'><a href='#macros'>The Macro Tables</a></li>
             <li class='secnav'><a href='#directory'>The regex.uk Directory</a></li>
-            <li class='secnav'><a href='#examples'>The Changelog</a></li>
+            <li class='secnav'><a href='#rmchangelog'>The Changelog</a></li>
             <li class='secnav'><a href='#authors'>The Authors</a></li>
           <li class='pagenav toi'><a href='about'>About</a></li>
           <li class='pagenav toi'><a href='contact'>Contact</a></li>
@@ -50,30 +50,30 @@
           </ul>
       </div>
       <div class="supplementary widget" id="github">
-        <a href="https://github.com/iconnect/regex"><img src="images/code.svg" alt="github code" /> Code</a>
+        <a href="http://code.regex.uk"><img src="images/code.svg" alt="github code" /> Code</a>
       </div>
       <div class="supplementary widget" id="github-issues">
-        <a href="https://github.com/iconnect/regex/issues"><img src="images/issue-opened.svg" alt="github code" /> Issues</a>
+        <a href="http://issues.regex.uk"><img src="images/issue-opened.svg" alt="github issues" /> Issues</a>
       </div>
       <div class="widget-divider">&nbsp;</div>
-      <div class="supplementary widget" id="build-status">
+      <div class="supplementary widget" id="hackage-badge">
         <a href="https://hackage.haskell.org/package/regex">
           <img src="badges/hackage.svg" alt="hackage version" />
         </a>
       </div>
-      <div class="supplementary widget" id="build-status">
+      <div class="supplementary widget" id="build-status-badge">
         <a href="build-status">
           <img src="badges/build-status.svg" alt="build status" />
         </a>
       </div>
       <div class="supplementary widget" id="maintainers-contact">
         <a href="mailto:maintainers@regex.uk">
-          <img src="badges/maintainers-contact.svg" alt="build status" />
+          <img src="badges/maintainers-contact.svg" alt="maintainers contact" />
         </a>
       </div>
       <div class="supplementary widget" id="feedback-contact">
         <a href="mailto:feedback@regex.uk">
-          <img src="badges/feedback-contact.svg" alt="build status" />
+          <img src="badges/feedback-contact.svg" alt="deedback contact" />
         </a>
       </div>
       <div class="supplementary widget twitter">
@@ -106,9 +106,10 @@
 <h2 id="twopackages">
 regex and regex-examples
 </h2>
+<p>The library and tutorial, tests and examples have been split across two packages:</p>
 <ul>
-<li>the <code>regex</code> package contains the regex library</li>
-<li>the <code>regex-examples</code> package contains the tutorial, tests and example programs</li>
+<li>the <code>regex</code> package contains the regex library and</li>
+<li>the <code>regex-examples</code> package contains the tutorial, tests and example programs.</li>
 </ul>
 <h2 id="roadmap">
 Road Map
@@ -180,7 +181,7 @@ The Macro Tables
 The regex.uk Directory
 </h2>
 <p>A handy overview of the regex.uk domain can be found <a href="http://directory.regex.uk">here</a>.</p>
-<h2 id="examples">
+<h2 id="rmchangelog">
 The Changelog
 </h2>
 <p>The <code>changelog</code> is posted <a href="http://changelog.regex.uk">here</a>.</p>
@@ -190,5 +191,15 @@ The Authors
 <p>This library was written and is currently maintained by <a href="mailto:chris.dornan@irisconnect.com">Chris Dornan</a> aka <a href="https://twitter.com/cdornan">@cdornan</a></p>
       </div>
     </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-92650418-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
 </body>
 </html>

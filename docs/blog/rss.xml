@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"
+    xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>the regex blog</title>
+        <link>http://blog.regex.uk</link>
+        <description><![CDATA[Writing Haskell and the regex package.]]></description>
+        <atom:link href="http://blog.regex.uk/rss.xml" rel="self"
+                   type="application/rss+xml" />
+        <lastBuildDate>Tue, 21 Mar 2017 00:00:00 UT</lastBuildDate>
+        <item>
+    <title>HaskellX Bytes Talk: Why Regular Expressions Matter</title>
+    <link>http://blog.regex.uk/posts/2017-03-21-0-haskellx-bytes-why-res-matter.html</link>
+    <description><![CDATA[<p class="subheading">
+HaskellX Bytes Talk at <a href="https://skillsmatter.com/contact-us">CodeNode</a>, London, <strong>2017-05-08T1830+0100</strong>
+</p>
+<p>In this talk I will look at how Regular Expressions have been supported in Haskell and how well they should be supported. (Spoiler alert: I don’t think they have been supported well enough.) Some technically excellent packages are available which have been widely adopted but there is strong evidence that they are not as easy to use as developers expect and a wide variety of alternative packages have been proposed, none of which have attracted enough support to supplant the original.</p>
+<p>I will speculate on why this situation has come about and why I think the new ‘regex’ package will fix all of this. (Another spoiler alert: it is built on top of the technically excellent, de facto standard ‘regex-base’ packages that get used when Haskell folks really, really can’t avoid using regular expressions.)</p>]]></description>
+    <pubDate>Tue, 21 Mar 2017 00:00:00 UT</pubDate>
+    <guid>http://blog.regex.uk/posts/2017-03-21-0-haskellx-bytes-why-res-matter.html</guid>
+    <dc:creator>Chris Dornan</dc:creator>
+</item>
+<item>
+    <title>Sed + Haskell = AWK</title>
+    <link>http://blog.regex.uk/posts/2017-02-26-06-sed-plus-haskell-equals-awk.html</link>
+    <description><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></description>
+    <pubDate>Sun, 26 Feb 2017 00:00:00 UT</pubDate>
+    <guid>http://blog.regex.uk/posts/2017-02-26-06-sed-plus-haskell-equals-awk.html</guid>
+    <dc:creator>Chris Dornan</dc:creator>
+</item>
+<item>
+    <title>The Options of regex</title>
+    <link>http://blog.regex.uk/posts/2017-02-26-05-the-options-of-regex.html</link>
+    <description><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></description>
+    <pubDate>Sun, 26 Feb 2017 00:00:00 UT</pubDate>
+    <guid>http://blog.regex.uk/posts/2017-02-26-05-the-options-of-regex.html</guid>
+    <dc:creator>Chris Dornan</dc:creator>
+</item>
+<item>
+    <title>Simple Text Replacement</title>
+    <link>http://blog.regex.uk/posts/2017-02-26-04-simple-text-replacement.html</link>
+    <description><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></description>
+    <pubDate>Sun, 26 Feb 2017 00:00:00 UT</pubDate>
+    <guid>http://blog.regex.uk/posts/2017-02-26-04-simple-text-replacement.html</guid>
+    <dc:creator>Chris Dornan</dc:creator>
+</item>
+<item>
+    <title>Introducing regex</title>
+    <link>http://blog.regex.uk/posts/2017-02-26-03-introducing-regex.html</link>
+    <description><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></description>
+    <pubDate>Sun, 26 Feb 2017 00:00:00 UT</pubDate>
+    <guid>http://blog.regex.uk/posts/2017-02-26-03-introducing-regex.html</guid>
+    <dc:creator>Chris Dornan</dc:creator>
+</item>
+<item>
+    <title>Regular Expressions and Haskell</title>
+    <link>http://blog.regex.uk/posts/2017-02-26-02-res-and-haskell.html</link>
+    <description><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></description>
+    <pubDate>Sun, 26 Feb 2017 00:00:00 UT</pubDate>
+    <guid>http://blog.regex.uk/posts/2017-02-26-02-res-and-haskell.html</guid>
+    <dc:creator>Chris Dornan</dc:creator>
+</item>
+<item>
+    <title>Why Regular Expressions Matter</title>
+    <link>http://blog.regex.uk/posts/2017-02-26-01-why-res-matter.html</link>
+    <description><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></description>
+    <pubDate>Sun, 26 Feb 2017 00:00:00 UT</pubDate>
+    <guid>http://blog.regex.uk/posts/2017-02-26-01-why-res-matter.html</guid>
+    <dc:creator>Chris Dornan</dc:creator>
+</item>
+<item>
+    <title>A Test Post</title>
+    <link>http://blog.regex.uk/posts/2017-02-25-01-test.html</link>
+    <description><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed erat odio, elementum at ex vitae, egestas mollis lorem. Duis sed nibh eu turpis venenatis dictum id eu ex. Nam consectetur ante massa, eget mollis enim consectetur vel. Duis eget tortor venenatis massa faucibus tempor. Nunc hendrerit viverra velit ut volutpat. Vestibulum porta consequat orci eu elementum. Suspendisse eros massa, mattis eget velit vel, convallis pharetra sem. Morbi tristique pharetra augue, ac aliquet tellus interdum sit amet. Etiam in purus eget urna placerat viverra sed non quam. Donec dictum dignissim volutpat. Morbi vitae nulla ut lorem hendrerit varius et nec felis. In commodo sem quis ultrices ullamcorper.</p>]]></description>
+    <pubDate>Sat, 25 Feb 2017 00:00:00 UT</pubDate>
+    <guid>http://blog.regex.uk/posts/2017-02-25-01-test.html</guid>
+    <dc:creator>Chris Dornan</dc:creator>
+</item>
+
+    </channel>
+</rss>

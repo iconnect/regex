@@ -21,9 +21,12 @@ See the [About page](http://about.regex.uk) for details.
 
 ## regex and regex-examples
 
-  * the `regex` package contains the regex library
+The library and tutorial, tests and examples have been split across
+two packages:
+
+  * the `regex` package contains the regex library and
   * the `regex-examples` package contains the tutorial, tests
-    and example programs
+    and example programs.
 
 
 ## Road Map

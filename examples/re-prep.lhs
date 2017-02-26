@@ -639,30 +639,30 @@ mk_pre_body_html pg hdgs = hdr <> LBS.concat (map nav [minBound..maxBound]) <> f
     ftr = [here|          </ul>
       </div>
       <div class="supplementary widget" id="github">
-        <a href="https://github.com/iconnect/regex"><img src="images/code.svg" alt="github code" /> Code</a>
+        <a href="http://code.regex.uk"><img src="images/code.svg" alt="github code" /> Code</a>
       </div>
       <div class="supplementary widget" id="github-issues">
-        <a href="https://github.com/iconnect/regex/issues"><img src="images/issue-opened.svg" alt="github code" /> Issues</a>
+        <a href="http://issues.regex.uk"><img src="images/issue-opened.svg" alt="github issues" /> Issues</a>
       </div>
       <div class="widget-divider">&nbsp;</div>
-      <div class="supplementary widget" id="build-status">
+      <div class="supplementary widget" id="hackage-badge">
         <a href="https://hackage.haskell.org/package/regex">
           <img src="badges/hackage.svg" alt="hackage version" />
         </a>
       </div>
-      <div class="supplementary widget" id="build-status">
+      <div class="supplementary widget" id="build-status-badge">
         <a href="build-status">
           <img src="badges/build-status.svg" alt="build status" />
         </a>
       </div>
       <div class="supplementary widget" id="maintainers-contact">
         <a href="mailto:maintainers@regex.uk">
-          <img src="badges/maintainers-contact.svg" alt="build status" />
+          <img src="badges/maintainers-contact.svg" alt="maintainers contact" />
         </a>
       </div>
       <div class="supplementary widget" id="feedback-contact">
         <a href="mailto:feedback@regex.uk">
-          <img src="badges/feedback-contact.svg" alt="build status" />
+          <img src="badges/feedback-contact.svg" alt="deedback contact" />
         </a>
       </div>
       <div class="supplementary widget twitter">
@@ -676,7 +676,7 @@ mk_pre_body_html pg hdgs = hdr <> LBS.concat (map nav [minBound..maxBound]) <> f
 pst_body_html :: LBS.ByteString
 pst_body_html = [here|      </div>
     </div>
-|]
+|] <> tracking
 \end{code}
 
 
@@ -793,7 +793,7 @@ pandoc_lhs' title repo_path in_file out_file = do
 
     ft = LBS.concat
       [ "</div>"
-      ]
+      ] <> tracking
 
     repo_url = LBS.concat
       [ "https://github.com/iconnect/regex/blob/master/"
@@ -823,7 +823,26 @@ branding
 
 \begin{code}
 branding :: LBS.ByteString
-branding = [here|<a href="." style="Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a>|]
+branding = [here|<a href="." style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a>|]
+\end{code}
+
+
+tracking
+--------
+
+\begin{code}
+tracking :: LBS.ByteString
+tracking = [here|    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-92650418-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+|]
 \end{code}
 
 

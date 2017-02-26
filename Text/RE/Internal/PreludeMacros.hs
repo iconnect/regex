@@ -192,8 +192,8 @@ natural_hex_macro rty env pm = Just $ run_tests rty parseHex samples env pm
     samples =
       [ (,) "0"         0x0
       , (,) "12345678"  0x12345678
-      , (,) "90abcdef"  0x90abcdef
-      , (,) "90ABCDEF"  0x90abcdef
+      , (,) "0abcdef"   0xabcdef
+      , (,) "0ABCDEF"   0xabcdef
       , (,) "00"        0x0
       , (,) "010"       0x10
       ]

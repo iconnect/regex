@@ -48,6 +48,12 @@ two packages:
 See the [Roadmap page](http://roadmap.regex.uk) for details.
 
 
+## The regex blog
+
+Check out the [regex blog](http://blog.regex.uk) for news articles and
+discussion concerning all things regex.
+
+
 ## Build Status
 
 [![Hackage](http://regex.uk/badges/hackage.svg)](https://hackage.haskell.org/package/regex) [![BSD3 License](http://regex.uk/badges/license.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29) [![Un*x build](http://regex.uk/badges/unix-build.svg)](https://travis-ci.org/iconnect/regex) [![Windows build](http://regex.uk/badges/windows-build.svg)](https://ci.appveyor.com/project/engineerirngirisconnectcouk/regex/branch/master) [![Coverage](http://regex.uk/badges/coverage.svg)](https://coveralls.io/github/iconnect/regex?branch=master)

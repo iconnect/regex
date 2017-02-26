@@ -370,6 +370,7 @@ pages <span class="fu">=</span> <span class="kw">do</span>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Page</span>
   <span class="fu">=</span> <span class="dt">PG_index</span>
   <span class="fu">|</span> <span class="dt">PG_about</span>
+  <span class="fu">|</span> <span class="dt">PG_reblog</span>
   <span class="fu">|</span> <span class="dt">PG_contact</span>
   <span class="fu">|</span> <span class="dt">PG_build_status</span>
   <span class="fu">|</span> <span class="dt">PG_installation</span>
@@ -398,6 +399,7 @@ page_address <span class="fu">=</span> LBS.pack <span class="fu">.</span> page_r
 page_title pg <span class="fu">=</span> <span class="kw">case</span> pg <span class="kw">of</span>
   <span class="dt">PG_index</span>        <span class="ot">-&gt;</span> <span class="st">&quot;Home&quot;</span>
   <span class="dt">PG_about</span>        <span class="ot">-&gt;</span> <span class="st">&quot;About&quot;</span>
+  <span class="dt">PG_reblog</span>       <span class="ot">-&gt;</span> <span class="st">&quot;Blog&quot;</span>
   <span class="dt">PG_contact</span>      <span class="ot">-&gt;</span> <span class="st">&quot;Contact&quot;</span>
   <span class="dt">PG_build_status</span> <span class="ot">-&gt;</span> <span class="st">&quot;Build Status&quot;</span>
   <span class="dt">PG_installation</span> <span class="ot">-&gt;</span> <span class="st">&quot;Installation&quot;</span>
@@ -550,6 +552,11 @@ mk_pre_body_html pg hdgs <span class="fu">=</span> hdr <span class="fu">&lt;&gt;
         &lt;a href=&quot;http://issues.regex.uk&quot;&gt;&lt;img src=&quot;images/issue-opened.svg&quot; alt=&quot;github issues&quot; /&gt; Issues&lt;/a&gt;
       &lt;/div&gt;
       &lt;div class=&quot;widget-divider&quot;&gt;&amp;nbsp;&lt;/div&gt;
+      &lt;div class=&quot;supplementary widget&quot; id=&quot;blog-badge&quot;&gt;
+        &lt;a href=&quot;http://blog.regex.uk&quot;&gt;
+          &lt;img src=&quot;badges/blog.svg&quot; alt=&quot;regex blog&quot; /&gt;
+        &lt;/a&gt;
+      &lt;/div&gt;
       &lt;div class=&quot;supplementary widget&quot; id=&quot;hackage-badge&quot;&gt;
         &lt;a href=&quot;https://hackage.haskell.org/package/regex&quot;&gt;
           &lt;img src=&quot;badges/hackage.svg&quot; alt=&quot;hackage version&quot; /&gt;

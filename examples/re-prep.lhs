@@ -393,6 +393,7 @@ pages = do
 data Page
   = PG_index
   | PG_about
+  | PG_reblog
   | PG_contact
   | PG_build_status
   | PG_installation
@@ -421,6 +422,7 @@ page_title :: Page -> LBS.ByteString
 page_title pg = case pg of
   PG_index        -> "Home"
   PG_about        -> "About"
+  PG_reblog       -> "Blog"
   PG_contact      -> "Contact"
   PG_build_status -> "Build Status"
   PG_installation -> "Installation"
@@ -576,6 +578,11 @@ mk_pre_body_html pg hdgs = hdr <> LBS.concat (map nav [minBound..maxBound]) <> f
         <a href="http://issues.regex.uk"><img src="images/issue-opened.svg" alt="github issues" /> Issues</a>
       </div>
       <div class="widget-divider">&nbsp;</div>
+      <div class="supplementary widget" id="blog-badge">
+        <a href="http://blog.regex.uk">
+          <img src="badges/blog.svg" alt="regex blog" />
+        </a>
+      </div>
       <div class="supplementary widget" id="hackage-badge">
         <a href="https://hackage.haskell.org/package/regex">
           <img src="badges/hackage.svg" alt="hackage version" />

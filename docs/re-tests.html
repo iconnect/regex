@@ -126,7 +126,7 @@ main <span class="fu">=</span> defaultMain <span class="fu">$</span>
     [ prelude_tests
     , parsing_tests
     , core_tests
-    , replace_tests
+    , replaceMethodstests
     , options_tests
     , namedCapturesTestTree
     , many_tests
@@ -269,55 +269,55 @@ core_tests <span class="fu">=</span> testGroup <span class="st">&quot;Match&quot
       assertEqual <span class="st">&quot;not.anyMatches&quot;</span> <span class="dt">False</span> <span class="fu">$</span> anyMatches mtchs
   ]
 
-<span class="ot">replace_tests ::</span> <span class="dt">TestTree</span>
-replace_tests <span class="fu">=</span> testGroup <span class="st">&quot;Replace&quot;</span>
+<span class="ot">replaceMethodstests ::</span> <span class="dt">TestTree</span>
+replaceMethodstests <span class="fu">=</span> testGroup <span class="st">&quot;Replace&quot;</span>
   [ testCase <span class="st">&quot;String/single&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> m <span class="fu">=</span> str_ <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Match</span> <span class="dt">String</span>
-          r <span class="fu">=</span> replaceCaptures&#39; <span class="dt">ALL</span> fmt m
-      assertEqual <span class="st">&quot;replaceCaptures&#39;&quot;</span> r <span class="st">&quot;(0:0:(0:1:a) (0:2:bbbb)) aa b&quot;</span>
+          r <span class="fu">=</span> replaceCaptures <span class="dt">ALL</span> fmt m
+      assertEqual <span class="st">&quot;replaceCaptures&quot;</span> r <span class="st">&quot;(0:0:(0:1:a) (0:2:bbbb)) aa b&quot;</span>
   , testCase <span class="st">&quot;String/alt&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> ms <span class="fu">=</span> str_ <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
-          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> fmt ms
+          r  <span class="fu">=</span> replaceAllCaptures <span class="dt">ALL</span> fmt ms
       chk r
   , testCase <span class="st">&quot;String&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> ms <span class="fu">=</span> str_ <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
-          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> fmt ms
+          r  <span class="fu">=</span> replaceAllCaptures <span class="dt">ALL</span> fmt ms
       chk r
   , testCase <span class="st">&quot;ByteString&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> ms <span class="fu">=</span> B.pack str_ <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> <span class="dt">B.ByteString</span>
-          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> fmt ms
+          r  <span class="fu">=</span> replaceAllCaptures <span class="dt">ALL</span> fmt ms
       chk r
   , testCase <span class="st">&quot;LBS.ByteString&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> ms <span class="fu">=</span> LBS.pack str_ <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
-          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> fmt ms
+          r  <span class="fu">=</span> replaceAllCaptures <span class="dt">ALL</span> fmt ms
       chk r
   , testCase <span class="st">&quot;Seq Char&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> ms <span class="fu">=</span> S.fromList str_ <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> (<span class="dt">S.Seq</span> <span class="dt">Char</span>)
           f  <span class="fu">=</span> \_ (<span class="dt">Location</span> i j) <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="ot">-&gt;</span> <span class="dt">Just</span> <span class="fu">$</span> S.fromList <span class="fu">$</span>
                   <span class="st">&quot;(&quot;</span> <span class="fu">&lt;&gt;</span> show i <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span> show_co j <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span>
                     F.toList capturedText <span class="fu">&lt;&gt;</span> <span class="st">&quot;)&quot;</span>
-          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> f ms
-      assertEqual <span class="st">&quot;replaceAllCaptures&#39;&quot;</span> r <span class="fu">$</span>
+          r  <span class="fu">=</span> replaceAllCaptures <span class="dt">ALL</span> f ms
+      assertEqual <span class="st">&quot;replaceAllCaptures&quot;</span> r <span class="fu">$</span>
         S.fromList <span class="st">&quot;(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))&quot;</span>
   , testCase <span class="st">&quot;Text&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> ms <span class="fu">=</span> T.pack str_ <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> <span class="dt">T.Text</span>
-          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> fmt ms
+          r  <span class="fu">=</span> replaceAllCaptures <span class="dt">ALL</span> fmt ms
       chk r
   , testCase <span class="st">&quot;LT.Text&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> ms <span class="fu">=</span> <span class="dt">LT</span><span class="fu">.</span>pack str_ <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> <span class="dt">LT</span><span class="fu">.</span><span class="dt">Text</span>
-          r  <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">ALL</span> fmt ms
+          r  <span class="fu">=</span> replaceAllCaptures <span class="dt">ALL</span> fmt ms
       chk r
   ]
   <span class="kw">where</span>
     chk r <span class="fu">=</span>
       assertEqual
-        <span class="st">&quot;replaceAllCaptures&#39;&quot;</span>
+        <span class="st">&quot;replaceAllCaptures&quot;</span>
         r
         <span class="st">&quot;(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))&quot;</span>
 
 <span class="ot">    fmt ::</span> (<span class="dt">IsString</span> s,<span class="dt">Replace</span> s) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Location</span> <span class="ot">-&gt;</span> <span class="dt">Capture</span> s <span class="ot">-&gt;</span> <span class="dt">Maybe</span> s
-    fmt _ (<span class="dt">Location</span> i j) <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="st">&quot;(&quot;</span> <span class="fu">&lt;&gt;</span> pack_ (show i) <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span>
-      pack_ (show_co j) <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span> capturedText <span class="fu">&lt;&gt;</span> <span class="st">&quot;)&quot;</span>
+    fmt _ (<span class="dt">Location</span> i j) <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="st">&quot;(&quot;</span> <span class="fu">&lt;&gt;</span> packE (show i) <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span>
+      packE (show_co j) <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span> capturedText <span class="fu">&lt;&gt;</span> <span class="st">&quot;)&quot;</span>
 
     show_co (<span class="dt">CaptureOrdinal</span> j) <span class="fu">=</span> show j
 
@@ -427,10 +427,10 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
             , TDFA.reBlockInsensitive
             , TDFA.re_
             ]
-        , testCase  <span class="st">&quot;TDFA.regexType&quot;</span>           <span class="fu">$</span> <span class="dt">TDFA</span>   <span class="fu">@=?</span> TDFA.regexType
-        , testCase  <span class="st">&quot;TDFA.reOptions&quot;</span>           <span class="fu">$</span> <span class="dt">Simple</span> <span class="fu">@=?</span> _options_mode (TDFA.reOptions tdfa_re)
-        , testCase  <span class="st">&quot;TDFA.makeOptions md&quot;</span>      <span class="fu">$</span> <span class="dt">Block</span>  <span class="fu">@=?</span> _options_mode (makeOptions <span class="dt">Block</span><span class="ot"> ::</span> <span class="dt">Options_</span> <span class="dt">TDFA.RE</span> <span class="dt">TDFA_.CompOption</span> <span class="dt">TDFA_.ExecOption</span>)
-        , testCase  <span class="st">&quot;TDFA.preludeTestsFailing&quot;</span> <span class="fu">$</span> []     <span class="fu">@=?</span> TDFA.preludeTestsFailing
+        , testCase  <span class="st">&quot;TDFA.regexType&quot;</span>           <span class="fu">$</span> <span class="dt">TDFA</span>    <span class="fu">@=?</span> TDFA.regexType
+        , testCase  <span class="st">&quot;TDFA.reOptions&quot;</span>           <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs (TDFA.reOptions tdfa_re)
+        , testCase  <span class="st">&quot;TDFA.makeOptions md&quot;</span>      <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs tdfa_opts
+        , testCase  <span class="st">&quot;TDFA.preludeTestsFailing&quot;</span> <span class="fu">$</span> []      <span class="fu">@=?</span> TDFA.preludeTestsFailing
         , ne_string <span class="st">&quot;TDFA.preludeTable&quot;</span>          TDFA.preludeTable
         , ne_string <span class="st">&quot;TDFA.preludeSources&quot;</span>        TDFA.preludeSources
         , testGroup <span class="st">&quot;TDFA.preludeSummary&quot;</span>
@@ -453,10 +453,10 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
             , PCRE.reBlockInsensitive
             , PCRE.re_
             ]
-        , testCase  <span class="st">&quot;PCRE.regexType&quot;</span>           <span class="fu">$</span> <span class="dt">PCRE</span>   <span class="fu">@=?</span> PCRE.regexType
-        , testCase  <span class="st">&quot;PCRE.reOptions&quot;</span>           <span class="fu">$</span> <span class="dt">Simple</span> <span class="fu">@=?</span> _options_mode (PCRE.reOptions pcre_re)
-        , testCase  <span class="st">&quot;PCRE.makeOptions md&quot;</span>      <span class="fu">$</span> <span class="dt">Block</span>  <span class="fu">@=?</span> _options_mode (makeOptions <span class="dt">Block</span><span class="ot"> ::</span> <span class="dt">Options_</span> <span class="dt">PCRE.RE</span> <span class="dt">PCRE_.CompOption</span> <span class="dt">PCRE_.ExecOption</span>)
-        , testCase  <span class="st">&quot;PCRE.preludeTestsFailing&quot;</span> <span class="fu">$</span> []     <span class="fu">@=?</span> PCRE.preludeTestsFailing
+        , testCase  <span class="st">&quot;PCRE.regexType&quot;</span>           <span class="fu">$</span> <span class="dt">PCRE</span>    <span class="fu">@=?</span> PCRE.regexType
+        , testCase  <span class="st">&quot;PCRE.reOptions&quot;</span>           <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs (PCRE.reOptions pcre_re)
+        , testCase  <span class="st">&quot;PCRE.makeOptions md&quot;</span>      <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs pcre_opts
+        , testCase  <span class="st">&quot;PCRE.preludeTestsFailing&quot;</span> <span class="fu">$</span> []      <span class="fu">@=?</span> PCRE.preludeTestsFailing
         , ne_string <span class="st">&quot;PCRE.preludeTable&quot;</span>          PCRE.preludeTable
         , ne_string <span class="st">&quot;PCRE.preludeTable&quot;</span>          PCRE.preludeSources
         , testGroup <span class="st">&quot;PCRE.preludeSummary&quot;</span>
@@ -470,10 +470,18 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
         ]
     ]
   <span class="kw">where</span>
-    tdfa_re <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> TDFA.compileRegex () <span class="st">&quot;.*&quot;</span>
-    pcre_re <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> PCRE.compileRegex () <span class="st">&quot;.*&quot;</span>
+    tdfa_re   <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> TDFA.compileRegex tdfa_opts <span class="st">&quot;.*&quot;</span>
+    pcre_re   <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> PCRE.compileRegex pcre_opts <span class="st">&quot;.*&quot;</span>
 
-    oops <span class="fu">=</span> error <span class="st">&quot;misc_tests&quot;</span>
+    tdfa_opts <span class="fu">=</span> makeOptions<span class="ot"> no_macs_t ::</span> <span class="dt">Options_</span> <span class="dt">TDFA.RE</span> <span class="dt">TDFA_.CompOption</span> <span class="dt">TDFA_.ExecOption</span>
+    pcre_opts <span class="fu">=</span> makeOptions<span class="ot"> no_macs_p ::</span> <span class="dt">Options_</span> <span class="dt">PCRE.RE</span> <span class="dt">PCRE_.CompOption</span> <span class="dt">PCRE_.ExecOption</span>
+
+    no_macs_t <span class="fu">=</span> HM.fromList []<span class="ot"> ::</span> <span class="dt">Macros</span> <span class="dt">TDFA.RE</span>
+    no_macs_p <span class="fu">=</span> HM.fromList []<span class="ot"> ::</span> <span class="dt">Macros</span> <span class="dt">PCRE.RE</span>
+
+    oops      <span class="fu">=</span> error <span class="st">&quot;misc_tests&quot;</span>
+
+    assert_empty_macs <span class="fu">=</span> assertBool <span class="st">&quot;macros not empty&quot;</span> <span class="fu">.</span> HM.null
 
 <span class="ot">qq_tc ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> (<span class="dt">QuasiQuoter</span><span class="ot">-&gt;</span><span class="dt">String</span><span class="ot">-&gt;</span>a) <span class="ot">-&gt;</span> <span class="dt">TestTree</span>
 qq_tc sc prj <span class="fu">=</span> testCase sc <span class="fu">$</span>

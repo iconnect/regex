@@ -319,37 +319,37 @@ For the hard of typing the shortforms are available.
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">  matched <span class="fu">$</span> <span class="st">&quot;SuperCaliFragilisticExpialidocious&quot;</span> <span class="fu">?=~</span> [reMI|supercalifragilisticexpialidocious|]</code></pre></div>
 </div>
 <h2 id="using-functions-to-replace-text">Using Functions to Replace Text</h2>
-Sometimes you will need to process each string captured by an RE with a function. <code>replaceAllCaptures</code> takes a <code>Phi</code> and a <code>Matches</code> and applies the function to each captured substring according to the <code>Context</code> specified in <code>Phi</code>, as we can see in the following example function to clean up all of the mis-formatted dates in the argument string,
+Sometimes you will need to process each string captured by an RE with a function. <code>replaceAllCaptures</code> takes a <code>Context</code>, a substitution function and a <code>Matches</code> and applies the function to each captured substring according to the <code>Context</code>, as we can see in the following example function to clean up all of the mis-formatted dates in the argument string,
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">fixup_dates ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
 fixup_dates src <span class="fu">=</span>
-    replaceAllCaptures phi <span class="fu">$</span> src <span class="fu">*=~</span> [re|([0-9]+)-([0-9]+)-([0-9]+)|]
+    replaceAllCaptures <span class="dt">SUB</span> phi <span class="fu">$</span> src <span class="fu">*=~</span> [re|([0-9]+)-([0-9]+)-([0-9]+)|]
   <span class="kw">where</span>
-    phi <span class="fu">=</span> <span class="dt">Phi</span> <span class="dt">SUB</span> <span class="fu">$</span> \loc s <span class="ot">-&gt;</span> <span class="kw">case</span> _loc_capture loc <span class="kw">of</span>
-      <span class="dv">1</span> <span class="ot">-&gt;</span> printf <span class="st">&quot;%04d&quot;</span> (read<span class="ot"> s ::</span> <span class="dt">Int</span>)
-      <span class="dv">2</span> <span class="ot">-&gt;</span> printf <span class="st">&quot;%02d&quot;</span> (read<span class="ot"> s ::</span> <span class="dt">Int</span>)
-      <span class="dv">3</span> <span class="ot">-&gt;</span> printf <span class="st">&quot;%02d&quot;</span> (read<span class="ot"> s ::</span> <span class="dt">Int</span>)
-      _ <span class="ot">-&gt;</span> error <span class="st">&quot;fixup_date&quot;</span></code></pre></div>
+    phi _ loc cap <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="kw">case</span> locationCapture loc <span class="kw">of</span>
+        <span class="dv">1</span> <span class="ot">-&gt;</span> printf <span class="st">&quot;%04d&quot;</span> (read<span class="ot"> s ::</span> <span class="dt">Int</span>)
+        <span class="dv">2</span> <span class="ot">-&gt;</span> printf <span class="st">&quot;%02d&quot;</span> (read<span class="ot"> s ::</span> <span class="dt">Int</span>)
+        <span class="dv">3</span> <span class="ot">-&gt;</span> printf <span class="st">&quot;%02d&quot;</span> (read<span class="ot"> s ::</span> <span class="dt">Int</span>)
+        _ <span class="ot">-&gt;</span> error <span class="st">&quot;fixup_dates&quot;</span>
+      <span class="kw">where</span>
+        s <span class="fu">=</span> capturedText cap</code></pre></div>
 which will fix up our running example
 <div class="replcodeblock">
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">  fixup_dates <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span></code></pre></div>
 </div>
 <p>returning <code>&quot;2016-01-09 2015-12-05 2015-10-05&quot;</code>.</p>
-<p>The <code>Phi</code>, <code>Context</code> and <code>Location</code> types are defined in <code>Text.RE.Replace</code> as follows.</p>
+<p>The <code>replaceAllCaptures</code> function is of type</p>
 <div class="includedcodeblock">
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | @Phi@ specifies the substitution function for procesing the substrings</span>
-<span class="co">-- captured by the regular expression.</span>
-<span class="kw">data</span> <span class="dt">Phi</span> a <span class="fu">=</span>
-  <span class="dt">Phi</span>
-    {<span class="ot"> _phi_context ::</span> <span class="dt">Context</span>             <span class="co">-- ^ the context for applying</span>
-                                          <span class="co">-- the substitution</span>
-    ,<span class="ot"> _phi_phi     ::</span> <span class="dt">Location</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a  <span class="co">-- ^ the substitution function</span>
-                                          <span class="co">-- takes the location and</span>
-                                          <span class="co">-- the text to be replaced and</span>
-                                          <span class="co">-- returns the replacement</span>
-                                          <span class="co">-- text to be substituted</span>
-    }
-
-<span class="co">-- | @Context@ specifies which contexts the substitutions should be applied</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | substitutes using a function that takes the full Match</span>
+<span class="co">-- context and returns the same replacement text as the _phi_phi</span>
+<span class="co">-- context.</span>
+<span class="ot">replaceAllCaptures ::</span> <span class="dt">Replace</span> a
+                   <span class="ot">=&gt;</span> <span class="dt">Context</span>
+                   <span class="ot">-&gt;</span> (<span class="dt">Match</span> a<span class="ot">-&gt;</span><span class="dt">Location</span><span class="ot">-&gt;</span><span class="dt">Capture</span> a<span class="ot">-&gt;</span><span class="dt">Maybe</span> a)
+                   <span class="ot">-&gt;</span> <span class="dt">Matches</span> a
+                   <span class="ot">-&gt;</span> a</code></pre></div>
+</div>
+<p>and the <code>Context</code> and <code>Location</code> types are defined in <code>Text.RE.Replace</code> as follows,</p>
+<div class="includedcodeblock">
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | @Context@ specifies which contexts the substitutions should be applied</span>
 <span class="kw">data</span> <span class="dt">Context</span>
   <span class="fu">=</span> <span class="dt">TOP</span>   <span class="co">-- ^ substitutions should be applied to the top-level only,</span>
           <span class="co">-- the text that matched the whole RE</span>
@@ -363,36 +363,27 @@ which will fix up our running example
 <span class="co">-- specifies which sub-expression is being substituted</span>
 <span class="kw">data</span> <span class="dt">Location</span> <span class="fu">=</span>
   <span class="dt">Location</span>
-    {<span class="ot"> _loc_match   ::</span> <span class="dt">Int</span>   <span class="co">-- ^ the zero-based, i-th string to be</span>
-                            <span class="co">-- matched, when matching all strings,</span>
-                            <span class="co">-- zero when only the first string is</span>
-                            <span class="co">-- being matched</span>
-    ,<span class="ot"> _loc_capture ::</span> <span class="dt">CaptureOrdinal</span>
-                            <span class="co">-- ^ 0, when matching the top-level</span>
-                            <span class="co">-- string matched by the whole RE, 1</span>
-                            <span class="co">-- for the top-most, left-most redex</span>
-                            <span class="co">-- captured by bracketed sub-REs, etc.</span>
+    {<span class="ot"> locationMatch   ::</span> <span class="dt">Int</span>
+                        <span class="co">-- ^ the zero-based, i-th string to be matched,</span>
+                        <span class="co">-- when matching all strings, zero when only the</span>
+                        <span class="co">-- first string is being matched</span>
+    ,<span class="ot"> locationCapture ::</span> <span class="dt">CaptureOrdinal</span>
+                        <span class="co">-- ^ 0, when matching the top-level string</span>
+                        <span class="co">-- matched by the whole RE, 1 for the top-most,</span>
+                        <span class="co">-- left-most redex captured by bracketed</span>
+                        <span class="co">-- sub-REs, etc.</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
 </div>
 <p>The processing function gets applied to the captures specified by the <code>Context</code>, which can be directed to process <code>ALL</code> of the captures, including the substring captured by the whole RE and all of the subsidiary capture, or just the <code>TOP</code>, <code>0</code> capture that the whole RE matches, or just the <code>SUB</code> (subsidiary) captures, as was the case above.</p>
-<p>If this doesn't provide enough flexibility, the <code>replaceAllCaptures'</code> function accepts a processing function that takes the full <code>Match</code> context for each capture along with the <code>Location</code> and the <code>Capture</code> itself.</p>
-<div class="includedcodeblock">
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | substitutes using a function that takes the full Match</span>
-<span class="co">-- context and returns the same replacement text as the _phi_phi</span>
-<span class="co">-- context.</span>
-<span class="ot">replaceAllCaptures&#39; ::</span> <span class="dt">Replace</span> a
-                    <span class="ot">=&gt;</span> <span class="dt">Context</span>
-                    <span class="ot">-&gt;</span> (<span class="dt">Match</span> a<span class="ot">-&gt;</span><span class="dt">Location</span><span class="ot">-&gt;</span><span class="dt">Capture</span> a<span class="ot">-&gt;</span><span class="dt">Maybe</span> a)
-                    <span class="ot">-&gt;</span> <span class="dt">Matches</span> a
-                    <span class="ot">-&gt;</span> a</code></pre></div>
-</div>
-The above fixup function can be extended to enclose whole date in square brackets and rewritten with the above more general replacement function.
+<p>The substitution function takes the <code>Match</code> corresponding to the current redex being processed, the <code>Location</code> information specifying redex <em>n</em> redex and capure <em>i</em>, and the <code>Capure</code> being substituted. Our substitution function didn't need the <code>Match</code> context so it ignored it.</p>
+<p>The substition function either return <code>Nothing</code> to indicate that no substitution should be made or the replacement text.</p>
+The above fixup function could be extended to enclose whole date in square brackets by specifing an <code>ALL</code> context and a <code>0</code> case for the substitution function.
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">fixup_and_reformat_dates ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
 fixup_and_reformat_dates src <span class="fu">=</span>
-    replaceAllCaptures&#39; <span class="dt">ALL</span> f <span class="fu">$</span> src <span class="fu">*=~</span> [re|([0-9]+)-([0-9]+)-([0-9]+)|]
+    replaceAllCaptures <span class="dt">ALL</span> f <span class="fu">$</span> src <span class="fu">*=~</span> [re|([0-9]+)-([0-9]+)-([0-9]+)|]
   <span class="kw">where</span>
-    f _ loc cap <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="kw">case</span> _loc_capture loc <span class="kw">of</span>
+    f _ loc cap <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="kw">case</span> locationCapture loc <span class="kw">of</span>
         <span class="dv">0</span> <span class="ot">-&gt;</span> printf <span class="st">&quot;[%s]&quot;</span>       txt
         <span class="dv">1</span> <span class="ot">-&gt;</span> printf <span class="st">&quot;%04d&quot;</span> (read<span class="ot"> txt ::</span> <span class="dt">Int</span>)
         <span class="dv">2</span> <span class="ot">-&gt;</span> printf <span class="st">&quot;%02d&quot;</span> (read<span class="ot"> txt ::</span> <span class="dt">Int</span>)
@@ -425,18 +416,17 @@ Each type of RE — TDFA and PCRE — has it own complile-time options and execu
 <div class="includedcodeblock">
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Options_</span> r c e <span class="fu">=</span>
   <span class="dt">Options</span>
-    {<span class="ot"> _options_mode ::</span> <span class="fu">!</span><span class="dt">Mode</span>
-    ,<span class="ot"> _options_macs ::</span> <span class="fu">!</span>(<span class="dt">Macros</span> r)
-    ,<span class="ot"> _options_comp ::</span> <span class="fu">!</span>c
-    ,<span class="ot"> _options_exec ::</span> <span class="fu">!</span>e
+    {<span class="ot"> optionsMacs ::</span> <span class="fu">!</span>(<span class="dt">Macros</span> r)
+    ,<span class="ot"> optionsComp ::</span> <span class="fu">!</span>c
+    ,<span class="ot"> optionsExec ::</span> <span class="fu">!</span>e
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
 </div>
 <ul>
-<li><p><code>_options_mode</code> is an experimental feature that controls the RE parser.</p></li>
-<li><p><code>_options_macs</code> contains the macro definitions used to compile the REs (see above Macros section);</p></li>
-<li><p><code>_options_comp</code> contains the back end compile-time options;</p></li>
-<li><p><code>_options_exec</code> contains the back end execution-time options.</p></li>
+<li><p><code>optionsMode</code> is an experimental feature that controls the RE parser.</p></li>
+<li><p><code>optionsMacs</code> contains the macro definitions used to compile the REs (see above Macros section);</p></li>
+<li><p><code>optionsComp</code> contains the back end compile-time options;</p></li>
+<li><p><code>optionsExec</code> contains the back end execution-time options.</p></li>
 </ul>
 <p>(For more information on the options provided by the back ends see the decumentation for <code>regex-tdfa</code> and <code>regex-pcre</code> as apropriate.)</p>
 Each backend provides a function to compile REs from some options and a string containing the RE as follows:
@@ -514,7 +504,7 @@ script ctx <span class="fu">=</span> <span class="dt">Select</span>
     ]
   <span class="kw">where</span>
     on rex src prs <span class="fu">=</span>
-      (,) (rex lpo) <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> process_line ctx src prs
+      (,) (rex lpo) <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> process_line ctx src prs
 
     parse_def      <span class="fu">=</span> fmap capturedText <span class="fu">.</span> matchCapture</code></pre></div>
 </div>
@@ -555,7 +545,7 @@ scan <span class="fu">=</span> alex&#39; match al oops
       , mk [here|(.)|]              <span class="fu">$</span>         <span class="dt">Other</span> <span class="fu">.</span> s2c <span class="fu">.</span> x_1
       ]
 
-    x_1     <span class="fu">=</span> captureText <span class="fu">$</span> <span class="dt">CID_ordinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="dv">1</span>
+    x_1     <span class="fu">=</span> captureText <span class="fu">$</span> <span class="dt">IsCaptureOrdinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="dv">1</span>
 
     s2c [c] <span class="fu">=</span> c
     s2c _   <span class="fu">=</span> error <span class="st">&quot;scan:s2c:internal error&quot;</span>
@@ -647,7 +637,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
 expandMacros_ lu <span class="fu">=</span> fixpoint e_m
   <span class="kw">where</span>
     e_m re_s <span class="fu">=</span>
-        replaceAllCaptures&#39; <span class="dt">TOP</span> phi <span class="fu">$</span> re_s <span class="fu">*=~</span> [re|@$(@|\{${name}([^{}]+)\})|]
+        replaceAllCaptures <span class="dt">TOP</span> phi <span class="fu">$</span> re_s <span class="fu">*=~</span> [re|@$(@|\{${name}([^{}]+)\})|]
 
     phi mtch _ cap <span class="fu">=</span> <span class="kw">case</span> txt <span class="fu">==</span> <span class="st">&quot;@@&quot;</span> <span class="kw">of</span>
         <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Just</span>   <span class="st">&quot;@&quot;</span>
@@ -670,29 +660,29 @@ For example:
 <p>The regex replacement templates are parsed with code similar to this.</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Template</span> <span class="fu">=</span> <span class="dt">String</span>
 
-<span class="ot">parse_tpl_ ::</span> <span class="dt">Template</span>
-           <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">String</span>
-           <span class="ot">-&gt;</span> <span class="dt">Location</span>
-           <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">String</span>
-           <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">String</span>
-parse_tpl_ tpl mtch _ _ <span class="fu">=</span>
-    <span class="dt">Just</span> <span class="fu">$</span> replaceAllCaptures&#39; <span class="dt">TOP</span> phi <span class="fu">$</span>
+<span class="ot">parseTemplateE&#39; ::</span> <span class="dt">Template</span>
+                <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">String</span>
+                <span class="ot">-&gt;</span> <span class="dt">Location</span>
+                <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">String</span>
+                <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">String</span>
+parseTemplateE&#39; tpl mtch _ _ <span class="fu">=</span>
+    <span class="dt">Just</span> <span class="fu">$</span> replaceAllCaptures <span class="dt">TOP</span> phi <span class="fu">$</span>
       tpl <span class="fu">*=~</span> [re|\$${arg}(\$|[0-9]+|\{${name}([^{}]+)\})|]
   <span class="kw">where</span>
     phi t_mtch _ _ <span class="fu">=</span> <span class="kw">case</span> t_mtch <span class="fu">!$?</span> [cp|name|] <span class="kw">of</span>
-      <span class="dt">Just</span> cap <span class="ot">-&gt;</span> this <span class="fu">$</span> <span class="dt">CID_name</span> <span class="fu">$</span> <span class="dt">CaptureName</span> txt
+      <span class="dt">Just</span> cap <span class="ot">-&gt;</span> this <span class="fu">$</span> <span class="dt">IsCaptureName</span> <span class="fu">$</span> <span class="dt">CaptureName</span> txt
         <span class="kw">where</span>
           txt <span class="fu">=</span> T.pack <span class="fu">$</span> capturedText cap
       <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="kw">case</span> t <span class="fu">==</span> <span class="st">&quot;$&quot;</span> <span class="kw">of</span>
         <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Just</span> t
-        <span class="dt">False</span> <span class="ot">-&gt;</span> this <span class="fu">$</span> <span class="dt">CID_ordinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="fu">$</span> read t
+        <span class="dt">False</span> <span class="ot">-&gt;</span> this <span class="fu">$</span> <span class="dt">IsCaptureOrdinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="fu">$</span> read t
       <span class="kw">where</span>
         t <span class="fu">=</span> capturedText <span class="fu">$</span> capture [cp|arg|] t_mtch
 
         this cid <span class="fu">=</span> capturedText <span class="fu">&lt;$&gt;</span> mtch <span class="fu">!$?</span> cid
 
 <span class="ot">my_replace ::</span> <span class="dt">RE</span> <span class="ot">-&gt;</span> <span class="dt">Template</span><span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
-my_replace rex tpl src <span class="fu">=</span> replaceAllCaptures&#39; <span class="dt">TOP</span> (parse_tpl_ tpl) <span class="fu">$</span> src <span class="fu">*=~</span> rex</code></pre></div>
+my_replace rex tpl src <span class="fu">=</span> replaceAllCaptures <span class="dt">TOP</span> (parseTemplateE&#39; tpl) <span class="fu">$</span> src <span class="fu">*=~</span> rex</code></pre></div>
 <p>It can be tested with our date-reformater example.</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">date_reformat ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
 date_reformat <span class="fu">=</span> my_replace [re|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] <span class="st">&quot;${y}/${m}/${d}&quot;</span></code></pre></div>
@@ -708,8 +698,8 @@ date_reformat <span class="fu">=</span> my_replace [re|${y}([0-9]{4})-${m}([0-9]
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">loop ::</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 loop <span class="fu">=</span>
   sed <span class="fu">$</span> <span class="dt">Select</span>
-    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span>   include_file
-    , (,) [re|^.*$|]                                              <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
+    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span>   include_file
+    , (,) [re|^.*$|]                                              <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
     ]</code></pre></div>
 </div>
 <p>The <code>extract</code> action takes the path to the file containing the fragment and the RE that will match a line in the fragment and returns the text of the fragment (wrapped in a simple styling div).</p>

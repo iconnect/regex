@@ -23,8 +23,8 @@ import           Text.RE.LineNo
 
 data Line =
   Line
-    { _ln_no      :: LineNo
-    , _ln_matches :: Matches LBS.ByteString
+    { getLineNumber  :: LineNo
+    , getLineMatches :: Matches LBS.ByteString
     }
   deriving (Show)
 
@@ -54,9 +54,9 @@ report :: [Line] -> String
 report = unlines . map fmt . linesMatched
   where
     fmt Line{..} =
-      printf "%05d %s" (getLineNo _ln_no) $
-          LBS.unpack $ matchesSource _ln_matches
+      printf "%05d %s" (getLineNo getLineNumber) $
+          LBS.unpack $ matchesSource getLineMatches
 
 linesMatched :: [Line] -> [Line]
-linesMatched = filter $ anyMatches . _ln_matches
+linesMatched = filter $ anyMatches . getLineMatches
 \end{code}

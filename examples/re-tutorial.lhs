@@ -385,20 +385,23 @@ Using Functions to Replace Text
 -------------------------------
 
 Sometimes you will need to process each string captured by an RE with a
-function. `replaceAllCaptures` takes a `Phi` and a `Matches` and
-applies the function to each captured substring according to the
-`Context` specified in `Phi`, as we can see in the following example function
-to clean up all of the mis-formatted dates in the argument string,
+function. `replaceAllCaptures` takes a `Context`, a substitution
+function and a `Matches` and applies the function to each captured
+substring according to the `Context`, as we can see in the following
+example function to clean up all of the mis-formatted dates in the
+argument string,
 \begin{code}
 fixup_dates :: String -> String
 fixup_dates src =
-    replaceAllCaptures phi $ src *=~ [re|([0-9]+)-([0-9]+)-([0-9]+)|]
+    replaceAllCaptures SUB phi $ src *=~ [re|([0-9]+)-([0-9]+)-([0-9]+)|]
   where
-    phi = Phi SUB $ \loc s -> case _loc_capture loc of
-      1 -> printf "%04d" (read s :: Int)
-      2 -> printf "%02d" (read s :: Int)
-      3 -> printf "%02d" (read s :: Int)
-      _ -> error "fixup_date"
+    phi _ loc cap = Just $ case locationCapture loc of
+        1 -> printf "%04d" (read s :: Int)
+        2 -> printf "%02d" (read s :: Int)
+        3 -> printf "%02d" (read s :: Int)
+        _ -> error "fixup_dates"
+      where
+        s = capturedText cap
 \end{code}
 which will fix up our running example
 \begin{code}
@@ -407,10 +410,14 @@ evalme_RPF_01 = checkThis "evalme_RPF_01" "2016-01-09 2015-12-05 2015-10-05" $
 \end{code}
 returning `"2016-01-09 2015-12-05 2015-10-05"`.
 
-The `Phi`, `Context` and `Location` types are defined in
-`Text.RE.Replace` as follows.
+The `replaceAllCaptures` function is of type
 
-%include "Text/RE/Replace.lhs" "^data Phi"
+%include "Text/RE/Replace.lhs" "replaceAllCaptures ::"
+
+and the `Context` and `Location` types are defined in
+`Text.RE.Replace` as follows,
+
+%include "Text/RE/Replace.lhs" "^data Context"
 
 The processing function gets applied to the captures specified by the
 `Context`, which can be directed to process `ALL` of the captures,
@@ -418,22 +425,23 @@ including the substring captured by the whole RE and all of the
 subsidiary capture, or just the `TOP`, `0` capture that the whole RE
 matches, or just the `SUB` (subsidiary) captures, as was the case above.
 
-If this doesn't provide enough flexibility, the `replaceAllCaptures'`
-function accepts a processing function that takes the full `Match`
-context for each capture along with the `Location` and the `Capture`
-itself.
+The substitution function takes the `Match` corresponding to the current
+redex being processed, the `Location` information specifying redex _n_
+redex and capure _i_, and the `Capure` being substituted. Our substitution
+function didn't need the `Match` context so it ignored it.
 
-%include "Text/RE/Replace.lhs" "replaceAllCaptures' ::"
+The substition function either return `Nothing` to indicate that no
+substitution should be made or the replacement text.
 
-The above fixup function can be extended to enclose whole date in
-square brackets and rewritten with the above more general replacement
-function.
+The above fixup function could be extended to enclose whole date in
+square brackets by specifing an `ALL` context and a `0` case for the
+substitution function.
 \begin{code}
 fixup_and_reformat_dates :: String -> String
 fixup_and_reformat_dates src =
-    replaceAllCaptures' ALL f $ src *=~ [re|([0-9]+)-([0-9]+)-([0-9]+)|]
+    replaceAllCaptures ALL f $ src *=~ [re|([0-9]+)-([0-9]+)-([0-9]+)|]
   where
-    f _ loc cap = Just $ case _loc_capture loc of
+    f _ loc cap = Just $ case locationCapture loc of
         0 -> printf "[%s]"       txt
         1 -> printf "%04d" (read txt :: Int)
         2 -> printf "%02d" (read txt :: Int)
@@ -501,15 +509,15 @@ The `Options_` type is defined in `Text.RE.Options` as follows:
 
 %include "Text/RE/Options.lhs" "data Options_"
 
-  * `_options_mode` is an experimental feature that controls the RE
+  * `optionsMode` is an experimental feature that controls the RE
     parser.
 
-  * `_options_macs` contains the macro definitions used to compile
+  * `optionsMacs` contains the macro definitions used to compile
     the REs (see above Macros section);
 
-  * `_options_comp` contains the back end compile-time options;
+  * `optionsComp` contains the back end compile-time options;
 
-  * `_options_exec` contains the back end execution-time options.
+  * `optionsExec` contains the back end execution-time options.
 
 (For more information on the options provided by the back ends see the
 decumentation for `regex-tdfa` and `regex-pcre` as apropriate.)
@@ -712,7 +720,7 @@ expandMacros_ :: (MacroID->Maybe String) -> String -> String
 expandMacros_ lu = fixpoint e_m
   where
     e_m re_s =
-        replaceAllCaptures' TOP phi $ re_s *=~ [re|@$(@|\{${name}([^{}]+)\})|]
+        replaceAllCaptures TOP phi $ re_s *=~ [re|@$(@|\{${name}([^{}]+)\})|]
 
     phi mtch _ cap = case txt == "@@" of
         True  -> Just   "@"
@@ -730,7 +738,7 @@ fixpoint f = chk . iterate f
 
 For example:
 \begin{code}
-evalme_PMC_00 = checkThis "evalme_PMC_00" "foo MacroID {_MacroID = \"bar\"} baz" $
+evalme_PMC_00 = checkThis "evalme_PMC_00" "foo MacroID {getMacroID = \"bar\"} baz" $
   expandMacros_ (Just . show) "foo @{bar} baz"
 \end{code}
 
@@ -745,29 +753,29 @@ The regex replacement templates are parsed with code similar to this.
 \begin{code}
 type Template = String
 
-parse_tpl_ :: Template
-           -> Match String
-           -> Location
-           -> Capture String
-           -> Maybe String
-parse_tpl_ tpl mtch _ _ =
-    Just $ replaceAllCaptures' TOP phi $
+parseTemplateE' :: Template
+                -> Match String
+                -> Location
+                -> Capture String
+                -> Maybe String
+parseTemplateE' tpl mtch _ _ =
+    Just $ replaceAllCaptures TOP phi $
       tpl *=~ [re|\$${arg}(\$|[0-9]+|\{${name}([^{}]+)\})|]
   where
     phi t_mtch _ _ = case t_mtch !$? [cp|name|] of
-      Just cap -> this $ CID_name $ CaptureName txt
+      Just cap -> this $ IsCaptureName $ CaptureName txt
         where
           txt = T.pack $ capturedText cap
       Nothing -> case t == "$" of
         True  -> Just t
-        False -> this $ CID_ordinal $ CaptureOrdinal $ read t
+        False -> this $ IsCaptureOrdinal $ CaptureOrdinal $ read t
       where
         t = capturedText $ capture [cp|arg|] t_mtch
 
         this cid = capturedText <$> mtch !$? cid
 
 my_replace :: RE -> Template-> String -> String
-my_replace rex tpl src = replaceAllCaptures' TOP (parse_tpl_ tpl) $ src *=~ rex
+my_replace rex tpl src = replaceAllCaptures TOP (parseTemplateE' tpl) $ src *=~ rex
 \end{code}
 
 It can be tested with our date-reformater example.

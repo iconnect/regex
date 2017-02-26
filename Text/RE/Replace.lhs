@@ -8,20 +8,17 @@
 
 module Text.RE.Replace
   ( Replace(..)
-  , Replace_(..)
-  , replace_
-  , Phi(..)
+  , ReplaceMethods(..)
+  , replaceMethods
   , Context(..)
   , Location(..)
   , isTopLocation
   , replace
   , replaceAll
   , replaceAllCaptures
-  , replaceAllCaptures'
   , replaceAllCaptures_
   , replaceAllCapturesM
   , replaceCaptures
-  , replaceCaptures'
   , replaceCaptures_
   , replaceCapturesM
   , expandMacros
@@ -54,67 +51,54 @@ import           Text.Regex.TDFA.Text.Lazy()
 
 \begin{code}
 -- | Replace provides the missing methods needed to replace the matched
--- text; length_ is the minimum implementation
+-- text; lengthE is the minimum implementation
 class (Extract a,Monoid a) => Replace a where
   -- | length function for a
-  length_       :: a -> Int
+  lengthE        :: a -> Int
   -- | inject String into a
-  pack_         :: String -> a
+  packE          :: String -> a
   -- | project a onto a String
-  unpack_       :: a -> String
+  unpackE        :: a -> String
   -- | inject into Text
-  textify       :: a -> T.Text
+  textifyE       :: a -> T.Text
   -- | project Text onto a
-  detextify     :: T.Text -> a
+  detextifyE     :: T.Text -> a
   -- | append a newline
-  appendNewline :: a -> a
+  appendNewlineE :: a -> a
   -- | apply a substitution function to a Capture
-  subst         :: (a->a) -> Capture a -> a
+  substE         :: (a->a) -> Capture a -> a
   -- | convert a template containing $0, $1, etc., in the first
   -- argument, into a 'phi' replacement function for use with
-  -- replaceAllCaptures' and replaceCaptures'
-  parse_tpl     :: a -> Match a -> Location -> Capture a -> Maybe a
+  -- replaceAllCaptures and replaceCaptures
+  parseTemplateE :: a -> Match a -> Location -> Capture a -> Maybe a
 
-  textify       = T.pack . unpack_
-  detextify     = pack_  . T.unpack
-  appendNewline = (<> pack_ "\n")
+  textifyE       = T.pack . unpackE
+  detextifyE     = packE  . T.unpack
+  appendNewlineE = (<> packE "\n")
 
-  subst f m@Capture{..} =
+  substE f m@Capture{..} =
     capturePrefix m <> f capturedText <> captureSuffix m
 \end{code}
 
 \begin{code}
--- | a selction of the Replace methods can be encapsulated with Replace_
+-- | a selction of the Replace methods can be encapsulated with ReplaceMethods
 -- for the higher-order replacement functions
-data Replace_ a =
-  Replace_
-    { _r_length :: a -> Int
-    , _r_subst  :: (a->a) -> Capture a -> a
+data ReplaceMethods a =
+  ReplaceMethods
+    { methodLength :: a -> Int
+    , methodSubst  :: (a->a) -> Capture a -> a
     }
 
--- | replace_ encapsulates Replace_ a from a Replace a context
-replace_ :: Replace a => Replace_ a
-replace_ =
-  Replace_
-    { _r_length = length_
-    , _r_subst  = subst
+-- | replaceMethods encapsulates ReplaceMethods a from a Replace a context
+replaceMethods :: Replace a => ReplaceMethods a
+replaceMethods =
+  ReplaceMethods
+    { methodLength = lengthE
+    , methodSubst  = substE
     }
 \end{code}
 
 \begin{code}
--- | @Phi@ specifies the substitution function for procesing the substrings
--- captured by the regular expression.
-data Phi a =
-  Phi
-    { _phi_context :: Context             -- ^ the context for applying
-                                          -- the substitution
-    , _phi_phi     :: Location -> a -> a  -- ^ the substitution function
-                                          -- takes the location and
-                                          -- the text to be replaced and
-                                          -- returns the replacement
-                                          -- text to be substituted
-    }
-
 -- | @Context@ specifies which contexts the substitutions should be applied
 data Context
   = TOP   -- ^ substitutions should be applied to the top-level only,
@@ -129,15 +113,15 @@ data Context
 -- specifies which sub-expression is being substituted
 data Location =
   Location
-    { _loc_match   :: Int   -- ^ the zero-based, i-th string to be
-                            -- matched, when matching all strings,
-                            -- zero when only the first string is
-                            -- being matched
-    , _loc_capture :: CaptureOrdinal
-                            -- ^ 0, when matching the top-level
-                            -- string matched by the whole RE, 1
-                            -- for the top-most, left-most redex
-                            -- captured by bracketed sub-REs, etc.
+    { locationMatch   :: Int
+                        -- ^ the zero-based, i-th string to be matched,
+                        -- when matching all strings, zero when only the
+                        -- first string is being matched
+    , locationCapture :: CaptureOrdinal
+                        -- ^ 0, when matching the top-level string
+                        -- matched by the whole RE, 1 for the top-most,
+                        -- left-most redex captured by bracketed
+                        -- sub-REs, etc.
     }
   deriving (Show)
 \end{code}
@@ -146,7 +130,7 @@ data Location =
 -- | True iff the location references a complete match
 -- (i.e., not a bracketed capture)
 isTopLocation :: Location -> Bool
-isTopLocation = (==0) . _loc_capture
+isTopLocation = (==0) . locationCapture
 \end{code}
 
 \begin{code}
@@ -156,38 +140,29 @@ replaceAll :: Replace a
            => a
            -> Matches a
            -> a
-replaceAll tpl ac = replaceAllCaptures' TOP (parse_tpl tpl) ac
-\end{code}
-
-\begin{code}
--- | substitutes the PHI substitutions through the Matches
-replaceAllCaptures :: Replace a
-                   => Phi a
-                   -> Matches a
-                   -> a
-replaceAllCaptures = mk_phi replaceAllCaptures'
+replaceAll tpl ac = replaceAllCaptures TOP (parseTemplateE tpl) ac
 \end{code}
 
 \begin{code}
 -- | substitutes using a function that takes the full Match
 -- context and returns the same replacement text as the _phi_phi
 -- context.
-replaceAllCaptures' :: Replace a
-                    => Context
-                    -> (Match a->Location->Capture a->Maybe a)
-                    -> Matches a
-                    -> a
+replaceAllCaptures :: Replace a
+                   => Context
+                   -> (Match a->Location->Capture a->Maybe a)
+                   -> Matches a
+                   -> a
 \end{code}
 
 \begin{code}
-replaceAllCaptures' = replaceAllCaptures_ replace_
+replaceAllCaptures = replaceAllCaptures_ replaceMethods
 \end{code}
 
 \begin{code}
--- | replaceAllCaptures_ is like like replaceAllCaptures' but takes the
--- Replace methods through the Replace_ argument
+-- | replaceAllCaptures_ is like like replaceAllCaptures but takes the
+-- Replace methods through the ReplaceMethods argument
 replaceAllCaptures_ :: Extract a
-                    => Replace_ a
+                    => ReplaceMethods a
                     -> Context
                     -> (Match a->Location->Capture a->Maybe a)
                     -> Matches a
@@ -200,7 +175,7 @@ replaceAllCaptures_ s ctx phi ac =
 -- | replaceAllCapturesM is just a monadically generalised version of
 -- replaceAllCaptures_
 replaceAllCapturesM :: (Extract a,Monad m)
-                    => Replace_ a
+                    => ReplaceMethods a
                     -> Context
                     -> (Match a->Location->Capture a->m (Maybe a))
                     -> Matches a
@@ -250,35 +225,26 @@ replace :: Replace a
         => Match a
         -> a
         -> a
-replace c tpl = replaceCaptures' TOP (parse_tpl tpl) c
-\end{code}
-
-\begin{code}
--- | substitutes the PHI substitutions through the Match
-replaceCaptures :: Replace a
-                => Phi a
-                -> Match a
-                -> a
-replaceCaptures = mk_phi replaceCaptures'
+replace c tpl = replaceCaptures TOP (parseTemplateE tpl) c
 \end{code}
 
 \begin{code}
 -- | substitutes using a function that takes the full Match
 -- context and returns the same replacement text as the _phi_phi
 -- context.
-replaceCaptures' :: Replace a
+replaceCaptures :: Replace a
                  => Context
                  -> (Match a->Location->Capture a->Maybe a)
                  -> Match a
                  -> a
-replaceCaptures' = replaceCaptures_ replace_
+replaceCaptures = replaceCaptures_ replaceMethods
 \end{code}
 
 \begin{code}
--- | replaceCaptures_ is like replaceCaptures' but takes the Replace methods
--- through the Replace_ argument
+-- | replaceCaptures_ is like replaceCaptures but takes the Replace methods
+-- through the ReplaceMethods argument
 replaceCaptures_ :: Extract a
-                 => Replace_ a
+                 => ReplaceMethods a
                  -> Context
                  -> (Match a->Location->Capture a->Maybe a)
                  -> Match a
@@ -291,12 +257,12 @@ replaceCaptures_ s ctx phi caps =
 -- | replaceCapturesM is just a monadically generalised version of
 -- replaceCaptures_
 replaceCapturesM :: (Monad m,Extract a)
-                 => Replace_ a
+                 => ReplaceMethods a
                  -> Context
                  -> (Match a->Location->Capture a->m (Maybe a))
                  -> Match a
                  -> m a
-replaceCapturesM Replace_{..} ctx phi_ caps@Match{..} = do
+replaceCapturesM ReplaceMethods{..} ctx phi_ caps@Match{..} = do
     (hay',_) <- foldr sc (return (matchSource,[])) $
                     zip [0..] $ elems matchArray
     return hay'
@@ -310,12 +276,12 @@ replaceCapturesM Replace_{..} ctx phi_ caps@Match{..} = do
         Nothing   -> return (hay,ds)
         Just ndl' ->
             return
-              ( _r_subst (const ndl') cap
+              ( methodSubst (const ndl') cap
               , (captureOffset cap,len'-len) : ds
               )
           where
-            len' = _r_length ndl'
-            len  = _r_length ndl
+            len' = methodLength ndl'
+            len  = methodLength ndl
 
     adj hay ds cap =
       Capture
@@ -346,72 +312,66 @@ replaceCapturesM Replace_{..} ctx phi_ caps@Match{..} = do
 -- the Replace instances
 
 instance Replace [Char] where
-  length_       = length
-  pack_         = id
-  unpack_       = id
-  textify       = T.pack
-  detextify     = T.unpack
-  appendNewline = (<>"\n")
-  parse_tpl     = parse_tpl_ id
+  lengthE         = length
+  packE           = id
+  unpackE         = id
+  textifyE        = T.pack
+  detextifyE      = T.unpack
+  appendNewlineE  = (<>"\n")
+  parseTemplateE  = parseTemplateE' id
 
 instance Replace B.ByteString where
-  length_   = B.length
-  pack_     = B.pack
-  unpack_   = B.unpack
-  textify   = TE.decodeUtf8
-  detextify = TE.encodeUtf8
-  appendNewline = (<>"\n")
-  parse_tpl = parse_tpl_ B.unpack
+  lengthE         = B.length
+  packE           = B.pack
+  unpackE         = B.unpack
+  textifyE        = TE.decodeUtf8
+  detextifyE      = TE.encodeUtf8
+  appendNewlineE  = (<>"\n")
+  parseTemplateE  = parseTemplateE' B.unpack
 
 instance Replace LBS.ByteString where
-  length_   = fromEnum . LBS.length
-  pack_     = LBS.pack
-  unpack_   = LBS.unpack
-  textify   = TE.decodeUtf8  . LBS.toStrict
-  detextify = LBS.fromStrict . TE.encodeUtf8
-  appendNewline = (<>"\n")
-  parse_tpl = parse_tpl_ LBS.unpack
+  lengthE         = fromEnum . LBS.length
+  packE           = LBS.pack
+  unpackE         = LBS.unpack
+  textifyE        = TE.decodeUtf8  . LBS.toStrict
+  detextifyE      = LBS.fromStrict . TE.encodeUtf8
+  appendNewlineE  = (<>"\n")
+  parseTemplateE  = parseTemplateE' LBS.unpack
 
 instance Replace (S.Seq Char) where
-  length_   = S.length
-  pack_     = S.fromList
-  unpack_   = F.toList
-  parse_tpl = parse_tpl_ F.toList
+  lengthE         = S.length
+  packE           = S.fromList
+  unpackE         = F.toList
+  parseTemplateE  = parseTemplateE' F.toList
 
 instance Replace T.Text where
-  length_   = T.length
-  pack_     = T.pack
-  unpack_   = T.unpack
-  textify   = id
-  detextify = id
-  appendNewline = (<>"\n")
-  parse_tpl = parse_tpl_ T.unpack
+  lengthE         = T.length
+  packE           = T.pack
+  unpackE         = T.unpack
+  textifyE        = id
+  detextifyE      = id
+  appendNewlineE  = (<>"\n")
+  parseTemplateE  = parseTemplateE' T.unpack
 
 instance Replace LT.Text where
-  length_   = fromEnum . LT.length
-  pack_     = LT.pack
-  unpack_   = LT.unpack
-  textify   = LT.toStrict
-  detextify = LT.fromStrict
-  appendNewline = (<>"\n")
-  parse_tpl = parse_tpl_ LT.unpack
+  lengthE         = fromEnum . LT.length
+  packE           = LT.pack
+  unpackE         = LT.unpack
+  textifyE        = LT.toStrict
+  detextifyE      = LT.fromStrict
+  appendNewlineE  = (<>"\n")
+  parseTemplateE  = parseTemplateE' LT.unpack
 \end{code}
 
 \begin{code}
 -- | expand all of the @{..} macros in the RE in the argument String
 -- according to the Macros argument, preprocessing the RE String
 -- according to the Mode argument (used internally)
-expandMacros :: (r->String) -> Mode -> Macros r -> String -> String
-expandMacros x_src md hm s0 =
+expandMacros :: (r->String) -> Macros r -> String -> String
+expandMacros x_src hm s =
   case HM.null hm of
     True  -> s
     False -> expandMacros' (fmap x_src . flip HM.lookup hm) s
-  where
-    s = case md of
-      Simple -> s0
-      Block  -> concat $ map clean $ lines s0
-
-    clean = reverse . dropWhile isSpace . reverse . dropWhile isSpace
 \end{code}
 
 \begin{code}
@@ -420,7 +380,7 @@ expandMacros x_src md hm s0 =
 expandMacros' :: (MacroID->Maybe String) -> String -> String
 expandMacros' lu = fixpoint e_m
   where
-    e_m re_s = replaceAllCaptures' TOP phi $ re_s $=~ [here|@(@|\{([^{}]+)\})|]
+    e_m re_s = replaceAllCaptures TOP phi $ re_s $=~ [here|@(@|\{([^{}]+)\})|]
       where
         phi mtch _ cap = case txt == "@@" of
             True  -> Just   "@"
@@ -428,7 +388,7 @@ expandMacros' lu = fixpoint e_m
           where
             txt = capturedText cap
             ide = MacroID $ capturedText $ capture c2 mtch
-            c2  = CID_ordinal $ CaptureOrdinal 2
+            c2  = IsCaptureOrdinal $ CaptureOrdinal 2
 \end{code}
 
 \begin{code}
@@ -438,18 +398,10 @@ lift_phi :: Monad m
 lift_phi phi_ = phi
   where
     phi caps' loc' cap' = return $ phi_ caps' loc' cap'
-
-mk_phi :: (Context->(Match a->Location->Capture a->Maybe a)->b)
-       -> Phi a
-       -> b
-mk_phi f phi@Phi{..} = f _phi_context $ mk_phi' phi
-
-mk_phi' :: Phi a -> Match a -> Location -> Capture a -> Maybe a
-mk_phi' Phi{..} _ loc = Just . _phi_phi loc . capturedText
 \end{code}
 
 \begin{code}
-parse_tpl_ :: ( Replace a
+parseTemplateE' :: ( Replace a
               , RegexContext Regex a (Matches a)
               , RegexMaker   Regex CompOption ExecOption String
               )
@@ -459,25 +411,25 @@ parse_tpl_ :: ( Replace a
            -> Location
            -> Capture a
            -> Maybe a
-parse_tpl_ unpack tpl mtch _ _ =
-    Just $ replaceAllCaptures' TOP phi $
+parseTemplateE' unpack tpl mtch _ _ =
+    Just $ replaceAllCaptures TOP phi $
       tpl $=~ [here|\$(\$|[0-9]+|\{([^{}]+)\})|]
   where
     phi t_mtch _ _ = case t_mtch !$? c2  of
-      Just cap -> this $ CID_name $ CaptureName txt
+      Just cap -> this $ IsCaptureName $ CaptureName txt
         where
           txt = T.pack $ unpack $ capturedText cap
       Nothing -> case s == "$" of
         True  -> Just t
-        False -> this $ CID_ordinal $ CaptureOrdinal $ read s
+        False -> this $ IsCaptureOrdinal $ CaptureOrdinal $ read s
       where
         s  = unpack t
         t  = capturedText $ capture c1 t_mtch
 
         this cid = capturedText <$> mtch !$? cid
 
-    c1 = CID_ordinal $ CaptureOrdinal 1
-    c2 = CID_ordinal $ CaptureOrdinal 2
+    c1 = IsCaptureOrdinal $ CaptureOrdinal 1
+    c2 = IsCaptureOrdinal $ CaptureOrdinal 2
 \end{code}
 
 \begin{code}

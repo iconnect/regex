@@ -89,7 +89,7 @@ substVersion in_f out_f =
 
 substVersion_ :: (IsRegex RE a,Replace a) => a -> IO a
 substVersion_ txt =
-    flip replaceAll ms . pack_ . presentVrn <$> readCurrentVersion
+    flip replaceAll ms . packE . presentVrn <$> readCurrentVersion
   where
     ms = txt *=~ [re|<<\$version\$>>|]
 
@@ -174,8 +174,8 @@ simple include processor
 \begin{code}
 include :: LBS.ByteString -> IO LBS.ByteString
 include = sed' $ Select
-    [ (,) [re|^%include ${file}(@{%string})$|] $ EDIT_fun TOP   incl
-    , (,) [re|^.*$|]                           $ EDIT_fun TOP $ \_ _ _ _->return Nothing
+    [ (,) [re|^%include ${file}(@{%string})$|] $ Function TOP   incl
+    , (,) [re|^.*$|]                           $ Function TOP $ \_ _ _ _->return Nothing
     ]
   where
     incl _ mtch _ _ = Just <$> LBS.readFile (prs_s $ mtch !$$ [cp|file|])

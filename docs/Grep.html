@@ -90,8 +90,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <span class="kw">data</span> <span class="dt">Line</span> <span class="fu">=</span>
   <span class="dt">Line</span>
-    {<span class="ot"> _ln_no      ::</span> <span class="dt">LineNo</span>
-    ,<span class="ot"> _ln_matches ::</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+    {<span class="ot"> getLineNo      ::</span> <span class="dt">LineNo</span>
+    ,<span class="ot"> getLineMatches ::</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)
 
@@ -121,11 +121,11 @@ grepScript scr <span class="fu">=</span> loop firstLine
 report <span class="fu">=</span> unlines <span class="fu">.</span> map fmt <span class="fu">.</span> linesMatched
   <span class="kw">where</span>
     fmt <span class="dt">Line</span>{<span class="fu">..</span>} <span class="fu">=</span>
-      printf <span class="st">&quot;%05d %s&quot;</span> (getLineNo _ln_no) <span class="fu">$</span>
-          LBS.unpack <span class="fu">$</span> matchesSource _ln_matches
+      printf <span class="st">&quot;%05d %s&quot;</span> (getLineNo getLineNo) <span class="fu">$</span>
+          LBS.unpack <span class="fu">$</span> matchesSource getLineMatches
 
 <span class="ot">linesMatched ::</span> [<span class="dt">Line</span>] <span class="ot">-&gt;</span> [<span class="dt">Line</span>]
-linesMatched <span class="fu">=</span> filter <span class="fu">$</span> anyMatches <span class="fu">.</span> _ln_matches</code></pre></div>
+linesMatched <span class="fu">=</span> filter <span class="fu">$</span> anyMatches <span class="fu">.</span> getLineMatches</code></pre></div>
 </div>
 </body>
 </html>

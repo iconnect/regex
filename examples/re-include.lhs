@@ -50,8 +50,8 @@ The Sed Script
 loop :: FilePath -> FilePath -> IO ()
 loop =
   sed $ Select
-    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] $ EDIT_fun TOP   include_file
-    , (,) [re|^.*$|]                                              $ EDIT_fun TOP $ \_ _ _ _->return Nothing
+    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] $ Function TOP   include_file
+    , (,) [re|^.*$|]                                              $ Function TOP $ \_ _ _ _->return Nothing
     ]
 \end{code}
 

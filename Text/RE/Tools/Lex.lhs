@@ -20,7 +20,7 @@ alex' :: Replace s
       -> [t]
 alex' mo al t_err = loop
   where
-    loop s = case length_ s == 0 of
+    loop s = case lengthE s == 0 of
       True  -> []
       False -> choose al s
 

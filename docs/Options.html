@@ -81,24 +81,19 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Language.Haskell.TH.Syntax</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Options_</span> r c e <span class="fu">=</span>
   <span class="dt">Options</span>
-    {<span class="ot"> _options_mode ::</span> <span class="fu">!</span><span class="dt">Mode</span>
-    ,<span class="ot"> _options_macs ::</span> <span class="fu">!</span>(<span class="dt">Macros</span> r)
-    ,<span class="ot"> _options_comp ::</span> <span class="fu">!</span>c
-    ,<span class="ot"> _options_exec ::</span> <span class="fu">!</span>e
+    {<span class="ot"> optionsMacs ::</span> <span class="fu">!</span>(<span class="dt">Macros</span> r)
+    ,<span class="ot"> optionsComp ::</span> <span class="fu">!</span>c
+    ,<span class="ot"> optionsExec ::</span> <span class="fu">!</span>e
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">IsOption</span> o r c e <span class="fu">|</span>
     e <span class="ot">-&gt;</span> r, c <span class="ot">-&gt;</span> e , e <span class="ot">-&gt;</span> c, r <span class="ot">-&gt;</span> c, c <span class="ot">-&gt;</span> r, r <span class="ot">-&gt;</span> e <span class="kw">where</span>
 <span class="ot">  makeOptions ::</span> o <span class="ot">-&gt;</span> <span class="dt">Options_</span> r c e</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Mode</span>
-  <span class="fu">=</span> <span class="dt">Simple</span>
-  <span class="fu">|</span> <span class="dt">Block</span>
-  <span class="kw">deriving</span> (<span class="dt">Bounded</span>,<span class="dt">Enum</span>,<span class="dt">Ord</span>,<span class="dt">Eq</span>,<span class="dt">Show</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">MacroID</span> <span class="fu">=</span>
-    <span class="dt">MacroID</span> {<span class="ot"> _MacroID ::</span> <span class="dt">String</span> }
+    <span class="dt">MacroID</span> {<span class="ot"> getMacroID ::</span> <span class="dt">String</span> }
   <span class="kw">deriving</span> (<span class="dt">IsString</span>,<span class="dt">Ord</span>,<span class="dt">Eq</span>,<span class="dt">Show</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Hashable</span> <span class="dt">MacroID</span> <span class="kw">where</span>
-  hashWithSalt i <span class="fu">=</span> hashWithSalt i <span class="fu">.</span> _MacroID</code></pre></div>
+  hashWithSalt i <span class="fu">=</span> hashWithSalt i <span class="fu">.</span> getMacroID</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Macros</span> r <span class="fu">=</span> <span class="dt">HM.HashMap</span> <span class="dt">MacroID</span> r</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">emptyMacros ::</span> <span class="dt">Macros</span> r
 emptyMacros <span class="fu">=</span> HM.empty</code></pre></div>

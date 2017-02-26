@@ -142,7 +142,7 @@ testMacroEnv lab rty m_env = case badMacros m_env of
   []    -> return True
   fails -> do
     putStrLn $ lab' ++ " has failing tests for these macros: "
-    putStr   $ unlines $ [ "  "++_MacroID mid | mid<-fails ]
+    putStr   $ unlines $ [ "  "++getMacroID mid | mid<-fails ]
     putStrLn $ "The whole table:"
     putStrLn $ "========================================================"
     putStr   $ formatMacroTable rty m_env
@@ -237,7 +237,7 @@ formatMacroSummary rty env mid = maybe oops prep $ HML.lookup mid env
           [ln] -> (,) ln []
           lns_ -> (,) "" lns_
 
-    oops = error $ _MacroID mid ++ ": macro not defined in this environment"
+    oops = error $ getMacroID mid ++ ": macro not defined in this environment"
 \end{code}
 
 \begin{code}
@@ -246,7 +246,7 @@ formatMacroSources :: RegexType
                    -> MacroEnv
                    -> String
 formatMacroSources rty wc env = unlines $
-    [ printf "%-20s : %s" (_MacroID mid) $ formatMacroSource rty wc env mid
+    [ printf "%-20s : %s" (getMacroID mid) $ formatMacroSource rty wc env mid
         | mid <- L.sort $ HML.keys env
         ]
 \end{code}
@@ -260,7 +260,7 @@ formatMacroSource :: RegexType
 formatMacroSource rty wc env mid =
     mdRegexSource rty wc env $ fromMaybe oops $ HML.lookup mid env
   where
-    oops = error $ "formatMacroSource: not found: " ++ _MacroID mid
+    oops = error $ "formatMacroSource: not found: " ++ getMacroID mid
 \end{code}
 
 
@@ -317,7 +317,7 @@ macro_attribute :: RegexType
                 -> [String]
 macro_attribute rty mid MacroDescriptor{..} c =
     case c of
-      C_name          -> [_MacroID mid]
+      C_name          -> [getMacroID mid]
       C_caps          -> [show $ min_captures rty $ scan_re _md_source]
       C_regex         -> [regexSource rty ExclCaptures _md_source]
       C_examples      -> _md_samples
@@ -558,7 +558,7 @@ test_diagnostic mid is_neg rty tst msg =
     TestResult $
       printf "%-20s [%s %s] : %s (%s)" mid_s neg_s rty_s msg tst
   where
-    mid_s = _MacroID mid
+    mid_s = getMacroID mid
     neg_s = if is_neg then "-ve" else "+ve" :: String
     rty_s = show rty
 \end{code}

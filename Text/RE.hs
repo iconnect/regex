@@ -50,7 +50,6 @@ module Text.RE
   -- * Options
   , Options_(..)
   , IsOption(..)
-  , Mode(..)
   , MacroID(..)
   , Macros
   , emptyMacros
@@ -96,20 +95,17 @@ module Text.RE
   , severityKeywords
   -- * Replace
   , Replace(..)
-  , Replace_(..)
-  , replace_
-  , Phi(..)
+  , ReplaceMethods(..)
+  , replaceMethods
   , Context(..)
   , Location(..)
   , isTopLocation
   , replace
   , replaceAll
   , replaceAllCaptures
-  , replaceAllCaptures'
   , replaceAllCaptures_
   , replaceAllCapturesM
   , replaceCaptures
-  , replaceCaptures'
   , replaceCaptures_
   , replaceCapturesM
   , expandMacros

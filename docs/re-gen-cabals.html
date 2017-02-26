@@ -147,12 +147,12 @@ setup <span class="fu">=</span> <span class="dt">Ctx</span> <span class="fu">&lt
 
 <span class="ot">gc_script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">SedScript</span> <span class="dt">RE</span>
 gc_script ctx <span class="fu">=</span> <span class="dt">Select</span>
-    [ (,) [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]             <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> cond_gen                 ctx
-    , (,) [re|^%build-depends +${list}(@{%id-}( +@{%id-})+)$|] <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> build_depends_gen        ctx
-    , (,) [re|^%test +${i}(@{%id-})$|]                         <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> test_exe_gen <span class="dt">True</span>  <span class="dt">False</span> ctx
-    , (,) [re|^%exe +${i}(@{%id-})$|]                          <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> test_exe_gen <span class="dt">False</span> <span class="dt">True</span>  ctx
-    , (,) [re|^%test-exe +${i}(@{%id-})$|]                     <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> test_exe_gen <span class="dt">True</span>  <span class="dt">True</span>  ctx
-    , (,) [re|^.*$|]                                           <span class="fu">$</span> <span class="dt">EDIT_gen</span> <span class="fu">$</span> default_gen              ctx
+    [ (,) [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]             <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> cond_gen                 ctx
+    , (,) [re|^%build-depends +${list}(@{%id-}( +@{%id-})+)$|] <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> build_depends_gen        ctx
+    , (,) [re|^%test +${i}(@{%id-})$|]                         <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> test_exe_gen <span class="dt">True</span>  <span class="dt">False</span> ctx
+    , (,) [re|^%exe +${i}(@{%id-})$|]                          <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> test_exe_gen <span class="dt">False</span> <span class="dt">True</span>  ctx
+    , (,) [re|^%test-exe +${i}(@{%id-})$|]                     <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> test_exe_gen <span class="dt">True</span>  <span class="dt">True</span>  ctx
+    , (,) [re|^.*$|]                                           <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> default_gen              ctx
     ]
 
 cond_gen, build_depends_gen,

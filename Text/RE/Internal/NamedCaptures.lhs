@@ -110,7 +110,7 @@ scan = alex' match al oops
       , mk [here|(.)|]              $         Other . s2c . x_1
       ]
 
-    x_1     = captureText $ CID_ordinal $ CaptureOrdinal 1
+    x_1     = captureText $ IsCaptureOrdinal $ CaptureOrdinal 1
 
     s2c [c] = c
     s2c _   = error "scan:s2c:internal error"
@@ -127,8 +127,8 @@ Parsing captures
 \begin{code}
 parse_capture :: String -> TH.Q TH.Exp
 parse_capture s = case all isDigit s of
-  True  -> [|CID_ordinal $ CaptureOrdinal $ read s|]
-  False -> [|CID_name    $ CaptureName $ T.pack  s|]
+  True  -> [|IsCaptureOrdinal $ CaptureOrdinal $ read s|]
+  False -> [|IsCaptureName    $ CaptureName $ T.pack  s|]
 \end{code}
 
 

@@ -143,7 +143,7 @@ matches = map capturedText . mainCaptures
 mainCaptures :: Matches a -> [Capture a]
 mainCaptures ac = [ capture c0 cs | cs<-allMatches ac ]
   where
-    c0 = CID_ordinal $ CaptureOrdinal 0
+    c0 = IsCaptureOrdinal $ CaptureOrdinal 0
 \end{code}
 
 

@@ -150,7 +150,7 @@ substVersion in_f out_f <span class="fu">=</span>
 
 <span class="ot">substVersion_ ::</span> (<span class="dt">IsRegex</span> <span class="dt">RE</span> a,<span class="dt">Replace</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a
 substVersion_ txt <span class="fu">=</span>
-    flip replaceAll ms <span class="fu">.</span> pack_ <span class="fu">.</span> presentVrn <span class="fu">&lt;$&gt;</span> readCurrentVersion
+    flip replaceAll ms <span class="fu">.</span> packE <span class="fu">.</span> presentVrn <span class="fu">&lt;$&gt;</span> readCurrentVersion
   <span class="kw">where</span>
     ms <span class="fu">=</span> txt <span class="fu">*=~</span> [re|&lt;&lt;\$version\$&gt;&gt;|]
 
@@ -220,8 +220,8 @@ test_pp lab loop test_file gold_file <span class="fu">=</span> <span class="kw">
 <h2 id="simple-include-processor">simple include processor</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">include ::</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">LBS.ByteString</span>
 include <span class="fu">=</span> sed&#39; <span class="fu">$</span> <span class="dt">Select</span>
-    [ (,) [re|^%include ${file}(@{%string})$|] <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span>   incl
-    , (,) [re|^.*$|]                           <span class="fu">$</span> <span class="dt">EDIT_fun</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
+    [ (,) [re|^%include ${file}(@{%string})$|] <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span>   incl
+    , (,) [re|^.*$|]                           <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
     ]
   <span class="kw">where</span>
     incl _ mtch _ _ <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">&lt;$&gt;</span> LBS.readFile (prs_s <span class="fu">$</span> mtch <span class="fu">!$$</span> [cp|file|])

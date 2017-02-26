@@ -17,10 +17,9 @@ import           Language.Haskell.TH.Syntax
 \begin{code}
 data Options_ r c e =
   Options
-    { _options_mode :: !Mode
-    , _options_macs :: !(Macros r)
-    , _options_comp :: !c
-    , _options_exec :: !e
+    { optionsMacs :: !(Macros r)
+    , optionsComp :: !c
+    , optionsExec :: !e
     }
   deriving (Show)
 \end{code}
@@ -32,21 +31,14 @@ class IsOption o r c e |
 \end{code}
 
 \begin{code}
-data Mode
-  = Simple
-  | Block
-  deriving (Bounded,Enum,Ord,Eq,Show)
-\end{code}
-
-\begin{code}
 newtype MacroID =
-    MacroID { _MacroID :: String }
+    MacroID { getMacroID :: String }
   deriving (IsString,Ord,Eq,Show)
 \end{code}
 
 \begin{code}
 instance Hashable MacroID where
-  hashWithSalt i = hashWithSalt i . _MacroID
+  hashWithSalt i = hashWithSalt i . getMacroID
 \end{code}
 
 \begin{code}

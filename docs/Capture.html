@@ -184,7 +184,7 @@ matches <span class="fu">=</span> map capturedText <span class="fu">.</span> mai
 <span class="ot">mainCaptures ::</span> <span class="dt">Matches</span> a <span class="ot">-&gt;</span> [<span class="dt">Capture</span> a]
 mainCaptures ac <span class="fu">=</span> [ capture c0 cs <span class="fu">|</span> cs<span class="ot">&lt;-</span>allMatches ac ]
   <span class="kw">where</span>
-    c0 <span class="fu">=</span> <span class="dt">CID_ordinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="dv">0</span></code></pre></div>
+    c0 <span class="fu">=</span> <span class="dt">IsCaptureOrdinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="dv">0</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | tests whether the RE matched the source text at all</span>
 <span class="ot">matched ::</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
 matched <span class="fu">=</span> isJust <span class="fu">.</span> matchCapture

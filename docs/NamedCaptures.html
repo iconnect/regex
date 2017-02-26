@@ -158,7 +158,7 @@ scan <span class="fu">=</span> alex&#39; match al oops
       , mk [here|(.)|]              <span class="fu">$</span>         <span class="dt">Other</span> <span class="fu">.</span> s2c <span class="fu">.</span> x_1
       ]
 
-    x_1     <span class="fu">=</span> captureText <span class="fu">$</span> <span class="dt">CID_ordinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="dv">1</span>
+    x_1     <span class="fu">=</span> captureText <span class="fu">$</span> <span class="dt">IsCaptureOrdinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="dv">1</span>
 
     s2c [c] <span class="fu">=</span> c
     s2c _   <span class="fu">=</span> error <span class="st">&quot;scan:s2c:internal error&quot;</span>
@@ -169,8 +169,8 @@ scan <span class="fu">=</span> alex&#39; match al oops
 <h2 id="parsing-captures">Parsing captures</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">parse_capture ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">TH.Q</span> <span class="dt">TH.Exp</span>
 parse_capture s <span class="fu">=</span> <span class="kw">case</span> all isDigit s <span class="kw">of</span>
-  <span class="dt">True</span>  <span class="ot">-&gt;</span> [<span class="fu">|</span><span class="dt">CID_ordinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="fu">$</span> read s<span class="fu">|</span>]
-  <span class="dt">False</span> <span class="ot">-&gt;</span> [<span class="fu">|</span><span class="dt">CID_name</span>    <span class="fu">$</span> <span class="dt">CaptureName</span> <span class="fu">$</span> T.pack  s<span class="fu">|</span>]</code></pre></div>
+  <span class="dt">True</span>  <span class="ot">-&gt;</span> [<span class="fu">|</span><span class="dt">IsCaptureOrdinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="fu">$</span> read s<span class="fu">|</span>]
+  <span class="dt">False</span> <span class="ot">-&gt;</span> [<span class="fu">|</span><span class="dt">IsCaptureName</span>    <span class="fu">$</span> <span class="dt">CaptureName</span> <span class="fu">$</span> T.pack  s<span class="fu">|</span>]</code></pre></div>
 <h2 id="formatting-token">Formatting <a href="#token">Token</a></h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatTokens ::</span> [<span class="dt">Token</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
 formatTokens <span class="fu">=</span> formatTokens&#39; defFormatTokenOptions

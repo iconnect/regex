@@ -80,12 +80,12 @@ setup = Ctx <$> (newIORef Map.empty) <*> (newIORef Nothing)
 
 gc_script :: Ctx -> SedScript RE
 gc_script ctx = Select
-    [ (,) [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]             $ EDIT_gen $ cond_gen                 ctx
-    , (,) [re|^%build-depends +${list}(@{%id-}( +@{%id-})+)$|] $ EDIT_gen $ build_depends_gen        ctx
-    , (,) [re|^%test +${i}(@{%id-})$|]                         $ EDIT_gen $ test_exe_gen True  False ctx
-    , (,) [re|^%exe +${i}(@{%id-})$|]                          $ EDIT_gen $ test_exe_gen False True  ctx
-    , (,) [re|^%test-exe +${i}(@{%id-})$|]                     $ EDIT_gen $ test_exe_gen True  True  ctx
-    , (,) [re|^.*$|]                                           $ EDIT_gen $ default_gen              ctx
+    [ (,) [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]             $ LineEdit $ cond_gen                 ctx
+    , (,) [re|^%build-depends +${list}(@{%id-}( +@{%id-})+)$|] $ LineEdit $ build_depends_gen        ctx
+    , (,) [re|^%test +${i}(@{%id-})$|]                         $ LineEdit $ test_exe_gen True  False ctx
+    , (,) [re|^%exe +${i}(@{%id-})$|]                          $ LineEdit $ test_exe_gen False True  ctx
+    , (,) [re|^%test-exe +${i}(@{%id-})$|]                     $ LineEdit $ test_exe_gen True  True  ctx
+    , (,) [re|^.*$|]                                           $ LineEdit $ default_gen              ctx
     ]
 
 cond_gen, build_depends_gen,

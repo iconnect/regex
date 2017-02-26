@@ -149,9 +149,9 @@ pcre_edits <span class="fu">=</span>
           <span class="ot">-&gt;</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span> <span class="dt">RE</span>)
 tdfa_edit mp bs_lbs import_lbs <span class="fu">=</span>
     (,) mp <span class="fu">$</span> <span class="dt">Pipe</span>
-        [ (,) module_re <span class="fu">$</span> <span class="dt">EDIT_tpl</span> <span class="fu">$</span> LBS.pack mp
-        , (,) import_re <span class="fu">$</span> <span class="dt">EDIT_tpl</span>   import_lbs
-        , (,) bs_re     <span class="fu">$</span> <span class="dt">EDIT_tpl</span>   bs_lbs
+        [ (,) module_re <span class="fu">$</span> <span class="dt">Template</span> <span class="fu">$</span> LBS.pack mp
+        , (,) import_re <span class="fu">$</span> <span class="dt">Template</span>   import_lbs
+        , (,) bs_re     <span class="fu">$</span> <span class="dt">Template</span>   bs_lbs
         ]
 
 <span class="ot">pcre_edit ::</span> <span class="dt">ModPath</span>
@@ -160,10 +160,10 @@ tdfa_edit mp bs_lbs import_lbs <span class="fu">=</span>
           <span class="ot">-&gt;</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span> <span class="dt">RE</span>)
 pcre_edit mp bs_lbs import_lbs <span class="fu">=</span>
     (,) mp <span class="fu">$</span> <span class="dt">Pipe</span>
-        [ (,) tdfa_re   <span class="fu">$</span> <span class="dt">EDIT_tpl</span>   <span class="st">&quot;PCRE&quot;</span>
-        , (,) module_re <span class="fu">$</span> <span class="dt">EDIT_tpl</span> <span class="fu">$</span> LBS.pack mp
-        , (,) import_re <span class="fu">$</span> <span class="dt">EDIT_tpl</span>   import_lbs
-        , (,) bs_re     <span class="fu">$</span> <span class="dt">EDIT_tpl</span>   bs_lbs
+        [ (,) tdfa_re   <span class="fu">$</span> <span class="dt">Template</span>   <span class="st">&quot;PCRE&quot;</span>
+        , (,) module_re <span class="fu">$</span> <span class="dt">Template</span> <span class="fu">$</span> LBS.pack mp
+        , (,) import_re <span class="fu">$</span> <span class="dt">Template</span>   import_lbs
+        , (,) bs_re     <span class="fu">$</span> <span class="dt">Template</span>   bs_lbs
         ]
 
 <span class="kw">type</span> <span class="dt">ModPath</span> <span class="fu">=</span> <span class="dt">String</span>

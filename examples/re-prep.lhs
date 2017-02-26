@@ -115,12 +115,12 @@ docMode = Doc <$> newIORef Outside
 loop :: MODE -> FilePath -> FilePath -> IO ()
 loop mode =
   sed $ Select
-    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|]      $ EDIT_fun TOP $ inclde mode
-    , (,) [re|^%main ${arg}(top|bottom)$|]                             $ EDIT_gen     $ main_  mode
-    , (,) [re|^\\begin\{code\}$|]                                      $ EDIT_gen     $ begin  mode
-    , (,) [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}).*$|] $ EDIT_fun TOP $ evalme mode
-    , (,) [re|^\\end\{code\}$|]                                        $ EDIT_fun TOP $ end    mode
-    , (,) [re|^.*$|]                                                   $ EDIT_fun TOP $ other  mode
+    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|]      $ Function TOP $ inclde mode
+    , (,) [re|^%main ${arg}(top|bottom)$|]                             $ LineEdit     $ main_  mode
+    , (,) [re|^\\begin\{code\}$|]                                      $ LineEdit     $ begin  mode
+    , (,) [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}).*$|] $ Function TOP $ evalme mode
+    , (,) [re|^\\end\{code\}$|]                                        $ Function TOP $ end    mode
+    , (,) [re|^.*$|]                                                   $ Function TOP $ other  mode
     ]
 \end{code}
 
@@ -300,9 +300,9 @@ evalmeGen :: GenState
           -> Capture LBS.ByteString
           -> IO (Maybe LBS.ByteString)
 evalmeGen gs _ mtch0 _ _ = Just <$>
-    replaceCapturesM replace_ ALL f mtch0
+    replaceCapturesM replaceMethods ALL f mtch0
   where
-    f mtch loc cap = case _loc_capture loc of
+    f mtch loc cap = case locationCapture loc of
       2 -> do
           modifyIORef gs (ide:)
           return $ Just $ LBS.pack $ show ide
@@ -557,7 +557,7 @@ prep_page ttl mmd in_fp out_fp = do
 
 set_title :: LBS.ByteString -> LBS.ByteString -> LBS.ByteString
 set_title ttl lbs = fromMaybe oops $ flip sed' lbs $ Pipe
-    [ (,) [re|<<\$title\$>>|] $ EDIT_fun TOP $ \_ _ _ _->return $ Just ttl
+    [ (,) [re|<<\$title\$>>|] $ Function TOP $ \_ _ _ _->return $ Just ttl
     ]
   where
     -- runIdentity added to base in 4.9 only
@@ -573,10 +573,10 @@ prep_page' mmd lbs = do
     return (hdgs,lbs1<>lbs2)
   where
     scr rf_h rf_t = Select
-      [ (,) [re|^%heading#${ide}(@{%id}) +${ttl}([^ ].*)$|] $ EDIT_fun TOP $ heading       mmd rf_t rf_h
-      , (,) [re|^- \[ \] +${itm}(.*)$|]                     $ EDIT_fun TOP $ task_list     mmd rf_t False
-      , (,) [re|^- \[[Xx]\] +${itm}(.*)$|]                  $ EDIT_fun TOP $ task_list     mmd rf_t True
-      , (,) [re|^.*$|]                                      $ EDIT_fun TOP $ fin_task_list mmd rf_t
+      [ (,) [re|^%heading#${ide}(@{%id}) +${ttl}([^ ].*)$|] $ Function TOP $ heading       mmd rf_t rf_h
+      , (,) [re|^- \[ \] +${itm}(.*)$|]                     $ Function TOP $ task_list     mmd rf_t False
+      , (,) [re|^- \[[Xx]\] +${itm}(.*)$|]                  $ Function TOP $ task_list     mmd rf_t True
+      , (,) [re|^.*$|]                                      $ Function TOP $ fin_task_list mmd rf_t
       ]
 
 heading :: MarkdownMode
@@ -810,7 +810,7 @@ tweak_md :: MarkdownMode -> LBS.ByteString -> LBS.ByteString
 tweak_md MM_github  lbs = lbs
 tweak_md MM_pandoc  lbs = lbs
 tweak_md MM_hackage lbs = fromMaybe oops $ flip sed' lbs $ Pipe
-    [ (,) [re|<br/>$|] $ EDIT_fun TOP $ \_ _ _ _->return $ Just "\n"
+    [ (,) [re|<br/>$|] $ Function TOP $ \_ _ _ _->return $ Just "\n"
     ]
   where
     -- runIdentity added to base in 4.9 only

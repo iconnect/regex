@@ -106,17 +106,14 @@ type Options = Options_ RE CompOption ExecOption
 instance IsOption SimpleRegexOptions RE CompOption ExecOption where
   makeOptions    = unpackSimpleRegexOptions
 
-instance IsOption Mode        RE CompOption ExecOption where
-  makeOptions md = Options md prelude def_comp_option def_exec_option
-
 instance IsOption (Macros RE) RE CompOption ExecOption where
-  makeOptions ms = Options minBound ms def_comp_option def_exec_option
+  makeOptions ms = Options ms def_comp_option def_exec_option
 
 instance IsOption CompOption  RE CompOption ExecOption where
-  makeOptions co = Options minBound prelude co def_exec_option
+  makeOptions co = Options prelude co def_exec_option
 
 instance IsOption ExecOption  RE CompOption ExecOption where
-  makeOptions eo = Options minBound prelude def_comp_option eo
+  makeOptions eo = Options prelude def_comp_option eo
 
 instance IsOption Options     RE CompOption ExecOption where
   makeOptions    = id
@@ -125,13 +122,13 @@ instance IsOption ()          RE CompOption ExecOption where
   makeOptions _  = unpackSimpleRegexOptions minBound
 
 def_comp_option :: CompOption
-def_comp_option = _options_comp defaultOptions
+def_comp_option = optionsComp defaultOptions
 
 def_exec_option :: ExecOption
-def_exec_option = _options_exec defaultOptions
+def_exec_option = optionsExec defaultOptions
 
 noPreludeOptions :: Options
-noPreludeOptions = defaultOptions { _options_macs = emptyMacros }
+noPreludeOptions = defaultOptions { optionsMacs = emptyMacros }
 
 defaultOptions :: Options
 defaultOptions = makeOptions (minBound::SimpleRegexOptions)
@@ -139,10 +136,9 @@ defaultOptions = makeOptions (minBound::SimpleRegexOptions)
 unpackSimpleRegexOptions :: SimpleRegexOptions -> Options
 unpackSimpleRegexOptions sro =
   Options
-    { _options_mode = minBound
-    , _options_macs = prelude
-    , _options_comp = comp
-    , _options_exec = defaultExecOpt
+    { optionsMacs = prelude
+    , optionsComp = comp
+    , optionsExec = defaultExecOpt
     }
   where
     comp = defaultCompOpt
@@ -217,9 +213,9 @@ compileRegex' :: (Functor m,Monad m)
               -> m (CaptureNames,Regex)
 compileRegex' Options{..} s0 = do
     (cnms,s2) <- either fail return $ extractNamedCaptures s1
-    (,) cnms <$> makeRegexOptsM _options_comp _options_exec s2
+    (,) cnms <$> makeRegexOptsM optionsComp optionsExec s2
   where
-    s1 = expandMacros reSource _options_mode _options_macs s0
+    s1 = expandMacros reSource optionsMacs s0
 
 prelude :: Macros RE
 prelude = runIdentity $ preludeMacros mk TDFA ExclCaptures

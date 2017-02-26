@@ -39,7 +39,8 @@ two packages:
 - [X] 2017-02-21  v0.2.0.2  [Fix tests for Hackage](https://github.com/iconnect/regex/issues/45)
 - [X] 2017-02-21  v0.2.0.3  Tweak README/index layout
 - [X] 2017-02-22  v0.2.0.4  [Repair re-gen-modules-test for Windows](https://github.com/iconnect/regex/issues/47)
-- [ ] 2017-02-26  v0.3.0.0  [API adjustments, tutorials and examples finalized](https://github.com/iconnect/regex/milestone/2)
+- [X] 2017-02-26  v0.3.0.0  [API adjustments](https://github.com/iconnect/regex/milestone/2)
+- [ ] 2017-03-05  v0.5.0.0  [Ready for review: tutorials and examples finalized](https://github.com/iconnect/regex/milestone/6)
 - [ ] 2017-03-20  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 - [ ] 2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)
 

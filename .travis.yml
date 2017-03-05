@@ -40,6 +40,12 @@ matrix:
   # For the Stack builds we can pass in arbitrary Stack arguments via the ARGS
   # variable, such as using --stack-yaml to point to a different file.
 
+  # Linux/stack/hackage release
+
+  - env: BUILD=release-stack GHCVER=8.0.1 STACK_YAML=stack-8.0.yaml
+    compiler: ": #stack 8.0.1"
+    addons: {apt: {packages: [libgmp-dev]}}
+
   # Linux/stack
 
   - env: BUILD=stack GHCVER=7.10.3 STACK_YAML=stack-7.10.yaml
@@ -121,7 +127,7 @@ install:
 - |
   set -ex
   case "$BUILD" in
-    stack)
+    release-stack|stack)
       stack --no-terminal --install-ghc $ARGS test --coverage --bench --only-dependencies
       ;;
     cabal)
@@ -140,6 +146,30 @@ script:
 - |
   set -ex
   case "$BUILD" in
+    release-stack)
+      lpn=regex-$(cat lib/version.txt)
+      epn=regex-examples-$(cat lib/version.txt)
+      ltb=releases/${lpn}.tar.gz
+      etb=releases/${epn}.tar.gz
+      if [ -f ${ltb} ]; then
+        echo "installing ${lpn}"
+        tar xzf ${ltb}
+        cp ${STACK_YAML} ${lpn}
+        cd ${lpn}
+        stack --no-terminal $ARGS install --bench --coverage --no-run-benchmarks --haddock --no-haddock-deps
+        echo "testing ${epn}"
+        cd ..
+        tar xzf ${etb}
+        sed -e "s/extra-deps: \\[\\]/extra-deps: [${lpn}]/" ${STACK_YAML} > ${epn}/${STACK_YAML}
+        cd ${epn}
+        stack --no-terminal $ARGS test --bench --coverage --no-run-benchmarks --haddock --no-haddock-deps
+        cd ..
+      else
+        echo "***"
+        echo "*** no Hackage release to test"
+        echo "***"
+      fi
+      ;;
     stack)
       stack --no-terminal $ARGS test --bench --coverage --no-run-benchmarks --haddock --no-haddock-deps
       ;;

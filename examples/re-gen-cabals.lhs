@@ -26,22 +26,32 @@ import           System.IO
 import           TestKit
 import           Text.Printf
 import           Text.RE.TDFA.ByteString.Lazy
+import           Text.RE.TDFA.Text                        as T
 
 
 main :: IO ()
 main = do
   (pn,as) <- (,) <$> getProgName <*> getArgs
   case as of
-    []        -> test
-    ["test"]  -> test
-    ["sdist"] -> sdist
-    ["gen"]   -> do
+    []                    -> test
+    ["test"]              -> test
+    ["bump-version",vrn]  -> bumpVersion vrn
+    ["sdist"]             -> sdist
+    ["gen"]               -> do
       gen  "lib/cabal-masters/mega-regex.cabal"     "lib/mega-regex.cabal"
       gen  "lib/cabal-masters/regex.cabal"          "lib/regex.cabal"
       gen  "lib/cabal-masters/regex-examples.cabal" "lib/regex-examples.cabal"
       establish "mega-regex" "regex"
-    _         -> do
-      hPutStrLn stderr $ "usage: " ++ pn ++ " [test|sdist|gen]"
+    _                     -> do
+      let prg = (("  "++pn++" ")++)
+      hPutStr stderr $ unlines
+        [ "usage:"
+        , prg "--help"
+        , prg "[test]"
+        , prg "bump-version <version>"
+        , prg "sdist"
+        , prg "gen"
+        ]
       exitWith $ ExitFailure 1
 
 test :: IO ()
@@ -224,7 +234,9 @@ sdist = do
   establish "mega-regex" "regex"
   vrn_t <- T.pack . presentVrn <$> readCurrentVersion
   smy_t <- summary
-  SH.shelly $ SH.verbosely $
+  SH.shelly $ SH.verbosely $ do
+    SH.run_ "git" ["add","--all"]
+    SH.run_ "git" ["commit","-m",vrn_t<>": "<>smy_t]
     SH.run_ "git" ["tag",vrn_t,"-m",smy_t]
 
 sdist' :: T.Text -> IO ()
@@ -232,14 +244,16 @@ sdist' nm = do
   establish nm nm
   SH.shelly $ SH.verbosely $ do
     SH.cp readme "README.markdown"
-    SH.run_ "cabal" ["clean"]
-    SH.run_ "cabal" ["configure"]
-    SH.run_ "cabal" ["sdist"]
-    vrn <- SH.liftIO readCurrentVersion
-    let tb = nm<>"-"<>T.pack(presentVrn vrn)<>".tar.gz"
-    SH.cp (SH.fromText $ "dist/"<>tb) $ SH.fromText $ "releases/"<>tb
+    SH.run_ "stack" ["sdist","--stack-yaml","stack-8.0.yaml"]
+    (pth,tb) <- analyse_so <$> SH.lastStderr
+    SH.cp (SH.fromText $ pth) $ SH.fromText $ "releases/"<>tb
   where
-    readme = SH.fromText $ "lib/README-"<>nm<>".md"
+    readme        = SH.fromText $ "lib/README-"<>nm<>".md"
+
+    analyse_so so = (mtch!$$[cp|pth|],mtch!$$[cp|tb|])
+      where
+        mtch = so T.?=~
+          [re|^.*Wrote sdist tarball to ${pth}(.*${tb}(regex-.*\.tar\.gz))$|]
 
 establish :: T.Text -> T.Text -> IO ()
 establish nm nm' = SH.shelly $ SH.verbosely $ do

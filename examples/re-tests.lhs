@@ -1,3 +1,13 @@
+Regex Test Suite
+================
+
+All of the regex exampes are self-testing and together make up the
+regex test suite run during development and over each release of the
+test suite. But here we have the unit an small-check tests used to
+systematically probe the library for weak points and guard against
+regressions.
+
+
 \begin{code}
 {-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
@@ -51,8 +61,10 @@ import qualified Text.RE.TDFA.ByteString.Lazy   as TLBS
 import qualified Text.RE.TDFA.Sequence          as T_SQ
 import qualified Text.RE.TDFA.Text              as T_TX
 import qualified Text.RE.TDFA.Text.Lazy         as TLTX
+\end{code}
 
 
+\begin{code}
 main :: IO ()
 main = defaultMain $
   testGroup "Tests"
@@ -63,9 +75,14 @@ main = defaultMain $
     , options_tests
     , namedCapturesTestTree
     , many_tests
+    , escapeTests
     , misc_tests
     ]
+\end{code}
 
+
+\begin{code}
+-- | check that our self-testing macro environments are good
 prelude_tests :: TestTree
 prelude_tests = testGroup "Prelude"
   [ tc TDFA TDFA.preludeEnv
@@ -76,93 +93,113 @@ prelude_tests = testGroup "Prelude"
       testCase (show rty) $ do
         dumpMacroTable "macros" rty m_env
         assertBool "testMacroEnv" =<< testMacroEnv "prelude" rty m_env
+\end{code}
 
+
+Core Match/Replace Tests
+------------------------
+
+<h3>test vectors</h3>
+
+The core tests rely on these simple test vectors.
+
+\begin{code}
+-- | our standard test strings
 str_, str' :: String
 str_      = "a bbbb aa b"
 str'      = "foo"
 
+-- | standard test REs
 regex_, regex_alt :: RE
 regex_    = [re|(a+) (b+)|]
 regex_alt = [re|(a+)|(b+)|]
 
+-- | golden matches result 1
 regex_str_matches :: Matches String
 regex_str_matches =
   Matches
-    { matchesSource = "a bbbb aa b"
+    { matchesSource = str_
     , allMatches =
         [ regex_str_match
         , regex_str_match_2
         ]
     }
 
+-- | golden match result 1
 regex_str_match :: Match String
 regex_str_match =
   Match
-    { matchSource   = "a bbbb aa b"
+    { matchSource   = str_
     , captureNames  = noCaptureNames
     , matchArray    = array (0,2)
-        [ (0,Capture {captureSource = "a bbbb aa b", capturedText = "a bbbb", captureOffset = 0, captureLength = 6})
-        , (1,Capture {captureSource = "a bbbb aa b", capturedText = "a"     , captureOffset = 0, captureLength = 1})
-        , (2,Capture {captureSource = "a bbbb aa b", capturedText = "bbbb"  , captureOffset = 2, captureLength = 4})
+        [ (0,Capture {captureSource = str_, capturedText = "a bbbb", captureOffset = 0, captureLength = 6})
+        , (1,Capture {captureSource = str_, capturedText = "a"     , captureOffset = 0, captureLength = 1})
+        , (2,Capture {captureSource = str_, capturedText = "bbbb"  , captureOffset = 2, captureLength = 4})
         ]
     }
 
+-- | golden match result 2
 regex_str_match_2 :: Match String
 regex_str_match_2 =
   Match
-    { matchSource   = "a bbbb aa b"
+    { matchSource   = str_
     , captureNames  = noCaptureNames
     , matchArray    = array (0,2)
-        [ (0,Capture {captureSource = "a bbbb aa b", capturedText = "aa b", captureOffset = 7 , captureLength = 4})
-        , (1,Capture {captureSource = "a bbbb aa b", capturedText = "aa"  , captureOffset = 7 , captureLength = 2})
-        , (2,Capture {captureSource = "a bbbb aa b", capturedText = "b"   , captureOffset = 10, captureLength = 1})
+        [ (0,Capture {captureSource = str_, capturedText = "aa b", captureOffset = 7 , captureLength = 4})
+        , (1,Capture {captureSource = str_, capturedText = "aa"  , captureOffset = 7 , captureLength = 2})
+        , (2,Capture {captureSource = str_, capturedText = "b"   , captureOffset = 10, captureLength = 1})
         ]
     }
 
+-- | golden match result 2
 regex_alt_str_matches :: Matches String
 regex_alt_str_matches =
   Matches
-    { matchesSource = "a bbbb aa b"
+    { matchesSource = str_
     , allMatches    =
         [ Match
-            { matchSource   = "a bbbb aa b"
+            { matchSource   = str_
             , captureNames  = noCaptureNames
             , matchArray    = array (0,2)
-                [ (0,Capture {captureSource = "a bbbb aa b", capturedText = "a", captureOffset = 0, captureLength = 1})
-                , (1,Capture {captureSource = "a bbbb aa b", capturedText = "a", captureOffset = 0, captureLength = 1})
-                , (2,Capture {captureSource = "a bbbb aa b", capturedText = "", captureOffset = -1, captureLength = 0})
+                [ (0,Capture {captureSource = str_, capturedText = "a", captureOffset = 0, captureLength = 1})
+                , (1,Capture {captureSource = str_, capturedText = "a", captureOffset = 0, captureLength = 1})
+                , (2,Capture {captureSource = str_, capturedText = "", captureOffset = -1, captureLength = 0})
                 ]
             }
         , Match
-            { matchSource   = "a bbbb aa b"
+            { matchSource   = str_
             , captureNames  = noCaptureNames
             , matchArray    = array (0,2)
-                [ (0,Capture {captureSource = "a bbbb aa b", capturedText = "bbbb", captureOffset = 2 , captureLength = 4})
-                , (1,Capture {captureSource = "a bbbb aa b", capturedText = ""    , captureOffset = -1, captureLength = 0})
-                , (2,Capture {captureSource = "a bbbb aa b", capturedText = "bbbb", captureOffset = 2 , captureLength = 4})
+                [ (0,Capture {captureSource = str_, capturedText = "bbbb", captureOffset = 2 , captureLength = 4})
+                , (1,Capture {captureSource = str_, capturedText = ""    , captureOffset = -1, captureLength = 0})
+                , (2,Capture {captureSource = str_, capturedText = "bbbb", captureOffset = 2 , captureLength = 4})
                 ]
             }
         , Match
-            { matchSource   = "a bbbb aa b"
+            { matchSource   = str_
             , captureNames  = noCaptureNames
             , matchArray    = array (0,2)
-                [ (0,Capture {captureSource = "a bbbb aa b", capturedText = "aa", captureOffset = 7 , captureLength = 2})
-                , (1,Capture {captureSource = "a bbbb aa b", capturedText = "aa", captureOffset = 7 , captureLength = 2})
-                , (2,Capture {captureSource = "a bbbb aa b", capturedText = ""  , captureOffset = -1, captureLength = 0})
+                [ (0,Capture {captureSource = str_, capturedText = "aa", captureOffset = 7 , captureLength = 2})
+                , (1,Capture {captureSource = str_, capturedText = "aa", captureOffset = 7 , captureLength = 2})
+                , (2,Capture {captureSource = str_, capturedText = ""  , captureOffset = -1, captureLength = 0})
                 ]
             }
         , Match
-            { matchSource   = "a bbbb aa b"
+            { matchSource   = str_
             , captureNames  = noCaptureNames
             , matchArray    = array (0,2)
-                [ (0,Capture {captureSource = "a bbbb aa b", capturedText = "b", captureOffset = 10, captureLength = 1})
-                , (1,Capture {captureSource = "a bbbb aa b", capturedText = "" , captureOffset = -1, captureLength = 0})
-                , (2,Capture {captureSource = "a bbbb aa b", capturedText = "b", captureOffset = 10, captureLength = 1})
+                [ (0,Capture {captureSource = str_, capturedText = "b", captureOffset = 10, captureLength = 1})
+                , (1,Capture {captureSource = str_, capturedText = "" , captureOffset = -1, captureLength = 0})
+                , (2,Capture {captureSource = str_, capturedText = "b", captureOffset = 10, captureLength = 1})
                 ]
             }
         ]
     }
+\end{code}
 
+<h3>testing the compileRegex functions</h3>
+
+\begin{code}
 parsing_tests :: TestTree
 parsing_tests = testGroup "Parsing"
   [ testCase "complete check (matchM/ByteString)" $ do
@@ -172,7 +209,11 @@ parsing_tests = testGroup "Parsing"
       r     <- compileRegex () $ reSource regex_
       assertEqual "matched" True $ matched $ T.pack str_ ?=~ r
   ]
+\end{code}
 
+<h3>core tests</h3>
+
+\begin{code}
 core_tests :: TestTree
 core_tests = testGroup "Match"
   [ testCase "text (=~~Text.Lazy)" $ do
@@ -201,7 +242,11 @@ core_tests = testGroup "Match"
       let mtchs = str' =~ regex_    :: Matches String
       assertEqual "not.anyMatches" False $ anyMatches mtchs
   ]
+\end{code}
 
+<h3>testing the replace functions at different types</h3>
+
+\begin{code}
 replaceMethodstests :: TestTree
 replaceMethodstests = testGroup "Replace"
   [ testCase "String/single" $ do
@@ -253,7 +298,11 @@ replaceMethodstests = testGroup "Replace"
       packE (show_co j) <> ":" <> capturedText <> ")"
 
     show_co (CaptureOrdinal j) = show j
+\end{code}
 
+<h3>Testing The Options</h3>
+
+\begin{code}
 options_tests :: TestTree
 options_tests = testGroup "Simple Options"
   [ testGroup "TDFA Simple Options"
@@ -283,7 +332,11 @@ options_tests = testGroup "Simple Options"
     ]
   where
     s = "0a\nbb\nFe\nA5" :: String
+\end{code}
 
+<h3>Exercising Our Many APIs</h3>
+
+\begin{code}
 many_tests :: TestTree
 many_tests = testGroup "Many Tests"
     [ testCase "PCRE a"               $ test (PCRE.*=~) (PCRE.?=~) (PCRE.=~) (PCRE.=~~) matchOnce matchMany id          re_pcre
@@ -332,7 +385,53 @@ many_tests = testGroup "Many Tests"
     re_tdfa = fromMaybe oops $ TDFA.compileRegex () "[0-9]{4}-[0-9]{2}-[0-9]{2}"
 
     oops    = error "many_tests"
+\end{code}
 
+
+<h3>Testing the RE Escape Functions</h3>
+
+\begin{code}
+escapeTests :: TestTree
+escapeTests = testGroup "Escape Tests"
+    [ testGroup "PCRE"
+        [ testCase  "Escaping empty string" $
+            assertBool "empty string" $
+              tst P_ST.escape (P_ST.?=~) ""
+        , testCase  "Escaping RE metacharacters" $
+            assertBool "metacharacters" $
+              tst P_ST.escape (P_ST.?=~) metacharacters
+        , localOption (SmallCheckDepth 6) $
+            SC.testProperty "matched $ <s> ?=~ [re|^escape(<s>)$|]" $
+              tst P_ST.escape (P_ST.?=~)
+        ]
+    , testGroup "TDFA"
+        [ testCase  "Escaping empty string" $
+            assertBool "empty string" $
+              tst T_ST.escape (T_ST.?=~) ""
+        , testCase  "Escaping RE metacharacters" $
+            assertBool "metacharacters" $
+              tst T_ST.escape (T_ST.?=~) metacharacters
+        , localOption (SmallCheckDepth 6) $
+            SC.testProperty "matched $ <s> ?=~ [re|^escape(<s>)$|]" $
+              tst T_ST.escape (T_ST.?=~)
+        ]
+    ]
+  where
+    tst :: ((String->String)->String->a)
+        -> (String->a->Match String)
+        -> String
+        -> Bool
+    tst esc (%=~) s = matched $ s %=~ esc (("^" ++) . (++ "$")) s
+
+    metacharacters :: String
+    metacharacters = "^\\.|*+?()[]{}$"
+\end{code}
+
+
+The Miscelaneous Tests
+----------------------
+
+\begin{code}
 misc_tests :: TestTree
 misc_tests = testGroup "Miscelaneous Tests"
     [ testGroup "QQ"
@@ -347,6 +446,8 @@ misc_tests = testGroup "Miscelaneous Tests"
         , valid_string "preludeMacroSources"  preludeMacroSources
         , valid_macro  "preludeMacroSource"   preludeMacroSource
         ]
+    -- because HPC can't measure our testing of [re|..|] forms,
+    -- we are eliminating them from our enquiries
     , testGroup "RE"
         [ valid_res TDFA
             [ TDFA.re
@@ -374,6 +475,8 @@ misc_tests = testGroup "Miscelaneous Tests"
             [ ne_string (presentPreludeMacro pm) $ TDFA.preludeSource  pm
                 | pm <- tdfa_prelude_macros
                 ]
+    -- because HPC can't measure our testing of [re|..|] forms,
+    -- we are eliminating them from our enquiries
         , valid_res PCRE
             [ PCRE.re
             , PCRE.reMS
@@ -468,17 +571,9 @@ namedCapturesTestTree = localOption (SmallCheckDepth 4) $
     [ formatScanTestTree
     , analyseTokensTestTree
     ]
-\end{code}
 
-\begin{code}
 instance Monad m => Serial m Token
-\end{code}
 
-
-Testing : FormatToken/Scan Properties
--------------------------------------
-
-\begin{code}
 formatScanTestTree :: TestTree
 formatScanTestTree =
   testGroup "FormatToken/Scan Properties"
@@ -490,13 +585,7 @@ formatScanTestTree =
           \tks -> all validToken tks ==>
                     scan (formatTokens' idFormatTokenOptions tks) == tks
     ]
-\end{code}
 
-
-Testing : Analysing [Token] Unit Tests
---------------------------------------
-
-\begin{code}
 analyseTokensTestTree :: TestTree
 analyseTokensTestTree =
   testGroup "Analysing [Token] Unit Tests"

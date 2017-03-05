@@ -42,6 +42,8 @@ module Text.RE.PCRE.RE
   , defaultOptions
   , unpackSimpleRegexOptions
   , compileRegex
+  , escape
+  , escapeREString
   ) where
 
 import           Data.Bits
@@ -50,6 +52,7 @@ import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
 import           Prelude.Compat
 import           Text.RE
+import           Text.RE.Internal.EscapeREString
 import           Text.RE.Internal.NamedCaptures
 import           Text.RE.Internal.PreludeMacros
 import           Text.RE.Internal.QQ
@@ -243,3 +246,6 @@ preludeSources = preludeMacroSources PCRE
 
 preludeSource :: PreludeMacro -> String
 preludeSource = preludeMacroSource PCRE
+
+escape :: (String->String) -> String -> RE
+escape f = unsafeCompileRegex () . f . escapeREString

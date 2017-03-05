@@ -42,6 +42,7 @@ Library
       Text.RE.Capture
       Text.RE.CaptureID
       Text.RE.Edit
+      Text.RE.Internal.EscapeREString
       Text.RE.Internal.NamedCaptures
       Text.RE.Internal.PreludeMacros
       Text.RE.Internal.QQ

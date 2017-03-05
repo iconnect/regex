@@ -42,6 +42,8 @@ module Text.RE.TDFA.RE
   , preludeSource
   , unpackSimpleRegexOptions
   , compileRegex
+  , escape
+  , escapeREString
   ) where
 
 import           Data.Functor.Identity
@@ -49,6 +51,7 @@ import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
 import           Prelude.Compat
 import           Text.RE
+import           Text.RE.Internal.EscapeREString
 import           Text.RE.Internal.NamedCaptures
 import           Text.RE.Internal.PreludeMacros
 import           Text.RE.Internal.QQ
@@ -239,3 +242,6 @@ preludeSources = preludeMacroSources TDFA
 
 preludeSource :: PreludeMacro -> String
 preludeSource = preludeMacroSource TDFA
+
+escape :: (String->String) -> String -> RE
+escape f = unsafeCompileRegex () . f . escapeREString

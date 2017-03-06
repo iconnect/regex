@@ -15,7 +15,10 @@
 HaskellX Bytes Talk at <a href="https://skillsmatter.com/contact-us">CodeNode</a>, London, <strong>2017-05-08T1830+0100</strong> by Chris Dornan (<a href="https://skillsmatter.com/meetups/9160-why-regular-expressions-matter-with-chris-dornan">Skills Matter page</a>)
 </p>
 <p>In this talk I will look at how Regular Expressions have been supported in Haskell and how well they should be supported. (Spoiler alert: I don’t think they have been supported well enough.) Some technically excellent packages are available which have been widely adopted but there is strong evidence that they are not as easy to use as developers expect and a wide variety of alternative packages have been proposed, none of which have attracted enough support to supplant the original.</p>
-<p>I will speculate on why this situation has come about and why I think the new ‘regex’ package will fix all of this. (Another spoiler alert: it is built on top of the technically excellent, de facto standard ‘regex-base’ packages that get used when Haskell folks really, really can’t avoid using regular expressions.)</p>]]></description>
+<p>I will speculate on why this situation has come about and why I think the new ‘regex’ package will fix all of this. (Another spoiler alert: it is built on top of the technically excellent, de facto standard ‘regex-base’ packages that get used when Haskell folks really, really can’t avoid using regular expressions.)</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">foo ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+foo x <span class="fu">=</span> <span class="kw">case</span> x <span class="kw">of</span>
+  <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">False</span></code></pre></div>]]></description>
     <pubDate>Sun, 26 Feb 2017 00:00:00 UT</pubDate>
     <guid>http://blog.regex.uk/posts/2017-02-26-0-haskellx-bytes-why-res-matter.html</guid>
     <dc:creator>Chris Dornan</dc:creator>

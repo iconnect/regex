@@ -7,6 +7,7 @@
         <title>the regex blog - HaskellX Bytes Talk: Why Regular Expressions Matter</title>
         <link href="../css/bs/bootstrap.min.css" rel="stylesheet">
         <link href="../css/styles.css" rel="stylesheet">
+        <link href="../css/syntax.css" rel="stylesheet">
         <link rel="apple-touch-icon" sizes="180x180" href="../images/favicons-re/apple-touch-icon.png" />
         <link rel="icon" type="image/png" href="../images/favicons-re/favicon-32x32.png" sizes="32x32" />
         <link rel="icon" type="image/png" href="../images/favicons-re/favicon-16x16.png" sizes="16x16" />
@@ -39,6 +40,9 @@ HaskellX Bytes Talk at <a href="https://skillsmatter.com/contact-us">CodeNode</a
 </p>
 <p>In this talk I will look at how Regular Expressions have been supported in Haskell and how well they should be supported. (Spoiler alert: I don’t think they have been supported well enough.) Some technically excellent packages are available which have been widely adopted but there is strong evidence that they are not as easy to use as developers expect and a wide variety of alternative packages have been proposed, none of which have attracted enough support to supplant the original.</p>
 <p>I will speculate on why this situation has come about and why I think the new ‘regex’ package will fix all of this. (Another spoiler alert: it is built on top of the technically excellent, de facto standard ‘regex-base’ packages that get used when Haskell folks really, really can’t avoid using regular expressions.)</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">foo ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+foo x <span class="fu">=</span> <span class="kw">case</span> x <span class="kw">of</span>
+  <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">False</span></code></pre></div>
 
 <div id="disqus_thread"></div>
 <script>

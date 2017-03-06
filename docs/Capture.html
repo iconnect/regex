@@ -69,7 +69,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE FlexibleInstances          #-}</span>
 <span class="ot">{-# LANGUAGE UndecidableInstances       #-}</span>
-<span class="ot">{-# LANGUAGE MultiParamTypeClasses      #-}</span></code></pre></div>
+<span class="ot">{-# LANGUAGE MultiParamTypeClasses      #-}</span>
+<span class="ot">{-# LANGUAGE DeriveDataTypeable         #-}</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">Text.RE.Capture</span>
   ( <span class="dt">Matches</span>(<span class="fu">..</span>)
   , <span class="dt">Match</span>(<span class="fu">..</span>)
@@ -101,6 +102,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   ) <span class="kw">where</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import           </span><span class="dt">Data.Array</span>
 <span class="kw">import           </span><span class="dt">Data.Maybe</span>
+<span class="kw">import           </span><span class="dt">Data.Typeable</span>
 <span class="kw">import           </span><span class="dt">Text.Regex.Base</span>
 <span class="kw">import           </span><span class="dt">Text.RE.CaptureID</span>
 
@@ -112,7 +114,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
     {<span class="ot"> matchesSource ::</span> <span class="fu">!</span>a          <span class="co">-- ^ the source text being matched</span>
     ,<span class="ot"> allMatches    ::</span> <span class="fu">!</span>[<span class="dt">Match</span> a]  <span class="co">-- ^ all captures found, left to right</span>
     }
-  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>)</code></pre></div>
+  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>,<span class="dt">Typeable</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the result of matching a RE to a text once, listing the text that</span>
 <span class="co">-- was matched and the named captures in the RE and all of the substrings</span>
 <span class="co">-- matched, with the text captured by the whole RE; a complete failure</span>
@@ -127,7 +129,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
                                         <span class="co">-- text matched by the</span>
                                         <span class="co">-- whole RE</span>
     }
-  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>)</code></pre></div>
+  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>,<span class="dt">Typeable</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the matching of a single sub-expression against part of the source</span>
 <span class="co">-- text</span>
 <span class="kw">data</span> <span class="dt">Capture</span> a <span class="fu">=</span>

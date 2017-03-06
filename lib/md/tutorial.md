@@ -1,6 +1,6 @@
 %heading#tutorial The regex Tutorial
 
-The regex [tutorial](re-tutorial) is a literate Haskell program with
+The [**regex tutorial**](re-tutorial) is a literate Haskell program with
 interactive examples that can be tried out with ghci.
 
 

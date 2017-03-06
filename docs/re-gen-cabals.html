@@ -66,6 +66,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <header>
 <h1 class="title">examples/re-gen-cabals.lhs</h1>
 </header>
+<h1 id="regex-cabal-gen">Regex Cabal Gen</h1>
+<p>This tool generates the cabal files for the regex and regex-examples packages as well as the cabal file for the development tree (contaiing the combined targets of both packages). In addition it contains scripts for bumping the version number and generating the Hackage releases.</p>
+<p>The tool is self-testing: run it with no arguments (or <code>cabal test</code>).</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
@@ -93,22 +96,32 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">TestKit</span>
 <span class="kw">import           </span><span class="dt">Text.Printf</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TDFA.ByteString.Lazy</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TDFA.Text</span>                        <span class="kw">as</span> <span class="dt">T</span>
 
 
 <span class="ot">main ::</span> <span class="dt">IO</span> ()
 main <span class="fu">=</span> <span class="kw">do</span>
   (pn,as) <span class="ot">&lt;-</span> (,) <span class="fu">&lt;$&gt;</span> getProgName <span class="fu">&lt;*&gt;</span> getArgs
   <span class="kw">case</span> as <span class="kw">of</span>
-    []        <span class="ot">-&gt;</span> test
-    [<span class="st">&quot;test&quot;</span>]  <span class="ot">-&gt;</span> test
-    [<span class="st">&quot;sdist&quot;</span>] <span class="ot">-&gt;</span> sdist
-    [<span class="st">&quot;gen&quot;</span>]   <span class="ot">-&gt;</span> <span class="kw">do</span>
+    []                    <span class="ot">-&gt;</span> test
+    [<span class="st">&quot;test&quot;</span>]              <span class="ot">-&gt;</span> test
+    [<span class="st">&quot;bump-version&quot;</span>,vrn]  <span class="ot">-&gt;</span> bumpVersion vrn
+    [<span class="st">&quot;sdist&quot;</span>]             <span class="ot">-&gt;</span> sdist
+    [<span class="st">&quot;gen&quot;</span>]               <span class="ot">-&gt;</span> <span class="kw">do</span>
       gen  <span class="st">&quot;lib/cabal-masters/mega-regex.cabal&quot;</span>     <span class="st">&quot;lib/mega-regex.cabal&quot;</span>
       gen  <span class="st">&quot;lib/cabal-masters/regex.cabal&quot;</span>          <span class="st">&quot;lib/regex.cabal&quot;</span>
       gen  <span class="st">&quot;lib/cabal-masters/regex-examples.cabal&quot;</span> <span class="st">&quot;lib/regex-examples.cabal&quot;</span>
       establish <span class="st">&quot;mega-regex&quot;</span> <span class="st">&quot;regex&quot;</span>
-    _         <span class="ot">-&gt;</span> <span class="kw">do</span>
-      hPutStrLn stderr <span class="fu">$</span> <span class="st">&quot;usage: &quot;</span> <span class="fu">++</span> pn <span class="fu">++</span> <span class="st">&quot; [test|sdist|gen]&quot;</span>
+    _                     <span class="ot">-&gt;</span> <span class="kw">do</span>
+      <span class="kw">let</span> prg <span class="fu">=</span> ((<span class="st">&quot;  &quot;</span><span class="fu">++</span>pn<span class="fu">++</span><span class="st">&quot; &quot;</span>)<span class="fu">++</span>)
+      hPutStr stderr <span class="fu">$</span> unlines
+        [ <span class="st">&quot;usage:&quot;</span>
+        , prg <span class="st">&quot;--help&quot;</span>
+        , prg <span class="st">&quot;[test]&quot;</span>
+        , prg <span class="st">&quot;bump-version &lt;version&gt;&quot;</span>
+        , prg <span class="st">&quot;sdist&quot;</span>
+        , prg <span class="st">&quot;gen&quot;</span>
+        ]
       exitWith <span class="fu">$</span> <span class="dt">ExitFailure</span> <span class="dv">1</span>
 
 <span class="ot">test ::</span> <span class="dt">IO</span> ()
@@ -288,7 +301,9 @@ sdist <span class="fu">=</span> <span class="kw">do</span>
   establish <span class="st">&quot;mega-regex&quot;</span> <span class="st">&quot;regex&quot;</span>
   vrn_t <span class="ot">&lt;-</span> T.pack <span class="fu">.</span> presentVrn <span class="fu">&lt;$&gt;</span> readCurrentVersion
   smy_t <span class="ot">&lt;-</span> summary
-  SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span>
+  SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span> <span class="kw">do</span>
+    SH.run_ <span class="st">&quot;git&quot;</span> [<span class="st">&quot;add&quot;</span>,<span class="st">&quot;--all&quot;</span>]
+    SH.run_ <span class="st">&quot;git&quot;</span> [<span class="st">&quot;commit&quot;</span>,<span class="st">&quot;-m&quot;</span>,vrn_t<span class="fu">&lt;&gt;</span><span class="st">&quot;: &quot;</span><span class="fu">&lt;&gt;</span>smy_t]
     SH.run_ <span class="st">&quot;git&quot;</span> [<span class="st">&quot;tag&quot;</span>,vrn_t,<span class="st">&quot;-m&quot;</span>,smy_t]
 
 <span class="ot">sdist&#39; ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
@@ -296,14 +311,16 @@ sdist&#39; nm <span class="fu">=</span> <span class="kw">do</span>
   establish nm nm
   SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span> <span class="kw">do</span>
     SH.cp readme <span class="st">&quot;README.markdown&quot;</span>
-    SH.run_ <span class="st">&quot;cabal&quot;</span> [<span class="st">&quot;clean&quot;</span>]
-    SH.run_ <span class="st">&quot;cabal&quot;</span> [<span class="st">&quot;configure&quot;</span>]
-    SH.run_ <span class="st">&quot;cabal&quot;</span> [<span class="st">&quot;sdist&quot;</span>]
-    vrn <span class="ot">&lt;-</span> SH.liftIO readCurrentVersion
-    <span class="kw">let</span> tb <span class="fu">=</span> nm<span class="fu">&lt;&gt;</span><span class="st">&quot;-&quot;</span><span class="fu">&lt;&gt;</span>T.pack(presentVrn vrn)<span class="fu">&lt;&gt;</span><span class="st">&quot;.tar.gz&quot;</span>
-    SH.cp (SH.fromText <span class="fu">$</span> <span class="st">&quot;dist/&quot;</span><span class="fu">&lt;&gt;</span>tb) <span class="fu">$</span> SH.fromText <span class="fu">$</span> <span class="st">&quot;releases/&quot;</span><span class="fu">&lt;&gt;</span>tb
+    SH.run_ <span class="st">&quot;stack&quot;</span> [<span class="st">&quot;sdist&quot;</span>,<span class="st">&quot;--stack-yaml&quot;</span>,<span class="st">&quot;stack-8.0.yaml&quot;</span>]
+    (pth,tb) <span class="ot">&lt;-</span> analyse_so <span class="fu">&lt;$&gt;</span> SH.lastStderr
+    SH.cp (SH.fromText <span class="fu">$</span> pth) <span class="fu">$</span> SH.fromText <span class="fu">$</span> <span class="st">&quot;releases/&quot;</span><span class="fu">&lt;&gt;</span>tb
   <span class="kw">where</span>
-    readme <span class="fu">=</span> SH.fromText <span class="fu">$</span> <span class="st">&quot;lib/README-&quot;</span><span class="fu">&lt;&gt;</span>nm<span class="fu">&lt;&gt;</span><span class="st">&quot;.md&quot;</span>
+    readme        <span class="fu">=</span> SH.fromText <span class="fu">$</span> <span class="st">&quot;lib/README-&quot;</span><span class="fu">&lt;&gt;</span>nm<span class="fu">&lt;&gt;</span><span class="st">&quot;.md&quot;</span>
+
+    analyse_so so <span class="fu">=</span> (mtch<span class="fu">!$$</span>[cp|pth|],mtch<span class="fu">!$$</span>[cp|tb|])
+      <span class="kw">where</span>
+        mtch <span class="fu">=</span> so <span class="fu">T.?=~</span>
+          [re|^.*Wrote sdist tarball to ${pth}(.*${tb}(regex-.*\.tar\.gz))$|]
 
 <span class="ot">establish ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 establish nm nm&#39; <span class="fu">=</span> SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span> <span class="kw">do</span>

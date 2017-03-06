@@ -66,6 +66,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <header>
 <h1 class="title">examples/re-nginx-log-processor.lhs</h1>
 </header>
+<h1 id="example-nginx-log-processor">Example: NGINX Log Processor</h1>
+<p>This example program reads lines from NGINX error-log files and access-log files converts them into a unified output format.</p>
+<p>It is an example of developing REs at scale using macros with the regex test bench.</p>
+<p>The tool is self-testing: run it with no arguments (or <code>cabal test</code>).</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>

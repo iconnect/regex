@@ -1,3 +1,12 @@
+Regex Module Gen
+================
+
+All of the modules that make up the API are generated from the
+`Text.RE.TDFA.ByteString.Lazy` module using this script.
+
+The tool is self-testing: run it with no arguments (or `cabal test`).
+
+
 \begin{code}
 {-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE TemplateHaskell            #-}

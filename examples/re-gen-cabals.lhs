@@ -1,3 +1,15 @@
+Regex Cabal Gen
+===============
+
+This tool generates the cabal files for the regex and regex-examples
+packages as well as the cabal file for the development tree
+(contaiing the combined targets of both packages). In addition it
+contains scripts for bumping the version number and generating the
+Hackage releases.
+
+The tool is self-testing: run it with no arguments (or `cabal test`).
+
+
 \begin{code}
 {-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}

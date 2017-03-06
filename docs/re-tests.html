@@ -66,6 +66,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <header>
 <h1 class="title">examples/re-tests.lhs</h1>
 </header>
+<h1 id="regex-test-suite">Regex Test Suite</h1>
+<p>All of the regex exampes are self-testing and together make up the regex test suite run during development and over each release of the test suite. But here we have the unit an small-check tests used to systematically probe the library for weak points and guard against regressions.</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
@@ -89,6 +91,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Data.String</span>
 <span class="kw">import qualified</span> <span class="dt">Data.Text</span>                      <span class="kw">as</span> <span class="dt">T</span>
 <span class="kw">import qualified</span> <span class="dt">Data.Text.Lazy</span>                 <span class="kw">as</span> <span class="dt">LT</span>
+<span class="kw">import           </span><span class="dt">Data.Typeable</span>
 <span class="kw">import           </span><span class="dt">Language.Haskell.TH.Quote</span>
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">Test.SmallCheck.Series</span>
@@ -100,6 +103,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <span class="kw">import qualified</span> <span class="dt">Text.Regex.TDFA</span>                <span class="kw">as</span> <span class="dt">TDFA_</span>
 <span class="kw">import           </span><span class="dt">Text.RE</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Internal.AddCaptureNames</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Internal.NamedCaptures</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Internal.PreludeMacros</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Internal.QQ</span>
@@ -117,10 +121,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import qualified</span> <span class="dt">Text.RE.TDFA.ByteString.Lazy</span>   <span class="kw">as</span> <span class="dt">TLBS</span>
 <span class="kw">import qualified</span> <span class="dt">Text.RE.TDFA.Sequence</span>          <span class="kw">as</span> <span class="dt">T_SQ</span>
 <span class="kw">import qualified</span> <span class="dt">Text.RE.TDFA.Text</span>              <span class="kw">as</span> <span class="dt">T_TX</span>
-<span class="kw">import qualified</span> <span class="dt">Text.RE.TDFA.Text.Lazy</span>         <span class="kw">as</span> <span class="dt">TLTX</span>
-
-
-<span class="ot">main ::</span> <span class="dt">IO</span> ()
+<span class="kw">import qualified</span> <span class="dt">Text.RE.TDFA.Text.Lazy</span>         <span class="kw">as</span> <span class="dt">TLTX</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">main ::</span> <span class="dt">IO</span> ()
 main <span class="fu">=</span> defaultMain <span class="fu">$</span>
   testGroup <span class="st">&quot;Tests&quot;</span>
     [ prelude_tests
@@ -130,9 +132,11 @@ main <span class="fu">=</span> defaultMain <span class="fu">$</span>
     , options_tests
     , namedCapturesTestTree
     , many_tests
+    , escapeTests
+    , add_capture_names_tests
     , misc_tests
-    ]
-
+    ]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | check that our self-testing macro environments are good</span>
 <span class="ot">prelude_tests ::</span> <span class="dt">TestTree</span>
 prelude_tests <span class="fu">=</span> testGroup <span class="st">&quot;Prelude&quot;</span>
   [ tc <span class="dt">TDFA</span> TDFA.preludeEnv
@@ -142,95 +146,107 @@ prelude_tests <span class="fu">=</span> testGroup <span class="st">&quot;Prelude
     tc rty m_env <span class="fu">=</span>
       testCase (show rty) <span class="fu">$</span> <span class="kw">do</span>
         dumpMacroTable <span class="st">&quot;macros&quot;</span> rty m_env
-        assertBool <span class="st">&quot;testMacroEnv&quot;</span> <span class="fu">=&lt;&lt;</span> testMacroEnv <span class="st">&quot;prelude&quot;</span> rty m_env
-
+        assertBool <span class="st">&quot;testMacroEnv&quot;</span> <span class="fu">=&lt;&lt;</span> testMacroEnv <span class="st">&quot;prelude&quot;</span> rty m_env</code></pre></div>
+<h2 id="core-matchreplace-tests">Core Match/Replace Tests</h2>
+<h3>
+test vectors
+</h3>
+<p>The core tests rely on these simple test vectors.</p>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | our standard test strings</span>
 str_,<span class="ot"> str&#39; ::</span> <span class="dt">String</span>
 str_      <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
 str&#39;      <span class="fu">=</span> <span class="st">&quot;foo&quot;</span>
 
+<span class="co">-- | standard test REs</span>
 regex_,<span class="ot"> regex_alt ::</span> <span class="dt">RE</span>
 regex_    <span class="fu">=</span> [re|(a+) (b+)|]
 regex_alt <span class="fu">=</span> [re|(a+)|(b+)|]
 
+<span class="co">-- | golden matches result 1</span>
 <span class="ot">regex_str_matches ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
 regex_str_matches <span class="fu">=</span>
   <span class="dt">Matches</span>
-    { matchesSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+    { matchesSource <span class="fu">=</span> str_
     , allMatches <span class="fu">=</span>
         [ regex_str_match
         , regex_str_match_2
         ]
     }
 
+<span class="co">-- | golden match result 1</span>
 <span class="ot">regex_str_match ::</span> <span class="dt">Match</span> <span class="dt">String</span>
 regex_str_match <span class="fu">=</span>
   <span class="dt">Match</span>
-    { matchSource   <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+    { matchSource   <span class="fu">=</span> str_
     , captureNames  <span class="fu">=</span> noCaptureNames
     , matchArray    <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">2</span>)
-        [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;a bbbb&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">0</span>, captureLength <span class="fu">=</span> <span class="dv">6</span>})
-        , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;a&quot;</span>     , captureOffset <span class="fu">=</span> <span class="dv">0</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
-        , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;bbbb&quot;</span>  , captureOffset <span class="fu">=</span> <span class="dv">2</span>, captureLength <span class="fu">=</span> <span class="dv">4</span>})
+        [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;a bbbb&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">0</span>, captureLength <span class="fu">=</span> <span class="dv">6</span>})
+        , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;a&quot;</span>     , captureOffset <span class="fu">=</span> <span class="dv">0</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
+        , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;bbbb&quot;</span>  , captureOffset <span class="fu">=</span> <span class="dv">2</span>, captureLength <span class="fu">=</span> <span class="dv">4</span>})
         ]
     }
 
+<span class="co">-- | golden match result 2</span>
 <span class="ot">regex_str_match_2 ::</span> <span class="dt">Match</span> <span class="dt">String</span>
 regex_str_match_2 <span class="fu">=</span>
   <span class="dt">Match</span>
-    { matchSource   <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+    { matchSource   <span class="fu">=</span> str_
     , captureNames  <span class="fu">=</span> noCaptureNames
     , matchArray    <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">2</span>)
-        [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;aa b&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">7</span> , captureLength <span class="fu">=</span> <span class="dv">4</span>})
-        , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;aa&quot;</span>  , captureOffset <span class="fu">=</span> <span class="dv">7</span> , captureLength <span class="fu">=</span> <span class="dv">2</span>})
-        , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;b&quot;</span>   , captureOffset <span class="fu">=</span> <span class="dv">10</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
+        [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;aa b&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">7</span> , captureLength <span class="fu">=</span> <span class="dv">4</span>})
+        , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;aa&quot;</span>  , captureOffset <span class="fu">=</span> <span class="dv">7</span> , captureLength <span class="fu">=</span> <span class="dv">2</span>})
+        , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;b&quot;</span>   , captureOffset <span class="fu">=</span> <span class="dv">10</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
         ]
     }
 
+<span class="co">-- | golden match result 2</span>
 <span class="ot">regex_alt_str_matches ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
 regex_alt_str_matches <span class="fu">=</span>
   <span class="dt">Matches</span>
-    { matchesSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+    { matchesSource <span class="fu">=</span> str_
     , allMatches    <span class="fu">=</span>
         [ <span class="dt">Match</span>
-            { matchSource   <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+            { matchSource   <span class="fu">=</span> str_
             , captureNames  <span class="fu">=</span> noCaptureNames
             , matchArray    <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">2</span>)
-                [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;a&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">0</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
-                , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;a&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">0</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
-                , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;&quot;</span>, captureOffset <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>, captureLength <span class="fu">=</span> <span class="dv">0</span>})
+                [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;a&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">0</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
+                , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;a&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">0</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
+                , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;&quot;</span>, captureOffset <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>, captureLength <span class="fu">=</span> <span class="dv">0</span>})
                 ]
             }
         , <span class="dt">Match</span>
-            { matchSource   <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+            { matchSource   <span class="fu">=</span> str_
             , captureNames  <span class="fu">=</span> noCaptureNames
             , matchArray    <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">2</span>)
-                [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;bbbb&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">2</span> , captureLength <span class="fu">=</span> <span class="dv">4</span>})
-                , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;&quot;</span>    , captureOffset <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>, captureLength <span class="fu">=</span> <span class="dv">0</span>})
-                , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;bbbb&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">2</span> , captureLength <span class="fu">=</span> <span class="dv">4</span>})
+                [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;bbbb&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">2</span> , captureLength <span class="fu">=</span> <span class="dv">4</span>})
+                , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;&quot;</span>    , captureOffset <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>, captureLength <span class="fu">=</span> <span class="dv">0</span>})
+                , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;bbbb&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">2</span> , captureLength <span class="fu">=</span> <span class="dv">4</span>})
                 ]
             }
         , <span class="dt">Match</span>
-            { matchSource   <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+            { matchSource   <span class="fu">=</span> str_
             , captureNames  <span class="fu">=</span> noCaptureNames
             , matchArray    <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">2</span>)
-                [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;aa&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">7</span> , captureLength <span class="fu">=</span> <span class="dv">2</span>})
-                , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;aa&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">7</span> , captureLength <span class="fu">=</span> <span class="dv">2</span>})
-                , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;&quot;</span>  , captureOffset <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>, captureLength <span class="fu">=</span> <span class="dv">0</span>})
+                [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;aa&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">7</span> , captureLength <span class="fu">=</span> <span class="dv">2</span>})
+                , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;aa&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">7</span> , captureLength <span class="fu">=</span> <span class="dv">2</span>})
+                , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;&quot;</span>  , captureOffset <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>, captureLength <span class="fu">=</span> <span class="dv">0</span>})
                 ]
             }
         , <span class="dt">Match</span>
-            { matchSource   <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>
+            { matchSource   <span class="fu">=</span> str_
             , captureNames  <span class="fu">=</span> noCaptureNames
             , matchArray    <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">2</span>)
-                [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;b&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">10</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
-                , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;&quot;</span> , captureOffset <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>, captureLength <span class="fu">=</span> <span class="dv">0</span>})
-                , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> <span class="st">&quot;a bbbb aa b&quot;</span>, capturedText <span class="fu">=</span> <span class="st">&quot;b&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">10</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
+                [ (<span class="dv">0</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;b&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">10</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
+                , (<span class="dv">1</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;&quot;</span> , captureOffset <span class="fu">=</span> <span class="fu">-</span><span class="dv">1</span>, captureLength <span class="fu">=</span> <span class="dv">0</span>})
+                , (<span class="dv">2</span>,<span class="dt">Capture</span> {captureSource <span class="fu">=</span> str_, capturedText <span class="fu">=</span> <span class="st">&quot;b&quot;</span>, captureOffset <span class="fu">=</span> <span class="dv">10</span>, captureLength <span class="fu">=</span> <span class="dv">1</span>})
                 ]
             }
         ]
-    }
-
-<span class="ot">parsing_tests ::</span> <span class="dt">TestTree</span>
+    }</code></pre></div>
+<h3>
+testing the compileRegex functions
+</h3>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">parsing_tests ::</span> <span class="dt">TestTree</span>
 parsing_tests <span class="fu">=</span> testGroup <span class="st">&quot;Parsing&quot;</span>
   [ testCase <span class="st">&quot;complete check (matchM/ByteString)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       r    <span class="ot">&lt;-</span> compileRegex () <span class="fu">$</span> reSource regex_
@@ -238,9 +254,11 @@ parsing_tests <span class="fu">=</span> testGroup <span class="st">&quot;Parsing
   , testCase <span class="st">&quot;matched (matchM/Text)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       r     <span class="ot">&lt;-</span> compileRegex () <span class="fu">$</span> reSource regex_
       assertEqual <span class="st">&quot;matched&quot;</span> <span class="dt">True</span> <span class="fu">$</span> matched <span class="fu">$</span> T.pack str_ <span class="fu">?=~</span> r
-  ]
-
-<span class="ot">core_tests ::</span> <span class="dt">TestTree</span>
+  ]</code></pre></div>
+<h3>
+core tests
+</h3>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">core_tests ::</span> <span class="dt">TestTree</span>
 core_tests <span class="fu">=</span> testGroup <span class="st">&quot;Match&quot;</span>
   [ testCase <span class="st">&quot;text (=~~Text.Lazy)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       txt <span class="ot">&lt;-</span> <span class="dt">LT</span><span class="fu">.</span>pack str_ <span class="fu">=~~</span> [re|(a+) (b+)|]<span class="ot"> ::</span> <span class="dt">IO</span> (<span class="dt">LT</span><span class="fu">.</span><span class="dt">Text</span>)
@@ -267,9 +285,11 @@ core_tests <span class="fu">=</span> testGroup <span class="st">&quot;Match&quot
   , testCase <span class="st">&quot;fail (all)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> mtchs <span class="fu">=</span> str&#39; <span class="fu">=~</span><span class="ot"> regex_    ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
       assertEqual <span class="st">&quot;not.anyMatches&quot;</span> <span class="dt">False</span> <span class="fu">$</span> anyMatches mtchs
-  ]
-
-<span class="ot">replaceMethodstests ::</span> <span class="dt">TestTree</span>
+  ]</code></pre></div>
+<h3>
+testing the replace functions at different types
+</h3>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">replaceMethodstests ::</span> <span class="dt">TestTree</span>
 replaceMethodstests <span class="fu">=</span> testGroup <span class="st">&quot;Replace&quot;</span>
   [ testCase <span class="st">&quot;String/single&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> m <span class="fu">=</span> str_ <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Match</span> <span class="dt">String</span>
@@ -319,9 +339,11 @@ replaceMethodstests <span class="fu">=</span> testGroup <span class="st">&quot;R
     fmt _ (<span class="dt">Location</span> i j) <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="st">&quot;(&quot;</span> <span class="fu">&lt;&gt;</span> packE (show i) <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span>
       packE (show_co j) <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span> capturedText <span class="fu">&lt;&gt;</span> <span class="st">&quot;)&quot;</span>
 
-    show_co (<span class="dt">CaptureOrdinal</span> j) <span class="fu">=</span> show j
-
-<span class="ot">options_tests ::</span> <span class="dt">TestTree</span>
+    show_co (<span class="dt">CaptureOrdinal</span> j) <span class="fu">=</span> show j</code></pre></div>
+<h3>
+Testing The Options
+</h3>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">options_tests ::</span> <span class="dt">TestTree</span>
 options_tests <span class="fu">=</span> testGroup <span class="st">&quot;Simple Options&quot;</span>
   [ testGroup <span class="st">&quot;TDFA Simple Options&quot;</span>
       [ testCase <span class="st">&quot;default (MultilineSensitive)&quot;</span> <span class="fu">$</span> assertEqual <span class="st">&quot;#&quot;</span> <span class="dv">2</span> <span class="fu">$</span>
@@ -349,9 +371,11 @@ options_tests <span class="fu">=</span> testGroup <span class="st">&quot;Simple 
       ]
     ]
   <span class="kw">where</span>
-    s <span class="fu">=</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span><span class="ot"> ::</span> <span class="dt">String</span>
-
-<span class="ot">many_tests ::</span> <span class="dt">TestTree</span>
+    s <span class="fu">=</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span><span class="ot"> ::</span> <span class="dt">String</span></code></pre></div>
+<h3>
+Exercising Our Many APIs
+</h3>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">many_tests ::</span> <span class="dt">TestTree</span>
 many_tests <span class="fu">=</span> testGroup <span class="st">&quot;Many Tests&quot;</span>
     [ testCase <span class="st">&quot;PCRE a&quot;</span>               <span class="fu">$</span> test (<span class="fu">PCRE.*=~</span>) (<span class="fu">PCRE.?=~</span>) (<span class="fu">PCRE.=~</span>) (<span class="fu">PCRE.=~~</span>) matchOnce matchMany id          re_pcre
     , testCase <span class="st">&quot;PCRE ByteString&quot;</span>      <span class="fu">$</span> test (<span class="fu">P_BS.*=~</span>) (<span class="fu">P_BS.?=~</span>) (<span class="fu">P_BS.=~</span>) (<span class="fu">P_BS.=~~</span>) matchOnce matchMany B.pack      re_pcre
@@ -398,9 +422,131 @@ many_tests <span class="fu">=</span> testGroup <span class="st">&quot;Many Tests
     re_pcre <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> PCRE.compileRegex () <span class="st">&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;</span>
     re_tdfa <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> TDFA.compileRegex () <span class="st">&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;</span>
 
-    oops    <span class="fu">=</span> error <span class="st">&quot;many_tests&quot;</span>
+    oops    <span class="fu">=</span> error <span class="st">&quot;many_tests&quot;</span></code></pre></div>
+<h2 id="testing-the-re-escape-functions">Testing the RE Escape Functions</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">escapeTests ::</span> <span class="dt">TestTree</span>
+escapeTests <span class="fu">=</span> testGroup <span class="st">&quot;Escape Tests&quot;</span>
+    [ testGroup <span class="st">&quot;PCRE&quot;</span>
+        [ testCase  <span class="st">&quot;Escaping empty string&quot;</span> <span class="fu">$</span>
+            assertBool <span class="st">&quot;empty string&quot;</span> <span class="fu">$</span>
+              tst P_ST.escape (<span class="fu">P_ST.?=~</span>) <span class="st">&quot;&quot;</span>
+        , testCase  <span class="st">&quot;Escaping RE metacharacters&quot;</span> <span class="fu">$</span>
+            assertBool <span class="st">&quot;metacharacters&quot;</span> <span class="fu">$</span>
+              tst P_ST.escape (<span class="fu">P_ST.?=~</span>) metacharacters
+        , localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">6</span>) <span class="fu">$</span>
+            SC.testProperty <span class="st">&quot;matched $ &lt;s&gt; ?=~ [re|^escape(&lt;s&gt;)$|]&quot;</span> <span class="fu">$</span>
+              tst P_ST.escape (<span class="fu">P_ST.?=~</span>)
+        ]
+    , testGroup <span class="st">&quot;TDFA&quot;</span>
+        [ testCase  <span class="st">&quot;Escaping empty string&quot;</span> <span class="fu">$</span>
+            assertBool <span class="st">&quot;empty string&quot;</span> <span class="fu">$</span>
+              tst T_ST.escape (<span class="fu">T_ST.?=~</span>) <span class="st">&quot;&quot;</span>
+        , testCase  <span class="st">&quot;Escaping RE metacharacters&quot;</span> <span class="fu">$</span>
+            assertBool <span class="st">&quot;metacharacters&quot;</span> <span class="fu">$</span>
+              tst T_ST.escape (<span class="fu">T_ST.?=~</span>) metacharacters
+        , localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">6</span>) <span class="fu">$</span>
+            SC.testProperty <span class="st">&quot;matched $ &lt;s&gt; ?=~ [re|^escape(&lt;s&gt;)$|]&quot;</span> <span class="fu">$</span>
+              tst T_ST.escape (<span class="fu">T_ST.?=~</span>)
+        ]
+    ]
+  <span class="kw">where</span>
+<span class="ot">    tst ::</span> ((<span class="dt">String</span><span class="ot">-&gt;</span><span class="dt">String</span>)<span class="ot">-&gt;</span><span class="dt">String</span><span class="ot">-&gt;</span>a)
+        <span class="ot">-&gt;</span> (<span class="dt">String</span><span class="ot">-&gt;</span>a<span class="ot">-&gt;</span><span class="dt">Match</span> <span class="dt">String</span>)
+        <span class="ot">-&gt;</span> <span class="dt">String</span>
+        <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+    tst esc (<span class="fu">%=~</span>) s <span class="fu">=</span> matched <span class="fu">$</span> s <span class="fu">%=~</span> esc ((<span class="st">&quot;^&quot;</span> <span class="fu">++</span>) <span class="fu">.</span> (<span class="fu">++</span> <span class="st">&quot;$&quot;</span>)) s
 
-<span class="ot">misc_tests ::</span> <span class="dt">TestTree</span>
+<span class="ot">    metacharacters ::</span> <span class="dt">String</span>
+    metacharacters <span class="fu">=</span> <span class="st">&quot;^\\.|*+?()[]{}$&quot;</span></code></pre></div>
+<h2 id="named-capture-tests">Named Capture Tests</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">namedCapturesTestTree ::</span> <span class="dt">TestTree</span>
+namedCapturesTestTree <span class="fu">=</span> localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">4</span>) <span class="fu">$</span>
+  testGroup <span class="st">&quot;NamedCaptures&quot;</span>
+    [ formatScanTestTree
+    , analyseTokensTestTree
+    ]
+
+<span class="kw">instance</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">Serial</span> m <span class="dt">Token</span>
+
+<span class="ot">formatScanTestTree ::</span> <span class="dt">TestTree</span>
+formatScanTestTree <span class="fu">=</span>
+  testGroup <span class="st">&quot;FormatToken/Scan Properties&quot;</span>
+    [ localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">4</span>) <span class="fu">$</span>
+        SC.testProperty <span class="st">&quot;formatTokens == formatTokens0&quot;</span> <span class="fu">$</span>
+          \tks <span class="ot">-&gt;</span> formatTokens tks <span class="fu">==</span> formatTokens0 tks
+    , localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">4</span>) <span class="fu">$</span>
+        SC.testProperty <span class="st">&quot;scan . formatTokens&#39; idFormatTokenOptions == id&quot;</span> <span class="fu">$</span>
+          \tks <span class="ot">-&gt;</span> all validToken tks <span class="fu">==&gt;</span>
+                    scan (formatTokens&#39; idFormatTokenOptions tks) <span class="fu">==</span> tks
+    ]
+
+<span class="ot">analyseTokensTestTree ::</span> <span class="dt">TestTree</span>
+analyseTokensTestTree <span class="fu">=</span>
+  testGroup <span class="st">&quot;Analysing [Token] Unit Tests&quot;</span>
+    [ tc [here|foobar|]                                       []
+    , tc [here||]                                             []
+    , tc [here|$([0-9]{4})|]                                  []
+    , tc [here|${x}()|]                                       [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>)]
+    , tc [here|${}()|]                                        []
+    , tc [here|${}()${foo}()|]                                [(<span class="dv">2</span>,<span class="st">&quot;foo&quot;</span>)]
+    , tc [here|${x}(${y()})|]                                 [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>)]
+    , tc [here|${x}(${y}())|]                                 [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>),(<span class="dv">2</span>,<span class="st">&quot;y&quot;</span>)]
+    , tc [here|${a}(${b{}())|]                                [(<span class="dv">1</span>,<span class="st">&quot;a&quot;</span>)]
+    , tc [here|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] [(<span class="dv">1</span>,<span class="st">&quot;y&quot;</span>),(<span class="dv">2</span>,<span class="st">&quot;m&quot;</span>),(<span class="dv">3</span>,<span class="st">&quot;d&quot;</span>)]
+    , tc [here|@$(@|\{${name}([^{}]+)\})|]                    [(<span class="dv">2</span>,<span class="st">&quot;name&quot;</span>)]
+    , tc [here|${y}[0-9]{4}|]                                 []
+    , tc [here|${}([0-9]{4})|]                                []
+    ]
+  <span class="kw">where</span>
+    tc s al <span class="fu">=</span>
+      testCase s <span class="fu">$</span> assertEqual <span class="st">&quot;CaptureNames&quot;</span>
+        (xnc s)
+        (HM.fromList
+          [ (<span class="dt">CaptureName</span> <span class="fu">$</span> T.pack n,<span class="dt">CaptureOrdinal</span> i)
+              <span class="fu">|</span> (i,n)<span class="ot">&lt;-</span>al
+              ]
+        )
+
+    xnc <span class="fu">=</span> either oops fst <span class="fu">.</span> extractNamedCaptures
+      <span class="kw">where</span>
+        oops <span class="fu">=</span> error <span class="st">&quot;analyseTokensTestTree: unexpected parse failure&quot;</span></code></pre></div>
+<h2 id="addcapturenames-tests">AddCaptureNames Tests</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">add_capture_names_tests ::</span> <span class="dt">TestTree</span>
+add_capture_names_tests <span class="fu">=</span> testGroup <span class="st">&quot;AddCaptureNames Tests&quot;</span>
+    [ test_add_capture_name <span class="st">&quot;Match   String&quot;</span>          test_match                    regex_str_match
+    , test_add_capture_name <span class="st">&quot;Matches String&quot;</span>          test_matches                  regex_str_matches
+    , test_add_capture_name <span class="st">&quot;Match   B.ByteString&quot;</span>    test_match   <span class="fu">$</span> B.pack     <span class="fu">&lt;$&gt;</span> regex_str_match
+    , test_add_capture_name <span class="st">&quot;Matches B.ByteString&quot;</span>    test_matches <span class="fu">$</span> B.pack     <span class="fu">&lt;$&gt;</span> regex_str_matches
+    , test_add_capture_name <span class="st">&quot;Match   LBS.ByteString&quot;</span>  test_match   <span class="fu">$</span> LBS.pack   <span class="fu">&lt;$&gt;</span> regex_str_match
+    , test_add_capture_name <span class="st">&quot;Matches LBS.ByteString&quot;</span>  test_matches <span class="fu">$</span> LBS.pack   <span class="fu">&lt;$&gt;</span> regex_str_matches
+    , test_add_capture_name <span class="st">&quot;Match   T.Text&quot;</span>          test_match   <span class="fu">$</span> T.pack     <span class="fu">&lt;$&gt;</span> regex_str_match
+    , test_add_capture_name <span class="st">&quot;Matches T.Text&quot;</span>          test_matches <span class="fu">$</span> T.pack     <span class="fu">&lt;$&gt;</span> regex_str_matches
+    , test_add_capture_name <span class="st">&quot;Match   LT.Text&quot;</span>         test_match   <span class="fu">$</span> <span class="dt">LT</span><span class="fu">.</span>pack    <span class="fu">&lt;$&gt;</span> regex_str_match
+    , test_add_capture_name <span class="st">&quot;Matches LT.Text&quot;</span>         test_matches <span class="fu">$</span> <span class="dt">LT</span><span class="fu">.</span>pack    <span class="fu">&lt;$&gt;</span> regex_str_matches
+    , test_add_capture_name <span class="st">&quot;Match   (Seq Char)&quot;</span>      test_match   <span class="fu">$</span> S.fromList <span class="fu">&lt;$&gt;</span> regex_str_match
+    , test_add_capture_name <span class="st">&quot;Matches (Seq Char)&quot;</span>      test_matches <span class="fu">$</span> S.fromList <span class="fu">&lt;$&gt;</span> regex_str_matches
+    ]
+
+<span class="ot">test_matches ::</span> <span class="dt">CaptureNames</span> <span class="ot">-&gt;</span> <span class="dt">Matches</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+test_matches cnms <span class="fu">=</span> all (test_match cnms) <span class="fu">.</span> allMatches
+
+<span class="ot">test_match ::</span> <span class="dt">CaptureNames</span> <span class="ot">-&gt;</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+test_match cnms mtch <span class="fu">=</span> captureNames mtch <span class="fu">==</span> cnms
+
+<span class="ot">test_add_capture_name ::</span> <span class="dt">Typeable</span> a
+                      <span class="ot">=&gt;</span> <span class="dt">String</span>
+                      <span class="ot">-&gt;</span> (<span class="dt">CaptureNames</span><span class="ot">-&gt;</span>a<span class="ot">-&gt;</span><span class="dt">Bool</span>)
+                      <span class="ot">-&gt;</span> a
+                      <span class="ot">-&gt;</span> <span class="dt">TestTree</span>
+test_add_capture_name lab tst x <span class="fu">=</span> testCase lab <span class="fu">$</span>
+    assertBool lab <span class="fu">$</span> tst cnms <span class="fu">$</span> addCaptureNames cnms x
+  <span class="kw">where</span>
+    cnms <span class="fu">=</span> HM.fromList
+      [ (<span class="dt">CaptureName</span> <span class="st">&quot;x&quot;</span>,<span class="dv">1</span>)
+      , (<span class="dt">CaptureName</span> <span class="st">&quot;y&quot;</span>,<span class="dv">2</span>)
+      ]</code></pre></div>
+<h2 id="the-miscelaneous-tests">The Miscelaneous Tests</h2>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">misc_tests ::</span> <span class="dt">TestTree</span>
 misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneous Tests&quot;</span>
     [ testGroup <span class="st">&quot;QQ&quot;</span>
         [ qq_tc <span class="st">&quot;expression&quot;</span>  quoteExp
@@ -414,6 +560,8 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
         , valid_string <span class="st">&quot;preludeMacroSources&quot;</span>  preludeMacroSources
         , valid_macro  <span class="st">&quot;preludeMacroSource&quot;</span>   preludeMacroSource
         ]
+    <span class="co">-- because HPC can&#39;t measure our testing of [re|..|] forms,</span>
+    <span class="co">-- we are eliminating them from our enquiries</span>
     , testGroup <span class="st">&quot;RE&quot;</span>
         [ valid_res <span class="dt">TDFA</span>
             [ TDFA.re
@@ -441,6 +589,8 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
             [ ne_string (presentPreludeMacro pm) <span class="fu">$</span> TDFA.preludeSource  pm
                 <span class="fu">|</span> pm <span class="ot">&lt;-</span> tdfa_prelude_macros
                 ]
+    <span class="co">-- because HPC can&#39;t measure our testing of [re|..|] forms,</span>
+    <span class="co">-- we are eliminating them from our enquiries</span>
         , valid_res <span class="dt">PCRE</span>
             [ PCRE.re
             , PCRE.reMS
@@ -522,57 +672,6 @@ pcre_prelude_macros <span class="fu">=</span> filter (<span class="fu">/=</span>
 
 <span class="ot">tdfa_prelude_macros ::</span> [<span class="dt">PreludeMacro</span>]
 tdfa_prelude_macros <span class="fu">=</span> [minBound<span class="fu">..</span>maxBound]</code></pre></div>
-<h2 id="testing-formattokenscan-properties">Testing : FormatToken/Scan Properties</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">namedCapturesTestTree ::</span> <span class="dt">TestTree</span>
-namedCapturesTestTree <span class="fu">=</span> localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">4</span>) <span class="fu">$</span>
-  testGroup <span class="st">&quot;NamedCaptures&quot;</span>
-    [ formatScanTestTree
-    , analyseTokensTestTree
-    ]</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">Serial</span> m <span class="dt">Token</span></code></pre></div>
-<h2 id="testing-formattokenscan-properties-1">Testing : FormatToken/Scan Properties</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatScanTestTree ::</span> <span class="dt">TestTree</span>
-formatScanTestTree <span class="fu">=</span>
-  testGroup <span class="st">&quot;FormatToken/Scan Properties&quot;</span>
-    [ localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">4</span>) <span class="fu">$</span>
-        SC.testProperty <span class="st">&quot;formatTokens == formatTokens0&quot;</span> <span class="fu">$</span>
-          \tks <span class="ot">-&gt;</span> formatTokens tks <span class="fu">==</span> formatTokens0 tks
-    , localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">4</span>) <span class="fu">$</span>
-        SC.testProperty <span class="st">&quot;scan . formatTokens&#39; idFormatTokenOptions == id&quot;</span> <span class="fu">$</span>
-          \tks <span class="ot">-&gt;</span> all validToken tks <span class="fu">==&gt;</span>
-                    scan (formatTokens&#39; idFormatTokenOptions tks) <span class="fu">==</span> tks
-    ]</code></pre></div>
-<h2 id="testing-analysing-token-unit-tests">Testing : Analysing [Token] Unit Tests</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">analyseTokensTestTree ::</span> <span class="dt">TestTree</span>
-analyseTokensTestTree <span class="fu">=</span>
-  testGroup <span class="st">&quot;Analysing [Token] Unit Tests&quot;</span>
-    [ tc [here|foobar|]                                       []
-    , tc [here||]                                             []
-    , tc [here|$([0-9]{4})|]                                  []
-    , tc [here|${x}()|]                                       [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>)]
-    , tc [here|${}()|]                                        []
-    , tc [here|${}()${foo}()|]                                [(<span class="dv">2</span>,<span class="st">&quot;foo&quot;</span>)]
-    , tc [here|${x}(${y()})|]                                 [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>)]
-    , tc [here|${x}(${y}())|]                                 [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>),(<span class="dv">2</span>,<span class="st">&quot;y&quot;</span>)]
-    , tc [here|${a}(${b{}())|]                                [(<span class="dv">1</span>,<span class="st">&quot;a&quot;</span>)]
-    , tc [here|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] [(<span class="dv">1</span>,<span class="st">&quot;y&quot;</span>),(<span class="dv">2</span>,<span class="st">&quot;m&quot;</span>),(<span class="dv">3</span>,<span class="st">&quot;d&quot;</span>)]
-    , tc [here|@$(@|\{${name}([^{}]+)\})|]                    [(<span class="dv">2</span>,<span class="st">&quot;name&quot;</span>)]
-    , tc [here|${y}[0-9]{4}|]                                 []
-    , tc [here|${}([0-9]{4})|]                                []
-    ]
-  <span class="kw">where</span>
-    tc s al <span class="fu">=</span>
-      testCase s <span class="fu">$</span> assertEqual <span class="st">&quot;CaptureNames&quot;</span>
-        (xnc s)
-        (HM.fromList
-          [ (<span class="dt">CaptureName</span> <span class="fu">$</span> T.pack n,<span class="dt">CaptureOrdinal</span> i)
-              <span class="fu">|</span> (i,n)<span class="ot">&lt;-</span>al
-              ]
-        )
-
-    xnc <span class="fu">=</span> either oops fst <span class="fu">.</span> extractNamedCaptures
-      <span class="kw">where</span>
-        oops <span class="fu">=</span> error <span class="st">&quot;analyseTokensTestTree: unexpected parse failure&quot;</span></code></pre></div>
 </div>    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

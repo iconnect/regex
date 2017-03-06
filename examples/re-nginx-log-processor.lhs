@@ -1,3 +1,15 @@
+Example: NGINX Log Processor
+============================
+
+This example program reads lines from NGINX error-log files and
+access-log files converts them into a unified output format.
+
+It is an example of developing REs at scale using macros with
+the regex test bench.
+
+The tool is self-testing: run it with no arguments (or `cabal test`).
+
+
 \begin{code}
 {-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}

@@ -111,6 +111,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Text.RE.Capture</span>
 <span class="kw">import           </span><span class="dt">Text.RE.CaptureID</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Options</span>
+<span class="kw">import           </span><span class="dt">Text.Read</span>
 <span class="kw">import           </span><span class="dt">Text.Regex.TDFA</span>
 <span class="kw">import           </span><span class="dt">Text.Regex.TDFA.Text</span>()
 <span class="kw">import           </span><span class="dt">Text.Regex.TDFA.Text.Lazy</span>()</code></pre></div>
@@ -415,29 +416,31 @@ lift_phi phi_ <span class="fu">=</span> phi
   <span class="kw">where</span>
     phi caps&#39; loc&#39; cap&#39; <span class="fu">=</span> return <span class="fu">$</span> phi_ caps&#39; loc&#39; cap&#39;</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">parseTemplateE&#39; ::</span> ( <span class="dt">Replace</span> a
-              , <span class="dt">RegexContext</span> <span class="dt">Regex</span> a (<span class="dt">Matches</span> a)
-              , <span class="dt">RegexMaker</span>   <span class="dt">Regex</span> <span class="dt">CompOption</span> <span class="dt">ExecOption</span> <span class="dt">String</span>
-              )
-           <span class="ot">=&gt;</span> (a<span class="ot">-&gt;</span><span class="dt">String</span>)
-           <span class="ot">-&gt;</span> a
-           <span class="ot">-&gt;</span> <span class="dt">Match</span> a
-           <span class="ot">-&gt;</span> <span class="dt">Location</span>
-           <span class="ot">-&gt;</span> <span class="dt">Capture</span> a
-           <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a
+                   , <span class="dt">RegexContext</span> <span class="dt">Regex</span> a (<span class="dt">Matches</span> a)
+                   , <span class="dt">RegexMaker</span>   <span class="dt">Regex</span> <span class="dt">CompOption</span> <span class="dt">ExecOption</span> <span class="dt">String</span>
+                   )
+                   <span class="ot">=&gt;</span> (a<span class="ot">-&gt;</span><span class="dt">String</span>)
+                   <span class="ot">-&gt;</span> a
+                   <span class="ot">-&gt;</span> <span class="dt">Match</span> a
+                   <span class="ot">-&gt;</span> <span class="dt">Location</span>
+                   <span class="ot">-&gt;</span> <span class="dt">Capture</span> a
+                   <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a
 parseTemplateE&#39; unpack tpl mtch _ _ <span class="fu">=</span>
     <span class="dt">Just</span> <span class="fu">$</span> replaceAllCaptures <span class="dt">TOP</span> phi <span class="fu">$</span>
-      tpl <span class="fu">$=~</span> [here|\$(\$|[0-9]+|\{([^{}]+)\})|]
+      tpl <span class="fu">$=~</span> [here|\$(\$|[0-9]|\{([^{}]+)\})|]
   <span class="kw">where</span>
-    phi t_mtch _ _ <span class="fu">=</span> <span class="kw">case</span> t_mtch <span class="fu">!$?</span> c2  <span class="kw">of</span>
-      <span class="dt">Just</span> cap <span class="ot">-&gt;</span> this <span class="fu">$</span> <span class="dt">IsCaptureName</span> <span class="fu">$</span> <span class="dt">CaptureName</span> txt
+    phi t_mtch _ _ <span class="fu">=</span> <span class="kw">case</span> t_mtch <span class="fu">!$?</span> c2 <span class="kw">of</span>
+      <span class="dt">Just</span> cap <span class="ot">-&gt;</span> <span class="kw">case</span> readMaybe stg <span class="kw">of</span>
+          <span class="dt">Nothing</span> <span class="ot">-&gt;</span> this <span class="fu">$</span> <span class="dt">IsCaptureName</span>    <span class="fu">$</span> <span class="dt">CaptureName</span> <span class="fu">$</span> T.pack stg
+          <span class="dt">Just</span> cn <span class="ot">-&gt;</span> this <span class="fu">$</span> <span class="dt">IsCaptureOrdinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> cn
         <span class="kw">where</span>
-          txt <span class="fu">=</span> T.pack <span class="fu">$</span> unpack <span class="fu">$</span> capturedText cap
+          stg <span class="fu">=</span> unpack <span class="fu">$</span> capturedText cap
       <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="kw">case</span> s <span class="fu">==</span> <span class="st">&quot;$&quot;</span> <span class="kw">of</span>
         <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Just</span> t
         <span class="dt">False</span> <span class="ot">-&gt;</span> this <span class="fu">$</span> <span class="dt">IsCaptureOrdinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="fu">$</span> read s
       <span class="kw">where</span>
-        s  <span class="fu">=</span> unpack t
-        t  <span class="fu">=</span> capturedText <span class="fu">$</span> capture c1 t_mtch
+        s <span class="fu">=</span> unpack t
+        t <span class="fu">=</span> capturedText <span class="fu">$</span> capture c1 t_mtch
 
         this cid <span class="fu">=</span> capturedText <span class="fu">&lt;$&gt;</span> mtch <span class="fu">!$?</span> cid
 

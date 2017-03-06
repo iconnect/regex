@@ -66,6 +66,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <header>
 <h1 class="title">examples/re-prep.lhs</h1>
 </header>
+<h1 id="regex-page-prep">Regex (Page) Prep</h1>
+<p>This tool turns the markdown and literate Haskell into the HTML that makes up the website and the README.md for GitHub and for Hackage (based on the index.md for the website) and the test suite based on the tutorial.</p>
+<p>The tool is self-testing: run it with no arguments (or <code>cabal test</code>).</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
@@ -90,6 +93,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import qualified</span> <span class="dt">Shelly</span>                                   <span class="kw">as</span> <span class="dt">SH</span>
 <span class="kw">import           </span><span class="dt">System.Directory</span>
 <span class="kw">import           </span><span class="dt">System.Environment</span>
+<span class="kw">import           </span><span class="dt">System.IO</span>
 <span class="kw">import           </span><span class="dt">TestKit</span>
 <span class="kw">import           </span><span class="dt">Text.Heredoc</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Edit</span>
@@ -117,7 +121,7 @@ main <span class="fu">=</span> <span class="kw">do</span>
     usage <span class="fu">=</span> <span class="kw">do</span>
       pnm <span class="ot">&lt;-</span> getProgName
       <span class="kw">let</span> prg <span class="fu">=</span> ((<span class="st">&quot;  &quot;</span><span class="fu">++</span>pnm<span class="fu">++</span><span class="st">&quot; &quot;</span>)<span class="fu">++</span>)
-      putStr <span class="fu">$</span> unlines
+      hPutStr stderr <span class="fu">$</span> unlines
         [ <span class="st">&quot;usage:&quot;</span>
         , prg <span class="st">&quot;--help&quot;</span>
         , prg <span class="st">&quot;[test]&quot;</span>

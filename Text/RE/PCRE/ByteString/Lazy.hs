@@ -1,3 +1,4 @@
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
@@ -25,7 +26,9 @@ module Text.RE.PCRE.ByteString.Lazy
   , module Text.RE.PCRE.RE
   ) where
 
+import           Prelude.Compat
 import qualified Data.ByteString.Lazy          as LBS
+import           Data.Typeable
 import           Text.Regex.Base
 import           Text.RE
 import           Text.RE.Internal.AddCaptureNames
@@ -46,23 +49,26 @@ import qualified Text.Regex.PCRE               as PCRE
 (?=~) bs rex = addCaptureNamesToMatch (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | the regex-base polymorphic match operator
-(=~) :: ( RegexContext PCRE.Regex LBS.ByteString a
+(=~) :: ( Typeable a
+        , RegexContext PCRE.Regex LBS.ByteString a
         , RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption String
         )
      => LBS.ByteString
      -> RE
      -> a
-(=~) bs rex = match (reRegex rex) bs
+(=~) bs rex = addCaptureNames (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | the regex-base monadic, polymorphic match operator
 (=~~) :: ( Monad m
+         , Functor m
+         , Typeable a
          , RegexContext PCRE.Regex LBS.ByteString a
          , RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption String
          )
       => LBS.ByteString
       -> RE
       -> m a
-(=~~) bs rex = matchM (reRegex rex) bs
+(=~~) bs rex = addCaptureNames (reCaptureNames rex) <$> matchM (reRegex rex) bs
 
 instance IsRegex RE LBS.ByteString where
   matchOnce   = flip (?=~)

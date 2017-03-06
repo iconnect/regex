@@ -186,7 +186,7 @@ The type of <code>*=~</code> in this module (imported from <code>Text.RE.TDFA.St
     {<span class="ot"> matchesSource ::</span> <span class="fu">!</span>a          <span class="co">-- ^ the source text being matched</span>
     ,<span class="ot"> allMatches    ::</span> <span class="fu">!</span>[<span class="dt">Match</span> a]  <span class="co">-- ^ all captures found, left to right</span>
     }
-  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>)</code></pre></div>
+  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>,<span class="dt">Typeable</span>)</code></pre></div>
 </div>
 <p>The critical component of the <code>Matches</code> type is the <code>[Match a]</code> in <code>allMatches</code>, containing the details all of each substring matched by the RE. The <code>matchSource</code> component also retains a copy of the original search string but the critical information is in <code>allmatches</code>.</p>
 The type of <code>?=~</code> in this module (imported from <code>Text.RE.TDFA.String</code>) is:
@@ -209,7 +209,7 @@ The type of <code>?=~</code> in this module (imported from <code>Text.RE.TDFA.St
                                         <span class="co">-- text matched by the</span>
                                         <span class="co">-- whole RE</span>
     }
-  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>)</code></pre></div>
+  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>,<span class="dt">Typeable</span>)</code></pre></div>
 </div>
 <p>Like <code>matchesSource</code> above, <code>matchSource</code> retains the original search string, but also a <code>CaptureNames</code> field listing all of the capture names in the RE (needed by the text replacemnt tools).</p>
 <p>But the 'real' content of <code>Match</code> is to be found in the <code>MatchArray</code>, enumerating all of the substrings captured by this match, starting with <code>0</code> for the substring captured by the whole RE, <code>1</code> for the leftmost explicit capture in the RE, <code>2</code> for the next leftmost capture, and so on.</p>

@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE UndecidableInstances       #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE DeriveDataTypeable         #-}
 \end{code}
 
 \begin{code}
@@ -40,6 +41,7 @@ module Text.RE.Capture
 \begin{code}
 import           Data.Array
 import           Data.Maybe
+import           Data.Typeable
 import           Text.Regex.Base
 import           Text.RE.CaptureID
 
@@ -56,7 +58,7 @@ data Matches a =
     { matchesSource :: !a          -- ^ the source text being matched
     , allMatches    :: ![Match a]  -- ^ all captures found, left to right
     }
-  deriving (Show,Eq)
+  deriving (Show,Eq,Typeable)
 \end{code}
 
 \begin{code}
@@ -74,7 +76,7 @@ data Match a =
                                         -- text matched by the
                                         -- whole RE
     }
-  deriving (Show,Eq)
+  deriving (Show,Eq,Typeable)
 \end{code}
 
 \begin{code}

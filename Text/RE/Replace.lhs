@@ -44,6 +44,7 @@ import           Text.Heredoc
 import           Text.RE.Capture
 import           Text.RE.CaptureID
 import           Text.RE.Options
+import           Text.Read
 import           Text.Regex.TDFA
 import           Text.Regex.TDFA.Text()
 import           Text.Regex.TDFA.Text.Lazy()
@@ -402,29 +403,31 @@ lift_phi phi_ = phi
 
 \begin{code}
 parseTemplateE' :: ( Replace a
-              , RegexContext Regex a (Matches a)
-              , RegexMaker   Regex CompOption ExecOption String
-              )
-           => (a->String)
-           -> a
-           -> Match a
-           -> Location
-           -> Capture a
-           -> Maybe a
+                   , RegexContext Regex a (Matches a)
+                   , RegexMaker   Regex CompOption ExecOption String
+                   )
+                   => (a->String)
+                   -> a
+                   -> Match a
+                   -> Location
+                   -> Capture a
+                   -> Maybe a
 parseTemplateE' unpack tpl mtch _ _ =
     Just $ replaceAllCaptures TOP phi $
-      tpl $=~ [here|\$(\$|[0-9]+|\{([^{}]+)\})|]
+      tpl $=~ [here|\$(\$|[0-9]|\{([^{}]+)\})|]
   where
-    phi t_mtch _ _ = case t_mtch !$? c2  of
-      Just cap -> this $ IsCaptureName $ CaptureName txt
+    phi t_mtch _ _ = case t_mtch !$? c2 of
+      Just cap -> case readMaybe stg of
+          Nothing -> this $ IsCaptureName    $ CaptureName $ T.pack stg
+          Just cn -> this $ IsCaptureOrdinal $ CaptureOrdinal cn
         where
-          txt = T.pack $ unpack $ capturedText cap
+          stg = unpack $ capturedText cap
       Nothing -> case s == "$" of
         True  -> Just t
         False -> this $ IsCaptureOrdinal $ CaptureOrdinal $ read s
       where
-        s  = unpack t
-        t  = capturedText $ capture c1 t_mtch
+        s = unpack t
+        t = capturedText $ capture c1 t_mtch
 
         this cid = capturedText <$> mtch !$? cid
 

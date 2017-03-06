@@ -1,3 +1,17 @@
+Example: Include Processor
+==========================
+
+This example looks for lines like
+
+```
+%include "lib/md/load-tutorial-cabal-incl.md"
+```
+
+on its input and replaces them with the contents of the names file.
+
+The tool is self-testing: run it with no arguments (or `cabal test`).
+
+
 \begin{code}
 {-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}

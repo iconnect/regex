@@ -9,12 +9,12 @@ programs and library code.
 %heading#tests The Test Suite
 
 The Library Tests [examples/re-tests.lhs](re-tests.html)
-contains various test suites for exercising various components of the library.
+contains a number of test suites for exercising various components of the library.
 
 
 %heading#programs The NGINX Log Processor
 
-The Log Processor Example [examples/re-nginx-log-processor.lhs](re-nginx-log-processor.html)
+The NGINX Log Processor Example [examples/re-nginx-log-processor.lhs](re-nginx-log-processor.html)
 provides an extended example of large-scale RE development with the regex test bench.
 
 

@@ -1,3 +1,14 @@
+Regex (Page) Prep
+=================
+
+This tool turns the markdown and literate Haskell into the HTML that
+makes up the website and the README.md for GitHub and for Hackage
+(based on the index.md for the website) and the test suite based on
+the tutorial.
+
+The tool is self-testing: run it with no arguments (or `cabal test`).
+
+
 \begin{code}
 {-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
@@ -23,6 +34,7 @@ import           Prelude.Compat
 import qualified Shelly                                   as SH
 import           System.Directory
 import           System.Environment
+import           System.IO
 import           TestKit
 import           Text.Heredoc
 import           Text.RE.Edit
@@ -53,7 +65,7 @@ main = do
     usage = do
       pnm <- getProgName
       let prg = (("  "++pnm++" ")++)
-      putStr $ unlines
+      hPutStr stderr $ unlines
         [ "usage:"
         , prg "--help"
         , prg "[test]"

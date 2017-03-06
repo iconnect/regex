@@ -32,6 +32,7 @@ import qualified Data.Sequence                  as S
 import           Data.String
 import qualified Data.Text                      as T
 import qualified Data.Text.Lazy                 as LT
+import           Data.Typeable
 import           Language.Haskell.TH.Quote
 import           Prelude.Compat
 import           Test.SmallCheck.Series
@@ -43,6 +44,7 @@ import qualified Text.Regex.PCRE                as PCRE_
 
 import qualified Text.Regex.TDFA                as TDFA_
 import           Text.RE
+import           Text.RE.Internal.AddCaptureNames
 import           Text.RE.Internal.NamedCaptures
 import           Text.RE.Internal.PreludeMacros
 import           Text.RE.Internal.QQ
@@ -76,6 +78,7 @@ main = defaultMain $
     , namedCapturesTestTree
     , many_tests
     , escapeTests
+    , add_capture_names_tests
     , misc_tests
     ]
 \end{code}
@@ -334,6 +337,7 @@ options_tests = testGroup "Simple Options"
     s = "0a\nbb\nFe\nA5" :: String
 \end{code}
 
+
 <h3>Exercising Our Many APIs</h3>
 
 \begin{code}
@@ -388,7 +392,8 @@ many_tests = testGroup "Many Tests"
 \end{code}
 
 
-<h3>Testing the RE Escape Functions</h3>
+Testing the RE Escape Functions
+-------------------------------
 
 \begin{code}
 escapeTests :: TestTree
@@ -425,6 +430,105 @@ escapeTests = testGroup "Escape Tests"
 
     metacharacters :: String
     metacharacters = "^\\.|*+?()[]{}$"
+\end{code}
+
+
+Named Capture Tests
+-------------------
+
+\begin{code}
+namedCapturesTestTree :: TestTree
+namedCapturesTestTree = localOption (SmallCheckDepth 4) $
+  testGroup "NamedCaptures"
+    [ formatScanTestTree
+    , analyseTokensTestTree
+    ]
+
+instance Monad m => Serial m Token
+
+formatScanTestTree :: TestTree
+formatScanTestTree =
+  testGroup "FormatToken/Scan Properties"
+    [ localOption (SmallCheckDepth 4) $
+        SC.testProperty "formatTokens == formatTokens0" $
+          \tks -> formatTokens tks == formatTokens0 tks
+    , localOption (SmallCheckDepth 4) $
+        SC.testProperty "scan . formatTokens' idFormatTokenOptions == id" $
+          \tks -> all validToken tks ==>
+                    scan (formatTokens' idFormatTokenOptions tks) == tks
+    ]
+
+analyseTokensTestTree :: TestTree
+analyseTokensTestTree =
+  testGroup "Analysing [Token] Unit Tests"
+    [ tc [here|foobar|]                                       []
+    , tc [here||]                                             []
+    , tc [here|$([0-9]{4})|]                                  []
+    , tc [here|${x}()|]                                       [(1,"x")]
+    , tc [here|${}()|]                                        []
+    , tc [here|${}()${foo}()|]                                [(2,"foo")]
+    , tc [here|${x}(${y()})|]                                 [(1,"x")]
+    , tc [here|${x}(${y}())|]                                 [(1,"x"),(2,"y")]
+    , tc [here|${a}(${b{}())|]                                [(1,"a")]
+    , tc [here|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] [(1,"y"),(2,"m"),(3,"d")]
+    , tc [here|@$(@|\{${name}([^{}]+)\})|]                    [(2,"name")]
+    , tc [here|${y}[0-9]{4}|]                                 []
+    , tc [here|${}([0-9]{4})|]                                []
+    ]
+  where
+    tc s al =
+      testCase s $ assertEqual "CaptureNames"
+        (xnc s)
+        (HM.fromList
+          [ (CaptureName $ T.pack n,CaptureOrdinal i)
+              | (i,n)<-al
+              ]
+        )
+
+    xnc = either oops fst . extractNamedCaptures
+      where
+        oops = error "analyseTokensTestTree: unexpected parse failure"
+\end{code}
+
+
+AddCaptureNames Tests
+---------------------
+
+\begin{code}
+add_capture_names_tests :: TestTree
+add_capture_names_tests = testGroup "AddCaptureNames Tests"
+    [ test_add_capture_name "Match   String"          test_match                    regex_str_match
+    , test_add_capture_name "Matches String"          test_matches                  regex_str_matches
+    , test_add_capture_name "Match   B.ByteString"    test_match   $ B.pack     <$> regex_str_match
+    , test_add_capture_name "Matches B.ByteString"    test_matches $ B.pack     <$> regex_str_matches
+    , test_add_capture_name "Match   LBS.ByteString"  test_match   $ LBS.pack   <$> regex_str_match
+    , test_add_capture_name "Matches LBS.ByteString"  test_matches $ LBS.pack   <$> regex_str_matches
+    , test_add_capture_name "Match   T.Text"          test_match   $ T.pack     <$> regex_str_match
+    , test_add_capture_name "Matches T.Text"          test_matches $ T.pack     <$> regex_str_matches
+    , test_add_capture_name "Match   LT.Text"         test_match   $ LT.pack    <$> regex_str_match
+    , test_add_capture_name "Matches LT.Text"         test_matches $ LT.pack    <$> regex_str_matches
+    , test_add_capture_name "Match   (Seq Char)"      test_match   $ S.fromList <$> regex_str_match
+    , test_add_capture_name "Matches (Seq Char)"      test_matches $ S.fromList <$> regex_str_matches
+    ]
+
+test_matches :: CaptureNames -> Matches a -> Bool
+test_matches cnms = all (test_match cnms) . allMatches
+
+test_match :: CaptureNames -> Match a -> Bool
+test_match cnms mtch = captureNames mtch == cnms
+
+test_add_capture_name :: Typeable a
+                      => String
+                      -> (CaptureNames->a->Bool)
+                      -> a
+                      -> TestTree
+test_add_capture_name lab tst x = testCase lab $
+    assertBool lab $ tst cnms $ addCaptureNames cnms x
+  where
+    cnms = HM.fromList
+      [ (CaptureName "x",1)
+      , (CaptureName "y",2)
+      ]
 \end{code}
 
 
@@ -558,62 +662,4 @@ pcre_prelude_macros = filter (/= PM_string) [minBound..maxBound]
 
 tdfa_prelude_macros :: [PreludeMacro]
 tdfa_prelude_macros = [minBound..maxBound]
-\end{code}
-
-
-Testing : FormatToken/Scan Properties
--------------------------------------
-
-\begin{code}
-namedCapturesTestTree :: TestTree
-namedCapturesTestTree = localOption (SmallCheckDepth 4) $
-  testGroup "NamedCaptures"
-    [ formatScanTestTree
-    , analyseTokensTestTree
-    ]
-
-instance Monad m => Serial m Token
-
-formatScanTestTree :: TestTree
-formatScanTestTree =
-  testGroup "FormatToken/Scan Properties"
-    [ localOption (SmallCheckDepth 4) $
-        SC.testProperty "formatTokens == formatTokens0" $
-          \tks -> formatTokens tks == formatTokens0 tks
-    , localOption (SmallCheckDepth 4) $
-        SC.testProperty "scan . formatTokens' idFormatTokenOptions == id" $
-          \tks -> all validToken tks ==>
-                    scan (formatTokens' idFormatTokenOptions tks) == tks
-    ]
-
-analyseTokensTestTree :: TestTree
-analyseTokensTestTree =
-  testGroup "Analysing [Token] Unit Tests"
-    [ tc [here|foobar|]                                       []
-    , tc [here||]                                             []
-    , tc [here|$([0-9]{4})|]                                  []
-    , tc [here|${x}()|]                                       [(1,"x")]
-    , tc [here|${}()|]                                        []
-    , tc [here|${}()${foo}()|]                                [(2,"foo")]
-    , tc [here|${x}(${y()})|]                                 [(1,"x")]
-    , tc [here|${x}(${y}())|]                                 [(1,"x"),(2,"y")]
-    , tc [here|${a}(${b{}())|]                                [(1,"a")]
-    , tc [here|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] [(1,"y"),(2,"m"),(3,"d")]
-    , tc [here|@$(@|\{${name}([^{}]+)\})|]                    [(2,"name")]
-    , tc [here|${y}[0-9]{4}|]                                 []
-    , tc [here|${}([0-9]{4})|]                                []
-    ]
-  where
-    tc s al =
-      testCase s $ assertEqual "CaptureNames"
-        (xnc s)
-        (HM.fromList
-          [ (CaptureName $ T.pack n,CaptureOrdinal i)
-              | (i,n)<-al
-              ]
-        )
-
-    xnc = either oops fst . extractNamedCaptures
-      where
-        oops = error "analyseTokensTestTree: unexpected parse failure"
 \end{code}

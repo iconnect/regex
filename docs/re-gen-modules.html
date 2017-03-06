@@ -66,6 +66,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <header>
 <h1 class="title">examples/re-gen-modules.lhs</h1>
 </header>
+<h1 id="regex-module-gen">Regex Module Gen</h1>
+<p>All of the modules that make up the API are generated from the <code>Text.RE.TDFA.ByteString.Lazy</code> module using this script.</p>
+<p>The tool is self-testing: run it with no arguments (or <code>cabal test</code>).</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
 <span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
 <span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>

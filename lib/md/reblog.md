@@ -11,8 +11,9 @@ In the meantime it has the announcement of May's HaskellX Bytes talk.
 
 %heading#haskellxbtalk HaskellX Bytes Talk
 
-The blog has the
+The
 [abstract](http://regex.uk/posts/2017-02-26-0-haskellx-bytes-why-res-matter)
 of the HaskellX Bytes Talk at
 [CodeNode](https://skillsmatter.com/contact-us), London,
-to be given by Chris Dornan from **2017-05-08T1830+0100**.
+to be given by Chris Dornan from **2017-05-08T1830+0100** has been posted
+on the blog.

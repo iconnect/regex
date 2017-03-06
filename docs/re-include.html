@@ -66,6 +66,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <header>
 <h1 class="title">examples/re-include.lhs</h1>
 </header>
+<h1 id="example-include-processor">Example: Include Processor</h1>
+<p>This example looks for lines like</p>
+<pre><code>%include &quot;lib/md/load-tutorial-cabal-incl.md&quot;</code></pre>
+<p>on its input and replaces them with the contents of the names file.</p>
+<p>The tool is self-testing: run it with no arguments (or <code>cabal test</code>).</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>

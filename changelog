@@ -1,5 +1,14 @@
 -*-change-log-*-
 
+0.5.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-05
+  * Fix inter-operation of =~ & =~~ and named captures (#55)
+  * Add escaping functions (#37)
+  * Test Hackage release tarballs on Travis CI (#51)
+  * Fix up template replace ordinals (#52)
+  * Complete the web site (#39)
+  * Complete the Tutorial, Tests and Examples (#38)
+  * Complete narrative in literate modules (#8)
+
 0.3.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-02-26
   * Clean up API to use camelCase conventions
   * Use -Werror in development and testing, -Warn for Hackage

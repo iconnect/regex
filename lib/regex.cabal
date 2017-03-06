@@ -42,6 +42,7 @@ Library
       Text.RE.Capture
       Text.RE.CaptureID
       Text.RE.Edit
+      Text.RE.Internal.AddCaptureNames
       Text.RE.Internal.EscapeREString
       Text.RE.Internal.NamedCaptures
       Text.RE.Internal.PreludeMacros
@@ -69,9 +70,6 @@ Library
       Text.RE.Tools.Grep
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
-
-    Other-Modules:
-      Text.RE.Internal.AddCaptureNames
 
     Default-Language:   Haskell2010
     GHC-Options:

@@ -1,3 +1,4 @@
+{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
@@ -25,7 +26,9 @@ module Text.RE.TDFA.Text.Lazy
   , module Text.RE.TDFA.RE
   ) where
 
+import           Prelude.Compat
 import qualified Data.Text.Lazy                as TL
+import           Data.Typeable
 import           Text.Regex.Base
 import           Text.RE
 import           Text.RE.Internal.AddCaptureNames
@@ -46,23 +49,26 @@ import qualified Text.Regex.TDFA               as TDFA
 (?=~) bs rex = addCaptureNamesToMatch (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | the regex-base polymorphic match operator
-(=~) :: ( RegexContext TDFA.Regex TL.Text a
+(=~) :: ( Typeable a
+        , RegexContext TDFA.Regex TL.Text a
         , RegexMaker   TDFA.Regex TDFA.CompOption TDFA.ExecOption String
         )
      => TL.Text
      -> RE
      -> a
-(=~) bs rex = match (reRegex rex) bs
+(=~) bs rex = addCaptureNames (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | the regex-base monadic, polymorphic match operator
 (=~~) :: ( Monad m
+         , Functor m
+         , Typeable a
          , RegexContext TDFA.Regex TL.Text a
          , RegexMaker   TDFA.Regex TDFA.CompOption TDFA.ExecOption String
          )
       => TL.Text
       -> RE
       -> m a
-(=~~) bs rex = matchM (reRegex rex) bs
+(=~~) bs rex = addCaptureNames (reCaptureNames rex) <$> matchM (reRegex rex) bs
 
 instance IsRegex RE TL.Text where
   matchOnce   = flip (?=~)

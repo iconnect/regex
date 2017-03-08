@@ -579,7 +579,7 @@ regex conterparts.
     except as a development prototype (used internally in
     [Text.RE.Internal.NamedCaptures](NamedCaptures.html)).
 
-  * [Text.RE.Tools.Lex](Sed.html) using [Text.RE.Edit](Edit.html):
+  * [Text.RE.Tools.Sed](Sed.html) using [Text.RE.Edit](Edit.html):
     takes an association list of regular expressions and substitution actions,
     some input text and invokes the associated action on each line of the file
     that matches one of the REs, substituting the text returned from the action

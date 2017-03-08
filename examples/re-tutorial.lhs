@@ -569,17 +569,17 @@ The Tools: 'grep', 'lex' and 'sed'
 The classic tools assocciated with regular expressions have inspired some
 regex conterparts.
 
-  * [Text.RE.Tools.Grep}(Grep.html): takes a regular expression and a
+  * [Text.RE.Tools.Grep](Grep.html): takes a regular expression and a
     file or lazy ByteString (depending upon the variant) and returns all of the
     matching lines. (Used in the [include](re-include.html) example.)
 
-  * [Text.RE.Tools.Lex}(Lex.html): takes an association list of REs and
+  * [Text.RE.Tools.Lex](Lex.html): takes an association list of REs and
     token-generating functions and the input text and returns a list of tokens.
     This should never be used where performance is important (use Alex),
     except as a development prototype (used internally in
     [Text.RE.Internal.NamedCaptures](NamedCaptures.html)).
 
-  * [Text.RE.Tools.Lex}(Sed.html) using [Text.RE.Edit](Edit.html):
+  * [Text.RE.Tools.Lex](Sed.html) using [Text.RE.Edit](Edit.html):
     takes an association list of regular expressions and substitution actions,
     some input text and invokes the associated action on each line of the file
     that matches one of the REs, substituting the text returned from the action

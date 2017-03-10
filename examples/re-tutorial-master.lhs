@@ -135,7 +135,7 @@ Used in an `Int` context `=~` will count the number of matches in the target str
 evalme_TRD_01 = checkThis "" (2) $ ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Int)
 \end{code}
 
-To determine the string that has matched the modaic `=~~` operator can be used
+To determine the string that has matched the monadic `=~~` operator can be used
 in a `Maybe` context.
 \begin{code}
 evalme_TRD_02 = checkThis "" (Just "2016-01-09") $ ("2016-01-09 2015-12-5 2015-10-05" =~~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Maybe String)

@@ -83,6 +83,14 @@ matrix:
     compiler: ": #stack 8.0.1 osx"
     os: osx
 
+
+  # Nightly builds are allowed to fail
+
+  - env: BUILD=stack STACK_YAML=stack-nightly.yaml
+    compiler: ": #stack nightly"
+    addons: {apt: {packages: [libgmp-dev]}}
+
+
 # macOS builds on Travis-CI have become highly problematic -- until this
 # is fixed will have to rely on manual testing in the dev environment
 

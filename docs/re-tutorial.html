@@ -124,7 +124,7 @@ regex supports the regex-base polymorphic match operators. Used in a <code>Bool<
 Used in an <code>Int</code> context <code>=~</code> will count the number of matches in the target string.
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> (<span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">=~</span> [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]<span class="ot"> ::</span> <span class="dt">Int</span>)
 <span class="dv">2</span></code></pre></div>
-To determine the string that has matched the modaic <code>=~~</code> operator can be used in a <code>Maybe</code> context.
+To determine the string that has matched the monadic <code>=~~</code> operator can be used in a <code>Maybe</code> context.
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> (<span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">=~~</span> [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]<span class="ot"> ::</span> <span class="dt">Maybe</span> <span class="dt">String</span>)
 <span class="dt">Just</span> <span class="st">&quot;2016-01-09&quot;</span></code></pre></div>
 A <code>=~</code> in a <code>[[String]]</code> extracts all of the matched substrings:

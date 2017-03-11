@@ -1,8 +1,7 @@
-resolver: nightly-2017-03-09
+resolver: nightly-2017-03-11
 install-ghc: true
 flags: {}
 packages:
 - '.'
 system-ghc: false
-extra-deps:
-  - shelly-1.6.8.3
+extra-deps: []

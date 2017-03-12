@@ -7,7 +7,7 @@ Travis-CI and AppVeyor pipelines that monitor the head of the repository.
 | Service      | O/S     | Build         | GHC    | LTS  | extra-deps              | Werror        | Build&nbsp;Status
 | ------------ | ------- | ------------- | ------ | ---- | ----------------------- | ------------- | -------------
 | Hackage      |         |               |        |      |                         | &#8209;Wwarn  | [![Hackage](https://img.shields.io/hackage/v/regex.svg)](https://hackage.haskell.org/package/regex)
-| Licence      |         |               |        |      |                         | &#8209;Werror | [![BSD3 License](http://img.shields.io/badge/license-BSD3-brightgreen.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
+| Licence      |         |               |        |      |                         |               | [![BSD3 License](http://img.shields.io/badge/license-BSD3-brightgreen.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
 | Travis CI    | Linux   | release-stack | 8.0.2  | 8.5  |                         | &#8209;Werror | [![Un*x build](https://travis-ci.org/iconnect/regex.svg?branch=master)](https://travis-ci.org/iconnect/regex)
 |              | Linux   | stack         | 7.10.3 | 6.30 |                         | &#8209;Werror | [![Un*x build](https://travis-ci.org/iconnect/regex.svg?branch=master)](https://travis-ci.org/iconnect/regex)
 |              | Linux   | stack         | 7.8.4  | 2.22 | regex-tdfa-text-1.0.0.3 | &#8209;Werror |

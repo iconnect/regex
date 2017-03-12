@@ -42,8 +42,8 @@ matrix:
 
   # Linux/stack/hackage release
 
-  - env: BUILD=release-stack GHCVER=8.0.1 STACK_YAML=stack-8.0.yaml
-    compiler: ": #stack 8.0.1"
+  - env: BUILD=release-stack GHCVER=8.0.2 STACK_YAML=stack-8.0.yaml
+    compiler: ": #stack 8.0.2"
     addons: {apt: {packages: [libgmp-dev]}}
 
   # Linux/stack
@@ -56,8 +56,8 @@ matrix:
     compiler: ": #stack 7.8.4"
     addons: {apt: {packages: [libgmp-dev]}}
 
-  - env: BUILD=stack GHCVER=8.0.1 STACK_YAML=stack-8.0.yaml
-    compiler: ": #stack 8.0.1"
+  - env: BUILD=stack GHCVER=8.0.2 STACK_YAML=stack-8.0.yaml
+    compiler: ": #stack 8.0.2"
     addons: {apt: {packages: [libgmp-dev]}}
 
   # Linux/cabal
@@ -68,9 +68,9 @@ matrix:
   - env: BUILD=cabal GHCVER=7.8.4 CABALVER=1.18 HAPPYVER=1.19.5 ALEXVER=3.1.7
     compiler: ": #GHC 7.8.4"
     addons: {apt: {packages: [cabal-install-1.18,ghc-7.8.4,happy-1.19.5,alex-3.1.7], sources: [hvr-ghc]}}
-  - env: BUILD=cabal GHCVER=8.0.1 CABALVER=1.24 HAPPYVER=1.19.5 ALEXVER=3.1.7
-    compiler: ": #GHC 8.0.1"
-    addons: {apt: {packages: [cabal-install-1.24,ghc-8.0.1,happy-1.19.5,alex-3.1.7], sources: [hvr-ghc]}}
+  - env: BUILD=cabal GHCVER=8.0.2 CABALVER=1.24 HAPPYVER=1.19.5 ALEXVER=3.1.7
+    compiler: ": #GHC 8.0.2"
+    addons: {apt: {packages: [cabal-install-1.24,ghc-8.0.2,happy-1.19.5,alex-3.1.7], sources: [hvr-ghc]}}
 
 
   # macOS (stack)
@@ -80,7 +80,7 @@ matrix:
     os: osx
 
   - env: BUILD=stack STACK_YAML=stack-8.0.yaml
-    compiler: ": #stack 8.0.1 osx"
+    compiler: ": #stack 8.0.2 osx"
     os: osx
 
 

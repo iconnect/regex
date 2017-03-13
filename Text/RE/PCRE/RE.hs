@@ -83,7 +83,8 @@ reBlockInsensitive       = re' $ Just  BlockInsensitive
 re_                      = re'   Nothing
 
 regexType :: RegexType
-regexType = PCRE
+regexType =
+  PCRE $ \txt env md -> txt =~ mdRegexSource regexType ExclCaptures env md
 
 data RE =
   RE
@@ -225,7 +226,7 @@ compileRegex' Options{..} s0 = do
     s1 = expandMacros reSource optionsMacs s0
 
 prelude :: Macros RE
-prelude = runIdentity $ preludeMacros mk PCRE ExclCaptures
+prelude = runIdentity $ preludeMacros mk regexType ExclCaptures
   where
     mk = Identity . unsafeCompileRegex_ noPreludeOptions
 
@@ -233,19 +234,19 @@ preludeTestsFailing :: [MacroID]
 preludeTestsFailing = badMacros preludeEnv
 
 preludeEnv :: MacroEnv
-preludeEnv = preludeMacroEnv PCRE
+preludeEnv = preludeMacroEnv regexType
 
 preludeTable :: String
-preludeTable = preludeMacroTable PCRE
+preludeTable = preludeMacroTable regexType
 
 preludeSummary :: PreludeMacro -> String
-preludeSummary = preludeMacroSummary PCRE
+preludeSummary = preludeMacroSummary regexType
 
 preludeSources :: String
-preludeSources = preludeMacroSources PCRE
+preludeSources = preludeMacroSources regexType
 
 preludeSource :: PreludeMacro -> String
-preludeSource = preludeMacroSource PCRE
+preludeSource = preludeMacroSource regexType
 
 escape :: (String->String) -> String -> RE
 escape f = unsafeCompileRegex () . f . escapeREString

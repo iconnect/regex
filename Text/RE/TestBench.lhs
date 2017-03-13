@@ -11,6 +11,9 @@
 module Text.RE.TestBench
   ( MacroID(..)
   , RegexType(..)
+  , isTDFA
+  , isPCRE
+  , presentRegexType
   , MacroEnv
   , WithCaptures(..)
   , MacroDescriptor(..)
@@ -28,6 +31,7 @@ module Text.RE.TestBench
   , formatMacroSources
   , formatMacroSource
   , testMacroDescriptors
+  , mdRegexSource
   ) where
 
 import           Data.Array
@@ -42,19 +46,38 @@ import           Prelude.Compat
 import           Text.RE.Capture
 import           Text.RE.Options
 import           Text.RE.Replace
-import qualified Text.Regex.PCRE                as PCRE
-import qualified Text.Regex.TDFA                as TDFA
 \end{code}
 
 Types
 -----
 
 \begin{code}
--- | what kind of back end will be compiling the RE
+
+type TestBenchMatcher =
+    String -> MacroEnv -> MacroDescriptor -> Matches String
+
+-- | what kind of back end will be compiling the RE, and its match
+-- function
 data RegexType
-  = TDFA    -- the TDFA back end
-  | PCRE    -- the PCRE back end
-  deriving (Bounded,Enum,Eq,Ord,Show)
+  = TDFA TestBenchMatcher
+  | PCRE TestBenchMatcher
+
+-- | test RegexType for TDFA/PCREness
+isTDFA, isPCRE :: RegexType -> Bool
+
+isTDFA (TDFA _) = True
+isTDFA (PCRE _) = False
+
+isPCRE (TDFA _) = False
+isPCRE (PCRE _) = True
+
+presentRegexType :: RegexType -> String
+presentRegexType (TDFA _) = "TDFA"
+presentRegexType (PCRE _) = "PCRE"
+
+instance Show RegexType where
+  show (TDFA _) = "TDFA <function>"
+  show (PCRE _) = "PCRE <function>"
 
 -- | do we need the captures in the RE or whould they be stripped out
 -- where possible
@@ -149,7 +172,7 @@ testMacroEnv lab rty m_env = case badMacros m_env of
     putStrLn $ "========================================================"
     return False
   where
-    lab' = lab ++ " [" ++ show rty ++"]"
+    lab' = lab ++ " [" ++ presentRegexType rty ++"]"
 
 badMacros :: MacroEnv -> [MacroID]
 badMacros m_env =
@@ -191,8 +214,8 @@ runTests' rty parser vector env mid md@MacroDescriptor{..} =
     test_neg src = test_neg' mid rty parser   $ match_ src env md
 
     match_ = case rty of
-      TDFA -> match_tdfa
-      PCRE -> match_pcre
+      TDFA tbmf -> tbmf
+      PCRE tbmf -> tbmf
 \end{code}
 
 
@@ -208,7 +231,7 @@ dumpMacroTable lab rty m_env = do
     fp_t  = "docs/" ++ rty_s ++ "-" ++ lab ++ ".txt"
     fp_s  = "docs/" ++ rty_s ++ "-" ++ lab ++ "-src.txt"
 
-    rty_s = map toLower $ show rty
+    rty_s = map toLower $ presentRegexType rty
 \end{code}
 
 \begin{code}
@@ -394,7 +417,7 @@ min_captures :: RegexType -> [REToken] -> Int
 min_captures rty rets = length
   [ ()
     | REToken{..}<-rets
-    , _ret_fixed || (_ret_grouping && rty==TDFA)
+    , _ret_fixed || (_ret_grouping && isTDFA rty)
     ]
 \end{code}
 
@@ -413,7 +436,7 @@ format_tokens rty wc = foldr f ""
           False ->
             case (,) _ret_grouping (_ret_capturing && wc==InclCaptures) of
               (False,False) -> ""
-              (True ,False) -> if rty==PCRE then "(?:" else "("
+              (True ,False) -> if isPCRE rty then "(?:" else "("
               (False,True ) -> "("
               (True ,True ) -> "("
 
@@ -462,18 +485,6 @@ scan_re (RegexSource src0) = loop src0
         chk '\\'  = True
         chk '('   = True
         chk _     = False
-\end{code}
-
-
-scan_re
--------
-
-\begin{code}
-match_tdfa :: String -> MacroEnv -> MacroDescriptor -> Matches String
-match_tdfa txt env md = txt TDFA.=~ mdRegexSource TDFA ExclCaptures env md
-
-match_pcre :: String -> MacroEnv -> MacroDescriptor -> Matches String
-match_pcre txt env md = txt PCRE.=~ mdRegexSource PCRE ExclCaptures env md
 \end{code}
 
 
@@ -560,5 +571,5 @@ test_diagnostic mid is_neg rty tst msg =
   where
     mid_s = getMacroID mid
     neg_s = if is_neg then "-ve" else "+ve" :: String
-    rty_s = show rty
+    rty_s = presentRegexType rty
 \end{code}

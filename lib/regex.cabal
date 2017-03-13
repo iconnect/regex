@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                0.5.0.0
+Version:                0.6.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
@@ -31,7 +31,8 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.5.0.0
+    Tag:                0.6.0.0
+
 
 
 
@@ -51,12 +52,6 @@ Library
       Text.RE.LineNo
       Text.RE.Options
       Text.RE.Parsers
-      Text.RE.PCRE
-      Text.RE.PCRE.ByteString
-      Text.RE.PCRE.ByteString.Lazy
-      Text.RE.PCRE.RE
-      Text.RE.PCRE.Sequence
-      Text.RE.PCRE.String
       Text.RE.Replace
       Text.RE.TDFA
       Text.RE.TDFA.ByteString
@@ -86,7 +81,6 @@ Library
       , hashable             >= 1.2.3.3
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93.2
-      , regex-pcre-builtin   >= 0.94.4.8.8.35
       , regex-tdfa           >= 1.2.0
       , regex-tdfa-text      >= 1.0.0.3
       , template-haskell     >= 2.7
@@ -97,5 +91,4 @@ Library
       , unordered-containers >= 0.2.5.1
 
 
-
--- Generated from lib/cabal-masters/mega-regex with re-gen-cabals
+-- Generated with re-gen-cabals

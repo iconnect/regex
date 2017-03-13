@@ -58,14 +58,7 @@ preludeMacroSource rty =
   formatMacroSource rty ExclCaptures (preludeMacroEnv rty) . prelude_macro_id
 
 preludeMacroEnv :: RegexType -> MacroEnv
-preludeMacroEnv TDFA = prelude_macro_env_tdfa
-preludeMacroEnv PCRE = prelude_macro_env_pcre
-
-prelude_macro_env_pcre :: MacroEnv
-prelude_macro_env_pcre = fix $ prelude_macro_env PCRE
-
-prelude_macro_env_tdfa :: MacroEnv
-prelude_macro_env_tdfa = fix $ prelude_macro_env TDFA
+preludeMacroEnv rty = fix $ prelude_macro_env rty
 
 prelude_macro_env :: RegexType -> MacroEnv -> MacroEnv
 prelude_macro_env rty env = HML.fromList $ catMaybes
@@ -273,8 +266,8 @@ string_macro :: RegexType
              -> MacroEnv
              -> PreludeMacro
              -> Maybe MacroDescriptor
-string_macro     PCRE _  _   = Nothing
-string_macro rty@TDFA env pm =
+string_macro     (PCRE _) _  _   = Nothing
+string_macro rty@(TDFA _) env pm =
   Just $ run_tests rty (fmap T.unpack . parseString) samples env pm
     MacroDescriptor
       { _md_source          = "\"(?:[^\"\\]+|\\\\[\\\"])*\""
@@ -796,8 +789,8 @@ syslog_severity_macro rty env pm =
         ]
 
     re = case rty of
-      PCRE -> re_pcre
-      TDFA -> re_tdfa
+      PCRE _ -> re_pcre
+      TDFA _ -> re_tdfa
 
     re_tdfa = bracketedRegexSource $
           intercalate "|" $

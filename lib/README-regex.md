@@ -51,6 +51,8 @@ two packages:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-05  v0.5.0.0  [Ready for review: API, tutorials and examples finalized](https://github.com/iconnect/regex/milestone/6)
 
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-13-05  v0.6.0.0  [Split out PCRE](https://github.com/iconnect/regex/milestone/7)
+
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-03-20  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)

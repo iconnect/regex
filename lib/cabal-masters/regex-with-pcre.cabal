@@ -1,0 +1,16 @@
+Name:                   regex-with-pcre
+%include "lib/cabal-masters/regex-incl.cabal"
+%include "lib/cabal-masters/constraints-incl.cabal"
+Library
+    Hs-Source-Dirs:     .
+    Exposed-Modules:
+      Text.RE.PCRE
+      Text.RE.PCRE.ByteString
+      Text.RE.PCRE.ByteString.Lazy
+      Text.RE.PCRE.RE
+      Text.RE.PCRE.Sequence
+      Text.RE.PCRE.String
+
+%build-depends base base-compat bytestring containers regex-base regex regex-pcre-builtin template-haskell transformers
+
+-- Generated with re-gen-cabals

@@ -93,12 +93,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Text.RE</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Internal.PreludeMacros</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Internal.QQ</span>
-<span class="kw">import           </span><span class="dt">Text.Regex.PCRE</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TestBench</span>
+<span class="kw">import           </span><span class="dt">Text.Regex.TDFA</span>
 
 
 <span class="ot">cp ::</span> <span class="dt">QuasiQuoter</span>
 cp <span class="fu">=</span>
-    (qq0 <span class="st">&quot;re_&quot;</span>)
+    (qq0 <span class="st">&quot;cp&quot;</span>)
       { quoteExp <span class="fu">=</span> parse_capture
       }
 
@@ -194,9 +195,9 @@ defFormatTokenOptions <span class="fu">=</span>
 <span class="ot">idFormatTokenOptions ::</span> <span class="dt">FormatTokenOptions</span>
 idFormatTokenOptions <span class="fu">=</span>
   <span class="dt">FormatTokenOptions</span>
-    { _fto_regex_type     <span class="fu">=</span> <span class="dt">Nothing</span>
-    , _fto_min_caps       <span class="fu">=</span> <span class="dt">False</span>
-    , _fto_incl_caps <span class="fu">=</span> <span class="dt">True</span>
+    { _fto_regex_type <span class="fu">=</span> <span class="dt">Nothing</span>
+    , _fto_min_caps   <span class="fu">=</span> <span class="dt">False</span>
+    , _fto_incl_caps  <span class="fu">=</span> <span class="dt">True</span>
     }
 
 <span class="ot">formatTokens&#39; ::</span> <span class="dt">FormatTokenOptions</span> <span class="ot">-&gt;</span> [<span class="dt">Token</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
@@ -206,7 +207,7 @@ formatTokens&#39; <span class="dt">FormatTokenOptions</span>{<span class="fu">..
       <span class="kw">where</span>
         t_s <span class="fu">=</span> <span class="kw">case</span> tk <span class="kw">of</span>
           <span class="dt">ECap</span>  mb <span class="ot">-&gt;</span> ecap mb
-          <span class="dt">PGrp</span>     <span class="ot">-&gt;</span> <span class="kw">if</span> _fto_regex_type <span class="fu">==</span> <span class="dt">Just</span> <span class="dt">TDFA</span> <span class="kw">then</span> <span class="st">&quot;(&quot;</span> <span class="kw">else</span> <span class="st">&quot;(?:&quot;</span>
+          <span class="dt">PGrp</span>     <span class="ot">-&gt;</span> <span class="kw">if</span> maybe <span class="dt">False</span> isTDFA _fto_regex_type <span class="kw">then</span> <span class="st">&quot;(&quot;</span> <span class="kw">else</span> <span class="st">&quot;(?:&quot;</span>
           <span class="dt">PCap</span>     <span class="ot">-&gt;</span> <span class="st">&quot;(?&quot;</span>
           <span class="dt">Bra</span>      <span class="ot">-&gt;</span> bra _fto_min_caps
           <span class="dt">BS</span>    c  <span class="ot">-&gt;</span> <span class="st">&quot;\\&quot;</span> <span class="fu">++</span> [c]
@@ -218,7 +219,7 @@ formatTokens&#39; <span class="dt">FormatTokenOptions</span>{<span class="fu">..
         <span class="dt">Just</span> nm <span class="ot">-&gt;</span> <span class="st">&quot;${&quot;</span><span class="fu">++</span>nm<span class="fu">++</span><span class="st">&quot;}(&quot;</span>
       <span class="dt">False</span> <span class="ot">-&gt;</span> bra _fto_min_caps
 
-    bra mc  <span class="fu">=</span> <span class="kw">case</span> mc <span class="fu">&amp;&amp;</span> _fto_regex_type <span class="fu">==</span> <span class="dt">Just</span> <span class="dt">PCRE</span> <span class="kw">of</span>
+    bra mc  <span class="fu">=</span> <span class="kw">case</span> mc <span class="fu">&amp;&amp;</span> maybe <span class="dt">False</span> isPCRE _fto_regex_type <span class="kw">of</span>
       <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="st">&quot;(?:&quot;</span>
       <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="st">&quot;(&quot;</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- this is a reference of formatTokens defFormatTokenOptions,</span>

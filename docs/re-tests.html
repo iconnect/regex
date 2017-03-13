@@ -139,8 +139,8 @@ main <span class="fu">=</span> defaultMain <span class="fu">$</span>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | check that our self-testing macro environments are good</span>
 <span class="ot">prelude_tests ::</span> <span class="dt">TestTree</span>
 prelude_tests <span class="fu">=</span> testGroup <span class="st">&quot;Prelude&quot;</span>
-  [ tc <span class="dt">TDFA</span> TDFA.preludeEnv
-  , tc <span class="dt">PCRE</span> PCRE.preludeEnv
+  [ tc TDFA.regexType TDFA.preludeEnv
+  , tc PCRE.regexType PCRE.preludeEnv
   ]
   <span class="kw">where</span>
     tc rty m_env <span class="fu">=</span>
@@ -563,7 +563,7 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
     <span class="co">-- because HPC can&#39;t measure our testing of [re|..|] forms,</span>
     <span class="co">-- we are eliminating them from our enquiries</span>
     , testGroup <span class="st">&quot;RE&quot;</span>
-        [ valid_res <span class="dt">TDFA</span>
+        [ valid_res TDFA.regexType
             [ TDFA.re
             , TDFA.reMS
             , TDFA.reMI
@@ -575,7 +575,7 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
             , TDFA.reBlockInsensitive
             , TDFA.re_
             ]
-        , testCase  <span class="st">&quot;TDFA.regexType&quot;</span>           <span class="fu">$</span> <span class="dt">TDFA</span>    <span class="fu">@=?</span> TDFA.regexType
+        , testCase  <span class="st">&quot;TDFA.regexType&quot;</span>           <span class="fu">$</span> assertBool <span class="st">&quot;TDFA&quot;</span> <span class="fu">$</span> isTDFA TDFA.regexType
         , testCase  <span class="st">&quot;TDFA.reOptions&quot;</span>           <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs (TDFA.reOptions tdfa_re)
         , testCase  <span class="st">&quot;TDFA.makeOptions md&quot;</span>      <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs tdfa_opts
         , testCase  <span class="st">&quot;TDFA.preludeTestsFailing&quot;</span> <span class="fu">$</span> []      <span class="fu">@=?</span> TDFA.preludeTestsFailing
@@ -591,7 +591,7 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
                 ]
     <span class="co">-- because HPC can&#39;t measure our testing of [re|..|] forms,</span>
     <span class="co">-- we are eliminating them from our enquiries</span>
-        , valid_res <span class="dt">PCRE</span>
+        , valid_res PCRE.regexType
             [ PCRE.re
             , PCRE.reMS
             , PCRE.reMI
@@ -603,7 +603,7 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
             , PCRE.reBlockInsensitive
             , PCRE.re_
             ]
-        , testCase  <span class="st">&quot;PCRE.regexType&quot;</span>           <span class="fu">$</span> <span class="dt">PCRE</span>    <span class="fu">@=?</span> PCRE.regexType
+        , testCase  <span class="st">&quot;PCRE.regexType&quot;</span>           <span class="fu">$</span> assertBool <span class="st">&quot;PCRE&quot;</span> <span class="fu">$</span> isPCRE PCRE.regexType
         , testCase  <span class="st">&quot;PCRE.reOptions&quot;</span>           <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs (PCRE.reOptions pcre_re)
         , testCase  <span class="st">&quot;PCRE.makeOptions md&quot;</span>      <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs pcre_opts
         , testCase  <span class="st">&quot;PCRE.preludeTestsFailing&quot;</span> <span class="fu">$</span> []      <span class="fu">@=?</span> PCRE.preludeTestsFailing
@@ -653,8 +653,8 @@ valid_macro label f <span class="fu">=</span> testGroup label
 
 <span class="ot">valid_string ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> (<span class="dt">RegexType</span><span class="ot">-&gt;</span><span class="dt">String</span>) <span class="ot">-&gt;</span> <span class="dt">TestTree</span>
 valid_string label f <span class="fu">=</span> testGroup label
-    [ ne_string (show rty) <span class="fu">$</span> f rty
-        <span class="fu">|</span> rty<span class="ot">&lt;-</span>[<span class="dt">TDFA</span>] <span class="co">-- until PCRE has a binding for all macros</span>
+    [ ne_string (presentRegexType rty) <span class="fu">$</span> f rty
+        <span class="fu">|</span> rty<span class="ot">&lt;-</span>[TDFA.regexType] <span class="co">-- until PCRE has a binding for all macros</span>
         ]
 
 <span class="ot">ne_string ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">TestTree</span>

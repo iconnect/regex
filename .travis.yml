@@ -170,7 +170,7 @@ script:
         cd ..
         echo "installing ${ppn}"
         tar xzf ${ptb}
-        sed -e "s/extra-deps: \\[\\]/extra-deps: [${lpn}]/" ${STACK_YAML} > ${epn}/${STACK_YAML}
+        sed -e "s/extra-deps: \\[\\]/extra-deps: [${lpn}]/" ${STACK_YAML} > ${ppn}/${STACK_YAML}
         cd ${ppn}
         stack --no-terminal $ARGS install --bench --coverage --no-run-benchmarks --haddock --no-haddock-deps
         cd ..

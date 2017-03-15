@@ -38,8 +38,6 @@ import           Text.RE.Types.CaptureID
 infixl 9 !$, !$$
 \end{code}
 
-
-
 \begin{code}
 -- | the result of matching a RE to a text once, listing the text that
 -- was matched and the named captures in the RE and all of the substrings

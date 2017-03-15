@@ -2,9 +2,9 @@
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE AllowAmbiguousTypes        #-}
 
-module Text.RE.IsRegex where
+module Text.RE.Types.IsRegex where
 
-import           Text.RE.Capture
+import           Text.RE.Types.Capture
 import           Text.RE.Replace
 \end{code}
 

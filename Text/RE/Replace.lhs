@@ -41,9 +41,9 @@ import qualified Data.Text.Encoding             as TE
 import qualified Data.Text.Lazy                 as LT
 import           Prelude.Compat
 import           Text.Heredoc
-import           Text.RE.Capture
-import           Text.RE.CaptureID
-import           Text.RE.Options
+import           Text.RE.Types.Capture
+import           Text.RE.Types.CaptureID
+import           Text.RE.Types.Options
 import           Text.Read
 import           Text.Regex.TDFA
 import           Text.Regex.TDFA.Text()

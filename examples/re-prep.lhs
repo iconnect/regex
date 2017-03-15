@@ -37,7 +37,7 @@ import           System.Environment
 import           System.IO
 import           TestKit
 import           Text.Heredoc
-import           Text.RE.Edit
+import           Text.RE.Tools.Edit
 import           Text.RE.TDFA.ByteString.Lazy
 import qualified Text.RE.TDFA.Text                        as TT
 \end{code}

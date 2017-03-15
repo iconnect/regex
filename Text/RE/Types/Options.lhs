@@ -5,7 +5,7 @@
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE FunctionalDependencies     #-}
 
-module Text.RE.Options where
+module Text.RE.Types.Options where
 
 import           Data.Hashable
 import qualified Data.HashMap.Strict        as HM

@@ -7,7 +7,7 @@
 \end{code}
 
 \begin{code}
-module Text.RE.Capture
+module Text.RE.Types.Capture
   ( Matches(..)
   , Match(..)
   , Capture(..)
@@ -43,7 +43,7 @@ import           Data.Array
 import           Data.Maybe
 import           Data.Typeable
 import           Text.Regex.Base
-import           Text.RE.CaptureID
+import           Text.RE.Types.CaptureID
 
 infixl 9 !$, !$$
 \end{code}

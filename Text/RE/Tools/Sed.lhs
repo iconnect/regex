@@ -15,9 +15,9 @@ module Text.RE.Tools.Sed
 
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Prelude.Compat
-import           Text.RE.Edit
-import           Text.RE.LineNo
-import           Text.RE.IsRegex
+import           Text.RE.Tools.Edit
+import           Text.RE.Types.LineNo
+import           Text.RE.Types.IsRegex
 
 
 type SedScript re = Edits IO re LBS.ByteString

@@ -31,7 +31,7 @@ import qualified Data.Text                                as T
 import           Prelude.Compat
 import           System.Environment
 import           TestKit
-import           Text.RE.Edit
+import           Text.RE.Tools.Edit
 import           Text.RE.TDFA.ByteString.Lazy
 \end{code}
 

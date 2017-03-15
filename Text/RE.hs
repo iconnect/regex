@@ -127,13 +127,13 @@ module Text.RE
   , sed'
   ) where
 
-import           Text.RE.Capture
-import           Text.RE.CaptureID
-import           Text.RE.Edit
-import           Text.RE.IsRegex
-import           Text.RE.LineNo
-import           Text.RE.Options
-import           Text.RE.Parsers
+import           Text.RE.Types.Capture
+import           Text.RE.Types.CaptureID
+import           Text.RE.Tools.Edit
+import           Text.RE.Types.IsRegex
+import           Text.RE.Types.LineNo
+import           Text.RE.Types.Options
+import           Text.RE.TestBench.Parsers
 import           Text.RE.Replace
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Lex

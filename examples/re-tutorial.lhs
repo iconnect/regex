@@ -262,7 +262,7 @@ The type of `*=~` in this module (imported from
 (*=~) :: String -> RE -> Matches String
 ```
 </div>
-with `Matches` defined in `Text.RE.Capture` thus:
+with `Matches` defined in `Text.RE.Types.Capture` thus:
 
 %include "Text/RE/Capture.lhs" "^data Matches "
 
@@ -279,7 +279,7 @@ The type of `?=~` in this module (imported from
 ```
 </div>
 with `Match` (referenced in the definition of `Matches` above) defined
-in `Text.RE.Capture` thus:
+in `Text.RE.Types.Capture` thus:
 
 %include "Text/RE/Capture.lhs" "^data Match "
 
@@ -466,7 +466,7 @@ accordingly so that you don't have to, but you may need full access to
 you chosen back end's options, or you may need to supply a different
 set of macros to those provided in the standard environment. In which
 case you will need to know about the `Options` type, defined by each of
-the back ends in terms of the `Options_` type of `Text.RE.Options`
+the back ends in terms of the `Options_` type of `Text.RE.Types.Options`
 as follows.
 <div class='inlinecodeblock'>
 ```
@@ -476,7 +476,7 @@ type Options = Options_ RE CompOption ExecOption
 (Bear in mind that `CompOption` and `ExecOption` will be different
 types for each back end.)
 
-The `Options_` type is defined in `Text.RE.Options` as follows:
+The `Options_` type is defined in `Text.RE.Types.Options` as follows:
 
 %include "Text/RE/Options.lhs" "data Options_"
 
@@ -579,7 +579,7 @@ regex conterparts.
     except as a development prototype (used internally in
     [Text.RE.Internal.NamedCaptures](NamedCaptures.html)).
 
-  * [Text.RE.Tools.Sed](Sed.html) using [Text.RE.Edit](Edit.html):
+  * [Text.RE.Tools.Sed](Sed.html) using [Text.RE.Tools.Edit](Edit.html):
     takes an association list of regular expressions and substitution actions,
     some input text and invokes the associated action on each line of the file
     that matches one of the REs, substituting the text returned from the action

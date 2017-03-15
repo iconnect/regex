@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Text.RE.LineNo where
+module Text.RE.Types.LineNo where
 
 
 newtype LineNo =

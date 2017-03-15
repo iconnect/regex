@@ -84,7 +84,7 @@ re_                      = re'   Nothing
 
 regexType :: RegexType
 regexType =
-  PCRE $ \txt env md -> txt =~ mdRegexSource regexType ExclCaptures env md
+  mkPCRE $ \txt env md -> txt =~ mdRegexSource regexType ExclCaptures env md
 
 data RE =
   RE

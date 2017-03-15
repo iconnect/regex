@@ -83,7 +83,7 @@ re_                      = re'   Nothing
 
 regexType :: RegexType
 regexType =
-  TDFA $ \txt env md -> txt =~ mdRegexSource regexType ExclCaptures env md
+  mkTDFA $ \txt env md -> txt =~ mdRegexSource regexType ExclCaptures env md
 
 data RE =
   RE

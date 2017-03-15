@@ -8,7 +8,7 @@
 #endif
 
 module Text.RE.Internal.PreludeMacros
-  ( RegexType(..)
+  ( RegexType
   , WithCaptures(..)
   , MacroDescriptor(..)
   , RegexSource(..)
@@ -30,8 +30,8 @@ import           Data.Maybe
 import qualified Data.Text                    as T
 import           Data.Time
 import           Prelude.Compat
-import           Text.RE.Options
-import           Text.RE.Parsers
+import           Text.RE.Types.Options
+import           Text.RE.TestBench.Parsers
 import           Text.RE.TestBench
 
 
@@ -266,17 +266,18 @@ string_macro :: RegexType
              -> MacroEnv
              -> PreludeMacro
              -> Maybe MacroDescriptor
-string_macro     (PCRE _) _  _   = Nothing
-string_macro rty@(TDFA _) env pm =
-  Just $ run_tests rty (fmap T.unpack . parseString) samples env pm
-    MacroDescriptor
-      { _md_source          = "\"(?:[^\"\\]+|\\\\[\\\"])*\""
-      , _md_samples         = map fst samples
-      , _md_counter_samples = counter_samples
-      , _md_test_results    = []
-      , _md_parser          = Just "parseString"
-      , _md_description     = "a double-quote string, with simple \\ escapes for \\s and \"s"
-      }
+string_macro rty env pm
+  | isPCRE rty = Nothing
+  | otherwise  =
+    Just $ run_tests rty (fmap T.unpack . parseString) samples env pm
+      MacroDescriptor
+        { _md_source          = "\"(?:[^\"\\]+|\\\\[\\\"])*\""
+        , _md_samples         = map fst samples
+        , _md_counter_samples = counter_samples
+        , _md_test_results    = []
+        , _md_parser          = Just "parseString"
+        , _md_description     = "a double-quote string, with simple \\ escapes for \\s and \"s"
+        }
   where
     samples :: [(String,String)]
     samples =
@@ -788,9 +789,9 @@ syslog_severity_macro rty env pm =
         , "ALERT"
         ]
 
-    re = case rty of
-      PCRE _ -> re_pcre
-      TDFA _ -> re_tdfa
+    re = if isPCRE rty
+      then re_pcre
+      else re_tdfa
 
     re_tdfa = bracketedRegexSource $
           intercalate "|" $

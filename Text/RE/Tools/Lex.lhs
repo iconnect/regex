@@ -4,8 +4,8 @@
 module Text.RE.Tools.Lex where
 
 import           Prelude.Compat
-import           Text.RE.Capture
-import           Text.RE.IsRegex
+import           Text.RE.Types.Capture
+import           Text.RE.Types.IsRegex
 import           Text.RE.Replace
 
 

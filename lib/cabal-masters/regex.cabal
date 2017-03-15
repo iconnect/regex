@@ -6,18 +6,12 @@ Library
     Hs-Source-Dirs:     .
     Exposed-Modules:
       Text.RE
-      Text.RE.Capture
-      Text.RE.CaptureID
-      Text.RE.Edit
       Text.RE.Internal.AddCaptureNames
       Text.RE.Internal.EscapeREString
       Text.RE.Internal.NamedCaptures
       Text.RE.Internal.PreludeMacros
       Text.RE.Internal.QQ
-      Text.RE.IsRegex
-      Text.RE.LineNo
-      Text.RE.Options
-      Text.RE.Parsers
+      Text.RE.Types.IsRegex
       Text.RE.Replace
       Text.RE.TDFA
       Text.RE.TDFA.ByteString
@@ -28,9 +22,15 @@ Library
       Text.RE.TDFA.Text
       Text.RE.TDFA.Text.Lazy
       Text.RE.TestBench
+      Text.RE.TestBench.Parsers
+      Text.RE.Tools.Edit
       Text.RE.Tools.Grep
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
+      Text.RE.Types.Capture
+      Text.RE.Types.CaptureID
+      Text.RE.Types.LineNo
+      Text.RE.Types.Options
 
 %build-depends array bytestring base base-compat containers hashable heredoc regex-base regex-tdfa regex-tdfa-text template-haskell text time time-locale-compat transformers unordered-containers
 

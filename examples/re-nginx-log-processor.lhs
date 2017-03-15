@@ -41,8 +41,8 @@ import           System.Directory
 import           System.Environment
 import           System.Exit
 import           System.IO
-import           Text.RE.Options
-import           Text.RE.Parsers
+import           Text.RE.Types.Options
+import           Text.RE.TestBench.Parsers
 import           Text.RE.TestBench
 import           Text.RE.PCRE.ByteString.Lazy
 import qualified Text.RE.PCRE.String                      as S

@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-warnings-deprecations #-}
 {-# LANGUAGE OverloadedStrings                  #-}
 
-module Text.RE.Parsers
+module Text.RE.TestBench.Parsers
   ( parseInteger
   , parseHex
   , parseDouble

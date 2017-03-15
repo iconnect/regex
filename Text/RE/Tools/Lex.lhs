@@ -6,7 +6,8 @@ module Text.RE.Tools.Lex where
 import           Prelude.Compat
 import           Text.RE.Types.Capture
 import           Text.RE.Types.IsRegex
-import           Text.RE.Replace
+import           Text.RE.Types.Match
+import           Text.RE.Types.Replace
 
 
 alex :: IsRegex re s => [(re,Match s->Maybe t)] -> t -> s -> [t]

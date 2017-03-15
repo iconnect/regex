@@ -16,9 +16,9 @@ module Text.RE.Tools.Grep
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Prelude.Compat
 import           Text.Printf
-import           Text.RE.Types.Capture
 import           Text.RE.Types.IsRegex
 import           Text.RE.Types.LineNo
+import           Text.RE.Types.Matches
 
 
 data Line =

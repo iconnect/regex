@@ -46,7 +46,7 @@ Library
       Text.RE.Internal.PreludeMacros
       Text.RE.Internal.QQ
       Text.RE.Types.IsRegex
-      Text.RE.Replace
+      Text.RE.Types.Replace
       Text.RE.TDFA
       Text.RE.TDFA.ByteString
       Text.RE.TDFA.ByteString.Lazy
@@ -62,8 +62,11 @@ Library
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
       Text.RE.Types.Capture
+      Text.RE.Types.Capture
       Text.RE.Types.CaptureID
       Text.RE.Types.LineNo
+      Text.RE.Types.Match
+      Text.RE.Types.Matches
       Text.RE.Types.Options
 
     Default-Language:   Haskell2010

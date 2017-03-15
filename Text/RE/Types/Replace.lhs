@@ -6,7 +6,7 @@
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 
-module Text.RE.Replace
+module Text.RE.Types.Replace
   ( Replace(..)
   , ReplaceMethods(..)
   , replaceMethods
@@ -43,6 +43,8 @@ import           Prelude.Compat
 import           Text.Heredoc
 import           Text.RE.Types.Capture
 import           Text.RE.Types.CaptureID
+import           Text.RE.Types.Match
+import           Text.RE.Types.Matches
 import           Text.RE.Types.Options
 import           Text.Read
 import           Text.Regex.TDFA

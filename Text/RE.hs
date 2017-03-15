@@ -132,9 +132,11 @@ import           Text.RE.Types.CaptureID
 import           Text.RE.Tools.Edit
 import           Text.RE.Types.IsRegex
 import           Text.RE.Types.LineNo
+import           Text.RE.Types.Match
+import           Text.RE.Types.Matches
 import           Text.RE.Types.Options
 import           Text.RE.TestBench.Parsers
-import           Text.RE.Replace
+import           Text.RE.Types.Replace
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Lex
 import           Text.RE.Tools.Sed

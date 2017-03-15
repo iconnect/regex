@@ -19,9 +19,11 @@ module Text.RE.Tools.Edit
 import           Data.Maybe
 import           Prelude.Compat
 import           Text.RE.Types.Capture
+import           Text.RE.Types.Match
+import           Text.RE.Types.Matches
 import           Text.RE.Types.IsRegex
 import           Text.RE.Types.LineNo
-import           Text.RE.Replace
+import           Text.RE.Types.Replace
 
 
 data Edits m re s

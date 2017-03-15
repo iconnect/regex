@@ -47,7 +47,9 @@ import           Text.Printf
 import           Prelude.Compat
 import           Text.RE.Types.Capture
 import           Text.RE.Types.Options
-import           Text.RE.Replace
+import           Text.RE.Types.Match
+import           Text.RE.Types.Matches
+import           Text.RE.Types.Replace
 \end{code}
 
 Types

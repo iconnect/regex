@@ -32,7 +32,7 @@ import qualified Data.Time.Locale.Compat    as LC
 import           Data.Word
 import           Text.Printf
 import           Text.Read
-import           Text.RE.Replace
+import           Text.RE.Types.Replace
 
 
 parseInteger :: Replace a => a -> Maybe Int

@@ -389,7 +389,7 @@ The `replaceAllCaptures` function is of type
 %include "Text/RE/Replace.lhs" "replaceAllCaptures ::"
 
 and the `Context` and `Location` types are defined in
-`Text.RE.Replace` as follows,
+`Text.RE.Types.Replace` as follows,
 
 %include "Text/RE/Replace.lhs" "^data Context"
 
@@ -429,7 +429,7 @@ The `fixup_and_reformat_dates` applied to our running example,
 evalme_RPF_02 = checkThis "evalme_RPF_02" ("[2016-01-09] [2015-12-05] [2015-10-05]") $ fixup_and_reformat_dates "2016-01-09 2015-12-5 2015-10-05"
 \end{code}
 
-`Text.RE.Replace` provides analagous functions for replacing the
+`Text.RE.Types.Replace` provides analagous functions for replacing the
 test of a single `Match` returned from `?=~`.
 
 
@@ -702,7 +702,7 @@ For example:
 evalme_PMC_00 = checkThis "evalme_PMC_00" ("foo MacroID {getMacroID = \"bar\"} baz") $ expandMacros_ (Just . show) "foo @{bar} baz"
 \end{code}
 
-See [Text.RE.Replace](Replace.html) for details.
+See [Text.RE.Types.Replace](Replace.html) for details.
 
 
 Example: Parsing Replace Templates
@@ -751,7 +751,7 @@ This should yield `"2016/01/11"`:
 evalme_TPL_00 = checkThis "evalme_TPL_00" ("2016/01/11") $ date_reformat "2016-01-11"
 \end{code}
 
-See [Text.RE.Replace](Replace.html)
+See [Text.RE.Types.Replace](Replace.html)
 
 
 Example: include preprocessor

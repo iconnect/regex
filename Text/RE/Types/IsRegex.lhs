@@ -4,8 +4,9 @@
 
 module Text.RE.Types.IsRegex where
 
-import           Text.RE.Types.Capture
-import           Text.RE.Replace
+import           Text.RE.Types.Match
+import           Text.RE.Types.Matches
+import           Text.RE.Types.Replace
 \end{code}
 
 

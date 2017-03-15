@@ -53,7 +53,11 @@ two packages:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-13  v0.6.0.0  [Split out PCRE](https://github.com/iconnect/regex/milestone/7)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-13  v0.6.0.1  [Fix .travis.yml release-stack scriptRE](https://github.com/iconnect/regex/milestone/7)
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-13  v0.6.0.1  [Fix .travis.yml release-stack script](https://github.com/iconnect/regex/issues/67)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-15  v0.7.0.0  [Better organization of API](https://github.com/iconnect/regex/milestone/8)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-03-17  v0.8.0.0  [Add type-safe replacement templates and use TemplateHaskellQuotes](https://github.com/iconnect/regex/milestone/9)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-03-20  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 

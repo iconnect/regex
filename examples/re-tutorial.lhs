@@ -264,7 +264,7 @@ The type of `*=~` in this module (imported from
 </div>
 with `Matches` defined in `Text.RE.Types.Capture` thus:
 
-%include "Text/RE/Capture.lhs" "^data Matches "
+%include "Text/RE/Types/Matches.lhs" "^data Matches "
 
 The critical component of the `Matches` type is the `[Match a]` in
 `allMatches`, containing the details all of each substring matched by
@@ -281,7 +281,7 @@ The type of `?=~` in this module (imported from
 with `Match` (referenced in the definition of `Matches` above) defined
 in `Text.RE.Types.Capture` thus:
 
-%include "Text/RE/Capture.lhs" "^data Match "
+%include "Text/RE/Types/Match.lhs" "^data Match "
 
 Like `matchesSource` above, `matchSource` retains the original search
 string, but also a `CaptureNames` field listing all of the capture
@@ -295,7 +295,7 @@ on.
 
 Each captured substring is represented by the following `Capture` type:
 
-%include "Text/RE/Capture.lhs" "^data Capture "
+%include "Text/RE/Types/Capture.lhs" "^data Capture "
 
 Here we list the whole original search string in `captureSource` and
 the text of the sub-string captured in `capturedText`. `captureOffset`
@@ -386,12 +386,12 @@ evalme_RPF_01 = checkThis "evalme_RPF_01" ("2016-01-09 2015-12-05 2015-10-05") $
 
 The `replaceAllCaptures` function is of type
 
-%include "Text/RE/Replace.lhs" "replaceAllCaptures ::"
+%include "Text/RE/Types/Replace.lhs" "replaceAllCaptures ::"
 
 and the `Context` and `Location` types are defined in
 `Text.RE.Types.Replace` as follows,
 
-%include "Text/RE/Replace.lhs" "^data Context"
+%include "Text/RE/Types/Replace.lhs" "^data Context"
 
 The processing function gets applied to the captures specified by the
 `Context`, which can be directed to process `ALL` of the captures,
@@ -478,7 +478,7 @@ types for each back end.)
 
 The `Options_` type is defined in `Text.RE.Types.Options` as follows:
 
-%include "Text/RE/Options.lhs" "data Options_"
+%include "Text/RE/Types/Options.lhs" "data Options_"
 
   * `optionsMode` is an experimental feature that controls the RE
     parser.
@@ -515,7 +515,7 @@ REs. Your configuration-type options are:
   * `SimpleRegexOptions` this is just a simple enum type that we use to
     encode the standard options:
 
-%include "Text/RE/Options.lhs" "^data SimpleRegexOptions"
+%include "Text/RE/Types/Options.lhs" "^data SimpleRegexOptions"
 
   * `Mode`: you can specify the parser mode;
 

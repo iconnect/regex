@@ -1,5 +1,11 @@
 -*-change-log-*-
 
+0.7.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-15
+  * Better package organisation (#73)
+  * Generalise sed' in progress (#72)
+  * compileRegex to take just a string (#68)
+  * Fix comment reference in Text.RE.PCRE in progress (#66)
+
 0.6.0.1 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-13
   * Fix .travis.yml release-stack script (#67)
 

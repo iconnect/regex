@@ -88,8 +88,8 @@ main = defaultMain $
 -- | check that our self-testing macro environments are good
 prelude_tests :: TestTree
 prelude_tests = testGroup "Prelude"
-  [ tc TDFA TDFA.preludeEnv
-  , tc PCRE PCRE.preludeEnv
+  [ tc TDFA.regexType TDFA.preludeEnv
+  , tc PCRE.regexType PCRE.preludeEnv
   ]
   where
     tc rty m_env =
@@ -553,7 +553,7 @@ misc_tests = testGroup "Miscelaneous Tests"
     -- because HPC can't measure our testing of [re|..|] forms,
     -- we are eliminating them from our enquiries
     , testGroup "RE"
-        [ valid_res TDFA
+        [ valid_res TDFA.regexType
             [ TDFA.re
             , TDFA.reMS
             , TDFA.reMI
@@ -565,7 +565,7 @@ misc_tests = testGroup "Miscelaneous Tests"
             , TDFA.reBlockInsensitive
             , TDFA.re_
             ]
-        , testCase  "TDFA.regexType"           $ TDFA    @=? TDFA.regexType
+        , testCase  "TDFA.regexType"           $ assertBool "TDFA" $ isTDFA TDFA.regexType
         , testCase  "TDFA.reOptions"           $ assert_empty_macs $ optionsMacs (TDFA.reOptions tdfa_re)
         , testCase  "TDFA.makeOptions md"      $ assert_empty_macs $ optionsMacs tdfa_opts
         , testCase  "TDFA.preludeTestsFailing" $ []      @=? TDFA.preludeTestsFailing
@@ -581,7 +581,7 @@ misc_tests = testGroup "Miscelaneous Tests"
                 ]
     -- because HPC can't measure our testing of [re|..|] forms,
     -- we are eliminating them from our enquiries
-        , valid_res PCRE
+        , valid_res PCRE.regexType
             [ PCRE.re
             , PCRE.reMS
             , PCRE.reMI
@@ -593,7 +593,7 @@ misc_tests = testGroup "Miscelaneous Tests"
             , PCRE.reBlockInsensitive
             , PCRE.re_
             ]
-        , testCase  "PCRE.regexType"           $ PCRE    @=? PCRE.regexType
+        , testCase  "PCRE.regexType"           $ assertBool "PCRE" $ isPCRE PCRE.regexType
         , testCase  "PCRE.reOptions"           $ assert_empty_macs $ optionsMacs (PCRE.reOptions pcre_re)
         , testCase  "PCRE.makeOptions md"      $ assert_empty_macs $ optionsMacs pcre_opts
         , testCase  "PCRE.preludeTestsFailing" $ []      @=? PCRE.preludeTestsFailing
@@ -643,8 +643,8 @@ valid_macro label f = testGroup label
 
 valid_string :: String -> (RegexType->String) -> TestTree
 valid_string label f = testGroup label
-    [ ne_string (show rty) $ f rty
-        | rty<-[TDFA] -- until PCRE has a binding for all macros
+    [ ne_string (presentRegexType rty) $ f rty
+        | rty<-[TDFA.regexType] -- until PCRE has a binding for all macros
         ]
 
 ne_string :: String -> String -> TestTree

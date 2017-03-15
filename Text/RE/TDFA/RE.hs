@@ -82,7 +82,8 @@ reBlockInsensitive       = re' $ Just  BlockInsensitive
 re_                      = re'   Nothing
 
 regexType :: RegexType
-regexType = TDFA
+regexType =
+  TDFA $ \txt env md -> txt =~ mdRegexSource regexType ExclCaptures env md
 
 data RE =
   RE
@@ -221,27 +222,27 @@ compileRegex' Options{..} s0 = do
     s1 = expandMacros reSource optionsMacs s0
 
 prelude :: Macros RE
-prelude = runIdentity $ preludeMacros mk TDFA ExclCaptures
+prelude = runIdentity $ preludeMacros mk regexType ExclCaptures
   where
     mk = Identity . unsafeCompileRegex_ noPreludeOptions
 
 preludeEnv :: MacroEnv
-preludeEnv = preludeMacroEnv TDFA
+preludeEnv = preludeMacroEnv regexType
 
 preludeTestsFailing :: [MacroID]
-preludeTestsFailing = badMacros $ preludeMacroEnv TDFA
+preludeTestsFailing = badMacros $ preludeMacroEnv regexType
 
 preludeTable :: String
-preludeTable = preludeMacroTable TDFA
+preludeTable = preludeMacroTable regexType
 
 preludeSummary :: PreludeMacro -> String
-preludeSummary = preludeMacroSummary TDFA
+preludeSummary = preludeMacroSummary regexType
 
 preludeSources :: String
-preludeSources = preludeMacroSources TDFA
+preludeSources = preludeMacroSources regexType
 
 preludeSource :: PreludeMacro -> String
-preludeSource = preludeMacroSource TDFA
+preludeSource = preludeMacroSource regexType
 
 escape :: (String->String) -> String -> RE
 escape f = unsafeCompileRegex () . f . escapeREString

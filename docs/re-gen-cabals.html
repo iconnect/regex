@@ -108,9 +108,10 @@ main <span class="fu">=</span> <span class="kw">do</span>
     [<span class="st">&quot;bump-version&quot;</span>,vrn]  <span class="ot">-&gt;</span> bumpVersion vrn
     [<span class="st">&quot;sdist&quot;</span>]             <span class="ot">-&gt;</span> sdist
     [<span class="st">&quot;gen&quot;</span>]               <span class="ot">-&gt;</span> <span class="kw">do</span>
-      gen  <span class="st">&quot;lib/cabal-masters/mega-regex.cabal&quot;</span>     <span class="st">&quot;lib/mega-regex.cabal&quot;</span>
-      gen  <span class="st">&quot;lib/cabal-masters/regex.cabal&quot;</span>          <span class="st">&quot;lib/regex.cabal&quot;</span>
-      gen  <span class="st">&quot;lib/cabal-masters/regex-examples.cabal&quot;</span> <span class="st">&quot;lib/regex-examples.cabal&quot;</span>
+      gen  <span class="st">&quot;lib/cabal-masters/mega-regex.cabal&quot;</span>       <span class="st">&quot;lib/mega-regex.cabal&quot;</span>
+      gen  <span class="st">&quot;lib/cabal-masters/regex.cabal&quot;</span>            <span class="st">&quot;lib/regex.cabal&quot;</span>
+      gen  <span class="st">&quot;lib/cabal-masters/regex-with-pcre.cabal&quot;</span>  <span class="st">&quot;lib/regex-with-pcre.cabal&quot;</span>
+      gen  <span class="st">&quot;lib/cabal-masters/regex-examples.cabal&quot;</span>   <span class="st">&quot;lib/regex-examples.cabal&quot;</span>
       establish <span class="st">&quot;mega-regex&quot;</span> <span class="st">&quot;regex&quot;</span>
     _                     <span class="ot">-&gt;</span> <span class="kw">do</span>
       <span class="kw">let</span> prg <span class="fu">=</span> ((<span class="st">&quot;  &quot;</span><span class="fu">++</span>pn<span class="fu">++</span><span class="st">&quot; &quot;</span>)<span class="fu">++</span>)
@@ -143,6 +144,7 @@ gen in_f out_f <span class="fu">=</span> <span class="kw">do</span>
 <span class="kw">data</span> <span class="dt">Ctx</span> <span class="fu">=</span>
   <span class="dt">Ctx</span>
     {<span class="ot"> _ctx_w_error             ::</span> <span class="dt">IORef</span> <span class="dt">Bool</span>
+    ,<span class="ot"> _ctx_filter_pcre         ::</span> <span class="dt">IORef</span> <span class="dt">Bool</span>
     ,<span class="ot"> _ctx_package_constraints ::</span> <span class="dt">IORef</span> (<span class="dt">Map.Map</span> <span class="dt">LBS.ByteString</span> <span class="dt">LBS.ByteString</span>)
     ,<span class="ot"> _ctx_test_exe            ::</span> <span class="dt">IORef</span> (<span class="dt">Maybe</span> <span class="dt">TestExe</span>)
     }
@@ -157,12 +159,13 @@ gen in_f out_f <span class="fu">=</span> <span class="kw">do</span>
   <span class="kw">deriving</span> (<span class="dt">Show</span>)
 
 <span class="ot">setup ::</span> <span class="dt">IO</span> <span class="dt">Ctx</span>
-setup <span class="fu">=</span> <span class="dt">Ctx</span> <span class="fu">&lt;$&gt;</span> (newIORef <span class="dt">True</span>) <span class="fu">&lt;*&gt;</span> (newIORef Map.empty) <span class="fu">&lt;*&gt;</span> (newIORef <span class="dt">Nothing</span>)
+setup <span class="fu">=</span> <span class="dt">Ctx</span> <span class="fu">&lt;$&gt;</span> (newIORef <span class="dt">True</span>) <span class="fu">&lt;*&gt;</span> (newIORef <span class="dt">False</span>) <span class="fu">&lt;*&gt;</span> (newIORef Map.empty) <span class="fu">&lt;*&gt;</span> (newIORef <span class="dt">Nothing</span>)
 
 <span class="ot">gc_script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">SedScript</span> <span class="dt">RE</span>
 gc_script ctx <span class="fu">=</span> <span class="dt">Select</span>
     [ (,) [re|^%Werror$|]                                      <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> w_error_gen              ctx
     , (,) [re|^%Wwarn$|]                                       <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> w_warn_gen               ctx
+    , (,) [re|^%filter-regex-with-pcre$|]                      <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> w_filter_pcre            ctx
     , (,) [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]             <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> cond_gen                 ctx
     , (,) [re|^%build-depends +${list}(@{%id-}( +@{%id-})+)$|] <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> build_depends_gen        ctx
     , (,) [re|^%test +${i}(@{%id-})$|]                         <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> test_exe_gen <span class="dt">True</span>  <span class="dt">False</span> ctx
@@ -171,14 +174,15 @@ gc_script ctx <span class="fu">=</span> <span class="dt">Select</span>
     , (,) [re|^.*$|]                                           <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> default_gen              ctx
     ]
 
-w_error_gen, w_warn_gen, cond_gen, build_depends_gen,
+w_error_gen, w_warn_gen, w_filter_pcre, cond_gen, build_depends_gen,
 <span class="ot">  default_gen ::</span> <span class="dt">Ctx</span>
               <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
               <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
               <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
 
-w_error_gen <span class="dt">Ctx</span>{<span class="fu">..</span>} _ _ <span class="fu">=</span> writeIORef _ctx_w_error <span class="dt">True</span>  <span class="fu">&gt;&gt;</span> return <span class="dt">Delete</span>
-w_warn_gen  <span class="dt">Ctx</span>{<span class="fu">..</span>} _ _ <span class="fu">=</span> writeIORef _ctx_w_error <span class="dt">False</span> <span class="fu">&gt;&gt;</span> return <span class="dt">Delete</span>
+w_error_gen   <span class="dt">Ctx</span>{<span class="fu">..</span>} _ _ <span class="fu">=</span> writeIORef _ctx_w_error     <span class="dt">True</span>  <span class="fu">&gt;&gt;</span> return <span class="dt">Delete</span>
+w_warn_gen    <span class="dt">Ctx</span>{<span class="fu">..</span>} _ _ <span class="fu">=</span> writeIORef _ctx_w_error     <span class="dt">False</span> <span class="fu">&gt;&gt;</span> return <span class="dt">Delete</span>
+w_filter_pcre <span class="dt">Ctx</span>{<span class="fu">..</span>} _ _ <span class="fu">=</span> writeIORef _ctx_filter_pcre <span class="dt">True</span>  <span class="fu">&gt;&gt;</span> return <span class="dt">Delete</span>
 
 cond_gen <span class="dt">Ctx</span>{<span class="fu">..</span>} _ mtchs <span class="fu">=</span> <span class="kw">do</span>
     modifyIORef _ctx_package_constraints <span class="fu">$</span> Map.insert pkg cond
@@ -191,8 +195,9 @@ cond_gen <span class="dt">Ctx</span>{<span class="fu">..</span>} _ mtchs <span c
 
 build_depends_gen ctx<span class="fu">@</span><span class="dt">Ctx</span>{<span class="fu">..</span>} _ mtchs <span class="fu">=</span> <span class="kw">do</span>
     we <span class="ot">&lt;-</span> readIORef _ctx_w_error
+    fp <span class="ot">&lt;-</span> readIORef _ctx_filter_pcre
     mp <span class="ot">&lt;-</span> readIORef _ctx_package_constraints
-    put ctx <span class="fu">$</span> mk_build_depends we mp lst
+    put ctx <span class="fu">$</span> mk_build_depends we fp mp lst
   <span class="kw">where</span>
     lst  <span class="fu">=</span> LBS.words <span class="fu">$</span> captureText [cp|list|] mtch
     mtch <span class="fu">=</span> allMatches mtchs <span class="fu">!!</span> <span class="dv">0</span>
@@ -258,10 +263,11 @@ mk_test_exe is_t te te_lbs_kw <span class="fu">=</span> (<span class="fu">&lt;&g
       <span class="dt">False</span> <span class="ot">-&gt;</span> LBS.unpack <span class="fu">$</span> _te_name te
 
 <span class="ot">mk_build_depends ::</span> <span class="dt">Bool</span>
+                 <span class="ot">-&gt;</span> <span class="dt">Bool</span>
                  <span class="ot">-&gt;</span> <span class="dt">Map.Map</span> <span class="dt">LBS.ByteString</span> <span class="dt">LBS.ByteString</span>
                  <span class="ot">-&gt;</span> [<span class="dt">LBS.ByteString</span>]
                  <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
-mk_build_depends we mp pks <span class="fu">=</span> LBS.unlines <span class="fu">$</span>
+mk_build_depends we fp mp pks0 <span class="fu">=</span> LBS.unlines <span class="fu">$</span>
         [ <span class="st">&quot;    Default-Language:   Haskell2010&quot;</span>
         , <span class="st">&quot;    GHC-Options:&quot;</span>
         , <span class="st">&quot;      -Wall&quot;</span>
@@ -275,6 +281,10 @@ mk_build_depends we mp pks <span class="fu">=</span> LBS.unlines <span class="fu
       <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="st">&quot;-Werror&quot;</span>
       <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="st">&quot;-Wwarn&quot;</span>
 
+    pks <span class="fu">=</span> <span class="kw">case</span> fp <span class="kw">of</span>
+      <span class="dt">False</span> <span class="ot">-&gt;</span> pks0
+      <span class="dt">True</span>  <span class="ot">-&gt;</span> filter (<span class="fu">/=</span> <span class="st">&quot;regex-with-pcre&quot;</span>) pks0
+
     fmt (isf,pk) <span class="fu">=</span> LBS.pack <span class="fu">$</span>
       printf <span class="st">&quot;      %c %-20s %s&quot;</span>
         (<span class="kw">if</span> isf <span class="kw">then</span> <span class="ch">&#39; &#39;</span> <span class="kw">else</span> <span class="ch">&#39;,&#39;</span>)
@@ -285,7 +295,11 @@ mk_build_depends we mp pks <span class="fu">=</span> LBS.unlines <span class="fu
       (<span class="dt">True</span> ,<span class="dt">True</span> ) <span class="ot">-&gt;</span> <span class="dt">EQ</span>
       (<span class="dt">True</span> ,<span class="dt">False</span>) <span class="ot">-&gt;</span> <span class="dt">LT</span>
       (<span class="dt">False</span>,<span class="dt">True</span> ) <span class="ot">-&gt;</span> <span class="dt">GT</span>
-      (<span class="dt">False</span>,<span class="dt">False</span>) <span class="ot">-&gt;</span> compare x y
+      (<span class="dt">False</span>,<span class="dt">False</span>) <span class="ot">-&gt;</span> <span class="kw">case</span> (x<span class="fu">==</span><span class="st">&quot;regex-with-pcre&quot;</span>,y<span class="fu">==</span><span class="st">&quot;regex-with-pcre&quot;</span>) <span class="kw">of</span>
+        (<span class="dt">True</span> ,<span class="dt">True</span> ) <span class="ot">-&gt;</span> <span class="dt">EQ</span>
+        (<span class="dt">True</span> ,<span class="dt">False</span>) <span class="ot">-&gt;</span> <span class="dt">LT</span>
+        (<span class="dt">False</span>,<span class="dt">True</span> ) <span class="ot">-&gt;</span> <span class="dt">GT</span>
+        (<span class="dt">False</span>,<span class="dt">False</span>) <span class="ot">-&gt;</span> compare x y
 
 <span class="ot">adjust_le ::</span> (<span class="dt">LBS.ByteString</span><span class="ot">-&gt;</span><span class="dt">LBS.ByteString</span>)
           <span class="ot">-&gt;</span> <span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>
@@ -296,8 +310,9 @@ adjust_le f le <span class="fu">=</span> <span class="kw">case</span> le <span c
   <span class="dt">Delete</span>          <span class="ot">-&gt;</span> <span class="dt">ReplaceWith</span> <span class="fu">$</span> f <span class="st">&quot;&quot;</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">sdist ::</span> <span class="dt">IO</span> ()
 sdist <span class="fu">=</span> <span class="kw">do</span>
-  sdist&#39;    <span class="st">&quot;regex&quot;</span>
-  sdist&#39;    <span class="st">&quot;regex-examples&quot;</span>
+  sdist&#39;    <span class="st">&quot;regex&quot;</span>            <span class="st">&quot;lib/README-regex.md&quot;</span>
+  sdist&#39;    <span class="st">&quot;regex-with-pcre&quot;</span>  <span class="st">&quot;lib/README-regex.md&quot;</span>
+  sdist&#39;    <span class="st">&quot;regex-examples&quot;</span>   <span class="st">&quot;lib/README-regex-examples.md&quot;</span>
   establish <span class="st">&quot;mega-regex&quot;</span> <span class="st">&quot;regex&quot;</span>
   vrn_t <span class="ot">&lt;-</span> T.pack <span class="fu">.</span> presentVrn <span class="fu">&lt;$&gt;</span> readCurrentVersion
   smy_t <span class="ot">&lt;-</span> summary
@@ -306,8 +321,8 @@ sdist <span class="fu">=</span> <span class="kw">do</span>
     SH.run_ <span class="st">&quot;git&quot;</span> [<span class="st">&quot;commit&quot;</span>,<span class="st">&quot;-m&quot;</span>,vrn_t<span class="fu">&lt;&gt;</span><span class="st">&quot;: &quot;</span><span class="fu">&lt;&gt;</span>smy_t]
     SH.run_ <span class="st">&quot;git&quot;</span> [<span class="st">&quot;tag&quot;</span>,vrn_t,<span class="st">&quot;-m&quot;</span>,smy_t]
 
-<span class="ot">sdist&#39; ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
-sdist&#39; nm <span class="fu">=</span> <span class="kw">do</span>
+<span class="ot">sdist&#39; ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">SH.FilePath</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+sdist&#39; nm readme <span class="fu">=</span> <span class="kw">do</span>
   establish nm nm
   SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span> <span class="kw">do</span>
     SH.cp readme <span class="st">&quot;README.markdown&quot;</span>
@@ -315,8 +330,6 @@ sdist&#39; nm <span class="fu">=</span> <span class="kw">do</span>
     (pth,tb) <span class="ot">&lt;-</span> analyse_so <span class="fu">&lt;$&gt;</span> SH.lastStderr
     SH.cp (SH.fromText <span class="fu">$</span> pth) <span class="fu">$</span> SH.fromText <span class="fu">$</span> <span class="st">&quot;releases/&quot;</span><span class="fu">&lt;&gt;</span>tb
   <span class="kw">where</span>
-    readme        <span class="fu">=</span> SH.fromText <span class="fu">$</span> <span class="st">&quot;lib/README-&quot;</span><span class="fu">&lt;&gt;</span>nm<span class="fu">&lt;&gt;</span><span class="st">&quot;.md&quot;</span>
-
     analyse_so so <span class="fu">=</span> (mtch<span class="fu">!$$</span>[cp|pth|],mtch<span class="fu">!$$</span>[cp|tb|])
       <span class="kw">where</span>
         mtch <span class="fu">=</span> so <span class="fu">T.?=~</span>
@@ -325,6 +338,7 @@ sdist&#39; nm <span class="fu">=</span> <span class="kw">do</span>
 <span class="ot">establish ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 establish nm nm&#39; <span class="fu">=</span> SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span> <span class="kw">do</span>
     SH.rm_f <span class="st">&quot;mega-regex.cabal&quot;</span>
+    SH.rm_f <span class="st">&quot;regex-with-pcre.cabal&quot;</span>
     SH.rm_f <span class="st">&quot;regex.cabal&quot;</span>
     SH.rm_f <span class="st">&quot;regex-examples.cabal&quot;</span>
     SH.cp (SH.fromText sf) (SH.fromText df)

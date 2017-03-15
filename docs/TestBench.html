@@ -78,6 +78,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">module</span> <span class="dt">Text.RE.TestBench</span>
   ( <span class="dt">MacroID</span>(<span class="fu">..</span>)
   , <span class="dt">RegexType</span>(<span class="fu">..</span>)
+  , isTDFA
+  , isPCRE
+  , presentRegexType
   , <span class="dt">MacroEnv</span>
   , <span class="dt">WithCaptures</span>(<span class="fu">..</span>)
   , <span class="dt">MacroDescriptor</span>(<span class="fu">..</span>)
@@ -95,6 +98,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   , formatMacroSources
   , formatMacroSource
   , testMacroDescriptors
+  , mdRegexSource
   ) <span class="kw">where</span>
 
 <span class="kw">import           </span><span class="dt">Data.Array</span>
@@ -108,15 +112,34 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Capture</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Options</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Replace</span>
-<span class="kw">import qualified</span> <span class="dt">Text.Regex.PCRE</span>                <span class="kw">as</span> <span class="dt">PCRE</span>
-<span class="kw">import qualified</span> <span class="dt">Text.Regex.TDFA</span>                <span class="kw">as</span> <span class="dt">TDFA</span></code></pre></div>
+<span class="kw">import           </span><span class="dt">Text.RE.Replace</span></code></pre></div>
 <h2 id="types">Types</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | what kind of back end will be compiling the RE</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">
+<span class="kw">type</span> <span class="dt">TestBenchMatcher</span> <span class="fu">=</span>
+    <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span> <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">String</span>
+
+<span class="co">-- | what kind of back end will be compiling the RE, and its match</span>
+<span class="co">-- function</span>
 <span class="kw">data</span> <span class="dt">RegexType</span>
-  <span class="fu">=</span> <span class="dt">TDFA</span>    <span class="co">-- the TDFA back end</span>
-  <span class="fu">|</span> <span class="dt">PCRE</span>    <span class="co">-- the PCRE back end</span>
-  <span class="kw">deriving</span> (<span class="dt">Bounded</span>,<span class="dt">Enum</span>,<span class="dt">Eq</span>,<span class="dt">Ord</span>,<span class="dt">Show</span>)
+  <span class="fu">=</span> <span class="dt">TDFA</span> <span class="dt">TestBenchMatcher</span>
+  <span class="fu">|</span> <span class="dt">PCRE</span> <span class="dt">TestBenchMatcher</span>
+
+<span class="co">-- | test RegexType for TDFA/PCREness</span>
+isTDFA,<span class="ot"> isPCRE ::</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+
+isTDFA (<span class="dt">TDFA</span> _) <span class="fu">=</span> <span class="dt">True</span>
+isTDFA (<span class="dt">PCRE</span> _) <span class="fu">=</span> <span class="dt">False</span>
+
+isPCRE (<span class="dt">TDFA</span> _) <span class="fu">=</span> <span class="dt">False</span>
+isPCRE (<span class="dt">PCRE</span> _) <span class="fu">=</span> <span class="dt">True</span>
+
+<span class="ot">presentRegexType ::</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+presentRegexType (<span class="dt">TDFA</span> _) <span class="fu">=</span> <span class="st">&quot;TDFA&quot;</span>
+presentRegexType (<span class="dt">PCRE</span> _) <span class="fu">=</span> <span class="st">&quot;PCRE&quot;</span>
+
+<span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">RegexType</span> <span class="kw">where</span>
+  show (<span class="dt">TDFA</span> _) <span class="fu">=</span> <span class="st">&quot;TDFA &lt;function&gt;&quot;</span>
+  show (<span class="dt">PCRE</span> _) <span class="fu">=</span> <span class="st">&quot;PCRE &lt;function&gt;&quot;</span>
 
 <span class="co">-- | do we need the captures in the RE or whould they be stripped out</span>
 <span class="co">-- where possible</span>
@@ -199,7 +222,7 @@ testMacroEnv lab rty m_env <span class="fu">=</span> <span class="kw">case</span
     putStrLn <span class="fu">$</span> <span class="st">&quot;========================================================&quot;</span>
     return <span class="dt">False</span>
   <span class="kw">where</span>
-    lab&#39; <span class="fu">=</span> lab <span class="fu">++</span> <span class="st">&quot; [&quot;</span> <span class="fu">++</span> show rty <span class="fu">++</span><span class="st">&quot;]&quot;</span>
+    lab&#39; <span class="fu">=</span> lab <span class="fu">++</span> <span class="st">&quot; [&quot;</span> <span class="fu">++</span> presentRegexType rty <span class="fu">++</span><span class="st">&quot;]&quot;</span>
 
 <span class="ot">badMacros ::</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> [<span class="dt">MacroID</span>]
 badMacros m_env <span class="fu">=</span>
@@ -241,8 +264,8 @@ runTests&#39; rty parser vector env mid md<span class="fu">@</span><span class="
     test_neg src <span class="fu">=</span> test_neg&#39; mid rty parser   <span class="fu">$</span> match_ src env md
 
     match_ <span class="fu">=</span> <span class="kw">case</span> rty <span class="kw">of</span>
-      <span class="dt">TDFA</span> <span class="ot">-&gt;</span> match_tdfa
-      <span class="dt">PCRE</span> <span class="ot">-&gt;</span> match_pcre</code></pre></div>
+      <span class="dt">TDFA</span> tbmf <span class="ot">-&gt;</span> tbmf
+      <span class="dt">PCRE</span> tbmf <span class="ot">-&gt;</span> tbmf</code></pre></div>
 <h2 id="dumpmacrotable-formatmacrotable-formatmacrosummary-formatmacrosources-formatmacrosource">dumpMacroTable, formatMacroTable, formatMacroSummary, formatMacroSources, formatMacroSource</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">dumpMacroTable ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 dumpMacroTable lab rty m_env <span class="fu">=</span> <span class="kw">do</span>
@@ -252,7 +275,7 @@ dumpMacroTable lab rty m_env <span class="fu">=</span> <span class="kw">do</span
     fp_t  <span class="fu">=</span> <span class="st">&quot;docs/&quot;</span> <span class="fu">++</span> rty_s <span class="fu">++</span> <span class="st">&quot;-&quot;</span> <span class="fu">++</span> lab <span class="fu">++</span> <span class="st">&quot;.txt&quot;</span>
     fp_s  <span class="fu">=</span> <span class="st">&quot;docs/&quot;</span> <span class="fu">++</span> rty_s <span class="fu">++</span> <span class="st">&quot;-&quot;</span> <span class="fu">++</span> lab <span class="fu">++</span> <span class="st">&quot;-src.txt&quot;</span>
 
-    rty_s <span class="fu">=</span> map toLower <span class="fu">$</span> show rty</code></pre></div>
+    rty_s <span class="fu">=</span> map toLower <span class="fu">$</span> presentRegexType rty</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatMacroTable ::</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
 formatMacroTable rty env <span class="fu">=</span> unlines <span class="fu">$</span>
   format_table macro_table_hdr
@@ -414,7 +437,7 @@ ljust w s <span class="fu">=</span> s <span class="fu">++</span> replicate n <sp
 min_captures rty rets <span class="fu">=</span> length
   [ ()
     <span class="fu">|</span> <span class="dt">REToken</span>{<span class="fu">..</span>}<span class="ot">&lt;-</span>rets
-    , _ret_fixed <span class="fu">||</span> (_ret_grouping <span class="fu">&amp;&amp;</span> rty<span class="fu">==</span><span class="dt">TDFA</span>)
+    , _ret_fixed <span class="fu">||</span> (_ret_grouping <span class="fu">&amp;&amp;</span> isTDFA rty)
     ]</code></pre></div>
 <h2 id="formatting-tokens">Formatting tokens</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">format_tokens ::</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">WithCaptures</span> <span class="ot">-&gt;</span> [<span class="dt">REToken</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
@@ -427,7 +450,7 @@ format_tokens rty wc <span class="fu">=</span> foldr f <span class="st">&quot;&q
           <span class="dt">False</span> <span class="ot">-&gt;</span>
             <span class="kw">case</span> (,) _ret_grouping (_ret_capturing <span class="fu">&amp;&amp;</span> wc<span class="fu">==</span><span class="dt">InclCaptures</span>) <span class="kw">of</span>
               (<span class="dt">False</span>,<span class="dt">False</span>) <span class="ot">-&gt;</span> <span class="st">&quot;&quot;</span>
-              (<span class="dt">True</span> ,<span class="dt">False</span>) <span class="ot">-&gt;</span> <span class="kw">if</span> rty<span class="fu">==</span><span class="dt">PCRE</span> <span class="kw">then</span> <span class="st">&quot;(?:&quot;</span> <span class="kw">else</span> <span class="st">&quot;(&quot;</span>
+              (<span class="dt">True</span> ,<span class="dt">False</span>) <span class="ot">-&gt;</span> <span class="kw">if</span> isPCRE rty <span class="kw">then</span> <span class="st">&quot;(?:&quot;</span> <span class="kw">else</span> <span class="st">&quot;(&quot;</span>
               (<span class="dt">False</span>,<span class="dt">True</span> ) <span class="ot">-&gt;</span> <span class="st">&quot;(&quot;</span>
               (<span class="dt">True</span> ,<span class="dt">True</span> ) <span class="ot">-&gt;</span> <span class="st">&quot;(&quot;</span>
 
@@ -470,12 +493,6 @@ scan_re (<span class="dt">RegexSource</span> src0) <span class="fu">=</span> loo
         chk <span class="ch">&#39;\\&#39;</span>  <span class="fu">=</span> <span class="dt">True</span>
         chk <span class="ch">&#39;(&#39;</span>   <span class="fu">=</span> <span class="dt">True</span>
         chk _     <span class="fu">=</span> <span class="dt">False</span></code></pre></div>
-<h2 id="scan_re-1">scan_re</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">match_tdfa ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span> <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">String</span>
-match_tdfa txt env md <span class="fu">=</span> txt <span class="fu">TDFA.=~</span> mdRegexSource <span class="dt">TDFA</span> <span class="dt">ExclCaptures</span> env md
-
-<span class="ot">match_pcre ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">MacroEnv</span> <span class="ot">-&gt;</span> <span class="dt">MacroDescriptor</span> <span class="ot">-&gt;</span> <span class="dt">Matches</span> <span class="dt">String</span>
-match_pcre txt env md <span class="fu">=</span> txt <span class="fu">PCRE.=~</span> mdRegexSource <span class="dt">PCRE</span> <span class="dt">ExclCaptures</span> env md</code></pre></div>
 <h2 id="mdregexsource">mdRegexSource</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mdRegexSource ::</span> <span class="dt">RegexType</span>
               <span class="ot">-&gt;</span> <span class="dt">WithCaptures</span>
@@ -550,7 +567,7 @@ test_diagnostic mid is_neg rty tst msg <span class="fu">=</span>
   <span class="kw">where</span>
     mid_s <span class="fu">=</span> getMacroID mid
     neg_s <span class="fu">=</span> <span class="kw">if</span> is_neg <span class="kw">then</span> <span class="st">&quot;-ve&quot;</span> <span class="kw">else</span> <span class="st">&quot;+ve&quot;</span><span class="ot"> ::</span> <span class="dt">String</span>
-    rty_s <span class="fu">=</span> show rty</code></pre></div>
+    rty_s <span class="fu">=</span> presentRegexType rty</code></pre></div>
 </div>    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

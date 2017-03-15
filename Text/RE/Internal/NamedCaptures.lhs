@@ -26,12 +26,13 @@ import           Text.Heredoc
 import           Text.RE
 import           Text.RE.Internal.PreludeMacros
 import           Text.RE.Internal.QQ
-import           Text.Regex.PCRE
+import           Text.RE.TestBench
+import           Text.Regex.TDFA
 
 
 cp :: QuasiQuoter
 cp =
-    (qq0 "re_")
+    (qq0 "cp")
       { quoteExp = parse_capture
       }
 
@@ -158,9 +159,9 @@ defFormatTokenOptions =
 idFormatTokenOptions :: FormatTokenOptions
 idFormatTokenOptions =
   FormatTokenOptions
-    { _fto_regex_type     = Nothing
-    , _fto_min_caps       = False
-    , _fto_incl_caps = True
+    { _fto_regex_type = Nothing
+    , _fto_min_caps   = False
+    , _fto_incl_caps  = True
     }
 
 formatTokens' :: FormatTokenOptions -> [Token] -> String
@@ -170,7 +171,7 @@ formatTokens' FormatTokenOptions{..} = foldr f ""
       where
         t_s = case tk of
           ECap  mb -> ecap mb
-          PGrp     -> if _fto_regex_type == Just TDFA then "(" else "(?:"
+          PGrp     -> if maybe False isTDFA _fto_regex_type then "(" else "(?:"
           PCap     -> "(?"
           Bra      -> bra _fto_min_caps
           BS    c  -> "\\" ++ [c]
@@ -182,7 +183,7 @@ formatTokens' FormatTokenOptions{..} = foldr f ""
         Just nm -> "${"++nm++"}("
       False -> bra _fto_min_caps
 
-    bra mc  = case mc && _fto_regex_type == Just PCRE of
+    bra mc  = case mc && maybe False isPCRE _fto_regex_type of
       True  -> "(?:"
       False -> "("
 \end{code}

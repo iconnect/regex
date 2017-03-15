@@ -30,7 +30,7 @@
 
     Main-Is:            re-nginx-log-processor.lhs
 
-%build-depends regex array base base-compat bytestring directory regex-base regex-tdfa shelly text time time-locale-compat transformers unordered-containers
+%build-depends regex regex-with-pcre array base base-compat bytestring directory regex-base regex-tdfa shelly text time time-locale-compat transformers unordered-containers
 
 %test-exe re-prep
     Hs-Source-Dirs:     examples
@@ -50,7 +50,7 @@
     Other-Modules:
       TestKit
 
-%build-depends regex array base base-compat bytestring containers directory heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin smallcheck tasty tasty-hunit tasty-smallcheck template-haskell text unordered-containers
+%build-depends regex regex-with-pcre array base base-compat bytestring containers directory heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin smallcheck tasty tasty-hunit tasty-smallcheck template-haskell text unordered-containers
 
 %test-exe re-tutorial
     Hs-Source-Dirs:     examples

@@ -50,9 +50,10 @@ main = do
     ["bump-version",vrn]  -> bumpVersion vrn
     ["sdist"]             -> sdist
     ["gen"]               -> do
-      gen  "lib/cabal-masters/mega-regex.cabal"     "lib/mega-regex.cabal"
-      gen  "lib/cabal-masters/regex.cabal"          "lib/regex.cabal"
-      gen  "lib/cabal-masters/regex-examples.cabal" "lib/regex-examples.cabal"
+      gen  "lib/cabal-masters/mega-regex.cabal"       "lib/mega-regex.cabal"
+      gen  "lib/cabal-masters/regex.cabal"            "lib/regex.cabal"
+      gen  "lib/cabal-masters/regex-with-pcre.cabal"  "lib/regex-with-pcre.cabal"
+      gen  "lib/cabal-masters/regex-examples.cabal"   "lib/regex-examples.cabal"
       establish "mega-regex" "regex"
     _                     -> do
       let prg = (("  "++pn++" ")++)
@@ -85,6 +86,7 @@ gen in_f out_f = do
 data Ctx =
   Ctx
     { _ctx_w_error             :: IORef Bool
+    , _ctx_filter_pcre         :: IORef Bool
     , _ctx_package_constraints :: IORef (Map.Map LBS.ByteString LBS.ByteString)
     , _ctx_test_exe            :: IORef (Maybe TestExe)
     }
@@ -99,12 +101,13 @@ data TestExe =
   deriving (Show)
 
 setup :: IO Ctx
-setup = Ctx <$> (newIORef True) <*> (newIORef Map.empty) <*> (newIORef Nothing)
+setup = Ctx <$> (newIORef True) <*> (newIORef False) <*> (newIORef Map.empty) <*> (newIORef Nothing)
 
 gc_script :: Ctx -> SedScript RE
 gc_script ctx = Select
     [ (,) [re|^%Werror$|]                                      $ LineEdit $ w_error_gen              ctx
     , (,) [re|^%Wwarn$|]                                       $ LineEdit $ w_warn_gen               ctx
+    , (,) [re|^%filter-regex-with-pcre$|]                      $ LineEdit $ w_filter_pcre            ctx
     , (,) [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]             $ LineEdit $ cond_gen                 ctx
     , (,) [re|^%build-depends +${list}(@{%id-}( +@{%id-})+)$|] $ LineEdit $ build_depends_gen        ctx
     , (,) [re|^%test +${i}(@{%id-})$|]                         $ LineEdit $ test_exe_gen True  False ctx
@@ -113,14 +116,15 @@ gc_script ctx = Select
     , (,) [re|^.*$|]                                           $ LineEdit $ default_gen              ctx
     ]
 
-w_error_gen, w_warn_gen, cond_gen, build_depends_gen,
+w_error_gen, w_warn_gen, w_filter_pcre, cond_gen, build_depends_gen,
   default_gen :: Ctx
               -> LineNo
               -> Matches LBS.ByteString
               -> IO (LineEdit LBS.ByteString)
 
-w_error_gen Ctx{..} _ _ = writeIORef _ctx_w_error True  >> return Delete
-w_warn_gen  Ctx{..} _ _ = writeIORef _ctx_w_error False >> return Delete
+w_error_gen   Ctx{..} _ _ = writeIORef _ctx_w_error     True  >> return Delete
+w_warn_gen    Ctx{..} _ _ = writeIORef _ctx_w_error     False >> return Delete
+w_filter_pcre Ctx{..} _ _ = writeIORef _ctx_filter_pcre True  >> return Delete
 
 cond_gen Ctx{..} _ mtchs = do
     modifyIORef _ctx_package_constraints $ Map.insert pkg cond
@@ -133,8 +137,9 @@ cond_gen Ctx{..} _ mtchs = do
 
 build_depends_gen ctx@Ctx{..} _ mtchs = do
     we <- readIORef _ctx_w_error
+    fp <- readIORef _ctx_filter_pcre
     mp <- readIORef _ctx_package_constraints
-    put ctx $ mk_build_depends we mp lst
+    put ctx $ mk_build_depends we fp mp lst
   where
     lst  = LBS.words $ captureText [cp|list|] mtch
     mtch = allMatches mtchs !! 0
@@ -200,10 +205,11 @@ mk_test_exe is_t te te_lbs_kw = (<>_te_text te) $ LBS.unlines $ concat
       False -> LBS.unpack $ _te_name te
 
 mk_build_depends :: Bool
+                 -> Bool
                  -> Map.Map LBS.ByteString LBS.ByteString
                  -> [LBS.ByteString]
                  -> LBS.ByteString
-mk_build_depends we mp pks = LBS.unlines $
+mk_build_depends we fp mp pks0 = LBS.unlines $
         [ "    Default-Language:   Haskell2010"
         , "    GHC-Options:"
         , "      -Wall"
@@ -217,6 +223,10 @@ mk_build_depends we mp pks = LBS.unlines $
       True  -> "-Werror"
       False -> "-Wwarn"
 
+    pks = case fp of
+      False -> pks0
+      True  -> filter (/= "regex-with-pcre") pks0
+
     fmt (isf,pk) = LBS.pack $
       printf "      %c %-20s %s"
         (if isf then ' ' else ',')
@@ -227,7 +237,11 @@ mk_build_depends we mp pks = LBS.unlines $
       (True ,True ) -> EQ
       (True ,False) -> LT
       (False,True ) -> GT
-      (False,False) -> compare x y
+      (False,False) -> case (x=="regex-with-pcre",y=="regex-with-pcre") of
+        (True ,True ) -> EQ
+        (True ,False) -> LT
+        (False,True ) -> GT
+        (False,False) -> compare x y
 
 adjust_le :: (LBS.ByteString->LBS.ByteString)
           -> LineEdit LBS.ByteString
@@ -241,8 +255,9 @@ adjust_le f le = case le of
 \begin{code}
 sdist :: IO ()
 sdist = do
-  sdist'    "regex"
-  sdist'    "regex-examples"
+  sdist'    "regex"            "lib/README-regex.md"
+  sdist'    "regex-with-pcre"  "lib/README-regex.md"
+  sdist'    "regex-examples"   "lib/README-regex-examples.md"
   establish "mega-regex" "regex"
   vrn_t <- T.pack . presentVrn <$> readCurrentVersion
   smy_t <- summary
@@ -251,8 +266,8 @@ sdist = do
     SH.run_ "git" ["commit","-m",vrn_t<>": "<>smy_t]
     SH.run_ "git" ["tag",vrn_t,"-m",smy_t]
 
-sdist' :: T.Text -> IO ()
-sdist' nm = do
+sdist' :: T.Text -> SH.FilePath -> IO ()
+sdist' nm readme = do
   establish nm nm
   SH.shelly $ SH.verbosely $ do
     SH.cp readme "README.markdown"
@@ -260,8 +275,6 @@ sdist' nm = do
     (pth,tb) <- analyse_so <$> SH.lastStderr
     SH.cp (SH.fromText $ pth) $ SH.fromText $ "releases/"<>tb
   where
-    readme        = SH.fromText $ "lib/README-"<>nm<>".md"
-
     analyse_so so = (mtch!$$[cp|pth|],mtch!$$[cp|tb|])
       where
         mtch = so T.?=~
@@ -270,6 +283,7 @@ sdist' nm = do
 establish :: T.Text -> T.Text -> IO ()
 establish nm nm' = SH.shelly $ SH.verbosely $ do
     SH.rm_f "mega-regex.cabal"
+    SH.rm_f "regex-with-pcre.cabal"
     SH.rm_f "regex.cabal"
     SH.rm_f "regex-examples.cabal"
     SH.cp (SH.fromText sf) (SH.fromText df)

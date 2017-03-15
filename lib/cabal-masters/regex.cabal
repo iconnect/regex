@@ -1,41 +1,37 @@
 Name:                   regex
-Version:                <<$version$>>
-Synopsis:               Toolkit for regex-base
-Description:            A Regular Expression Toolkit for regex-base with
-                        Compile-time checking of RE syntax, data types for
-                        matches and captures, a text replacement toolkit,
-                        portable options, high-level AWK-like tools
-                        for building text processing apps, regular expression
-                        macros and test bench, a tutorial and copious examples.
-Homepage:               http://regex.uk
-Author:                 Chris Dornan
-License:                BSD3
-license-file:           LICENSE
-Maintainer:             Chris Dornan <chris@regex.uk>
-Copyright:              Chris Dornan 2016-2017
-Category:               Text
-Build-type:             Simple
-Stability:              RFC
-bug-reports:            http://issues.regex.uk
-
-Extra-Source-Files:
-    README.markdown
-    changelog
-
-Cabal-Version:          >= 1.16
-
-Source-Repository head
-    type:               git
-    location:           https://github.com/iconnect/regex.git
-
-Source-Repository this
-    Type:               git
-    Location:           https://github.com/iconnect/regex.git
-    Tag:                <<$version$>>
-
-%Wwarn
+%include "lib/cabal-masters/regex-incl.cabal"
 %include "lib/cabal-masters/constraints-incl.cabal"
 
-%include "lib/cabal-masters/library-incl.cabal"
+Library
+    Hs-Source-Dirs:     .
+    Exposed-Modules:
+      Text.RE
+      Text.RE.Capture
+      Text.RE.CaptureID
+      Text.RE.Edit
+      Text.RE.Internal.AddCaptureNames
+      Text.RE.Internal.EscapeREString
+      Text.RE.Internal.NamedCaptures
+      Text.RE.Internal.PreludeMacros
+      Text.RE.Internal.QQ
+      Text.RE.IsRegex
+      Text.RE.LineNo
+      Text.RE.Options
+      Text.RE.Parsers
+      Text.RE.Replace
+      Text.RE.TDFA
+      Text.RE.TDFA.ByteString
+      Text.RE.TDFA.ByteString.Lazy
+      Text.RE.TDFA.RE
+      Text.RE.TDFA.Sequence
+      Text.RE.TDFA.String
+      Text.RE.TDFA.Text
+      Text.RE.TDFA.Text.Lazy
+      Text.RE.TestBench
+      Text.RE.Tools.Grep
+      Text.RE.Tools.Lex
+      Text.RE.Tools.Sed
 
--- Generated from lib/cabal-masters/mega-regex with re-gen-cabals
+%build-depends array bytestring base base-compat containers hashable heredoc regex-base regex-tdfa regex-tdfa-text template-haskell text time time-locale-compat transformers unordered-containers
+
+-- Generated with re-gen-cabals

@@ -37,4 +37,4 @@ Source-Repository this
 
 %include "lib/cabal-masters/executables-incl.cabal"
 
--- Generated from lib/cabal-masters/mega-regex with re-gen-cabals
+-- Generated with re-gen-cabals

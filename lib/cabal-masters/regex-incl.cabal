@@ -1,4 +1,3 @@
-Name:                   regex
 Version:                <<$version$>>
 Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
@@ -18,7 +17,9 @@ Build-type:             Simple
 Stability:              RFC
 bug-reports:            http://issues.regex.uk
 
-%include "lib/cabal-masters/test-extra-source-files-incl.cabal"
+Extra-Source-Files:
+    README.markdown
+    changelog
 
 Cabal-Version:          >= 1.16
 
@@ -31,12 +32,4 @@ Source-Repository this
     Location:           https://github.com/iconnect/regex.git
     Tag:                <<$version$>>
 
-%Werror
-%filter-regex-with-pcre
-%include "lib/cabal-masters/constraints-incl.cabal"
-
-%include "lib/cabal-masters/library-incl.cabal"
-
-%include "lib/cabal-masters/executables-incl.cabal"
-
--- Generated from lib/cabal-masters/mega-regex with re-gen-cabals
+%Wwarn

@@ -156,8 +156,10 @@ script:
   case "$BUILD" in
     release-stack)
       lpn=regex-$(cat lib/version.txt)
+      ppn=regex-with-pcre-$(cat lib/version.txt)
       epn=regex-examples-$(cat lib/version.txt)
       ltb=releases/${lpn}.tar.gz
+      ptb=releases/${ppn}.tar.gz
       etb=releases/${epn}.tar.gz
       if [ -f ${ltb} ]; then
         echo "installing ${lpn}"
@@ -165,10 +167,16 @@ script:
         cp ${STACK_YAML} ${lpn}
         cd ${lpn}
         stack --no-terminal $ARGS install --bench --coverage --no-run-benchmarks --haddock --no-haddock-deps
-        echo "testing ${epn}"
         cd ..
+        echo "installing ${ppn}"
+        tar xzf ${ptb}
+        sed -e "s/extra-deps: \\[\\]/extra-deps: [${lpn}]/" ${STACK_YAML} > ${ppn}/${STACK_YAML}
+        cd ${ppn}
+        stack --no-terminal $ARGS install --bench --coverage --no-run-benchmarks --haddock --no-haddock-deps
+        cd ..
+        echo "testing ${epn}"
         tar xzf ${etb}
-        sed -e "s/extra-deps: \\[\\]/extra-deps: [${lpn}]/" ${STACK_YAML} > ${epn}/${STACK_YAML}
+        sed -e "s/extra-deps: \\[\\]/extra-deps: [${lpn},${ppn}]/" ${STACK_YAML} > ${epn}/${STACK_YAML}
         cd ${epn}
         stack --no-terminal $ARGS test --bench --coverage --no-run-benchmarks --haddock --no-haddock-deps
         cd ..

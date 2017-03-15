@@ -1,5 +1,11 @@
 -*-change-log-*-
 
+0.6.0.1 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-13
+  * Fix .travis.yml release-stack script (#67)
+
+0.6.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-13
+  * Split out rexex-with-pcre package (#65)
+
 0.5.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-05
   * Fix inter-operation of =~ & =~~ and named captures (#55)
   * Add escaping functions (#37)

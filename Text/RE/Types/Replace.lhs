@@ -66,6 +66,10 @@ class (Extract a,Monoid a) => Replace a where
   textifyE       :: a -> T.Text
   -- | project Text onto a
   detextifyE     :: T.Text -> a
+  -- | split into lines
+  linesE         :: a -> [a]
+  -- | concatenate a list of lines
+  unlinesE       :: [a] -> a
   -- | append a newline
   appendNewlineE :: a -> a
   -- | apply a substitution function to a Capture
@@ -320,6 +324,8 @@ instance Replace [Char] where
   unpackE         = id
   textifyE        = T.pack
   detextifyE      = T.unpack
+  linesE          = lines
+  unlinesE        = unlines
   appendNewlineE  = (<>"\n")
   parseTemplateE  = parseTemplateE' id
 
@@ -329,6 +335,8 @@ instance Replace B.ByteString where
   unpackE         = B.unpack
   textifyE        = TE.decodeUtf8
   detextifyE      = TE.encodeUtf8
+  linesE          = B.lines
+  unlinesE        = B.unlines
   appendNewlineE  = (<>"\n")
   parseTemplateE  = parseTemplateE' B.unpack
 
@@ -337,6 +345,8 @@ instance Replace LBS.ByteString where
   packE           = LBS.pack
   unpackE         = LBS.unpack
   textifyE        = TE.decodeUtf8  . LBS.toStrict
+  linesE          = LBS.lines
+  unlinesE        = LBS.unlines
   detextifyE      = LBS.fromStrict . TE.encodeUtf8
   appendNewlineE  = (<>"\n")
   parseTemplateE  = parseTemplateE' LBS.unpack
@@ -345,6 +355,8 @@ instance Replace (S.Seq Char) where
   lengthE         = S.length
   packE           = S.fromList
   unpackE         = F.toList
+  linesE          = map packE . lines . unpackE
+  unlinesE        = packE . unlines . map unpackE
   parseTemplateE  = parseTemplateE' F.toList
 
 instance Replace T.Text where
@@ -353,6 +365,8 @@ instance Replace T.Text where
   unpackE         = T.unpack
   textifyE        = id
   detextifyE      = id
+  linesE          = T.lines
+  unlinesE        = T.unlines
   appendNewlineE  = (<>"\n")
   parseTemplateE  = parseTemplateE' T.unpack
 
@@ -362,6 +376,8 @@ instance Replace LT.Text where
   unpackE         = LT.unpack
   textifyE        = LT.toStrict
   detextifyE      = LT.fromStrict
+  linesE          = LT.lines
+  unlinesE        = LT.unlines
   appendNewlineE  = (<>"\n")
   parseTemplateE  = parseTemplateE' LT.unpack
 \end{code}

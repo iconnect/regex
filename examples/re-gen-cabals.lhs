@@ -39,6 +39,8 @@ import           TestKit
 import           Text.Printf
 import           Text.RE.TDFA.ByteString.Lazy
 import           Text.RE.TDFA.Text                        as T
+import           Text.RE.Tools.Grep
+import           Text.RE.Tools.Sed
 
 
 main :: IO ()

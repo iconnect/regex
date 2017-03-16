@@ -40,6 +40,7 @@ import           Text.RE.PCRE.ByteString()
 import           Text.RE.PCRE.ByteString.Lazy()
 import           Text.RE.PCRE.Sequence()
 import           Text.RE.PCRE.String()
+import           Text.RE.Types.IsRegex
 
 
 -- | find all matches in text

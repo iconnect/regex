@@ -102,7 +102,9 @@ This pragma is a just technical pragma, combined with the <code>Prelude.Compat</
 </ul></li>
 </ul>
 For this tutorial we will use classic Haskell strings but any application dealing with bulk text will probably want to choose one of the other options.
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import           </span><span class="dt">Text.RE.TDFA.String</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import           </span><span class="dt">Text.RE.TDFA.String</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.CaptureID</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Options</span></code></pre></div>
 <p>If you are predominantly matching against a single type in your module then you will probably find it more convenient to use the relevant module rather than than the more polymorphic opertors but it is really a matter of convenience.</p>
 We will also need access to a small selection of common libraries for our examples.
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import           </span><span class="dt">Control.Applicative</span>

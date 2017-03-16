@@ -59,7 +59,7 @@ two packages:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-03-17  v0.8.0.0  [Add type-safe replacement templates and use TemplateHaskellQuotes](https://github.com/iconnect/regex/milestone/9)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-03-20  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-03-31  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)
 

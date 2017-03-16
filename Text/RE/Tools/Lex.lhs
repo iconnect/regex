@@ -1,13 +1,16 @@
 \begin{code}
 {-# LANGUAGE NoImplicitPrelude          #-}
 
-module Text.RE.Tools.Lex where
+module Text.RE.Tools.Lex
+  ( alex
+  , alex'
+  , module Text.RE
+  , module Text.RE.Types.IsRegex
+  ) where
 
 import           Prelude.Compat
-import           Text.RE.Types.Capture
+import           Text.RE
 import           Text.RE.Types.IsRegex
-import           Text.RE.Types.Match
-import           Text.RE.Types.Replace
 
 
 alex :: IsRegex re s => [(re,Match s->Maybe t)] -> t -> s -> [t]

@@ -105,7 +105,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">System.Exit</span>
 <span class="kw">import           </span><span class="dt">System.IO</span>
 <span class="kw">import           </span><span class="dt">Text.Printf</span>
-<span class="kw">import           </span><span class="dt">Text.RE.TDFA</span></code></pre></div>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.IsRegex</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TDFA</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TestBench.Parsers</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Grep</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span></code></pre></div>
 <h2 id="vrn-and-friends">Vrn and friends</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Vrn</span> <span class="fu">=</span> <span class="dt">Vrn</span> { _vrn_a, _vrn_b, _vrn_c,<span class="ot"> _vrn_d ::</span> <span class="dt">Int</span> }
   <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>,<span class="dt">Ord</span>)

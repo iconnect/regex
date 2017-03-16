@@ -45,54 +45,10 @@ module Text.RE
   , hasCaptured
   , capturePrefix
   , captureSuffix
-  -- * IsRegex
-  , IsRegex(..)
   -- * Options
-  , Options_(..)
-  , IsOption(..)
-  , MacroID(..)
-  , Macros
-  , emptyMacros
   , SimpleRegexOptions(..)
   -- * CaptureID
-  , CaptureID(..)
-  , CaptureNames
-  , noCaptureNames
-  , CaptureName(..)
-  , CaptureOrdinal(..)
-  , findCaptureID
-  -- * Edit
-  , Edits(..)
-  , Edit(..)
-  , LineEdit(..)
-  , applyEdits
-  , applyEdit
-  , applyLineEdit
-  -- * LineNo
-  , LineNo(..)
-  , firstLine
-  , getLineNo
-  , lineNo
-  -- * Parsers
-  , parseInteger
-  , parseHex
-  , parseDouble
-  , parseString
-  , parseSimpleString
-  , parseDate
-  , parseSlashesDate
-  , parseTimeOfDay
-  , parseTimeZone
-  , parseDateTime
-  , parseDateTime8601
-  , parseDateTimeCLF
-  , parseShortMonth
-  , shortMonthArray
-  , IPV4Address
-  , parseIPv4Address
-  , Severity(..)
-  , parseSeverity
-  , severityKeywords
+  , CaptureID
   -- * Replace
   , Replace(..)
   , ReplaceMethods(..)
@@ -110,36 +66,14 @@ module Text.RE
   , replaceCapturesM
   , expandMacros
   , expandMacros'
-  -- * Tools
-  -- ** Grep
-  , Line(..)
-  , grep
-  , grepLines
-  , GrepScript
-  , grepScript
-  , linesMatched
-  -- ** Lex
-  , alex
-  , alex'
-  -- ** Sed
-  , SedScript
-  , sed
-  , sed'
   ) where
 
 import           Text.RE.Types.Capture
 import           Text.RE.Types.CaptureID
-import           Text.RE.Tools.Edit
-import           Text.RE.Types.IsRegex
-import           Text.RE.Types.LineNo
 import           Text.RE.Types.Match
 import           Text.RE.Types.Matches
 import           Text.RE.Types.Options
-import           Text.RE.TestBench.Parsers
 import           Text.RE.Types.Replace
-import           Text.RE.Tools.Grep
-import           Text.RE.Tools.Lex
-import           Text.RE.Tools.Sed
 
 -- $tutorial
 -- We have a regex tutorial at <http://tutorial.regex.uk>. These API

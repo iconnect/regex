@@ -119,7 +119,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Text.Regex.TDFA.Text.Lazy</span>()</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | Replace provides the missing methods needed to replace the matched</span>
 <span class="co">-- text; lengthE is the minimum implementation</span>
-<span class="kw">class</span> (<span class="dt">Extract</span> a,<span class="dt">Monoid</span> a) <span class="ot">=&gt;</span> <span class="dt">Replace</span> a <span class="kw">where</span>
+<span class="kw">class</span> (<span class="dt">Show</span> a,<span class="dt">Eq</span> a,<span class="dt">Ord</span> a,<span class="dt">Extract</span> a,<span class="dt">Monoid</span> a) <span class="ot">=&gt;</span> <span class="dt">Replace</span> a <span class="kw">where</span>
   <span class="co">-- | length function for a</span>
 <span class="ot">  lengthE        ::</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>
   <span class="co">-- | inject String into a</span>

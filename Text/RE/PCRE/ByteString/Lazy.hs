@@ -31,6 +31,7 @@ import qualified Data.ByteString.Lazy          as LBS
 import           Data.Typeable
 import           Text.Regex.Base
 import           Text.RE
+import           Text.RE.Types.IsRegex
 import           Text.RE.Internal.AddCaptureNames
 import           Text.RE.PCRE.RE
 import qualified Text.Regex.PCRE               as PCRE

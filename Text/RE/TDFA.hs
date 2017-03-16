@@ -43,6 +43,7 @@ import           Text.RE.TDFA.Sequence()
 import           Text.RE.TDFA.String()
 import           Text.RE.TDFA.Text()
 import           Text.RE.TDFA.Text.Lazy()
+import           Text.RE.Types.IsRegex
 
 
 -- | find all matches in text

@@ -41,6 +41,7 @@ import           System.Directory
 import           System.Environment
 import           System.Exit
 import           System.IO
+import           Text.RE.Tools.Sed
 import           Text.RE.Types.Options
 import           Text.RE.TestBench.Parsers
 import           Text.RE.TestBench

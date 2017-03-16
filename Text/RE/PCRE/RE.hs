@@ -59,6 +59,8 @@ import           Text.RE.Internal.NamedCaptures
 import           Text.RE.Internal.PreludeMacros
 import           Text.RE.Internal.QQ
 import           Text.RE.TestBench
+import           Text.RE.Types.CaptureID
+import           Text.RE.Types.Options
 import           Text.Regex.PCRE
 
 

@@ -31,6 +31,7 @@ import           Prelude.Compat
 import           Data.Typeable
 import           Text.Regex.Base
 import           Text.RE
+import           Text.RE.Types.IsRegex
 import           Text.RE.Internal.AddCaptureNames
 import           Text.RE.TDFA.RE
 import qualified Text.Regex.TDFA               as TDFA

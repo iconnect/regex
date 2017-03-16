@@ -93,6 +93,8 @@ dealing with bulk text will probably want to choose one of the other
 options.
 \begin{code}
 import           Text.RE.TDFA.String
+import           Text.RE.Types.CaptureID
+import           Text.RE.Types.Options
 \end{code}
 If you are predominantly matching against a single type in your module
 then you will probably find it more convenient to use the relevant module

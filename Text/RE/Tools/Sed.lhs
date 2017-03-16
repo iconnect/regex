@@ -11,14 +11,18 @@ module Text.RE.Tools.Sed
   ( SedScript
   , sed
   , sed'
+  , module Text.RE
+  , module Text.RE.Types.IsRegex
+  , module Text.RE.Tools.Edit
+  , module Text.RE.Types.LineNo
   ) where
 
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Prelude.Compat
+import           Text.RE
 import           Text.RE.Tools.Edit
 import           Text.RE.Types.LineNo
 import           Text.RE.Types.IsRegex
-import           Text.RE.Types.Replace
 
 
 type SedScript re = Edits IO re LBS.ByteString

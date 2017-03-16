@@ -33,6 +33,9 @@ import           System.Environment
 import           TestKit
 import           Text.RE.Tools.Edit
 import           Text.RE.TDFA.ByteString.Lazy
+import           Text.RE.TestBench.Parsers
+import           Text.RE.Tools.Grep
+import           Text.RE.Tools.Sed
 \end{code}
 
 \begin{code}

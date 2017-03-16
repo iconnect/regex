@@ -50,6 +50,9 @@ import           Text.RE.Internal.QQ
 import qualified Text.RE.PCRE                   as PCRE
 import           Text.RE.TDFA                   as TDFA
 import           Text.RE.TestBench
+import           Text.RE.Types.CaptureID
+import           Text.RE.Types.IsRegex
+import           Text.RE.Types.Options
 
 import qualified Text.RE.PCRE.String            as P_ST
 import qualified Text.RE.PCRE.ByteString        as P_BS

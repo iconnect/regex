@@ -28,7 +28,6 @@ Library
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
       Text.RE.Types.Capture
-      Text.RE.Types.Capture
       Text.RE.Types.CaptureID
       Text.RE.Types.LineNo
       Text.RE.Types.Match

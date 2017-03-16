@@ -37,7 +37,9 @@ import           System.Environment
 import           System.IO
 import           TestKit
 import           Text.Heredoc
-import           Text.RE.Edit
+import           Text.RE.TestBench.Parsers
+import           Text.RE.Tools.Grep
+import           Text.RE.Tools.Sed
 import           Text.RE.TDFA.ByteString.Lazy
 import qualified Text.RE.TDFA.Text                        as TT
 \end{code}
@@ -170,12 +172,14 @@ gen_all = do
     pd "re-prep"
     pd "re-tests"
     pd "TestKit"
-    pd "RE/Capture"
-    pd "RE/Edit"
-    pd "RE/IsRegex"
-    pd "RE/Options"
-    pd "RE/Replace"
+    pd "RE/Types/Matches"
+    pd "RE/Types/Match"
+    pd "RE/Types/Capture"
+    pd "RE/Types/IsRegex"
+    pd "RE/Types/Options"
+    pd "RE/Types/Replace"
     pd "RE/TestBench"
+    pd "RE/Tools/Edit"
     pd "RE/Tools/Grep"
     pd "RE/Tools/Lex"
     pd "RE/Tools/Sed"
@@ -199,7 +203,7 @@ gen_all = do
         (Just fdr,Just mnm) -> pandoc_lhs ("Text.RE."<>fdr<>"."<>mnm) ("Text/"    <>fnm<>".lhs") ("docs/"<>mnm<>".html")
         _                   -> pandoc_lhs ("examples/"<>fnm<>".lhs" ) ("examples/"<>fnm<>".lhs") ("docs/"<>fnm<>".html")
       where
-        mtch = fnm TT.?=~ [re|^RE/(${fdr}(Tools|Internal)/)?${mnm}(@{%id})|]
+        mtch = fnm TT.?=~ [re|^RE/(${fdr}(Internal|PCRE|TDFA|Testbench|Tools|Types)/)?${mnm}(@{%id})|]
 \end{code}
 
 
@@ -213,7 +217,7 @@ includeDoc :: LineNo
            -> Capture LBS.ByteString
            -> IO (Maybe LBS.ByteString)
 includeDoc _ mtch _ _ = fmap Just $
-    extract fp =<< compileRegex () re_s
+    extract fp =<< compileRegex re_s
   where
     fp    = prs_s $ captureText [cp|file|] mtch
     re_s  = prs_s $ captureText [cp|rex|]  mtch

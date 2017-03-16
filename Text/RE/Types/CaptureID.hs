@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Text.RE.CaptureID where
+module Text.RE.Types.CaptureID where
 
 import           Data.Ix
 import           Data.Hashable

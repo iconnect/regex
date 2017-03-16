@@ -100,8 +100,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">System.Environment</span>
 <span class="kw">import           </span><span class="dt">System.Exit</span>
 <span class="kw">import           </span><span class="dt">System.IO</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Options</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Parsers</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Options</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TestBench.Parsers</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TestBench</span>
 <span class="kw">import           </span><span class="dt">Text.RE.PCRE.ByteString.Lazy</span>
 <span class="kw">import qualified</span> <span class="dt">Text.RE.PCRE.String</span>                      <span class="kw">as</span> <span class="dt">S</span>
@@ -316,7 +317,7 @@ lpo <span class="fu">=</span> makeOptions lp_prelude
 <span class="ot">lp_prelude ::</span> <span class="dt">Macros</span> <span class="dt">RE</span>
 lp_prelude <span class="fu">=</span> runIdentity <span class="fu">$</span> mkMacros mk regexType <span class="dt">ExclCaptures</span> lp_env
   <span class="kw">where</span>
-    mk   <span class="fu">=</span> maybe oops <span class="dt">Identity</span> <span class="fu">.</span> compileRegex noPreludeOptions
+    mk   <span class="fu">=</span> maybe oops <span class="dt">Identity</span> <span class="fu">.</span> compileRegexWithOptions noPreludeOptions
 
     oops <span class="fu">=</span> error <span class="st">&quot;lp_prelude&quot;</span>
 

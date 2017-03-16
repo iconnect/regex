@@ -78,13 +78,18 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   ( <span class="dt">SedScript</span>
   , sed
   , sed&#39;
+  , <span class="kw">module</span> <span class="dt">Text.RE</span>
+  , <span class="kw">module</span> <span class="dt">Text.RE.Types.IsRegex</span>
+  , <span class="kw">module</span> <span class="dt">Text.RE.Tools.Edit</span>
+  , <span class="kw">module</span> <span class="dt">Text.RE.Types.LineNo</span>
   ) <span class="kw">where</span>
 
 <span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>               <span class="kw">as</span> <span class="dt">LBS</span>
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Edit</span>
-<span class="kw">import           </span><span class="dt">Text.RE.LineNo</span>
-<span class="kw">import           </span><span class="dt">Text.RE.IsRegex</span>
+<span class="kw">import           </span><span class="dt">Text.RE</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Edit</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.LineNo</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.IsRegex</span>
 
 
 <span class="kw">type</span> <span class="dt">SedScript</span> re <span class="fu">=</span> <span class="dt">Edits</span> <span class="dt">IO</span> re <span class="dt">LBS.ByteString</span>
@@ -102,14 +107,14 @@ sed as i_fp o_fp <span class="fu">=</span> <span class="kw">do</span>
         ]
   write_file o_fp <span class="fu">$</span> LBS.concat lns&#39;
 
-<span class="ot">sed&#39; ::</span> (<span class="dt">IsRegex</span> re <span class="dt">LBS.ByteString</span>,<span class="dt">Monad</span> m,<span class="dt">Functor</span> m)
-     <span class="ot">=&gt;</span> <span class="dt">Edits</span> m re <span class="dt">LBS.ByteString</span>
-     <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
-     <span class="ot">-&gt;</span> m <span class="dt">LBS.ByteString</span>
+<span class="ot">sed&#39; ::</span> (<span class="dt">IsRegex</span> re a,<span class="dt">Monad</span> m,<span class="dt">Functor</span> m)
+     <span class="ot">=&gt;</span> <span class="dt">Edits</span> m re a
+     <span class="ot">-&gt;</span> a
+     <span class="ot">-&gt;</span> m a
 sed&#39; as lbs <span class="fu">=</span> <span class="kw">do</span>
-  LBS.concat <span class="fu">&lt;$&gt;</span> sequence
+  mconcat <span class="fu">&lt;$&gt;</span> sequence
     [ applyEdits lno as s
-        <span class="fu">|</span> (lno,s)<span class="ot">&lt;-</span>zip [firstLine<span class="fu">..</span>] <span class="fu">$</span> LBS.lines lbs
+        <span class="fu">|</span> (lno,s)<span class="ot">&lt;-</span>zip [firstLine<span class="fu">..</span>] <span class="fu">$</span> linesE lbs
         ]
 
 <span class="ot">read_file ::</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">LBS.ByteString</span>

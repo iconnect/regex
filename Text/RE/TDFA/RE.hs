@@ -42,6 +42,8 @@ module Text.RE.TDFA.RE
   , preludeSource
   , unpackSimpleRegexOptions
   , compileRegex
+  , compileRegexWith
+  , compileRegexWithOptions
   , escape
   , escapeREString
   ) where
@@ -56,6 +58,8 @@ import           Text.RE.Internal.NamedCaptures
 import           Text.RE.Internal.PreludeMacros
 import           Text.RE.Internal.QQ
 import           Text.RE.TestBench
+import           Text.RE.Types.CaptureID
+import           Text.RE.Types.Options
 import           Text.Regex.TDFA
 
 
@@ -83,7 +87,7 @@ re_                      = re'   Nothing
 
 regexType :: RegexType
 regexType =
-  TDFA $ \txt env md -> txt =~ mdRegexSource regexType ExclCaptures env md
+  mkTDFA $ \txt env md -> txt =~ mdRegexSource regexType ExclCaptures env md
 
 data RE =
   RE
@@ -156,14 +160,20 @@ unpackSimpleRegexOptions sro =
         BlockSensitive        -> (,) False True
         BlockInsensitive      -> (,) False False
 
-compileRegex :: ( IsOption o RE CompOption ExecOption
-                , Functor m
-                , Monad   m
-                )
-             => o
-             -> String
-             -> m RE
-compileRegex = compileRegex_ . makeOptions
+compileRegex :: (Functor m,Monad m) => String -> m RE
+compileRegex = compileRegexWithOptions ()
+
+compileRegexWith :: (Functor m,Monad m) => SimpleRegexOptions -> String -> m RE
+compileRegexWith = compileRegexWithOptions
+
+compileRegexWithOptions :: ( IsOption o RE CompOption ExecOption
+                           , Functor m
+                           , Monad   m
+                           )
+                        => o
+                        -> String
+                        -> m RE
+compileRegexWithOptions = compileRegex_ . makeOptions
 
 compileRegex_ :: (Functor m,Monad m)
               => Options

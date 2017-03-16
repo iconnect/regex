@@ -10,7 +10,9 @@
 
 module Text.RE.TestBench
   ( MacroID(..)
-  , RegexType(..)
+  , RegexType
+  , mkTDFA
+  , mkPCRE
   , isTDFA
   , isPCRE
   , presentRegexType
@@ -43,9 +45,11 @@ import           Data.Ord
 import           Data.String
 import           Text.Printf
 import           Prelude.Compat
-import           Text.RE.Capture
-import           Text.RE.Options
-import           Text.RE.Replace
+import           Text.RE.Types.Capture
+import           Text.RE.Types.Options
+import           Text.RE.Types.Match
+import           Text.RE.Types.Matches
+import           Text.RE.Types.Replace
 \end{code}
 
 Types
@@ -70,6 +74,10 @@ isTDFA (PCRE _) = False
 
 isPCRE (TDFA _) = False
 isPCRE (PCRE _) = True
+
+mkTDFA, mkPCRE :: TestBenchMatcher -> RegexType
+mkTDFA = TDFA
+mkPCRE = PCRE
 
 presentRegexType :: RegexType -> String
 presentRegexType (TDFA _) = "TDFA"

@@ -11,13 +11,18 @@ module Text.RE.Tools.Sed
   ( SedScript
   , sed
   , sed'
+  , module Text.RE
+  , module Text.RE.Types.IsRegex
+  , module Text.RE.Tools.Edit
+  , module Text.RE.Types.LineNo
   ) where
 
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Prelude.Compat
-import           Text.RE.Edit
-import           Text.RE.LineNo
-import           Text.RE.IsRegex
+import           Text.RE
+import           Text.RE.Tools.Edit
+import           Text.RE.Types.LineNo
+import           Text.RE.Types.IsRegex
 
 
 type SedScript re = Edits IO re LBS.ByteString
@@ -35,14 +40,14 @@ sed as i_fp o_fp = do
         ]
   write_file o_fp $ LBS.concat lns'
 
-sed' :: (IsRegex re LBS.ByteString,Monad m,Functor m)
-     => Edits m re LBS.ByteString
-     -> LBS.ByteString
-     -> m LBS.ByteString
+sed' :: (IsRegex re a,Monad m,Functor m)
+     => Edits m re a
+     -> a
+     -> m a
 sed' as lbs = do
-  LBS.concat <$> sequence
+  mconcat <$> sequence
     [ applyEdits lno as s
-        | (lno,s)<-zip [firstLine..] $ LBS.lines lbs
+        | (lno,s)<-zip [firstLine..] $ linesE lbs
         ]
 
 read_file :: FilePath -> IO LBS.ByteString

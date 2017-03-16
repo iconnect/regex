@@ -41,7 +41,6 @@ import           Test.Tasty.HUnit
 import           Test.Tasty.SmallCheck          as SC
 import           Text.Heredoc
 import qualified Text.Regex.PCRE                as PCRE_
-
 import qualified Text.Regex.TDFA                as TDFA_
 import           Text.RE
 import           Text.RE.Internal.AddCaptureNames
@@ -51,6 +50,9 @@ import           Text.RE.Internal.QQ
 import qualified Text.RE.PCRE                   as PCRE
 import           Text.RE.TDFA                   as TDFA
 import           Text.RE.TestBench
+import           Text.RE.Types.CaptureID
+import           Text.RE.Types.IsRegex
+import           Text.RE.Types.Options
 
 import qualified Text.RE.PCRE.String            as P_ST
 import qualified Text.RE.PCRE.ByteString        as P_BS
@@ -206,12 +208,41 @@ regex_alt_str_matches =
 parsing_tests :: TestTree
 parsing_tests = testGroup "Parsing"
   [ testCase "complete check (matchM/ByteString)" $ do
-      r    <- compileRegex () $ reSource regex_
+      r <- TDFA.compileRegex $ reSource regex_
       assertEqual "Match" (B.pack <$> regex_str_match) $ B.pack str_ ?=~ r
   , testCase "matched (matchM/Text)" $ do
-      r     <- compileRegex () $ reSource regex_
-      assertEqual "matched" True $ matched $ T.pack str_ ?=~ r
+      r <- TDFA.compileRegex $ reSource regex_
+      assertBool "matched" $ matched $ T.pack str_ ?=~ r
+  , tc "TDFA.String"  TDFA.compileRegex
+  , tc "TDFA.B"     $ TDFA.compileRegex . B.unpack
+  , tc "TDFA.LBS"   $ TDFA.compileRegex . LBS.unpack
+  , tc "TDFA.T"     $ TDFA.compileRegex . T.unpack
+  , tc "TDFA.LT"    $ TDFA.compileRegex . LT.unpack
+  , tc "TDFA.S"     $ TDFA.compileRegex . s_toList
+  , tc "PCRE.String"  PCRE.compileRegex
+  , tc "PCRE.B"     $ PCRE.compileRegex . B.unpack
+  , tc "PCRE.LBS"   $ PCRE.compileRegex . LBS.unpack
+  , tc "PCRE.S"     $ PCRE.compileRegex . s_toList
   ]
+  where
+    tc :: IsRegex re s => String -> (s->IO re) -> TestTree
+    tc lab mk0 = testGroup lab
+        [ testCase "loop" $ do
+            r <- mk re_s
+            assertEqual "RE" re_s $ regexSource r
+        , testCase "Match" $ do
+            r <- mk re_s
+            assertEqual "Match" (pk <$> regex_str_match) $ matchOnce r $ pk str_
+        ]
+      where
+        mk   = makeRegex `asTypeOf` mk0
+
+        re_s = pk $ reSource regex_
+
+        pk   = mk_pk mk0
+
+        mk_pk :: Replace s' => (s'->IO re') -> String -> s'
+        mk_pk _ = packE
 \end{code}
 
 <h3>core tests</h3>
@@ -385,8 +416,8 @@ many_tests = testGroup "Many Tests"
         txt     = inj "2016-01-09 2015-12-5 2015-10-05"
         txt'    = inj "2016-01-09"
 
-    re_pcre = fromMaybe oops $ PCRE.compileRegex () "[0-9]{4}-[0-9]{2}-[0-9]{2}"
-    re_tdfa = fromMaybe oops $ TDFA.compileRegex () "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+    re_pcre = fromMaybe oops $ PCRE.compileRegex "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+    re_tdfa = fromMaybe oops $ TDFA.compileRegex "[0-9]{4}-[0-9]{2}-[0-9]{2}"
 
     oops    = error "many_tests"
 \end{code}
@@ -610,8 +641,8 @@ misc_tests = testGroup "Miscelaneous Tests"
         ]
     ]
   where
-    tdfa_re   = fromMaybe oops $ TDFA.compileRegex tdfa_opts ".*"
-    pcre_re   = fromMaybe oops $ PCRE.compileRegex pcre_opts ".*"
+    tdfa_re   = fromMaybe oops $ TDFA.compileRegexWithOptions tdfa_opts ".*"
+    pcre_re   = fromMaybe oops $ PCRE.compileRegexWithOptions pcre_opts ".*"
 
     tdfa_opts = makeOptions no_macs_t :: Options_ TDFA.RE TDFA_.CompOption TDFA_.ExecOption
     pcre_opts = makeOptions no_macs_p :: Options_ PCRE.RE PCRE_.CompOption PCRE_.ExecOption
@@ -662,4 +693,7 @@ pcre_prelude_macros = filter (/= PM_string) [minBound..maxBound]
 
 tdfa_prelude_macros :: [PreludeMacro]
 tdfa_prelude_macros = [minBound..maxBound]
+
+s_toList :: S.Seq Char -> [Char]
+s_toList = F.toList
 \end{code}

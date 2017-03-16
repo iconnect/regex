@@ -6,7 +6,7 @@
 {-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
 #endif
 
-module Text.RE.Edit
+module Text.RE.Tools.Edit
   ( LineNo
   , Edits(..)
   , Edit(..)
@@ -18,10 +18,12 @@ module Text.RE.Edit
 
 import           Data.Maybe
 import           Prelude.Compat
-import           Text.RE.Capture
-import           Text.RE.IsRegex
-import           Text.RE.LineNo
-import           Text.RE.Replace
+import           Text.RE.Types.Capture
+import           Text.RE.Types.Match
+import           Text.RE.Types.Matches
+import           Text.RE.Types.IsRegex
+import           Text.RE.Types.LineNo
+import           Text.RE.Types.Replace
 
 
 data Edits m re s

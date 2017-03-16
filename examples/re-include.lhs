@@ -31,8 +31,11 @@ import qualified Data.Text                                as T
 import           Prelude.Compat
 import           System.Environment
 import           TestKit
-import           Text.RE.Edit
+import           Text.RE.Tools.Edit
 import           Text.RE.TDFA.ByteString.Lazy
+import           Text.RE.TestBench.Parsers
+import           Text.RE.Tools.Grep
+import           Text.RE.Tools.Sed
 \end{code}
 
 \begin{code}
@@ -76,7 +79,7 @@ include_file :: LineNo
              -> Capture LBS.ByteString
              -> IO (Maybe LBS.ByteString)
 include_file _ mtch _ _ = fmap Just $
-    extract fp =<< compileRegex () re_s
+    extract fp =<< compileRegex re_s
   where
     fp    = prs_s $ captureText [cp|file|] mtch
     re_s  = prs_s $ captureText [cp|rex|]  mtch

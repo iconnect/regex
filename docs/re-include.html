@@ -89,8 +89,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">System.Environment</span>
 <span class="kw">import           </span><span class="dt">TestKit</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Edit</span>
-<span class="kw">import           </span><span class="dt">Text.RE.TDFA.ByteString.Lazy</span></code></pre></div>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Edit</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TDFA.ByteString.Lazy</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TestBench.Parsers</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Grep</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">main ::</span> <span class="dt">IO</span> ()
 main <span class="fu">=</span> <span class="kw">do</span>
   as  <span class="ot">&lt;-</span> getArgs
@@ -122,7 +125,7 @@ loop <span class="fu">=</span>
              <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
              <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
 include_file _ mtch _ _ <span class="fu">=</span> fmap <span class="dt">Just</span> <span class="fu">$</span>
-    extract fp <span class="fu">=&lt;&lt;</span> compileRegex () re_s
+    extract fp <span class="fu">=&lt;&lt;</span> compileRegex re_s
   <span class="kw">where</span>
     fp    <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|file|] mtch
     re_s  <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|rex|]  mtch

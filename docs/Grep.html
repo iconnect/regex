@@ -78,14 +78,17 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   , <span class="dt">GrepScript</span>
   , grepScript
   , linesMatched
+  , <span class="kw">module</span> <span class="dt">Text.RE</span>
+  , <span class="kw">module</span> <span class="dt">Text.RE.Types.IsRegex</span>
+  , <span class="kw">module</span> <span class="dt">Text.RE.Types.LineNo</span>
   ) <span class="kw">where</span>
 
 <span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>               <span class="kw">as</span> <span class="dt">LBS</span>
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">Text.Printf</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Capture</span>
-<span class="kw">import           </span><span class="dt">Text.RE.IsRegex</span>
-<span class="kw">import           </span><span class="dt">Text.RE.LineNo</span>
+<span class="kw">import           </span><span class="dt">Text.RE</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.IsRegex</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.LineNo</span>
 
 
 <span class="kw">data</span> <span class="dt">Line</span> <span class="fu">=</span>

@@ -31,6 +31,7 @@ import qualified Data.ByteString.Lazy.Char8    as LBS
 import           Data.Typeable
 import           Text.Regex.Base
 import           Text.RE
+import           Text.RE.Types.IsRegex
 import           Text.RE.Internal.AddCaptureNames
 import           Text.RE.TDFA.RE
 import qualified Text.Regex.TDFA               as TDFA
@@ -71,9 +72,11 @@ import qualified Text.Regex.TDFA               as TDFA
 (=~~) bs rex = addCaptureNames (reCaptureNames rex) <$> matchM (reRegex rex) bs
 
 instance IsRegex RE LBS.ByteString where
-  matchOnce   = flip (?=~)
-  matchMany   = flip (*=~)
-  regexSource = reSource
+  matchOnce     = flip (?=~)
+  matchMany     = flip (*=~)
+  makeRegexWith = \o -> compileRegexWith o . unpackE
+  makeRegex     = compileRegex . unpackE
+  regexSource   = packE . reSource
 
 -- $tutorial
 -- We have a regex tutorial at <http://tutorial.regex.uk>. These API

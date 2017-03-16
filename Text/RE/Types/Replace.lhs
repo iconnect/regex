@@ -6,7 +6,7 @@
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 
-module Text.RE.Replace
+module Text.RE.Types.Replace
   ( Replace(..)
   , ReplaceMethods(..)
   , replaceMethods
@@ -41,9 +41,11 @@ import qualified Data.Text.Encoding             as TE
 import qualified Data.Text.Lazy                 as LT
 import           Prelude.Compat
 import           Text.Heredoc
-import           Text.RE.Capture
-import           Text.RE.CaptureID
-import           Text.RE.Options
+import           Text.RE.Types.Capture
+import           Text.RE.Types.CaptureID
+import           Text.RE.Types.Match
+import           Text.RE.Types.Matches
+import           Text.RE.Types.Options
 import           Text.Read
 import           Text.Regex.TDFA
 import           Text.Regex.TDFA.Text()
@@ -53,7 +55,7 @@ import           Text.Regex.TDFA.Text.Lazy()
 \begin{code}
 -- | Replace provides the missing methods needed to replace the matched
 -- text; lengthE is the minimum implementation
-class (Extract a,Monoid a) => Replace a where
+class (Show a,Eq a,Ord a,Extract a,Monoid a) => Replace a where
   -- | length function for a
   lengthE        :: a -> Int
   -- | inject String into a
@@ -64,6 +66,10 @@ class (Extract a,Monoid a) => Replace a where
   textifyE       :: a -> T.Text
   -- | project Text onto a
   detextifyE     :: T.Text -> a
+  -- | split into lines
+  linesE         :: a -> [a]
+  -- | concatenate a list of lines
+  unlinesE       :: [a] -> a
   -- | append a newline
   appendNewlineE :: a -> a
   -- | apply a substitution function to a Capture
@@ -318,6 +324,8 @@ instance Replace [Char] where
   unpackE         = id
   textifyE        = T.pack
   detextifyE      = T.unpack
+  linesE          = lines
+  unlinesE        = unlines
   appendNewlineE  = (<>"\n")
   parseTemplateE  = parseTemplateE' id
 
@@ -327,6 +335,8 @@ instance Replace B.ByteString where
   unpackE         = B.unpack
   textifyE        = TE.decodeUtf8
   detextifyE      = TE.encodeUtf8
+  linesE          = B.lines
+  unlinesE        = B.unlines
   appendNewlineE  = (<>"\n")
   parseTemplateE  = parseTemplateE' B.unpack
 
@@ -335,6 +345,8 @@ instance Replace LBS.ByteString where
   packE           = LBS.pack
   unpackE         = LBS.unpack
   textifyE        = TE.decodeUtf8  . LBS.toStrict
+  linesE          = LBS.lines
+  unlinesE        = LBS.unlines
   detextifyE      = LBS.fromStrict . TE.encodeUtf8
   appendNewlineE  = (<>"\n")
   parseTemplateE  = parseTemplateE' LBS.unpack
@@ -343,6 +355,8 @@ instance Replace (S.Seq Char) where
   lengthE         = S.length
   packE           = S.fromList
   unpackE         = F.toList
+  linesE          = map packE . lines . unpackE
+  unlinesE        = packE . unlines . map unpackE
   parseTemplateE  = parseTemplateE' F.toList
 
 instance Replace T.Text where
@@ -351,6 +365,8 @@ instance Replace T.Text where
   unpackE         = T.unpack
   textifyE        = id
   detextifyE      = id
+  linesE          = T.lines
+  unlinesE        = T.unlines
   appendNewlineE  = (<>"\n")
   parseTemplateE  = parseTemplateE' T.unpack
 
@@ -360,6 +376,8 @@ instance Replace LT.Text where
   unpackE         = LT.unpack
   textifyE        = LT.toStrict
   detextifyE      = LT.fromStrict
+  linesE          = LT.lines
+  unlinesE        = LT.unlines
   appendNewlineE  = (<>"\n")
   parseTemplateE  = parseTemplateE' LT.unpack
 \end{code}

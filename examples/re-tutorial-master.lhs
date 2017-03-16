@@ -84,6 +84,8 @@ dealing with bulk text will probably want to choose one of the other
 options.
 \begin{code}
 import           Text.RE.TDFA.String
+import           Text.RE.Types.CaptureID
+import           Text.RE.Types.Options
 \end{code}
 If you are predominantly matching against a single type in your module
 then you will probably find it more convenient to use the relevant module
@@ -253,9 +255,9 @@ The type of `*=~` in this module (imported from
 (*=~) :: String -> RE -> Matches String
 ```
 </div>
-with `Matches` defined in `Text.RE.Capture` thus:
+with `Matches` defined in `Text.RE.Types.Capture` thus:
 
-%include "Text/RE/Capture.lhs" "^data Matches "
+%include "Text/RE/Types/Matches.lhs" "^data Matches "
 
 The critical component of the `Matches` type is the `[Match a]` in
 `allMatches`, containing the details all of each substring matched by
@@ -270,9 +272,9 @@ The type of `?=~` in this module (imported from
 ```
 </div>
 with `Match` (referenced in the definition of `Matches` above) defined
-in `Text.RE.Capture` thus:
+in `Text.RE.Types.Capture` thus:
 
-%include "Text/RE/Capture.lhs" "^data Match "
+%include "Text/RE/Types/Match.lhs" "^data Match "
 
 Like `matchesSource` above, `matchSource` retains the original search
 string, but also a `CaptureNames` field listing all of the capture
@@ -286,7 +288,7 @@ on.
 
 Each captured substring is represented by the following `Capture` type:
 
-%include "Text/RE/Capture.lhs" "^data Capture "
+%include "Text/RE/Types/Capture.lhs" "^data Capture "
 
 Here we list the whole original search string in `captureSource` and
 the text of the sub-string captured in `capturedText`. `captureOffset`
@@ -377,12 +379,12 @@ evalme_RPF_01 = checkThis "" ("2016-01-09 2015-12-05 2015-10-05") $ fixup_dates 
 
 The `replaceAllCaptures` function is of type
 
-%include "Text/RE/Replace.lhs" "replaceAllCaptures ::"
+%include "Text/RE/Types/Replace.lhs" "replaceAllCaptures ::"
 
 and the `Context` and `Location` types are defined in
-`Text.RE.Replace` as follows,
+`Text.RE.Types.Replace` as follows,
 
-%include "Text/RE/Replace.lhs" "^data Context"
+%include "Text/RE/Types/Replace.lhs" "^data Context"
 
 The processing function gets applied to the captures specified by the
 `Context`, which can be directed to process `ALL` of the captures,
@@ -420,7 +422,7 @@ The `fixup_and_reformat_dates` applied to our running example,
 evalme_RPF_02 = checkThis "" ("[2016-01-09] [2015-12-05] [2015-10-05]") $ fixup_and_reformat_dates "2016-01-09 2015-12-5 2015-10-05"
 \end{code}
 
-`Text.RE.Replace` provides analagous functions for replacing the
+`Text.RE.Types.Replace` provides analagous functions for replacing the
 test of a single `Match` returned from `?=~`.
 
 
@@ -457,7 +459,7 @@ accordingly so that you don't have to, but you may need full access to
 you chosen back end's options, or you may need to supply a different
 set of macros to those provided in the standard environment. In which
 case you will need to know about the `Options` type, defined by each of
-the back ends in terms of the `Options_` type of `Text.RE.Options`
+the back ends in terms of the `Options_` type of `Text.RE.Types.Options`
 as follows.
 <div class='inlinecodeblock'>
 ```
@@ -467,9 +469,9 @@ type Options = Options_ RE CompOption ExecOption
 (Bear in mind that `CompOption` and `ExecOption` will be different
 types for each back end.)
 
-The `Options_` type is defined in `Text.RE.Options` as follows:
+The `Options_` type is defined in `Text.RE.Types.Options` as follows:
 
-%include "Text/RE/Options.lhs" "data Options_"
+%include "Text/RE/Types/Options.lhs" "data Options_"
 
   * `optionsMode` is an experimental feature that controls the RE
     parser.
@@ -506,7 +508,7 @@ REs. Your configuration-type options are:
   * `SimpleRegexOptions` this is just a simple enum type that we use to
     encode the standard options:
 
-%include "Text/RE/Options.lhs" "^data SimpleRegexOptions"
+%include "Text/RE/Types/Options.lhs" "^data SimpleRegexOptions"
 
   * `Mode`: you can specify the parser mode;
 
@@ -530,10 +532,10 @@ check_for_failure = either error id
 \end{code}
 
 \begin{code}
-evalme_OPT_00 = checkThis "" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ check_for_failure (compileRegex () "@{%date}")
+evalme_OPT_00 = checkThis "" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ check_for_failure (compileRegex "@{%date}")
 \end{code}
 \begin{code}
-evalme_OPT_01 = checkThis "" (1) $ countMatches $ "0a\nbb\nFe\nA5" *=~ check_for_failure (compileRegex BlockInsensitive "[0-9a-f]{2}$")
+evalme_OPT_01 = checkThis "" (1) $ countMatches $ "0a\nbb\nFe\nA5" *=~ check_for_failure (compileRegexWith BlockInsensitive "[0-9a-f]{2}$")
 \end{code}
 
 This will allow you to compile regular expressions when the either the
@@ -570,7 +572,7 @@ regex conterparts.
     except as a development prototype (used internally in
     [Text.RE.Internal.NamedCaptures](NamedCaptures.html)).
 
-  * [Text.RE.Tools.Sed](Sed.html) using [Text.RE.Edit](Edit.html):
+  * [Text.RE.Tools.Sed](Sed.html) using [Text.RE.Tools.Edit](Edit.html):
     takes an association list of regular expressions and substitution actions,
     some input text and invokes the associated action on each line of the file
     that matches one of the REs, substituting the text returned from the action
@@ -693,7 +695,7 @@ For example:
 evalme_PMC_00 = checkThis "" ("foo MacroID {getMacroID = \"bar\"} baz") $ expandMacros_ (Just . show) "foo @{bar} baz"
 \end{code}
 
-See [Text.RE.Replace](Replace.html) for details.
+See [Text.RE.Types.Replace](Replace.html) for details.
 
 
 Example: Parsing Replace Templates
@@ -742,7 +744,7 @@ This should yield `"2016/01/11"`:
 evalme_TPL_00 = checkThis "" ("2016/01/11") $ date_reformat "2016-01-11"
 \end{code}
 
-See [Text.RE.Replace](Replace.html)
+See [Text.RE.Types.Replace](Replace.html)
 
 
 Example: include preprocessor

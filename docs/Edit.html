@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>regex – Text.RE.Edit</title>
+  <title>regex – Text.RE.Tools.Edit</title>
   <style type="text/css">code{white-space: pre;}</style>
   <style type="text/css">
 div.sourceCode { overflow-x: auto; }
@@ -59,12 +59,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class='bcdiv'>
   <ol class='breadcrumb'>
     <li><a href="." style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a></li>
-    <li><a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/Edit.lhs'>Text.RE.Edit</a></li>
+    <li><a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/Tools/Edit.lhs'>Text.RE.Tools.Edit</a></li>
 </ol>
 </div>
 <div class='litcontent'>
 <header>
-<h1 class="title">Text.RE.Edit</h1>
+<h1 class="title">Text.RE.Tools.Edit</h1>
 </header>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
@@ -73,7 +73,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="ot">{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}</span>
 <span class="ot">#endif</span>
 
-<span class="kw">module</span> <span class="dt">Text.RE.Edit</span>
+<span class="kw">module</span> <span class="dt">Text.RE.Tools.Edit</span>
   ( <span class="dt">LineNo</span>
   , <span class="dt">Edits</span>(<span class="fu">..</span>)
   , <span class="dt">Edit</span>(<span class="fu">..</span>)
@@ -85,10 +85,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <span class="kw">import           </span><span class="dt">Data.Maybe</span>
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Capture</span>
-<span class="kw">import           </span><span class="dt">Text.RE.IsRegex</span>
-<span class="kw">import           </span><span class="dt">Text.RE.LineNo</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Replace</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Capture</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Match</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Matches</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.IsRegex</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.LineNo</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span>
 
 
 <span class="kw">data</span> <span class="dt">Edits</span> m re s

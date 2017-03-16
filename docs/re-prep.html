@@ -96,7 +96,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">System.IO</span>
 <span class="kw">import           </span><span class="dt">TestKit</span>
 <span class="kw">import           </span><span class="dt">Text.Heredoc</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Edit</span>
+<span class="kw">import           </span><span class="dt">Text.RE.TestBench.Parsers</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Grep</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TDFA.ByteString.Lazy</span>
 <span class="kw">import qualified</span> <span class="dt">Text.RE.TDFA.Text</span>                        <span class="kw">as</span> <span class="dt">TT</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">main ::</span> <span class="dt">IO</span> ()
@@ -199,12 +201,14 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     pd <span class="st">&quot;re-prep&quot;</span>
     pd <span class="st">&quot;re-tests&quot;</span>
     pd <span class="st">&quot;TestKit&quot;</span>
-    pd <span class="st">&quot;RE/Capture&quot;</span>
-    pd <span class="st">&quot;RE/Edit&quot;</span>
-    pd <span class="st">&quot;RE/IsRegex&quot;</span>
-    pd <span class="st">&quot;RE/Options&quot;</span>
-    pd <span class="st">&quot;RE/Replace&quot;</span>
+    pd <span class="st">&quot;RE/Types/Matches&quot;</span>
+    pd <span class="st">&quot;RE/Types/Match&quot;</span>
+    pd <span class="st">&quot;RE/Types/Capture&quot;</span>
+    pd <span class="st">&quot;RE/Types/IsRegex&quot;</span>
+    pd <span class="st">&quot;RE/Types/Options&quot;</span>
+    pd <span class="st">&quot;RE/Types/Replace&quot;</span>
     pd <span class="st">&quot;RE/TestBench&quot;</span>
+    pd <span class="st">&quot;RE/Tools/Edit&quot;</span>
     pd <span class="st">&quot;RE/Tools/Grep&quot;</span>
     pd <span class="st">&quot;RE/Tools/Lex&quot;</span>
     pd <span class="st">&quot;RE/Tools/Sed&quot;</span>
@@ -228,7 +232,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
         (<span class="dt">Just</span> fdr,<span class="dt">Just</span> mnm) <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;Text.RE.&quot;</span><span class="fu">&lt;&gt;</span>fdr<span class="fu">&lt;&gt;</span><span class="st">&quot;.&quot;</span><span class="fu">&lt;&gt;</span>mnm) (<span class="st">&quot;Text/&quot;</span>    <span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
         _                   <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span> ) (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
       <span class="kw">where</span>
-        mtch <span class="fu">=</span> fnm <span class="fu">TT.?=~</span> [re|^RE/(${fdr}(Tools|Internal)/)?${mnm}(@{%id})|]</code></pre></div>
+        mtch <span class="fu">=</span> fnm <span class="fu">TT.?=~</span> [re|^RE/(${fdr}(Internal|PCRE|TDFA|Testbench|Tools|Types)/)?${mnm}(@{%id})|]</code></pre></div>
 <h2 id="generating-the-tutorial">Generating the Tutorial</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">includeDoc ::</span> <span class="dt">LineNo</span>
            <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
@@ -236,7 +240,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
            <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
            <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
 includeDoc _ mtch _ _ <span class="fu">=</span> fmap <span class="dt">Just</span> <span class="fu">$</span>
-    extract fp <span class="fu">=&lt;&lt;</span> compileRegex () re_s
+    extract fp <span class="fu">=&lt;&lt;</span> compileRegex re_s
   <span class="kw">where</span>
     fp    <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|file|] mtch
     re_s  <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|rex|]  mtch

@@ -7,18 +7,10 @@
 \end{code}
 
 \begin{code}
-module Text.RE.Capture
-  ( Matches(..)
-  , Match(..)
-  , Capture(..)
+module Text.RE.Types.Match
+  ( Match(..)
   , noMatch
   , emptyMatchArray
-  -- Matches functions
-  , anyMatches
-  , countMatches
-  , matches
-  , mainCaptures
-  -- Match functions
   , matched
   , matchedText
   , matchCapture
@@ -31,10 +23,7 @@ module Text.RE.Capture
   , capture
   , (!$?)
   , captureMaybe
-  -- Capture functions
-  , hasCaptured
-  , capturePrefix
-  , captureSuffix
+  , convertMatchText
   ) where
 \end{code}
 
@@ -43,22 +32,10 @@ import           Data.Array
 import           Data.Maybe
 import           Data.Typeable
 import           Text.Regex.Base
-import           Text.RE.CaptureID
+import           Text.RE.Types.Capture
+import           Text.RE.Types.CaptureID
 
 infixl 9 !$, !$$
-\end{code}
-
-
-
-\begin{code}
--- | the result type to use when every match is needed, not just the
--- first match of the RE against the source
-data Matches a =
-  Matches
-    { matchesSource :: !a          -- ^ the source text being matched
-    , allMatches    :: ![Match a]  -- ^ all captures found, left to right
-    }
-  deriving (Show,Eq,Typeable)
 \end{code}
 
 \begin{code}
@@ -80,22 +57,6 @@ data Match a =
 \end{code}
 
 \begin{code}
--- | the matching of a single sub-expression against part of the source
--- text
-data Capture a =
-  Capture
-    { captureSource  :: !a    -- ^ the whole text that was searched
-    , capturedText   :: !a    -- ^ the text that was matched
-    , captureOffset  :: !Int  -- ^ the number of characters preceding the
-                              -- match with -1 used if no text was captured
-                              -- by the RE (not even the empty string)
-    , captureLength  :: !Int  -- ^ the number of chacter in the captured
-                              -- sub-string
-    }
-  deriving (Show,Eq)
-\end{code}
-
-\begin{code}
 -- | Construct a Match that does not match anything.
 noMatch :: a -> Match a
 noMatch t = Match t noCaptureNames emptyMatchArray
@@ -106,13 +67,6 @@ emptyMatchArray = listArray (CaptureOrdinal 0,CaptureOrdinal $ -1) []
 \end{code}
 
 \begin{code}
-instance Functor Matches where
-  fmap f Matches{..} =
-    Matches
-      { matchesSource = f matchesSource
-      , allMatches    = map (fmap f) allMatches
-      }
-
 instance Functor Match where
   fmap f Match{..} =
     Match
@@ -120,35 +74,7 @@ instance Functor Match where
       , captureNames = captureNames
       , matchArray   = fmap (fmap f) matchArray
       }
-
-instance Functor Capture where
-  fmap f c@Capture{..} =
-    c
-      { captureSource = f captureSource
-      , capturedText = f capturedText
-      }
 \end{code}
-
-\begin{code}
--- | tests whether the RE matched the source text at all
-anyMatches :: Matches a -> Bool
-anyMatches = not . null . allMatches
-
--- | count the matches
-countMatches :: Matches a -> Int
-countMatches = length . allMatches
-
-matches :: Matches a -> [a]
-matches = map capturedText . mainCaptures
-
--- | extract the main capture from each match
-mainCaptures :: Matches a -> [Capture a]
-mainCaptures ac = [ capture c0 cs | cs<-allMatches ac ]
-  where
-    c0 = IsCaptureOrdinal $ CaptureOrdinal 0
-\end{code}
-
-
 
 \begin{code}
 -- | tests whether the RE matched the source text at all
@@ -231,47 +157,22 @@ lookupCaptureID cid Match{..} = findCaptureID cid captureNames
 
 
 \begin{code}
--- | test if the capture has matched any text
-hasCaptured :: Capture a -> Bool
-hasCaptured = (>=0) . captureOffset
-
--- | returns the text preceding the match
-capturePrefix :: Extract a => Capture a -> a
-capturePrefix Capture{..} = before captureOffset captureSource
-
--- | returns the text after the match
-captureSuffix :: Extract a => Capture a -> a
-captureSuffix Capture{..} = after (captureOffset+captureLength) captureSource
-\end{code}
-
-
-\begin{code}
 -- | for matching just the first RE against the source text
 instance
     ( RegexContext regex source (AllTextSubmatches (Array Int) (source,(Int,Int)))
     , RegexLike    regex source
     ) =>
   RegexContext regex source (Match source) where
-    match  r s = cvt s $ getAllTextSubmatches $ match r s
+    match  r s = convertMatchText s $ getAllTextSubmatches $ match r s
     matchM r s = do
       y <- matchM r s
-      return $ cvt s $ getAllTextSubmatches y
-
--- | for matching all REs against the source text
-instance
-    ( RegexContext regex source [MatchText source]
-    , RegexLike    regex source
-    ) =>
-  RegexContext regex source (Matches source) where
-    match  r s = Matches s $ map (cvt s) $ match r s
-    matchM r s = do
-      y <- matchM r s
-      return $ Matches s $ map (cvt s) y
+      return $ convertMatchText s $ getAllTextSubmatches y
 \end{code}
 
 \begin{code}
-cvt :: source -> MatchText source -> Match source
-cvt hay arr =
+-- | convert a regex-base native MatchText into a regex Match type
+convertMatchText :: source -> MatchText source -> Match source
+convertMatchText hay arr =
     Match
       { matchSource  = hay
       , captureNames = noCaptureNames

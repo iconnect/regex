@@ -77,7 +77,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <span class="kw">module</span> <span class="dt">Text.RE.TestBench</span>
   ( <span class="dt">MacroID</span>(<span class="fu">..</span>)
-  , <span class="dt">RegexType</span>(<span class="fu">..</span>)
+  , <span class="dt">RegexType</span>
+  , mkTDFA
+  , mkPCRE
   , isTDFA
   , isPCRE
   , presentRegexType
@@ -110,9 +112,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Data.String</span>
 <span class="kw">import           </span><span class="dt">Text.Printf</span>
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Capture</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Options</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Replace</span></code></pre></div>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Capture</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Options</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Match</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Matches</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span></code></pre></div>
 <h2 id="types">Types</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">
 <span class="kw">type</span> <span class="dt">TestBenchMatcher</span> <span class="fu">=</span>
@@ -132,6 +136,10 @@ isTDFA (<span class="dt">PCRE</span> _) <span class="fu">=</span> <span class="d
 
 isPCRE (<span class="dt">TDFA</span> _) <span class="fu">=</span> <span class="dt">False</span>
 isPCRE (<span class="dt">PCRE</span> _) <span class="fu">=</span> <span class="dt">True</span>
+
+mkTDFA,<span class="ot"> mkPCRE ::</span> <span class="dt">TestBenchMatcher</span> <span class="ot">-&gt;</span> <span class="dt">RegexType</span>
+mkTDFA <span class="fu">=</span> <span class="dt">TDFA</span>
+mkPCRE <span class="fu">=</span> <span class="dt">PCRE</span>
 
 <span class="ot">presentRegexType ::</span> <span class="dt">RegexType</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
 presentRegexType (<span class="dt">TDFA</span> _) <span class="fu">=</span> <span class="st">&quot;TDFA&quot;</span>

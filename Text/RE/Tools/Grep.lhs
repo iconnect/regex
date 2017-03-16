@@ -11,14 +11,17 @@ module Text.RE.Tools.Grep
   , GrepScript
   , grepScript
   , linesMatched
+  , module Text.RE
+  , module Text.RE.Types.IsRegex
+  , module Text.RE.Types.LineNo
   ) where
 
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Prelude.Compat
 import           Text.Printf
-import           Text.RE.Capture
-import           Text.RE.IsRegex
-import           Text.RE.LineNo
+import           Text.RE
+import           Text.RE.Types.IsRegex
+import           Text.RE.Types.LineNo
 
 
 data Line =

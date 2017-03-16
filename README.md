@@ -42,8 +42,10 @@ two packages:
 - [X] 2017-02-26  v0.3.0.0  [API adjustments](https://github.com/iconnect/regex/milestone/2)
 - [X] 2017-03-05  v0.5.0.0  [Ready for review: API, tutorials and examples finalized](https://github.com/iconnect/regex/issues/67)
 - [X] 2017-03-13  v0.6.0.0  [Split out PCRE](https://github.com/iconnect/regex/milestone/7)
-- [X] 2017-03-13  v0.6.0.1  [Fix .travis.yml release-stack scriptRE](https://github.com/iconnect/regex/milestone/7)
-- [ ] 2017-03-20  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
+- [X] 2017-03-13  v0.6.0.1  [Fix .travis.yml release-stack script](https://github.com/iconnect/regex/issues/67)
+- [X] 2017-03-15  v0.7.0.0  [Better organization of API](https://github.com/iconnect/regex/milestone/8)
+- [ ] 2017-03-17  v0.8.0.0  [Add type-safe replacement templates and use TemplateHaskellQuotes](https://github.com/iconnect/regex/milestone/9)
+- [ ] 2017-03-31  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 - [ ] 2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)
 
 

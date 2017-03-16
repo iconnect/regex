@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-warnings-deprecations #-}
 {-# LANGUAGE OverloadedStrings                  #-}
 
-module Text.RE.Parsers
+module Text.RE.TestBench.Parsers
   ( parseInteger
   , parseHex
   , parseDouble
@@ -32,7 +32,7 @@ import qualified Data.Time.Locale.Compat    as LC
 import           Data.Word
 import           Text.Printf
 import           Text.Read
-import           Text.RE.Replace
+import           Text.RE.Types.Replace
 
 
 parseInteger :: Replace a => a -> Maybe Int

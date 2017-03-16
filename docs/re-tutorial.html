@@ -102,7 +102,9 @@ This pragma is a just technical pragma, combined with the <code>Prelude.Compat</
 </ul></li>
 </ul>
 For this tutorial we will use classic Haskell strings but any application dealing with bulk text will probably want to choose one of the other options.
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import           </span><span class="dt">Text.RE.TDFA.String</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import           </span><span class="dt">Text.RE.TDFA.String</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.CaptureID</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Options</span></code></pre></div>
 <p>If you are predominantly matching against a single type in your module then you will probably find it more convenient to use the relevant module rather than than the more polymorphic opertors but it is really a matter of convenience.</p>
 We will also need access to a small selection of common libraries for our examples.
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import           </span><span class="dt">Control.Applicative</span>
@@ -177,7 +179,7 @@ The type of <code>*=~</code> in this module (imported from <code>Text.RE.TDFA.St
 <div class="inlinecodeblock">
 <pre><code>(*=~) :: String -&gt; RE -&gt; Matches String</code></pre>
 </div>
-<p>with <code>Matches</code> defined in <code>Text.RE.Capture</code> thus:</p>
+<p>with <code>Matches</code> defined in <code>Text.RE.Types.Capture</code> thus:</p>
 <div class="includedcodeblock">
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the result type to use when every match is needed, not just the</span>
 <span class="co">-- first match of the RE against the source</span>
@@ -193,7 +195,7 @@ The type of <code>?=~</code> in this module (imported from <code>Text.RE.TDFA.St
 <div class="inlinecodeblock">
 <pre><code>(?=~) :: String -&gt; RE -&gt; Match String</code></pre>
 </div>
-<p>with <code>Match</code> (referenced in the definition of <code>Matches</code> above) defined in <code>Text.RE.Capture</code> thus:</p>
+<p>with <code>Match</code> (referenced in the definition of <code>Matches</code> above) defined in <code>Text.RE.Types.Capture</code> thus:</p>
 <div class="includedcodeblock">
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the result of matching a RE to a text once, listing the text that</span>
 <span class="co">-- was matched and the named captures in the RE and all of the substrings</span>
@@ -321,7 +323,7 @@ which will fix up our running example
                    <span class="ot">-&gt;</span> <span class="dt">Matches</span> a
                    <span class="ot">-&gt;</span> a</code></pre></div>
 </div>
-<p>and the <code>Context</code> and <code>Location</code> types are defined in <code>Text.RE.Replace</code> as follows,</p>
+<p>and the <code>Context</code> and <code>Location</code> types are defined in <code>Text.RE.Types.Replace</code> as follows,</p>
 <div class="includedcodeblock">
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | @Context@ specifies which contexts the substitutions should be applied</span>
 <span class="kw">data</span> <span class="dt">Context</span>
@@ -368,7 +370,7 @@ fixup_and_reformat_dates src <span class="fu">=</span>
 The <code>fixup_and_reformat_dates</code> applied to our running example,
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> fixup_and_reformat_dates <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span>
 <span class="st">&quot;[2016-01-09] [2015-12-05] [2015-10-05]&quot;</span></code></pre></div>
-<p><code>Text.RE.Replace</code> provides analagous functions for replacing the test of a single <code>Match</code> returned from <code>?=~</code>.</p>
+<p><code>Text.RE.Types.Replace</code> provides analagous functions for replacing the test of a single <code>Match</code> returned from <code>?=~</code>.</p>
 <h2 id="macros-and-parsers">Macros and Parsers</h2>
 <p>regex supports macros in regular expressions. There are a bunch of standard macros and you can define your own.</p>
 RE macros are enclosed in <code>@{</code> ... '}'. By convention the macros in the standard environment start with a '%'. <code>@{%date}</code> will match an ISO 8601 date, this
@@ -378,12 +380,12 @@ RE macros are enclosed in <code>@{</code> ... '}'. By convention the macros in t
 <p>See the tables listing the standard macros in the tables folder of the distribution.</p>
 <p>See the log-processor example and the <code>Text.RE.TestBench</code> for more on how you can develop, document and test RE macros with the regex test bench.</p>
 <h2 id="compiling-res-with-the-complete-options">Compiling REs with the Complete Options</h2>
-Each type of RE — TDFA and PCRE — has it own complile-time options and execution-time options, called in each case <code>CompOption</code> and <code>ExecOption</code>. The above simple options selected with the RE parser (<code>reMultilineSensitive</code>, etc.) configures the RE backend accordingly so that you don't have to, but you may need full access to you chosen back end's options, or you may need to supply a different set of macros to those provided in the standard environment. In which case you will need to know about the <code>Options</code> type, defined by each of the back ends in terms of the <code>Options_</code> type of <code>Text.RE.Options</code> as follows.
+Each type of RE — TDFA and PCRE — has it own complile-time options and execution-time options, called in each case <code>CompOption</code> and <code>ExecOption</code>. The above simple options selected with the RE parser (<code>reMultilineSensitive</code>, etc.) configures the RE backend accordingly so that you don't have to, but you may need full access to you chosen back end's options, or you may need to supply a different set of macros to those provided in the standard environment. In which case you will need to know about the <code>Options</code> type, defined by each of the back ends in terms of the <code>Options_</code> type of <code>Text.RE.Types.Options</code> as follows.
 <div class="inlinecodeblock">
 <pre><code>type Options = Options_ RE CompOption ExecOption</code></pre>
 </div>
 <p>(Bear in mind that <code>CompOption</code> and <code>ExecOption</code> will be different types for each back end.)</p>
-<p>The <code>Options_</code> type is defined in <code>Text.RE.Options</code> as follows:</p>
+<p>The <code>Options_</code> type is defined in <code>Text.RE.Types.Options</code> as follows:</p>
 <div class="includedcodeblock">
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Options_</span> r c e <span class="fu">=</span>
   <span class="dt">Options</span>
@@ -433,9 +435,9 @@ Each backend provides a function to compile REs from some options and a string c
 The compilation may fail so it is expressed monadically. For the following examples we will use the following helper to just <code>error</code> the failure.
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">check_for_failure ::</span> <span class="dt">Either</span> <span class="dt">String</span> a <span class="ot">-&gt;</span> a
 check_for_failure <span class="fu">=</span> either error id</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">*=~</span> check_for_failure (compileRegex () <span class="st">&quot;@{%date}&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">*=~</span> check_for_failure (compileRegex <span class="st">&quot;@{%date}&quot;</span>)
 <span class="dv">2</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> check_for_failure (compileRegex <span class="dt">BlockInsensitive</span> <span class="st">&quot;[0-9a-f]{2}$&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> check_for_failure (compileRegexWith <span class="dt">BlockInsensitive</span> <span class="st">&quot;[0-9a-f]{2}$&quot;</span>)
 <span class="dv">1</span></code></pre></div>
 <p>This will allow you to compile regular expressions when the either the text to be compiled or the options have been dynamically determined.</p>
 <h2 id="specifying-options-with-re_">Specifying Options with <code>re_</code></h2>
@@ -448,7 +450,7 @@ If you just need to specify some non-standard options while statically checking 
 <ul>
 <li><p><a href="Grep.html">Text.RE.Tools.Grep</a>: takes a regular expression and a file or lazy ByteString (depending upon the variant) and returns all of the matching lines. (Used in the <a href="re-include.html">include</a> example.)</p></li>
 <li><p><a href="Lex.html">Text.RE.Tools.Lex</a>: takes an association list of REs and token-generating functions and the input text and returns a list of tokens. This should never be used where performance is important (use Alex), except as a development prototype (used internally in <a href="NamedCaptures.html">Text.RE.Internal.NamedCaptures</a>).</p></li>
-<li><p><a href="Sed.html">Text.RE.Tools.Sed</a> using <a href="Edit.html">Text.RE.Edit</a>: takes an association list of regular expressions and substitution actions, some input text and invokes the associated action on each line of the file that matches one of the REs, substituting the text returned from the action in the output stream. (Used in the <a href="re-include.html">include</a>, <a href="re-gen-modules.html">gen-modules</a>, <a href="re-nginx-log-processor.html">log-processor</a> and <a href="re-prep">tutorial-pp</a> examples.)</p></li>
+<li><p><a href="Sed.html">Text.RE.Tools.Sed</a> using <a href="Edit.html">Text.RE.Tools.Edit</a>: takes an association list of regular expressions and substitution actions, some input text and invokes the associated action on each line of the file that matches one of the REs, substituting the text returned from the action in the output stream. (Used in the <a href="re-include.html">include</a>, <a href="re-gen-modules.html">gen-modules</a>, <a href="re-nginx-log-processor.html">log-processor</a> and <a href="re-prep">tutorial-pp</a> examples.)</p></li>
 </ul>
 <h2 id="the-examples">The Examples</h2>
 <p>The remaining sections have been given over to various standalone examples. All bar the first are taken from the package itself, each contributing to either the API or the tools used to prepare the documentation and test suites.</p>
@@ -557,12 +559,14 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     pd <span class="st">&quot;re-prep&quot;</span>
     pd <span class="st">&quot;re-tests&quot;</span>
     pd <span class="st">&quot;TestKit&quot;</span>
-    pd <span class="st">&quot;RE/Capture&quot;</span>
-    pd <span class="st">&quot;RE/Edit&quot;</span>
-    pd <span class="st">&quot;RE/IsRegex&quot;</span>
-    pd <span class="st">&quot;RE/Options&quot;</span>
-    pd <span class="st">&quot;RE/Replace&quot;</span>
+    pd <span class="st">&quot;RE/Types/Matches&quot;</span>
+    pd <span class="st">&quot;RE/Types/Match&quot;</span>
+    pd <span class="st">&quot;RE/Types/Capture&quot;</span>
+    pd <span class="st">&quot;RE/Types/IsRegex&quot;</span>
+    pd <span class="st">&quot;RE/Types/Options&quot;</span>
+    pd <span class="st">&quot;RE/Types/Replace&quot;</span>
     pd <span class="st">&quot;RE/TestBench&quot;</span>
+    pd <span class="st">&quot;RE/Tools/Edit&quot;</span>
     pd <span class="st">&quot;RE/Tools/Grep&quot;</span>
     pd <span class="st">&quot;RE/Tools/Lex&quot;</span>
     pd <span class="st">&quot;RE/Tools/Sed&quot;</span>
@@ -586,7 +590,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
         (<span class="dt">Just</span> fdr,<span class="dt">Just</span> mnm) <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;Text.RE.&quot;</span><span class="fu">&lt;&gt;</span>fdr<span class="fu">&lt;&gt;</span><span class="st">&quot;.&quot;</span><span class="fu">&lt;&gt;</span>mnm) (<span class="st">&quot;Text/&quot;</span>    <span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
         _                   <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span> ) (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
       <span class="kw">where</span>
-        mtch <span class="fu">=</span> fnm <span class="fu">TT.?=~</span> [re|^RE/(${fdr}(Tools|Internal)/)?${mnm}(@{%id})|]</code></pre></div>
+        mtch <span class="fu">=</span> fnm <span class="fu">TT.?=~</span> [re|^RE/(${fdr}(Internal|PCRE|TDFA|Testbench|Tools|Types)/)?${mnm}(@{%id})|]</code></pre></div>
 </div>
 <p>See <a href="re-prep.html">examples/re-prep.lhs</a></p>
 <h2 id="example-parsing-re-macros">Example: parsing RE macros</h2>
@@ -614,7 +618,7 @@ fixpoint f <span class="fu">=</span> chk <span class="fu">.</span> iterate f
 For example:
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> expandMacros_ (<span class="dt">Just</span> <span class="fu">.</span> show) <span class="st">&quot;foo @{bar} baz&quot;</span>
 <span class="st">&quot;foo MacroID {getMacroID = \&quot;bar\&quot;} baz&quot;</span></code></pre></div>
-<p>See <a href="Replace.html">Text.RE.Replace</a> for details.</p>
+<p>See <a href="Replace.html">Text.RE.Types.Replace</a> for details.</p>
 <h2 id="example-parsing-replace-templates">Example: Parsing Replace Templates</h2>
 <p>The regex replacement templates are parsed with code similar to this.</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Template</span> <span class="fu">=</span> <span class="dt">String</span>
@@ -648,7 +652,7 @@ date_reformat <span class="fu">=</span> my_replace [re|${y}([0-9]{4})-${m}([0-9]
 <p>This should yield <code>&quot;2016/01/11&quot;</code>:</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> date_reformat <span class="st">&quot;2016-01-11&quot;</span>
 <span class="st">&quot;2016/01/11&quot;</span></code></pre></div>
-<p>See <a href="Replace.html">Text.RE.Replace</a></p>
+<p>See <a href="Replace.html">Text.RE.Types.Replace</a></p>
 <h2 id="example-include-preprocessor">Example: include preprocessor</h2>
 <p>The 'include' preprocessor for extracting literate programming fragments (used in this and most of the other sections of the tutorial) has been lifted out of the main preprocessor into its own example.</p>
 <p>Here is sed script that makes up the main loop.</p>

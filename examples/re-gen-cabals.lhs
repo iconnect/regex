@@ -303,7 +303,7 @@ summary = do
         , "\\."
         , show $ _vrn_d vrn
         ]
-  rex <- compileRegex () $ "- \\[[xX]\\] +@{%date} +v"++vrn_res++" +\\[?${smy}([^]]+)"
+  rex <- compileRegex $ "- \\[[xX]\\] +@{%date} +v"++vrn_res++" +\\[?${smy}([^]]+)"
   lns <- linesMatched <$> grepLines rex "lib/md/roadmap-incl.md"
   case lns of
     [Line _ (Matches _ [mtch])] -> return $ TE.decodeUtf8 $ LBS.toStrict $ mtch !$$ [cp|smy|]

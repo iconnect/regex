@@ -249,10 +249,10 @@ testing the compileRegex functions
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">parsing_tests ::</span> <span class="dt">TestTree</span>
 parsing_tests <span class="fu">=</span> testGroup <span class="st">&quot;Parsing&quot;</span>
   [ testCase <span class="st">&quot;complete check (matchM/ByteString)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
-      r    <span class="ot">&lt;-</span> compileRegex () <span class="fu">$</span> reSource regex_
+      r    <span class="ot">&lt;-</span> compileRegex <span class="fu">$</span> reSource regex_
       assertEqual <span class="st">&quot;Match&quot;</span> (B.pack <span class="fu">&lt;$&gt;</span> regex_str_match) <span class="fu">$</span> B.pack str_ <span class="fu">?=~</span> r
   , testCase <span class="st">&quot;matched (matchM/Text)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
-      r     <span class="ot">&lt;-</span> compileRegex () <span class="fu">$</span> reSource regex_
+      r     <span class="ot">&lt;-</span> compileRegex <span class="fu">$</span> reSource regex_
       assertEqual <span class="st">&quot;matched&quot;</span> <span class="dt">True</span> <span class="fu">$</span> matched <span class="fu">$</span> T.pack str_ <span class="fu">?=~</span> r
   ]</code></pre></div>
 <h3>
@@ -419,8 +419,8 @@ many_tests <span class="fu">=</span> testGroup <span class="st">&quot;Many Tests
         txt     <span class="fu">=</span> inj <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span>
         txt&#39;    <span class="fu">=</span> inj <span class="st">&quot;2016-01-09&quot;</span>
 
-    re_pcre <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> PCRE.compileRegex () <span class="st">&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;</span>
-    re_tdfa <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> TDFA.compileRegex () <span class="st">&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;</span>
+    re_pcre <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> PCRE.compileRegex <span class="st">&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;</span>
+    re_tdfa <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> TDFA.compileRegex <span class="st">&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;</span>
 
     oops    <span class="fu">=</span> error <span class="st">&quot;many_tests&quot;</span></code></pre></div>
 <h2 id="testing-the-re-escape-functions">Testing the RE Escape Functions</h2>
@@ -620,8 +620,8 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
         ]
     ]
   <span class="kw">where</span>
-    tdfa_re   <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> TDFA.compileRegex tdfa_opts <span class="st">&quot;.*&quot;</span>
-    pcre_re   <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> PCRE.compileRegex pcre_opts <span class="st">&quot;.*&quot;</span>
+    tdfa_re   <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> TDFA.compileRegexWithOptions tdfa_opts <span class="st">&quot;.*&quot;</span>
+    pcre_re   <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> PCRE.compileRegexWithOptions pcre_opts <span class="st">&quot;.*&quot;</span>
 
     tdfa_opts <span class="fu">=</span> makeOptions<span class="ot"> no_macs_t ::</span> <span class="dt">Options_</span> <span class="dt">TDFA.RE</span> <span class="dt">TDFA_.CompOption</span> <span class="dt">TDFA_.ExecOption</span>
     pcre_opts <span class="fu">=</span> makeOptions<span class="ot"> no_macs_p ::</span> <span class="dt">Options_</span> <span class="dt">PCRE.RE</span> <span class="dt">PCRE_.CompOption</span> <span class="dt">PCRE_.ExecOption</span>

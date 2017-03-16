@@ -358,7 +358,7 @@ summary <span class="fu">=</span> <span class="kw">do</span>
         , <span class="st">&quot;\\.&quot;</span>
         , show <span class="fu">$</span> _vrn_d vrn
         ]
-  rex <span class="ot">&lt;-</span> compileRegex () <span class="fu">$</span> <span class="st">&quot;- \\[[xX]\\] +@{%date} +v&quot;</span><span class="fu">++</span>vrn_res<span class="fu">++</span><span class="st">&quot; +\\[?${smy}([^]]+)&quot;</span>
+  rex <span class="ot">&lt;-</span> compileRegex <span class="fu">$</span> <span class="st">&quot;- \\[[xX]\\] +@{%date} +v&quot;</span><span class="fu">++</span>vrn_res<span class="fu">++</span><span class="st">&quot; +\\[?${smy}([^]]+)&quot;</span>
   lns <span class="ot">&lt;-</span> linesMatched <span class="fu">&lt;$&gt;</span> grepLines rex <span class="st">&quot;lib/md/roadmap-incl.md&quot;</span>
   <span class="kw">case</span> lns <span class="kw">of</span>
     [<span class="dt">Line</span> _ (<span class="dt">Matches</span> _ [mtch])] <span class="ot">-&gt;</span> return <span class="fu">$</span> TE.decodeUtf8 <span class="fu">$</span> LBS.toStrict <span class="fu">$</span> mtch <span class="fu">!$$</span> [cp|smy|]

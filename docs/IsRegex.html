@@ -68,16 +68,23 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </header>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE MultiParamTypeClasses      #-}</span>
 <span class="ot">{-# LANGUAGE AllowAmbiguousTypes        #-}</span>
+<span class="ot">{-# LANGUAGE CPP                        #-}</span>
+<span class="ot">#if __GLASGOW_HASKELL__ &gt;= 800</span>
+<span class="ot">{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}</span>
+<span class="ot">#endif</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.Types.IsRegex</span> <span class="kw">where</span>
 
 <span class="kw">import           </span><span class="dt">Text.RE.Types.Match</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.Matches</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Options</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">Replace</span> s <span class="ot">=&gt;</span> <span class="dt">IsRegex</span> re s <span class="kw">where</span>
-<span class="ot">  matchOnce   ::</span> re <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">Match</span> s
-<span class="ot">  matchMany   ::</span> re <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">Matches</span> s
-<span class="ot">  regexSource ::</span> re <span class="ot">-&gt;</span> <span class="dt">String</span></code></pre></div>
+<span class="ot">  matchOnce     ::</span> re <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">Match</span> s
+<span class="ot">  matchMany     ::</span> re <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">Matches</span> s
+<span class="ot">  makeRegex     ::</span> (<span class="dt">Functor</span> m,<span class="dt">Monad</span> m) <span class="ot">=&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> m re
+<span class="ot">  makeRegexWith ::</span> (<span class="dt">Functor</span> m,<span class="dt">Monad</span> m) <span class="ot">=&gt;</span> <span class="dt">SimpleRegexOptions</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> m re
+<span class="ot">  regexSource   ::</span> re <span class="ot">-&gt;</span> <span class="dt">String</span></code></pre></div>
 </div>    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

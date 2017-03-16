@@ -42,6 +42,8 @@ module Text.RE.TDFA.RE
   , preludeSource
   , unpackSimpleRegexOptions
   , compileRegex
+  , compileRegexWith
+  , compileRegexWithOptions
   , escape
   , escapeREString
   ) where
@@ -156,14 +158,20 @@ unpackSimpleRegexOptions sro =
         BlockSensitive        -> (,) False True
         BlockInsensitive      -> (,) False False
 
-compileRegex :: ( IsOption o RE CompOption ExecOption
-                , Functor m
-                , Monad   m
-                )
-             => o
-             -> String
-             -> m RE
-compileRegex = compileRegex_ . makeOptions
+compileRegex :: (Functor m,Monad m) => String -> m RE
+compileRegex = compileRegexWithOptions ()
+
+compileRegexWith :: (Functor m,Monad m) => SimpleRegexOptions -> String -> m RE
+compileRegexWith = compileRegexWithOptions
+
+compileRegexWithOptions :: ( IsOption o RE CompOption ExecOption
+                           , Functor m
+                           , Monad   m
+                           )
+                        => o
+                        -> String
+                        -> m RE
+compileRegexWithOptions = compileRegex_ . makeOptions
 
 compileRegex_ :: (Functor m,Monad m)
               => Options

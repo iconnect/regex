@@ -215,7 +215,7 @@ includeDoc :: LineNo
            -> Capture LBS.ByteString
            -> IO (Maybe LBS.ByteString)
 includeDoc _ mtch _ _ = fmap Just $
-    extract fp =<< compileRegex () re_s
+    extract fp =<< compileRegex re_s
   where
     fp    = prs_s $ captureText [cp|file|] mtch
     re_s  = prs_s $ captureText [cp|rex|]  mtch

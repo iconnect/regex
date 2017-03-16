@@ -206,10 +206,10 @@ regex_alt_str_matches =
 parsing_tests :: TestTree
 parsing_tests = testGroup "Parsing"
   [ testCase "complete check (matchM/ByteString)" $ do
-      r    <- compileRegex () $ reSource regex_
+      r    <- compileRegex $ reSource regex_
       assertEqual "Match" (B.pack <$> regex_str_match) $ B.pack str_ ?=~ r
   , testCase "matched (matchM/Text)" $ do
-      r     <- compileRegex () $ reSource regex_
+      r     <- compileRegex $ reSource regex_
       assertEqual "matched" True $ matched $ T.pack str_ ?=~ r
   ]
 \end{code}
@@ -385,8 +385,8 @@ many_tests = testGroup "Many Tests"
         txt     = inj "2016-01-09 2015-12-5 2015-10-05"
         txt'    = inj "2016-01-09"
 
-    re_pcre = fromMaybe oops $ PCRE.compileRegex () "[0-9]{4}-[0-9]{2}-[0-9]{2}"
-    re_tdfa = fromMaybe oops $ TDFA.compileRegex () "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+    re_pcre = fromMaybe oops $ PCRE.compileRegex "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+    re_tdfa = fromMaybe oops $ TDFA.compileRegex "[0-9]{4}-[0-9]{2}-[0-9]{2}"
 
     oops    = error "many_tests"
 \end{code}
@@ -610,8 +610,8 @@ misc_tests = testGroup "Miscelaneous Tests"
         ]
     ]
   where
-    tdfa_re   = fromMaybe oops $ TDFA.compileRegex tdfa_opts ".*"
-    pcre_re   = fromMaybe oops $ PCRE.compileRegex pcre_opts ".*"
+    tdfa_re   = fromMaybe oops $ TDFA.compileRegexWithOptions tdfa_opts ".*"
+    pcre_re   = fromMaybe oops $ PCRE.compileRegexWithOptions pcre_opts ".*"
 
     tdfa_opts = makeOptions no_macs_t :: Options_ TDFA.RE TDFA_.CompOption TDFA_.ExecOption
     pcre_opts = makeOptions no_macs_p :: Options_ PCRE.RE PCRE_.CompOption PCRE_.ExecOption

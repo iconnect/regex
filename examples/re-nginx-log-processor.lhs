@@ -272,7 +272,7 @@ lpo = makeOptions lp_prelude
 lp_prelude :: Macros RE
 lp_prelude = runIdentity $ mkMacros mk regexType ExclCaptures lp_env
   where
-    mk   = maybe oops Identity . compileRegex noPreludeOptions
+    mk   = maybe oops Identity . compileRegexWithOptions noPreludeOptions
 
     oops = error "lp_prelude"
 

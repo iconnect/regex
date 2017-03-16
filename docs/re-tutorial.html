@@ -433,9 +433,9 @@ Each backend provides a function to compile REs from some options and a string c
 The compilation may fail so it is expressed monadically. For the following examples we will use the following helper to just <code>error</code> the failure.
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">check_for_failure ::</span> <span class="dt">Either</span> <span class="dt">String</span> a <span class="ot">-&gt;</span> a
 check_for_failure <span class="fu">=</span> either error id</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">*=~</span> check_for_failure (compileRegex () <span class="st">&quot;@{%date}&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">*=~</span> check_for_failure (compileRegex <span class="st">&quot;@{%date}&quot;</span>)
 <span class="dv">2</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> check_for_failure (compileRegex <span class="dt">BlockInsensitive</span> <span class="st">&quot;[0-9a-f]{2}$&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> check_for_failure (compileRegexWith <span class="dt">BlockInsensitive</span> <span class="st">&quot;[0-9a-f]{2}$&quot;</span>)
 <span class="dv">1</span></code></pre></div>
 <p>This will allow you to compile regular expressions when the either the text to be compiled or the options have been dynamically determined.</p>
 <h2 id="specifying-options-with-re_">Specifying Options with <code>re_</code></h2>

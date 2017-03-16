@@ -66,11 +66,11 @@ parseVrn vrn_s = case matched m of
 bumpVersion :: String -> IO ()
 bumpVersion vrn_s = do
     vrn0 <- readCurrentVersion
-    rex' <- compileRegex () $ printf "- \\[[xX]\\].*%d\\.%d\\.%d\\.%d" _vrn_a _vrn_b _vrn_c _vrn_d
+    rex' <- compileRegex $ printf "- \\[[xX]\\].*%d\\.%d\\.%d\\.%d" _vrn_a _vrn_b _vrn_c _vrn_d
     nada <- null . linesMatched <$> grepLines rex' "lib/md/roadmap-incl.md"
     M.when nada $
       error $ vrn_s ++ ": not ticked off in the roadmap"
-    rex  <- compileRegex () $ printf "%d\\.%d\\.%d\\.%d" _vrn_a _vrn_b _vrn_c _vrn_d
+    rex  <- compileRegex $ printf "%d\\.%d\\.%d\\.%d" _vrn_a _vrn_b _vrn_c _vrn_d
     nope <- null . linesMatched <$> grepLines rex "changelog"
     M.when nope $
       error $ vrn_s ++ ": not in the changelog"

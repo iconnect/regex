@@ -238,7 +238,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
            <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">LBS.ByteString</span>
            <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">LBS.ByteString</span>)
 includeDoc _ mtch _ _ <span class="fu">=</span> fmap <span class="dt">Just</span> <span class="fu">$</span>
-    extract fp <span class="fu">=&lt;&lt;</span> compileRegex () re_s
+    extract fp <span class="fu">=&lt;&lt;</span> compileRegex re_s
   <span class="kw">where</span>
     fp    <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|file|] mtch
     re_s  <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|rex|]  mtch

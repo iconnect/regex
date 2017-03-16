@@ -71,9 +71,11 @@ import qualified Text.Regex.PCRE               as PCRE
 (=~~) bs rex = addCaptureNames (reCaptureNames rex) <$> matchM (reRegex rex) bs
 
 instance IsRegex RE B.ByteString where
-  matchOnce   = flip (?=~)
-  matchMany   = flip (*=~)
-  regexSource = reSource
+  matchOnce     = flip (?=~)
+  matchMany     = flip (*=~)
+  makeRegexWith = compileRegexWith
+  makeRegex     = compileRegex
+  regexSource   = reSource
 
 -- $tutorial
 -- We have a regex tutorial at <http://tutorial.regex.uk>. These API

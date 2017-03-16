@@ -530,10 +530,10 @@ check_for_failure = either error id
 \end{code}
 
 \begin{code}
-evalme_OPT_00 = checkThis "" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ check_for_failure (compileRegex () "@{%date}")
+evalme_OPT_00 = checkThis "" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ check_for_failure (compileRegex "@{%date}")
 \end{code}
 \begin{code}
-evalme_OPT_01 = checkThis "" (1) $ countMatches $ "0a\nbb\nFe\nA5" *=~ check_for_failure (compileRegex BlockInsensitive "[0-9a-f]{2}$")
+evalme_OPT_01 = checkThis "" (1) $ countMatches $ "0a\nbb\nFe\nA5" *=~ check_for_failure (compileRegexWith BlockInsensitive "[0-9a-f]{2}$")
 \end{code}
 
 This will allow you to compile regular expressions when the either the

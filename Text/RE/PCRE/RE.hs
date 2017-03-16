@@ -42,6 +42,8 @@ module Text.RE.PCRE.RE
   , defaultOptions
   , unpackSimpleRegexOptions
   , compileRegex
+  , compileRegexWith
+  , compileRegexWithOptions
   , escape
   , escapeREString
   ) where
@@ -160,14 +162,23 @@ unpackSimpleRegexOptions sro =
         BlockSensitive        -> (,) False False
         BlockInsensitive      -> (,) False True
 
-compileRegex :: ( IsOption o RE CompOption ExecOption
-                , Functor m
-                , Monad   m
-                )
-             => o
-             -> String
-             -> m RE
-compileRegex = compileRegex_ . makeOptions
+-- | compie a RE from a string using default options
+compileRegex :: (Functor m,Monad m) => String -> m RE
+compileRegex = compileRegexWithOptions ()
+
+-- | compie a RE from a @String@ and 'SimpleRegexOptions'
+compileRegexWith :: (Functor m,Monad m) => SimpleRegexOptions -> String -> m RE
+compileRegexWith = compileRegexWithOptions
+
+-- | compile a RE from a @String@ and a complete set of 'Options'
+compileRegexWithOptions :: ( IsOption o RE CompOption ExecOption
+                           , Functor m
+                           , Monad   m
+                           )
+                        => o
+                        -> String
+                        -> m RE
+compileRegexWithOptions = compileRegex_ . makeOptions
 
 compileRegex_ :: ( Functor m , Monad m )
               => Options
@@ -211,7 +222,7 @@ unsafeCompileRegex :: IsOption o RE CompOption ExecOption
 unsafeCompileRegex = unsafeCompileRegex_ . makeOptions
 
 unsafeCompileRegex_ :: Options -> String -> RE
-unsafeCompileRegex_ os = either oops id . compileRegex os
+unsafeCompileRegex_ os = either oops id . compileRegexWithOptions os
   where
     oops = error . ("unsafeCompileRegex: " ++)
 

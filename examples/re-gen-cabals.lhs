@@ -105,7 +105,7 @@ data TestExe =
 setup :: IO Ctx
 setup = Ctx <$> (newIORef True) <*> (newIORef False) <*> (newIORef Map.empty) <*> (newIORef Nothing)
 
-gc_script :: Ctx -> SedScript RE
+gc_script :: Ctx -> Edits IO RE LBS.ByteString
 gc_script ctx = Select
     [ (,) [re|^%Werror$|]                                      $ LineEdit $ w_error_gen              ctx
     , (,) [re|^%Wwarn$|]                                       $ LineEdit $ w_warn_gen               ctx
@@ -306,7 +306,7 @@ summary = do
         , show $ _vrn_d vrn
         ]
   rex <- compileRegex $ "- \\[[xX]\\] +@{%date} +v"++vrn_res++" +\\[?${smy}([^]]+)"
-  lns <- linesMatched <$> grepLines rex "lib/md/roadmap-incl.md"
+  lns <- linesMatched LinesMatched <$> grepLines rex "lib/md/roadmap-incl.md"
   case lns of
     [Line _ (Matches _ [mtch])] -> return $ TE.decodeUtf8 $ LBS.toStrict $ mtch !$$ [cp|smy|]
     _ -> error "failed to locate the summary text in the roadmap"

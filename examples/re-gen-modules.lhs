@@ -49,7 +49,9 @@ test = do
     True  -> return ()
     False -> exitWith $ ExitFailure 1
 
-test' :: (ModPath,SedScript RE) -> IO Bool
+type SedScript = Edits IO RE LBS.ByteString
+
+test' :: (ModPath,SedScript) -> IO Bool
 test' (mp,scr) = do
     putStrLn mp
     tp <- is_text_present
@@ -63,13 +65,13 @@ gen = do
   mapM_ gen' tdfa_edits
   mapM_ gen' pcre_edits
 
-gen' :: (ModPath,SedScript RE) -> IO ()
+gen' :: (ModPath,SedScript) -> IO ()
 gen' (mp,scr) = do
   putStrLn mp
   tp <- is_text_present
   sed scr (mod_filepath tp source_mp) (mod_filepath tp mp)
 
-tdfa_edits :: [(ModPath,SedScript RE)]
+tdfa_edits :: [(ModPath,SedScript)]
 tdfa_edits =
   [ tdfa_edit "Text.RE.TDFA.ByteString"       "B.ByteString"    "import qualified Data.ByteString               as B"
   , tdfa_edit "Text.RE.TDFA.Sequence"         "(S.Seq Char)"    "import qualified Data.Sequence                 as S"
@@ -78,7 +80,7 @@ tdfa_edits =
   , tdfa_edit "Text.RE.TDFA.Text.Lazy"        "TL.Text"         "import qualified Data.Text.Lazy                as TL"
   ]
 
-pcre_edits :: [(ModPath,SedScript RE)]
+pcre_edits :: [(ModPath,SedScript)]
 pcre_edits =
   [ pcre_edit "Text.RE.PCRE.ByteString"       "B.ByteString"    "import qualified Data.ByteString               as B"
   , pcre_edit "Text.RE.PCRE.ByteString.Lazy"  "LBS.ByteString"  "import qualified Data.ByteString.Lazy          as LBS"
@@ -89,7 +91,7 @@ pcre_edits =
 tdfa_edit :: ModPath
           -> LBS.ByteString
           -> LBS.ByteString
-          -> (ModPath,SedScript RE)
+          -> (ModPath,SedScript)
 tdfa_edit mp bs_lbs import_lbs =
     (,) mp $ Pipe
         [ (,) module_re $ Template $ LBS.pack mp
@@ -100,7 +102,7 @@ tdfa_edit mp bs_lbs import_lbs =
 pcre_edit :: ModPath
           -> LBS.ByteString
           -> LBS.ByteString
-          -> (ModPath,SedScript RE)
+          -> (ModPath,SedScript)
 pcre_edit mp bs_lbs import_lbs =
     (,) mp $ Pipe
         [ (,) tdfa_re   $ Template   "PCRE"

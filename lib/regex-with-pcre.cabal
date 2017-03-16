@@ -1,5 +1,5 @@
 Name:                   regex-with-pcre
-Version:                0.7.0.0
+Version:                0.8.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
@@ -31,7 +31,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.7.0.0
+    Tag:                0.8.0.0
 
 
 
@@ -52,7 +52,7 @@ Library
       -Wwarn
 
     Build-depends:
-        regex                == 0.7.0.0
+        regex                == 0.8.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0

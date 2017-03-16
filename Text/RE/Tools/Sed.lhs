@@ -8,27 +8,38 @@
 #endif
 
 module Text.RE.Tools.Sed
-  ( SedScript
-  , sed
+  ( sed
   , sed'
+  -- * IsRegex
+  , IsRegex(..)
+  -- * Edit
+  , Edits(..)
+  , Edit(..)
+  , LineEdit(..)
+  , applyEdits
+  , applyEdit
+  , applyLineEdit
+  -- * LineNo
+  , LineNo(..)
+  , firstLine
+  , getLineNo
+  , lineNo
+  -- * Text.RE
   , module Text.RE
-  , module Text.RE.Types.IsRegex
-  , module Text.RE.Tools.Edit
-  , module Text.RE.Types.LineNo
   ) where
 
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Prelude.Compat
 import           Text.RE
 import           Text.RE.Tools.Edit
-import           Text.RE.Types.LineNo
 import           Text.RE.Types.IsRegex
 
 
-type SedScript re = Edits IO re LBS.ByteString
-
+-- | read a file, apply an 'Edits' script to each line it and
+-- write the file out again; "-" is used to indicate standard input
+-- standard output as appropriate
 sed :: IsRegex re LBS.ByteString
-    => SedScript re
+    => Edits IO re LBS.ByteString
     -> FilePath
     -> FilePath
     -> IO ()
@@ -40,6 +51,7 @@ sed as i_fp o_fp = do
         ]
   write_file o_fp $ LBS.concat lns'
 
+-- | apply an 'Edits' script to each line of the argument text
 sed' :: (IsRegex re a,Monad m,Functor m)
      => Edits m re a
      -> a

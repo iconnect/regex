@@ -72,15 +72,23 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="ot">{-# LANGUAGE CPP                        #-}</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.Tools.Grep</span>
-  ( <span class="dt">Line</span>(<span class="fu">..</span>)
-  , grep
+  ( grep
+  , <span class="dt">Line</span>(<span class="fu">..</span>)
   , grepLines
   , <span class="dt">GrepScript</span>
   , grepScript
+  , report
+  , <span class="dt">Verbosity</span>(<span class="fu">..</span>)
   , linesMatched
+  <span class="co">-- * IsRegex</span>
+  , <span class="dt">IsRegex</span>(<span class="fu">..</span>)
+  <span class="co">-- * LineNo</span>
+  , <span class="dt">LineNo</span>(<span class="fu">..</span>)
+  , firstLine
+  , getLineNo
+  , lineNo
+  <span class="co">-- * Text.RE</span>
   , <span class="kw">module</span> <span class="dt">Text.RE</span>
-  , <span class="kw">module</span> <span class="dt">Text.RE.Types.IsRegex</span>
-  , <span class="kw">module</span> <span class="dt">Text.RE.Types.LineNo</span>
   ) <span class="kw">where</span>
 
 <span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>               <span class="kw">as</span> <span class="dt">LBS</span>
@@ -91,24 +99,32 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Text.RE.Types.LineNo</span>
 
 
+<span class="co">-- | operates a bit like classic @grep@ printing out the lines matched</span>
+<span class="ot">grep ::</span> <span class="dt">IsRegex</span> re <span class="dt">LBS.ByteString</span> <span class="ot">=&gt;</span> <span class="dt">Verbosity</span> <span class="ot">-&gt;</span> re <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+grep v rex fp <span class="fu">=</span> grepLines rex fp <span class="fu">&gt;&gt;=</span> putStr <span class="fu">.</span> report v
+
+<span class="co">-- | &#39;grepLines&#39; returns a &#39;Line&#39; for each line in the file, listing all</span>
+<span class="co">-- of the &#39;Matches&#39; for that line</span>
 <span class="kw">data</span> <span class="dt">Line</span> <span class="fu">=</span>
   <span class="dt">Line</span>
-    {<span class="ot"> getLineNumber  ::</span> <span class="dt">LineNo</span>
-    ,<span class="ot"> getLineMatches ::</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>
+    {<span class="ot"> getLineNumber  ::</span> <span class="dt">LineNo</span>                  <span class="co">-- ^ the &#39;LineNo&#39; for this line</span>
+    ,<span class="ot"> getLineMatches ::</span> <span class="dt">Matches</span> <span class="dt">LBS.ByteString</span>  <span class="co">-- ^ all the &#39;Matches&#39; of the RE on this line</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)
 
-<span class="ot">grep ::</span> <span class="dt">IsRegex</span> re <span class="dt">LBS.ByteString</span> <span class="ot">=&gt;</span> re <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
-grep rex fp <span class="fu">=</span> grepLines rex fp <span class="fu">&gt;&gt;=</span> putStr <span class="fu">.</span> report
-
+<span class="co">-- | returns a &#39;Line&#39; for each line in the file enumerating all of the</span>
+<span class="co">-- matches for that line.</span>
 <span class="ot">grepLines ::</span> <span class="dt">IsRegex</span> re <span class="dt">LBS.ByteString</span> <span class="ot">=&gt;</span> re <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> [<span class="dt">Line</span>]
 grepLines rex fp <span class="fu">=</span>
     grepScript [(rex,mk)] <span class="fu">.</span> LBS.lines <span class="fu">&lt;$&gt;</span> LBS.readFile fp
   <span class="kw">where</span>
     mk i mtchs <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="dt">Line</span> i mtchs
 
+<span class="co">-- | a GrepScript lists RE-action associations, with the first RE to match</span>
+<span class="co">-- a line selecting the action to be executed on each line in the file</span>
 <span class="kw">type</span> <span class="dt">GrepScript</span> re s t <span class="fu">=</span> [(re,<span class="dt">LineNo</span> <span class="ot">-&gt;</span> <span class="dt">Matches</span> s <span class="ot">-&gt;</span> <span class="dt">Maybe</span> t)]
 
+<span class="co">-- | given a list of lines, apply the &#39;GrepScript&#39; to each line of the file</span>
 <span class="ot">grepScript ::</span> <span class="dt">IsRegex</span> re s <span class="ot">=&gt;</span> <span class="dt">GrepScript</span> re s t <span class="ot">-&gt;</span> [s] <span class="ot">-&gt;</span> [t]
 grepScript scr <span class="fu">=</span> loop firstLine
   <span class="kw">where</span>
@@ -120,15 +136,28 @@ grepScript scr <span class="fu">=</span> loop firstLine
       <span class="dt">Nothing</span> <span class="ot">-&gt;</span> choose i ln lns scr&#39;
       <span class="dt">Just</span> t  <span class="ot">-&gt;</span> t <span class="fu">:</span> loop (succ i) lns
 
-<span class="ot">report ::</span> [<span class="dt">Line</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
-report <span class="fu">=</span> unlines <span class="fu">.</span> map fmt <span class="fu">.</span> linesMatched
+<span class="co">-- | generate a grep report from a list of &#39;Line&#39;</span>
+<span class="ot">report ::</span> <span class="dt">Verbosity</span> <span class="ot">-&gt;</span> [<span class="dt">Line</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
+report v <span class="fu">=</span> unlines <span class="fu">.</span> map fmt <span class="fu">.</span> linesMatched v
   <span class="kw">where</span>
     fmt <span class="dt">Line</span>{<span class="fu">..</span>} <span class="fu">=</span>
       printf <span class="st">&quot;%05d %s&quot;</span> (getLineNo getLineNumber) <span class="fu">$</span>
           LBS.unpack <span class="fu">$</span> matchesSource getLineMatches
 
-<span class="ot">linesMatched ::</span> [<span class="dt">Line</span>] <span class="ot">-&gt;</span> [<span class="dt">Line</span>]
-linesMatched <span class="fu">=</span> filter <span class="fu">$</span> anyMatches <span class="fu">.</span> getLineMatches</code></pre></div>
+<span class="co">-- | specifies whether to return the linss matched or missed</span>
+<span class="kw">data</span> <span class="dt">Verbosity</span>
+  <span class="fu">=</span> <span class="dt">LinesMatched</span>
+  <span class="fu">|</span> <span class="dt">LinesNotMatched</span>
+  <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>,<span class="dt">Ord</span>)
+
+<span class="co">-- | given a &#39;velocity&#39; flag filter out either the lines matched or not</span>
+<span class="co">-- matched</span>
+<span class="ot">linesMatched ::</span> <span class="dt">Verbosity</span> <span class="ot">-&gt;</span> [<span class="dt">Line</span>] <span class="ot">-&gt;</span> [<span class="dt">Line</span>]
+linesMatched v <span class="fu">=</span> filter <span class="fu">$</span> f <span class="fu">.</span> anyMatches <span class="fu">.</span> getLineMatches
+  <span class="kw">where</span>
+    f <span class="fu">=</span> <span class="kw">case</span> v <span class="kw">of</span>
+      <span class="dt">LinesMatched</span>    <span class="ot">-&gt;</span> id
+      <span class="dt">LinesNotMatched</span> <span class="ot">-&gt;</span> not</code></pre></div>
 </div>    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

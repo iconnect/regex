@@ -125,7 +125,7 @@ go rprt_flg in_file out_file = do
 \end{code}
 
 \begin{code}
-script :: Ctx -> SedScript RE
+script :: Ctx -> Edits IO RE LBS.ByteString
 script ctx = Select
     [ on [re_|@{access}|]     ACC parse_access
     , on [re_|@{access_deg}|] AQQ parse_deg_access

@@ -74,40 +74,50 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="ot">#endif</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.Tools.Edit</span>
-  ( <span class="dt">LineNo</span>
-  , <span class="dt">Edits</span>(<span class="fu">..</span>)
+  ( <span class="dt">Edits</span>(<span class="fu">..</span>)
   , <span class="dt">Edit</span>(<span class="fu">..</span>)
   , <span class="dt">LineEdit</span>(<span class="fu">..</span>)
   , applyEdits
   , applyEdit
   , applyLineEdit
+  <span class="co">-- * LineNo</span>
+  , <span class="dt">LineNo</span>(<span class="fu">..</span>)
+  , firstLine
+  , getLineNo
+  , lineNo
+  <span class="co">-- * Text.RE</span>
+  , <span class="kw">module</span> <span class="dt">Text.RE</span>
   ) <span class="kw">where</span>
 
 <span class="kw">import           </span><span class="dt">Data.Maybe</span>
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Capture</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Match</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Matches</span>
+<span class="kw">import           </span><span class="dt">Text.RE</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.IsRegex</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.LineNo</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span>
 
 
+<span class="co">-- | an &#39;Edits&#39; script will, for each line in the file, either perform</span>
+<span class="co">-- the action selected by the first RE in the list, or perform all of the</span>
+<span class="co">-- actions on line, arranged as a pipeline</span>
 <span class="kw">data</span> <span class="dt">Edits</span> m re s
   <span class="fu">=</span> <span class="dt">Select</span> [(re,<span class="dt">Edit</span> m s)]
   <span class="fu">|</span> <span class="dt">Pipe</span>   [(re,<span class="dt">Edit</span> m s)]
 
+<span class="co">-- | each Edit action specifies how the match should be processed</span>
 <span class="kw">data</span> <span class="dt">Edit</span> m s
   <span class="fu">=</span> <span class="dt">Template</span> s
   <span class="fu">|</span> <span class="dt">Function</span> <span class="dt">Context</span> (<span class="dt">LineNo</span><span class="ot">-&gt;</span><span class="dt">Match</span> s<span class="ot">-&gt;</span><span class="dt">Location</span><span class="ot">-&gt;</span><span class="dt">Capture</span> s<span class="ot">-&gt;</span>m (<span class="dt">Maybe</span> s))
   <span class="fu">|</span> <span class="dt">LineEdit</span>         (<span class="dt">LineNo</span><span class="ot">-&gt;</span><span class="dt">Matches</span> s<span class="ot">-&gt;</span>m (<span class="dt">LineEdit</span> s))
 
+<span class="co">-- | a LineEdit is the most general action thar can be performed on a line</span>
+<span class="co">-- and is the only means of deleting a line</span>
 <span class="kw">data</span> <span class="dt">LineEdit</span> s
   <span class="fu">=</span> <span class="dt">NoEdit</span>
   <span class="fu">|</span> <span class="dt">ReplaceWith</span> s
   <span class="fu">|</span> <span class="dt">Delete</span>
   <span class="kw">deriving</span> (<span class="dt">Show</span>)
 
+<span class="co">-- | apply an &#39;Edit&#39; script to a single line</span>
 <span class="ot">applyEdits ::</span> (<span class="dt">IsRegex</span> re s,<span class="dt">Monad</span> m,<span class="dt">Functor</span> m)
            <span class="ot">=&gt;</span> <span class="dt">LineNo</span>
            <span class="ot">-&gt;</span> <span class="dt">Edits</span> m re s
@@ -117,6 +127,10 @@ applyEdits lno ez0 s0 <span class="fu">=</span> <span class="kw">case</span> ez0
   <span class="dt">Select</span> ez <span class="ot">-&gt;</span> select_edit_scripts lno ez s0
   <span class="dt">Pipe</span>   ez <span class="ot">-&gt;</span> pipe_edit_scripts   lno ez s0
 
+<span class="co">-- | apply a single edit action to a line, the function in the first argument</span>
+<span class="co">-- being used to add a new line onto the end of the line where appropriate;</span>
+<span class="co">-- the function returns @Nothing@ if no edit is to be performed on the line,</span>
+<span class="co">-- @Just mempty@ to delete the line</span>
 <span class="ot">applyEdit ::</span> (<span class="dt">IsRegex</span> re s,<span class="dt">Monad</span> m,<span class="dt">Functor</span> m)
           <span class="ot">=&gt;</span> (s<span class="ot">-&gt;</span>s)
           <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
@@ -135,10 +149,14 @@ applyEdit anl lno re edit s <span class="fu">=</span>
     s&#39;  <span class="fu">=</span> anl s
     acs <span class="fu">=</span> matchMany re s
 
+<span class="co">-- | apply a &#39;LineEdit&#39; to a line, using the function in the first</span>
+<span class="co">-- argument to append a new line to the result; Nothing should be</span>
+<span class="co">-- returned if no edit is to be performed,  @Just mempty@ to</span>
+<span class="co">-- delete the line</span>
 <span class="ot">applyLineEdit ::</span> <span class="dt">Monoid</span> s <span class="ot">=&gt;</span> (s<span class="ot">-&gt;</span>s) <span class="ot">-&gt;</span> <span class="dt">LineEdit</span> s <span class="ot">-&gt;</span> <span class="dt">Maybe</span> s
 applyLineEdit _    <span class="dt">NoEdit</span>         <span class="fu">=</span> <span class="dt">Nothing</span>
 applyLineEdit anl (<span class="dt">ReplaceWith</span> s) <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> anl s
-applyLineEdit _    <span class="dt">Delete</span>         <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> mempty
+applyLineEdit _    <span class="dt">Delete</span>         <span class="fu">=</span> <span class="dt">Just</span>   mempty
 
 <span class="ot">select_edit_scripts ::</span> (<span class="dt">IsRegex</span> re s,<span class="dt">Monad</span> m,<span class="dt">Functor</span> m)
                     <span class="ot">=&gt;</span> <span class="dt">LineNo</span>

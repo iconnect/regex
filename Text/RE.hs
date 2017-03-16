@@ -9,7 +9,7 @@
 
 module Text.RE
   (
-  -- * Tutorial
+  -- * The Tutorial
   -- $tutorial
 
   -- * How to use this library
@@ -98,14 +98,8 @@ import           Text.RE.Types.Replace
 --   or indeed a good old-fashioned polymorphic operators?
 --
 -- While we aim to provide all combinations of these choices, some of them
--- are currently not available.  We have:
+-- are currently not available.  In the regex package we have:
 --
--- * "Text.RE.PCRE"
--- * "Text.RE.PCRE.ByteString"
--- * "Text.RE.PCRE.ByteString.Lazy"
--- * "Text.RE.PCRE.RE"
--- * "Text.RE.PCRE.Sequence"
--- * "Text.RE.PCRE.String"
 -- * "Text.RE.TDFA"
 -- * "Text.RE.TDFA.ByteString"
 -- * "Text.RE.TDFA.ByteString.Lazy"
@@ -114,6 +108,16 @@ import           Text.RE.Types.Replace
 -- * "Text.RE.TDFA.String"
 -- * "Text.RE.TDFA.Text"
 -- * "Text.RE.TDFA.Text.Lazy"
+--
+-- The PCRE modules are contained in the separate @regex-with-pcre@
+-- package:
+--
+-- * "Text.RE.PCRE"
+-- * "Text.RE.PCRE.ByteString"
+-- * "Text.RE.PCRE.ByteString.Lazy"
+-- * "Text.RE.PCRE.RE"
+-- * "Text.RE.PCRE.Sequence"
+-- * "Text.RE.PCRE.String"
 
 -- $operators
 --

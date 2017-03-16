@@ -1,9 +1,10 @@
-{-# LANGUAGE NoImplicitPrelude          #-}
-{-# LANGUAGE MultiParamTypeClasses      #-}
-{-# LANGUAGE FlexibleContexts           #-}
-{-# LANGUAGE FlexibleInstances          #-}
-{-# OPTIONS_GHC -fno-warn-orphans       #-}
-{-# LANGUAGE CPP                        #-}
+{-# LANGUAGE NoImplicitPrelude              #-}
+{-# LANGUAGE MultiParamTypeClasses          #-}
+{-# LANGUAGE FlexibleContexts               #-}
+{-# LANGUAGE FlexibleInstances              #-}
+{-# OPTIONS_GHC -fno-warn-orphans           #-}
+{-# OPTIONS_GHC -fno-warn-duplicate-exports #-}
+{-# LANGUAGE CPP                            #-}
 #if __GLASGOW_HASKELL__ >= 800
 {-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
 #endif
@@ -21,8 +22,13 @@ module Text.RE.TDFA.String
   -- * The Toolkit
   -- $toolkit
   , module Text.RE
-  -- * The 'RE' Type
+  -- * The 'RE' Type and functions
   -- $re
+  , RE
+  , reSource
+  , compileRegex
+  , compileRegexWith
+  , escape
   , module Text.RE.TDFA.RE
   ) where
 

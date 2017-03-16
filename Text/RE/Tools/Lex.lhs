@@ -4,8 +4,10 @@
 module Text.RE.Tools.Lex
   ( alex
   , alex'
+  -- * IsRegex
+  , IsRegex(..)
+  -- * Text.RE
   , module Text.RE
-  , module Text.RE.Types.IsRegex
   ) where
 
 import           Prelude.Compat
@@ -13,9 +15,13 @@ import           Text.RE
 import           Text.RE.Types.IsRegex
 
 
+-- | a simple regex-based scanner interpretter for prototyping
+-- scanners
 alex :: IsRegex re s => [(re,Match s->Maybe t)] -> t -> s -> [t]
 alex = alex' matchOnce
 
+-- | a higher order version of 'alex' parameterised over the @matchOnce@
+-- function
 alex' :: Replace s
       => (re->s->Match s)
       -> [(re,Match s->Maybe t)]

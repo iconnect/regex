@@ -458,7 +458,7 @@ If you just need to specify some non-standard options while statically checking 
 <p>To test regex at scale — which is to say, developing with relatively complex REs — <a href="re-nginx-log-processor.html">a preprocessor</a> for parsing NGINX access and error logs has been written. Each line of input may be either a line from an NGINX access log or the event log, producing a standard-format event log on the output.</p>
 <p>As a taster, here is the main script, where each type of line is recognised by a high-level macro.</p>
 <div class="includedcodeblock">
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">SedScript</span> <span class="dt">RE</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">Edits</span> <span class="dt">IO</span> <span class="dt">RE</span> <span class="dt">LBS.ByteString</span>
 script ctx <span class="fu">=</span> <span class="dt">Select</span>
     [ on [re_|@{access}|]     <span class="dt">ACC</span> parse_access
     , on [re_|@{access_deg}|] <span class="dt">AQQ</span> parse_deg_access

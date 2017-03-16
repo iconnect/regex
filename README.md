@@ -24,7 +24,10 @@ See the [About page](http://about.regex.uk) for details.
 The library and tutorial, tests and examples have been split across
 two packages:
 
-  * the `regex` package contains the regex library and
+  * the `regex` package contains the regex library with the Posix TDFA
+    back end
+  * the `regex-with-pcre` library package contains the extra modules
+    needed for the PCRE back end
   * the `regex-examples` package contains the tutorial, tests
     and example programs.
 
@@ -44,7 +47,8 @@ two packages:
 - [X] 2017-03-13  v0.6.0.0  [Split out PCRE](https://github.com/iconnect/regex/milestone/7)
 - [X] 2017-03-13  v0.6.0.1  [Fix .travis.yml release-stack script](https://github.com/iconnect/regex/issues/67)
 - [X] 2017-03-15  v0.7.0.0  [Better organization of API](https://github.com/iconnect/regex/milestone/8)
-- [ ] 2017-03-17  v0.8.0.0  [Add type-safe replacement templates and use TemplateHaskellQuotes](https://github.com/iconnect/regex/milestone/9)
+- [X] 2017-03-16  v0.8.0.0  [Tidy up the API](https://github.com/iconnect/regex/milestone/10)
+- [ ] 2017-03-18  v0.9.0.0  [Add type-safe replacement templates and use TemplateHaskellQuotes](https://github.com/iconnect/regex/milestone/9)
 - [ ] 2017-03-31  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 - [ ] 2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)
 

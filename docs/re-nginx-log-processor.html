@@ -172,7 +172,7 @@ test_log_processor <span class="fu">=</span> <span class="kw">do</span>
 go rprt_flg in_file out_file <span class="fu">=</span> <span class="kw">do</span>
   ctx <span class="ot">&lt;-</span> setup rprt_flg
   sed (script ctx) in_file out_file</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">SedScript</span> <span class="dt">RE</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">Edits</span> <span class="dt">IO</span> <span class="dt">RE</span> <span class="dt">LBS.ByteString</span>
 script ctx <span class="fu">=</span> <span class="dt">Select</span>
     [ on [re_|@{access}|]     <span class="dt">ACC</span> parse_access
     , on [re_|@{access_deg}|] <span class="dt">AQQ</span> parse_deg_access

@@ -73,9 +73,9 @@ import qualified Text.Regex.TDFA               as TDFA
 instance IsRegex RE (S.Seq Char) where
   matchOnce     = flip (?=~)
   matchMany     = flip (*=~)
-  makeRegexWith = compileRegexWith
-  makeRegex     = compileRegex
-  regexSource   = reSource
+  makeRegexWith = \o -> compileRegexWith o . unpackE
+  makeRegex     = compileRegex . unpackE
+  regexSource   = packE . reSource
 
 -- $tutorial
 -- We have a regex tutorial at <http://tutorial.regex.uk>. These API

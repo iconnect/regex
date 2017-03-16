@@ -19,7 +19,7 @@ import           Text.RE.Types.Replace
 class Replace s => IsRegex re s where
   matchOnce     :: re -> s -> Match s
   matchMany     :: re -> s -> Matches s
-  makeRegex     :: (Functor m,Monad m) => String -> m re
-  makeRegexWith :: (Functor m,Monad m) => SimpleRegexOptions -> String -> m re
-  regexSource   :: re -> String
+  makeRegex     :: (Functor m,Monad m) => s -> m re
+  makeRegexWith :: (Functor m,Monad m) => SimpleRegexOptions -> s -> m re
+  regexSource   :: re -> s
 \end{code}

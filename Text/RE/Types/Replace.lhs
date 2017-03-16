@@ -55,7 +55,7 @@ import           Text.Regex.TDFA.Text.Lazy()
 \begin{code}
 -- | Replace provides the missing methods needed to replace the matched
 -- text; lengthE is the minimum implementation
-class (Extract a,Monoid a) => Replace a where
+class (Show a,Eq a,Ord a,Extract a,Monoid a) => Replace a where
   -- | length function for a
   lengthE        :: a -> Int
   -- | inject String into a

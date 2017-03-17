@@ -71,8 +71,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">module</span> <span class="dt">Text.RE.Tools.Lex</span>
   ( alex
   , alex&#39;
+  <span class="co">-- * IsRegex</span>
+  , <span class="dt">IsRegex</span>(<span class="fu">..</span>)
+  <span class="co">-- * Text.RE</span>
   , <span class="kw">module</span> <span class="dt">Text.RE</span>
-  , <span class="kw">module</span> <span class="dt">Text.RE.Types.IsRegex</span>
   ) <span class="kw">where</span>
 
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
@@ -80,9 +82,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Text.RE.Types.IsRegex</span>
 
 
+<span class="co">-- | a simple regex-based scanner interpretter for prototyping</span>
+<span class="co">-- scanners</span>
 <span class="ot">alex ::</span> <span class="dt">IsRegex</span> re s <span class="ot">=&gt;</span> [(re,<span class="dt">Match</span> s<span class="ot">-&gt;</span><span class="dt">Maybe</span> t)] <span class="ot">-&gt;</span> t <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> [t]
 alex <span class="fu">=</span> alex&#39; matchOnce
 
+<span class="co">-- | a higher order version of &#39;alex&#39; parameterised over the @matchOnce@</span>
+<span class="co">-- function</span>
 <span class="ot">alex&#39; ::</span> <span class="dt">Replace</span> s
       <span class="ot">=&gt;</span> (re<span class="ot">-&gt;</span>s<span class="ot">-&gt;</span><span class="dt">Match</span> s)
       <span class="ot">-&gt;</span> [(re,<span class="dt">Match</span> s<span class="ot">-&gt;</span><span class="dt">Maybe</span> t)]

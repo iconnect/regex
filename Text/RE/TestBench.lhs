@@ -34,6 +34,10 @@ module Text.RE.TestBench
   , formatMacroSource
   , testMacroDescriptors
   , mdRegexSource
+  -- * Parsers
+  , module Text.RE.TestBench.Parsers
+  -- * Text.RE
+  , module Text.RE
   ) where
 
 import           Data.Array
@@ -45,11 +49,9 @@ import           Data.Ord
 import           Data.String
 import           Text.Printf
 import           Prelude.Compat
-import           Text.RE.Types.Capture
+import           Text.RE
+import           Text.RE.TestBench.Parsers
 import           Text.RE.Types.Options
-import           Text.RE.Types.Match
-import           Text.RE.Types.Matches
-import           Text.RE.Types.Replace
 \end{code}
 
 Types

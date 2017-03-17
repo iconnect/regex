@@ -132,11 +132,11 @@ parseVrn vrn_s <span class="fu">=</span> <span class="kw">case</span> matched m 
 bumpVersion vrn_s <span class="fu">=</span> <span class="kw">do</span>
     vrn0 <span class="ot">&lt;-</span> readCurrentVersion
     rex&#39; <span class="ot">&lt;-</span> compileRegex <span class="fu">$</span> printf <span class="st">&quot;- \\[[xX]\\].*%d\\.%d\\.%d\\.%d&quot;</span> _vrn_a _vrn_b _vrn_c _vrn_d
-    nada <span class="ot">&lt;-</span> null <span class="fu">.</span> linesMatched <span class="fu">&lt;$&gt;</span> grepLines rex&#39; <span class="st">&quot;lib/md/roadmap-incl.md&quot;</span>
+    nada <span class="ot">&lt;-</span> null <span class="fu">.</span> linesMatched <span class="dt">LinesMatched</span> <span class="fu">&lt;$&gt;</span> grepLines rex&#39; <span class="st">&quot;lib/md/roadmap-incl.md&quot;</span>
     M.when nada <span class="fu">$</span>
       error <span class="fu">$</span> vrn_s <span class="fu">++</span> <span class="st">&quot;: not ticked off in the roadmap&quot;</span>
     rex  <span class="ot">&lt;-</span> compileRegex <span class="fu">$</span> printf <span class="st">&quot;%d\\.%d\\.%d\\.%d&quot;</span> _vrn_a _vrn_b _vrn_c _vrn_d
-    nope <span class="ot">&lt;-</span> null <span class="fu">.</span> linesMatched <span class="fu">&lt;$&gt;</span> grepLines rex <span class="st">&quot;changelog&quot;</span>
+    nope <span class="ot">&lt;-</span> null <span class="fu">.</span> linesMatched <span class="dt">LinesMatched</span> <span class="fu">&lt;$&gt;</span> grepLines rex <span class="st">&quot;changelog&quot;</span>
     M.when nope <span class="fu">$</span>
       error <span class="fu">$</span> vrn_s <span class="fu">++</span> <span class="st">&quot;: not in the changelog&quot;</span>
     <span class="kw">case</span> vrn <span class="fu">&gt;</span> vrn0 <span class="kw">of</span>

@@ -1,5 +1,8 @@
 -*-change-log-*-
 
+0.8.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-16
+  * Tidy up the API after recent reorganization (#76)
+
 0.7.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-15
   * Fix and extend Replace class (#74)
   * Better package organisation (#73)

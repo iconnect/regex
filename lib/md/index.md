@@ -10,7 +10,10 @@ See the [About page](http://about.regex.uk) for details.
 The library and tutorial, tests and examples have been split across
 two packages:
 
-  * the `regex` package contains the regex library and
+  * the `regex` package contains the regex library with the Posix TDFA
+    back end
+  * the `regex-with-pcre` library package contains the extra modules
+    needed for the PCRE back end
   * the `regex-examples` package contains the tutorial, tests
     and example programs.
 

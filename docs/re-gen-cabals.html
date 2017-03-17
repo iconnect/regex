@@ -163,7 +163,7 @@ gen in_f out_f <span class="fu">=</span> <span class="kw">do</span>
 <span class="ot">setup ::</span> <span class="dt">IO</span> <span class="dt">Ctx</span>
 setup <span class="fu">=</span> <span class="dt">Ctx</span> <span class="fu">&lt;$&gt;</span> (newIORef <span class="dt">True</span>) <span class="fu">&lt;*&gt;</span> (newIORef <span class="dt">False</span>) <span class="fu">&lt;*&gt;</span> (newIORef Map.empty) <span class="fu">&lt;*&gt;</span> (newIORef <span class="dt">Nothing</span>)
 
-<span class="ot">gc_script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">SedScript</span> <span class="dt">RE</span>
+<span class="ot">gc_script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">Edits</span> <span class="dt">IO</span> <span class="dt">RE</span> <span class="dt">LBS.ByteString</span>
 gc_script ctx <span class="fu">=</span> <span class="dt">Select</span>
     [ (,) [re|^%Werror$|]                                      <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> w_error_gen              ctx
     , (,) [re|^%Wwarn$|]                                       <span class="fu">$</span> <span class="dt">LineEdit</span> <span class="fu">$</span> w_warn_gen               ctx
@@ -361,7 +361,7 @@ summary <span class="fu">=</span> <span class="kw">do</span>
         , show <span class="fu">$</span> _vrn_d vrn
         ]
   rex <span class="ot">&lt;-</span> compileRegex <span class="fu">$</span> <span class="st">&quot;- \\[[xX]\\] +@{%date} +v&quot;</span><span class="fu">++</span>vrn_res<span class="fu">++</span><span class="st">&quot; +\\[?${smy}([^]]+)&quot;</span>
-  lns <span class="ot">&lt;-</span> linesMatched <span class="fu">&lt;$&gt;</span> grepLines rex <span class="st">&quot;lib/md/roadmap-incl.md&quot;</span>
+  lns <span class="ot">&lt;-</span> linesMatched <span class="dt">LinesMatched</span> <span class="fu">&lt;$&gt;</span> grepLines rex <span class="st">&quot;lib/md/roadmap-incl.md&quot;</span>
   <span class="kw">case</span> lns <span class="kw">of</span>
     [<span class="dt">Line</span> _ (<span class="dt">Matches</span> _ [mtch])] <span class="ot">-&gt;</span> return <span class="fu">$</span> TE.decodeUtf8 <span class="fu">$</span> LBS.toStrict <span class="fu">$</span> mtch <span class="fu">!$$</span> [cp|smy|]
     _ <span class="ot">-&gt;</span> error <span class="st">&quot;failed to locate the summary text in the roadmap&quot;</span></code></pre></div>

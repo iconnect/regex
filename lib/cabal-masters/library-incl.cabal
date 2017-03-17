@@ -7,14 +7,12 @@ Library
       Text.RE.Internal.NamedCaptures
       Text.RE.Internal.PreludeMacros
       Text.RE.Internal.QQ
-      Text.RE.Types.IsRegex
       Text.RE.PCRE
       Text.RE.PCRE.ByteString
       Text.RE.PCRE.ByteString.Lazy
       Text.RE.PCRE.RE
       Text.RE.PCRE.Sequence
       Text.RE.PCRE.String
-      Text.RE.Types.Replace
       Text.RE.TDFA
       Text.RE.TDFA.ByteString
       Text.RE.TDFA.ByteString.Lazy
@@ -25,15 +23,18 @@ Library
       Text.RE.TDFA.Text.Lazy
       Text.RE.TestBench
       Text.RE.TestBench.Parsers
+      Text.RE.Tools
       Text.RE.Tools.Edit
       Text.RE.Tools.Grep
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
       Text.RE.Types.Capture
+      Text.RE.Types.CaptureID
+      Text.RE.Types.IsRegex
+      Text.RE.Types.LineNo
       Text.RE.Types.Match
       Text.RE.Types.Matches
-      Text.RE.Types.CaptureID
-      Text.RE.Types.LineNo
       Text.RE.Types.Options
+      Text.RE.Types.Replace
 
 %build-depends array bytestring base base-compat containers hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin template-haskell text time time-locale-compat transformers unordered-containers

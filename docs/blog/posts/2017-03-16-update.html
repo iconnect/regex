@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>the regex blog - HaskellX Bytes Talk: Why Regular Expressions Matter</title>
+        <title>the regex blog - regex-0.8.0.0</title>
         <link href="../css/bs/bootstrap.min.css" rel="stylesheet">
         <link href="../css/styles.css" rel="stylesheet">
         <link href="../css/syntax.css" rel="stylesheet">
@@ -27,26 +27,30 @@
         </div>
 
         <div id="content">
-            <h1>HaskellX Bytes Talk: Why Regular Expressions Matter</h1>
+            <h1>regex-0.8.0.0</h1>
 <div class="info">
-    Posted on 2017-02-26
+    Posted on 2017-03-16
     
         by Chris Dornan
     
 </div>
 
-<p class="subheading">
-HaskellX Bytes Talk at <a href="https://skillsmatter.com/contact-us">CodeNode</a>, London, <strong>2017-05-08T1830+0100</strong> by Chris Dornan (<a href="https://skillsmatter.com/meetups/9160-why-regular-expressions-matter-with-chris-dornan">Skills Matter page</a>)
-</p>
-<p>In this talk I will look at how Regular Expressions have been supported in Haskell and how well they should be supported. (Spoiler alert: I don’t think they have been supported well enough.) Some technically excellent packages are available which have been widely adopted but there is strong evidence that they are not as easy to use as developers expect and a wide variety of alternative packages have been proposed, none of which have attracted enough support to supplant the original.</p>
-<p>I will speculate on why this situation has come about and why I think the new ‘regex’ package will fix all of this. (Another spoiler alert: it is built on top of the technically excellent, de facto standard ‘regex-base’ packages that get used when Haskell folks really, really can’t avoid using regular expressions.)</p>
+<p>Regex is going through a process of reorganisation in preparation for the release of 1.0.0.0, the first stable release. We have three things to do for the release which should be completed in the 0.9.0.0 release.</p>
+<h2 id="better-organise-the-regex-api">Better organise the regex API</h2>
+<p><code>regex</code> is being organised in a more structured manner with the most important types and functions being presented prominently in the API modules, the most important general types and functions in <code>Text.RE</code> and the specialist types and functions in the remaining modules, which are now organised into a hierarchy that makes it easier to see what is where. This reorganisation has been mostly completed with the release of 0.8.0.0.</p>
+<h2 id="make-regex-compatible-w-th-less-ghcs">Make <code>regex</code> compatible w/ TH-less GHCs</h2>
+<p>This covers two technical fixes which should be non-disruptive. See <a href="https://github.com/iconnect/regex/issues/70">#70</a> and <a href="https://github.com/iconnect/regex/pull/69">PR #69</a>.</p>
+<h2 id="make-replacement-templates-type-safe">Make replacement templates type safe</h2>
+<p>We would like to make the replacement templates type safe, which is to say that the references to captures in the replacement templates should be checked at compile time. This will involve some disruption to the Edits and Replace APIs. Some rationalisation of the <code>Replace</code> section of <code>Text.RE</code> also be considered. This issue is being tracked by <a href="https://github.com/iconnect/regex/issues/60">#60</a>.</p>
+<h2 id="new-projected-release-date-for-regex-1.0.0.0">New projected release date for regex-1.0.0.0</h2>
+<p>The date for releasing regex-1.0.0.0 has been pushed back to the end of March to allow these changes to settle and be reviewed.</p>
 
 <div id="disqus_thread"></div>
 <script>
 
 var disqus_config = function () {
-this.page.url = "http://blog.regex.uk//posts/2017-02-26-0-haskellx-bytes-why-res-matter.html";   // Replace PAGE_URL with your page's canonical URL variable
-this.page.identifier = "posts/2017-02-26-0-haskellx-bytes-why-res-matter.md";                // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+this.page.url = "http://blog.regex.uk//posts/2017-03-16-update.html";   // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = "posts/2017-03-16-update.md";                // Replace PAGE_IDENTIFIER with your page's unique identifier variable
 };
 (function() { // DON'T EDIT BELOW THIS LINE
 var d = document, s = d.createElement('script');

@@ -53,7 +53,7 @@ Extra-Source-Files:
     src/Text/RE/TDFA/Text/Lazy.hs
 
 
-Cabal-Version:          >= 1.16
+Cabal-Version:          >= 1.10
 
 Source-Repository head
     type:               git
@@ -106,6 +106,26 @@ Library
       Text.RE.Types.Replace
 
     Default-Language:   Haskell2010
+    Other-extensions:
+      AllowAmbiguousTypes
+      CPP
+      DeriveDataTypeable
+      DeriveGeneric
+      ExistentialQuantification
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      GeneralizedNewtypeDeriving
+      MultiParamTypeClasses
+      NoImplicitPrelude
+      OverloadedStrings
+      QuasiQuotes
+      RecordWildCards
+      ScopedTypeVariables
+      TemplateHaskell
+      TypeSynonymInstances
+      UndecidableInstances      
+    
     GHC-Options:
       -Wall
       -fwarn-tabs

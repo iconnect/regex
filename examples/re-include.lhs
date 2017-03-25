@@ -36,6 +36,9 @@ import           Text.RE.TDFA.ByteString.Lazy
 import           Text.RE.TestBench.Parsers
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
+import           Text.RE.Types.Capture
+import           Text.RE.Types.Match
+import           Text.RE.Types.Replace
 \end{code}
 
 \begin{code}
@@ -67,8 +70,8 @@ The Sed Script
 loop :: FilePath -> FilePath -> IO ()
 loop =
   sed $ Select
-    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] $ Function TOP   include_file
-    , (,) [re|^.*$|]                                              $ Function TOP $ \_ _ _ _->return Nothing
+    [ Function [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] TOP include_file
+    , Function [re|^.*$|]                                              TOP $ \_ _ _ _->return Nothing
     ]
 \end{code}
 

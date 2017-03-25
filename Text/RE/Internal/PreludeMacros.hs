@@ -30,11 +30,12 @@ import           Data.Maybe
 import qualified Data.Text                    as T
 import           Data.Time
 import           Prelude.Compat
-import           Text.RE.Types.Options
+import           Text.RE.Types.REOptions
 import           Text.RE.TestBench.Parsers
 import           Text.RE.TestBench
 
 
+-- | generate the standard prelude Macros used to parse REs
 preludeMacros :: (Monad m,Functor m)
               => (String->m r)
               -> RegexType
@@ -42,21 +43,27 @@ preludeMacros :: (Monad m,Functor m)
               -> m (Macros r)
 preludeMacros prs rty wc = mkMacros prs rty wc $ preludeMacroEnv rty
 
+-- | format the standard prelude macros in a markdown table
 preludeMacroTable :: RegexType -> String
 preludeMacroTable rty = formatMacroTable rty $ preludeMacroEnv rty
 
+-- | generate a textual summary of the prelude macros
 preludeMacroSummary :: RegexType -> PreludeMacro -> String
 preludeMacroSummary rty =
   formatMacroSummary rty (preludeMacroEnv rty) . prelude_macro_id
 
+-- | generate a plain text table giving the RE for each macro with all
+-- macros expanded (to NF)
 preludeMacroSources :: RegexType -> String
 preludeMacroSources rty =
   formatMacroSources rty ExclCaptures $ preludeMacroEnv rty
 
+-- | generate plain text giving theexpanded RE for a single macro
 preludeMacroSource :: RegexType -> PreludeMacro -> String
 preludeMacroSource rty =
   formatMacroSource rty ExclCaptures (preludeMacroEnv rty) . prelude_macro_id
 
+-- | generate the `MacroEnv` for the standard prelude macros
 preludeMacroEnv :: RegexType -> MacroEnv
 preludeMacroEnv rty = fix $ prelude_macro_env rty
 
@@ -66,6 +73,7 @@ prelude_macro_env rty env = HML.fromList $ catMaybes
       | pm<-[minBound..maxBound]
       ]
 
+-- | generate the `MacroDescriptor` for a given `PreludeMacro`
 preludeMacroDescriptor :: RegexType
                        -> MacroEnv
                        -> PreludeMacro

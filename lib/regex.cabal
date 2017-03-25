@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                0.8.0.0
+Version:                0.9.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
@@ -22,7 +22,7 @@ Extra-Source-Files:
     README.markdown
     changelog
 
-Cabal-Version:          >= 1.16
+Cabal-Version:          >= 1.10
 
 Source-Repository head
     type:               git
@@ -31,7 +31,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.8.0.0
+    Tag:                0.9.0.0
 
 
 
@@ -45,6 +45,8 @@ Library
       Text.RE.Internal.NamedCaptures
       Text.RE.Internal.PreludeMacros
       Text.RE.Internal.QQ
+      Text.RE.SearchReplace
+      Text.RE.Summa
       Text.RE.TDFA
       Text.RE.TDFA.ByteString
       Text.RE.TDFA.ByteString.Lazy
@@ -60,16 +62,44 @@ Library
       Text.RE.Tools.Grep
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
+      Text.RE.Types
       Text.RE.Types.Capture
       Text.RE.Types.CaptureID
       Text.RE.Types.IsRegex
       Text.RE.Types.LineNo
       Text.RE.Types.Match
       Text.RE.Types.Matches
-      Text.RE.Types.Options
+      Text.RE.Types.REOptions
       Text.RE.Types.Replace
+      Text.RE.Types.SearchReplace
 
     Default-Language:   Haskell2010
+
+    Other-Extensions:
+      AllowAmbiguousTypes
+      CPP
+      DeriveDataTypeable
+      DeriveGeneric
+      ExistentialQuantification
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      GeneralizedNewtypeDeriving
+      MultiParamTypeClasses
+      NoImplicitPrelude
+      OverloadedStrings
+      QuasiQuotes
+      RecordWildCards
+      ScopedTypeVariables
+      TemplateHaskell
+      TypeSynonymInstances
+      UndecidableInstances
+
+    if !impl(ghc >= 8.0)
+      Other-Extensions: TemplateHaskell
+    else
+      Other-Extensions: TemplateHaskellQuotes
+
     GHC-Options:
       -Wall
       -fwarn-tabs
@@ -82,7 +112,6 @@ Library
       , bytestring           >= 0.10.2.0
       , containers           >= 0.4
       , hashable             >= 1.2.3.3
-      , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93.2
       , regex-tdfa           >= 1.2.0
       , regex-tdfa-text      >= 1.0.0.3

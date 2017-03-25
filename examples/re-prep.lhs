@@ -42,6 +42,9 @@ import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
 import           Text.RE.TDFA.ByteString.Lazy
 import qualified Text.RE.TDFA.Text                        as TT
+import           Text.RE.Types.Capture
+import           Text.RE.Types.Match
+import           Text.RE.Types.Replace
 \end{code}
 
 \begin{code}
@@ -113,11 +116,11 @@ genMode = Gen <$> newIORef []
 prep_tut :: MODE -> FilePath -> FilePath -> IO ()
 prep_tut mode =
   sed $ Select
-    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] $ Function TOP $ inclde   mode
-    , (,) [re|^%main ${arg}(top|bottom)$|]                        $ LineEdit     $ main_    mode
-    , (,) [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}) \(${ans}([^)]+)\) \$ *${exp}(.*)$|]
-                                                                  $ Function TOP $ evalme   mode
-    , (,) [re|^.*$|]                                              $ Function TOP $ passthru
+    [ Function [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] TOP $ inclde   mode
+    , LineEdit [re|^%main ${arg}(top|bottom)$|]                            $ main_    mode
+    , Function [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}) \(${ans}([^)]+)\) \$ *${exp}(.*)$|]
+                                                                       TOP $ evalme   mode
+    , Function [re|^.*$|]                                              TOP $ passthru
     ]
 \end{code}
 
@@ -176,7 +179,7 @@ gen_all = do
     pd "RE/Types/Match"
     pd "RE/Types/Capture"
     pd "RE/Types/IsRegex"
-    pd "RE/Types/Options"
+    pd "RE/Types/REOptions"
     pd "RE/Types/Replace"
     pd "RE/TestBench"
     pd "RE/Tools/Edit"
@@ -231,7 +234,7 @@ evalmeDoc :: LineNo
           -> Location
           -> Capture LBS.ByteString
           -> IO (Maybe LBS.ByteString)
-evalmeDoc _ mtch _ _ = return $ Just $ replace mtch $ LBS.intercalate "\n"
+evalmeDoc _ mtch _ _ = return $ Just $ flip replace mtch $ LBS.intercalate "\n"
   [ "ghci> ${exp}"
   , "${ans}"
   ]
@@ -378,7 +381,7 @@ badges = do
     mapM_ collect
       [ (,) "license"             "https://img.shields.io/badge/license-BSD3-brightgreen.svg"
       , (,) "unix-build"          "https://img.shields.io/travis/iconnect/regex.svg?label=Linux%2BmacOS"
-      , (,) "windows-build"       "https://img.shields.io/appveyor/ci/engineerirngirisconnectcouk/regex.svg?label=Windows"
+      , (,) "windows-build"       "https://img.shields.io/appveyor/ci/cdornan/regex.svg?label=Windows"
       , (,) "coverage"            "https://img.shields.io/coveralls/iconnect/regex.svg"
       , (,) "build-status"        "https://img.shields.io/travis/iconnect/regex.svg?label=Build%20Status"
       , (,) "maintainers-contact" "https://img.shields.io/badge/email-maintainers%40regex.uk-blue.svg"
@@ -506,7 +509,7 @@ prep_page ttl mmd in_fp out_fp = do
 
 set_title :: LBS.ByteString -> LBS.ByteString -> LBS.ByteString
 set_title ttl lbs = fromMaybe oops $ flip sed' lbs $ Pipe
-    [ (,) [re|<<\$title\$>>|] $ Function TOP $ \_ _ _ _->return $ Just ttl
+    [ Function [re|<<\$title\$>>|] TOP $ \_ _ _ _->return $ Just ttl
     ]
   where
     -- runIdentity added to base in 4.9 only
@@ -522,10 +525,10 @@ prep_page' mmd lbs = do
     return (hdgs,lbs1<>lbs2)
   where
     scr rf_h rf_t = Select
-      [ (,) [re|^%heading#${ide}(@{%id}) +${ttl}([^ ].*)$|] $ Function TOP $ heading       mmd rf_t rf_h
-      , (,) [re|^- \[ \] +${itm}(.*)$|]                     $ Function TOP $ task_list     mmd rf_t False
-      , (,) [re|^- \[[Xx]\] +${itm}(.*)$|]                  $ Function TOP $ task_list     mmd rf_t True
-      , (,) [re|^.*$|]                                      $ Function TOP $ fin_task_list mmd rf_t
+      [ Function [re|^%heading#${ide}(@{%id}) +${ttl}([^ ].*)$|] TOP $ heading       mmd rf_t rf_h
+      , Function [re|^- \[ \] +${itm}(.*)$|]                     TOP $ task_list     mmd rf_t False
+      , Function [re|^- \[[Xx]\] +${itm}(.*)$|]                  TOP $ task_list     mmd rf_t True
+      , Function [re|^.*$|]                                      TOP $ fin_task_list mmd rf_t
       ]
 
 heading :: MarkdownMode
@@ -710,7 +713,7 @@ pandoc_lhs' title repo_path in_file out_file = do
                     LBS.unlines
                       [ "---"
                       , "title: "<>LBS.fromStrict (TE.encodeUtf8 title)
-                      ,"---"
+                      , "---"
                       ]
   LBS.writeFile "tmp/bc.html" bc
   LBS.writeFile "tmp/ft.html" ft
@@ -764,10 +767,10 @@ tweak_md :: MarkdownMode -> LBS.ByteString -> LBS.ByteString
 tweak_md mm lbs = case mm of
     MM_github  -> lbs
     MM_pandoc  -> awk
-      [ (,) [re|<https?://${rest}([^)]+)>|] $ Template "[${rest}]($0)"
+      [ Template [ed|<https?://${rest}([^)]+)>///[${rest}]($0)|]
       ]
     MM_hackage -> awk
-      [ (,) [re|<br/>$|] $ Template "\n"
+      [ Template [ed|<br/>$///\n|]
       ]
   where
     awk = fromMaybe oops . flip sed' lbs . Pipe

@@ -1,5 +1,5 @@
 Name:                   regex-with-pcre
-Version:                0.8.0.0
+Version:                0.9.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
@@ -22,7 +22,7 @@ Extra-Source-Files:
     README.markdown
     changelog
 
-Cabal-Version:          >= 1.16
+Cabal-Version:          >= 1.10
 
 Source-Repository head
     type:               git
@@ -31,7 +31,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.8.0.0
+    Tag:                0.9.0.0
 
 
 
@@ -46,13 +46,39 @@ Library
       Text.RE.PCRE.String
 
     Default-Language:   Haskell2010
+
+    Other-Extensions:
+      AllowAmbiguousTypes
+      CPP
+      DeriveDataTypeable
+      DeriveGeneric
+      ExistentialQuantification
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      GeneralizedNewtypeDeriving
+      MultiParamTypeClasses
+      NoImplicitPrelude
+      OverloadedStrings
+      QuasiQuotes
+      RecordWildCards
+      ScopedTypeVariables
+      TemplateHaskell
+      TypeSynonymInstances
+      UndecidableInstances
+
+    if !impl(ghc >= 8.0)
+      Other-Extensions: TemplateHaskell
+    else
+      Other-Extensions: TemplateHaskellQuotes
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
+        regex                == 0.9.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0

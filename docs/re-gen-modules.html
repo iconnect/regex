@@ -88,6 +88,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">System.IO</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TDFA.ByteString.Lazy</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.SearchReplace</span>
 
 
 <span class="ot">main ::</span> <span class="dt">IO</span> ()
@@ -155,9 +156,9 @@ pcre_edits <span class="fu">=</span>
           <span class="ot">-&gt;</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span>)
 tdfa_edit mp bs_lbs import_lbs <span class="fu">=</span>
     (,) mp <span class="fu">$</span> <span class="dt">Pipe</span>
-        [ (,) module_re <span class="fu">$</span> <span class="dt">Template</span> <span class="fu">$</span> LBS.pack mp
-        , (,) import_re <span class="fu">$</span> <span class="dt">Template</span>   import_lbs
-        , (,) bs_re     <span class="fu">$</span> <span class="dt">Template</span>   bs_lbs
+        [ <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> module_re <span class="fu">$</span> LBS.pack mp
+        , <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> import_re   import_lbs
+        , <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> bs_re       bs_lbs
         ]
 
 <span class="ot">pcre_edit ::</span> <span class="dt">ModPath</span>
@@ -166,10 +167,10 @@ tdfa_edit mp bs_lbs import_lbs <span class="fu">=</span>
           <span class="ot">-&gt;</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span>)
 pcre_edit mp bs_lbs import_lbs <span class="fu">=</span>
     (,) mp <span class="fu">$</span> <span class="dt">Pipe</span>
-        [ (,) tdfa_re   <span class="fu">$</span> <span class="dt">Template</span>   <span class="st">&quot;PCRE&quot;</span>
-        , (,) module_re <span class="fu">$</span> <span class="dt">Template</span> <span class="fu">$</span> LBS.pack mp
-        , (,) import_re <span class="fu">$</span> <span class="dt">Template</span>   import_lbs
-        , (,) bs_re     <span class="fu">$</span> <span class="dt">Template</span>   bs_lbs
+        [ <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> tdfa_re     <span class="st">&quot;PCRE&quot;</span>
+        , <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> module_re <span class="fu">$</span> LBS.pack mp
+        , <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> import_re   import_lbs
+        , <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> bs_re       bs_lbs
         ]
 
 <span class="kw">type</span> <span class="dt">ModPath</span> <span class="fu">=</span> <span class="dt">String</span>
@@ -178,10 +179,10 @@ pcre_edit mp bs_lbs import_lbs <span class="fu">=</span>
 source_mp <span class="fu">=</span> <span class="st">&quot;Text.RE.TDFA.ByteString.Lazy&quot;</span>
 
 tdfa_re, module_re, import_re,<span class="ot"> bs_re ::</span> <span class="dt">RE</span>
-tdfa_re   <span class="fu">=</span> [re|TDFA|]
-module_re <span class="fu">=</span> [re|Text.RE.TDFA.ByteString.Lazy|]
-import_re <span class="fu">=</span> [re|import qualified Data.ByteString.Lazy.Char8 *as LBS|]
-bs_re     <span class="fu">=</span> [re|LBS.ByteString|]
+tdfa_re   <span class="fu">=</span> [re<span class="fu">|</span><span class="dt">TDFA</span><span class="fu">|</span>]
+module_re <span class="fu">=</span> [re<span class="fu">|</span><span class="dt">Text.RE.TDFA.ByteString.Lazy</span><span class="fu">|</span>]
+import_re <span class="fu">=</span> [re<span class="fu">|</span><span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span> *<span class="kw">as</span> <span class="dt">LBS</span>|]
+bs_re     <span class="fu">=</span> [re<span class="fu">|</span><span class="dt">LBS.ByteString</span><span class="fu">|</span>]
 
 <span class="ot">mod_filepath ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">ModPath</span> <span class="ot">-&gt;</span> FilePath
 mod_filepath text_present mp <span class="fu">=</span> pfx <span class="fu">++</span> map tr mp <span class="fu">++</span> <span class="st">&quot;.hs&quot;</span>

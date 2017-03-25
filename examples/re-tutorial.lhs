@@ -93,8 +93,11 @@ dealing with bulk text will probably want to choose one of the other
 options.
 \begin{code}
 import           Text.RE.TDFA.String
+import           Text.RE.Types.Capture
 import           Text.RE.Types.CaptureID
-import           Text.RE.Types.Options
+import           Text.RE.Types.Match
+import           Text.RE.Types.REOptions
+import           Text.RE.Types.Replace
 \end{code}
 If you are predominantly matching against a single type in your module
 then you will probably find it more convenient to use the relevant module
@@ -311,7 +314,7 @@ The test suite in [examples/re-tests.lhs](re-tests.html) contains extensive
 worked-out examples of these `Matches`/`Match`/`Capture` types.
 
 
-Simple Options
+Simple REOptions
 --------------
 
 By default regular expressions are of the multi-line case-sensitive
@@ -363,9 +366,9 @@ Using Functions to Replace Text
 -------------------------------
 
 Sometimes you will need to process each string captured by an RE with a
-function. `replaceAllCaptures` takes a `Context`, a substitution
+function. `replaceAllCaptures` takes a `REContext`, a substitution
 function and a `Matches` and applies the function to each captured
-substring according to the `Context`, as we can see in the following
+substring according to the `REContext`, as we can see in the following
 example function to clean up all of the mis-formatted dates in the
 argument string,
 \begin{code}
@@ -390,13 +393,13 @@ The `replaceAllCaptures` function is of type
 
 %include "Text/RE/Types/Replace.lhs" "replaceAllCaptures ::"
 
-and the `Context` and `Location` types are defined in
+and the `REContext` and `Location` types are defined in
 `Text.RE.Types.Replace` as follows,
 
-%include "Text/RE/Types/Replace.lhs" "^data Context"
+%include "Text/RE/Types/Replace.lhs" "^data REContext"
 
 The processing function gets applied to the captures specified by the
-`Context`, which can be directed to process `ALL` of the captures,
+`REContext`, which can be directed to process `ALL` of the captures,
 including the substring captured by the whole RE and all of the
 subsidiary capture, or just the `TOP`, `0` capture that the whole RE
 matches, or just the `SUB` (subsidiary) captures, as was the case above.
@@ -457,7 +460,7 @@ more on how you can develop, document and test RE macros with the
 regex test bench.
 
 
-Compiling REs with the Complete Options
+Compiling REs with the Complete REOptions
 ---------------------------------------
 
 Each type of RE &mdash; TDFA and PCRE &mdash; has it own complile-time
@@ -467,20 +470,20 @@ parser (`reMultilineSensitive`, etc.) configures the RE backend
 accordingly so that you don't have to, but you may need full access to
 you chosen back end's options, or you may need to supply a different
 set of macros to those provided in the standard environment. In which
-case you will need to know about the `Options` type, defined by each of
-the back ends in terms of the `Options_` type of `Text.RE.Types.Options`
+case you will need to know about the `REOptions` type, defined by each of
+the back ends in terms of the `REOptions_` type of `Text.RE.Types.REOptions`
 as follows.
 <div class='inlinecodeblock'>
 ```
-type Options = Options_ RE CompOption ExecOption
+type REOptions = REOptions_ RE CompOption ExecOption
 ```
 </div>
 (Bear in mind that `CompOption` and `ExecOption` will be different
 types for each back end.)
 
-The `Options_` type is defined in `Text.RE.Types.Options` as follows:
+The `REOptions_` type is defined in `Text.RE.Types.REOptions` as follows:
 
-%include "Text/RE/Types/Options.lhs" "data Options_"
+%include "Text/RE/Types/REOptions.lhs" "data REOptions_"
 
   * `optionsMode` is an experimental feature that controls the RE
     parser.
@@ -514,10 +517,10 @@ REs. Your configuration-type options are:
   * `()` (the unit type) means just use the default multi-line
     case-sensitive that we get with the `re` parser.
 
-  * `SimpleRegexOptions` this is just a simple enum type that we use to
+  * `SimpleREOptions` this is just a simple enum type that we use to
     encode the standard options:
 
-%include "Text/RE/Types/Options.lhs" "^data SimpleRegexOptions"
+%include "Text/RE/Types/REOptions.lhs" "^data SimpleREOptions"
 
   * `Mode`: you can specify the parser mode;
 
@@ -530,7 +533,7 @@ REs. Your configuration-type options are:
   * `ExecOption`: you can specify the execution-time options for the
     back end;
 
-  * `Options`: you can specify all of the options.
+  * `REOptions`: you can specify all of the options.
 
 The compilation may fail so it is expressed monadically. For the
 following examples we will use the following helper to just `error`
@@ -551,7 +554,7 @@ This will allow you to compile regular expressions when the either the
 text to be compiled or the options have been dynamically determined.
 
 
-Specifying Options with `re_`
+Specifying REOptions with `re_`
 -----------------------------
 
 If you just need to specify some non-standard options while statically
@@ -715,12 +718,12 @@ The regex replacement templates are parsed with code similar to this.
 \begin{code}
 type Template = String
 
-parseTemplateE' :: Template
+parseTemplateR' :: Template
                 -> Match String
                 -> Location
                 -> Capture String
                 -> Maybe String
-parseTemplateE' tpl mtch _ _ =
+parseTemplateR' tpl mtch _ _ =
     Just $ replaceAllCaptures TOP phi $
       tpl *=~ [re|\$${arg}(\$|[0-9]+|\{${name}([^{}]+)\})|]
   where
@@ -737,7 +740,7 @@ parseTemplateE' tpl mtch _ _ =
         this cid = capturedText <$> mtch !$? cid
 
 my_replace :: RE -> Template-> String -> String
-my_replace rex tpl src = replaceAllCaptures TOP (parseTemplateE' tpl) $ src *=~ rex
+my_replace rex tpl src = replaceAllCaptures TOP (parseTemplateR' tpl) $ src *=~ rex
 \end{code}
 
 It can be tested with our date-reformater example.

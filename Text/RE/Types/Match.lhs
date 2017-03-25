@@ -157,7 +157,8 @@ lookupCaptureID cid Match{..} = findCaptureID cid captureNames
 
 
 \begin{code}
--- | for matching just the first RE against the source text
+-- | this instance hooks 'Match' into regex-base: regex consumers need
+-- not worry about any of this
 instance
     ( RegexContext regex source (AllTextSubmatches (Array Int) (source,(Int,Int)))
     , RegexLike    regex source

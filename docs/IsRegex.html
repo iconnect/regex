@@ -69,22 +69,37 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE MultiParamTypeClasses      #-}</span>
 <span class="ot">{-# LANGUAGE AllowAmbiguousTypes        #-}</span>
 <span class="ot">{-# LANGUAGE CPP                        #-}</span>
-<span class="ot">#if __GLASGOW_HASKELL__ &gt;= 800</span>
+<span class="st">#if __GLASGOW_HASKELL__ &gt;= 800</span>
 <span class="ot">{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}</span>
-<span class="ot">#endif</span>
+<span class="st">#endif</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.Types.IsRegex</span> <span class="kw">where</span>
 
 <span class="kw">import           </span><span class="dt">Text.RE.Types.Match</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.Matches</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Options</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">Replace</span> s <span class="ot">=&gt;</span> <span class="dt">IsRegex</span> re s <span class="kw">where</span>
-<span class="ot">  matchOnce     ::</span> re <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">Match</span> s
-<span class="ot">  matchMany     ::</span> re <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">Matches</span> s
-<span class="ot">  makeRegex     ::</span> (<span class="dt">Functor</span> m,<span class="dt">Monad</span> m) <span class="ot">=&gt;</span> s <span class="ot">-&gt;</span> m re
-<span class="ot">  makeRegexWith ::</span> (<span class="dt">Functor</span> m,<span class="dt">Monad</span> m) <span class="ot">=&gt;</span> <span class="dt">SimpleRegexOptions</span> <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> m re
-<span class="ot">  regexSource   ::</span> re <span class="ot">-&gt;</span> s</code></pre></div>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.REOptions</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.SearchReplace</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the &#39;IsRegex&#39; class allows tools to be written that will work with</span>
+<span class="co">-- regex back end text type supported by the back end</span>
+<span class="kw">class</span> <span class="dt">Replace</span> s <span class="ot">=&gt;</span> <span class="dt">IsRegex</span> re s <span class="kw">where</span>
+  <span class="co">-- | finding the first match</span>
+<span class="ot">  matchOnce             ::</span> re <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">Match</span> s
+  <span class="co">-- | finding all matches</span>
+<span class="ot">  matchMany             ::</span> re <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">Matches</span> s
+  <span class="co">-- | compiling an RE, failing if the RE is not well formed</span>
+<span class="ot">  makeRegex             ::</span> (<span class="dt">Functor</span> m,<span class="dt">Monad</span> m) <span class="ot">=&gt;</span> s <span class="ot">-&gt;</span> m re
+  <span class="co">-- | comiling an RE, specifying the &#39;SimpleREOptions&#39;</span>
+<span class="ot">  makeRegexWith         ::</span> (<span class="dt">Functor</span> m,<span class="dt">Monad</span> m) <span class="ot">=&gt;</span> <span class="dt">SimpleREOptions</span> <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> m re
+  <span class="co">-- | compiling a &#39;SearchReplace&#39; template from the RE text and the template Text, failing if they are not well formed</span>
+<span class="ot">  makeSearchReplace     ::</span> (<span class="dt">Functor</span> m,<span class="dt">Monad</span> m,<span class="dt">IsRegex</span> re s) <span class="ot">=&gt;</span> s <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> m (<span class="dt">SearchReplace</span> re s)
+  <span class="co">-- | compiling a &#39;SearchReplace&#39; template specifing the &#39;SimpleREOptions&#39; for the RE</span>
+<span class="ot">  makeSearchReplaceWith ::</span> (<span class="dt">Functor</span> m,<span class="dt">Monad</span> m,<span class="dt">IsRegex</span> re s) <span class="ot">=&gt;</span> <span class="dt">SimpleREOptions</span> <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> m (<span class="dt">SearchReplace</span> re s)
+  <span class="co">-- | extract the text of the RE from the RE</span>
+<span class="ot">  regexSource           ::</span> re <span class="ot">-&gt;</span> s
+
+  makeRegex         <span class="fu">=</span> makeRegexWith         minBound
+  makeSearchReplace <span class="fu">=</span> makeSearchReplaceWith minBound</code></pre></div>
 </div>    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

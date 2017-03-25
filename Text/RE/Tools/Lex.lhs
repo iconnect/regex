@@ -12,7 +12,10 @@ module Text.RE.Tools.Lex
 
 import           Prelude.Compat
 import           Text.RE
+import           Text.RE.Types.Capture
 import           Text.RE.Types.IsRegex
+import           Text.RE.Types.Match
+import           Text.RE.Types.Replace
 
 
 -- | a simple regex-based scanner interpretter for prototyping
@@ -30,7 +33,7 @@ alex' :: Replace s
       -> [t]
 alex' mo al t_err = loop
   where
-    loop s = case lengthE s == 0 of
+    loop s = case lengthR s == 0 of
       True  -> []
       False -> choose al s
 

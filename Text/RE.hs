@@ -18,76 +18,32 @@ module Text.RE
   -- ** The Match Operators
   -- $operators
 
-  -- * Matches, Match & Capture
-    Matches(..)
-  , Match(..)
-  , Capture(..)
-  , noMatch
-  -- ** Matches functions
+  -- * Matches
+    Matches
+  , matchesSource
+  , allMatches
   , anyMatches
   , countMatches
   , matches
-  , mainCaptures
-  -- ** Match functions
+  -- * Match
+  , Match
+  , matchSource
   , matched
   , matchedText
-  , matchCapture
-  , matchCaptures
-  , (!$$)
-  , captureText
-  , (!$$?)
-  , captureTextMaybe
-  , (!$)
-  , capture
-  , (!$?)
-  , captureMaybe
-  -- ** Capture functions
-  , hasCaptured
-  , capturePrefix
-  , captureSuffix
-  -- * Options
-  , SimpleRegexOptions(..)
-  -- * CaptureID
-  , CaptureID
-  -- * Replace
-  , Replace(..)
-  , ReplaceMethods(..)
-  , replaceMethods
-  , Context(..)
-  , Location(..)
-  , isTopLocation
-  , replace
-  , replaceAll
-  , replaceAllCaptures
-  , replaceAllCaptures_
-  , replaceAllCapturesM
-  , replaceCaptures
-  , replaceCaptures_
-  , replaceCapturesM
-  , expandMacros
-  , expandMacros'
   ) where
 
-import           Text.RE.Types.Capture
-import           Text.RE.Types.CaptureID
 import           Text.RE.Types.Match
 import           Text.RE.Types.Matches
-import           Text.RE.Types.Options
-import           Text.RE.Types.Replace
 
 -- $tutorial
--- We have a regex tutorial at <http://tutorial.regex.uk>. These API
--- docs are mainly for reference.
+--
+-- We have a regex tutorial at <http://tutorial.regex.uk>.
 
 -- $use
 --
--- This module won't provide any operators to match a regular expression
--- against text as it merely provides the toolkit for working with the
--- output of the match operators.  You probably won't import it directly
--- but import one of the modules that provides the match operators,
--- which will in tuen re-export this module.
---
--- The module that you choose to import will depend upon two factors:
+-- This module just provides an overview of the key type on which
+-- the regex package is built. You will need to import one of the API
+-- modules of which there is a choice which will depend upon two factors:
 --
 -- * Which flavour of regular expression do you want to use? If you want
 --   Posix flavour REs then you want the TDFA modules, otherwise its
@@ -121,9 +77,9 @@ import           Text.RE.Types.Replace
 
 -- $operators
 --
--- The traditional @=~@ and @=~~@ operators are exported by the @regex@,
--- but we recommend that you use the two new operators, especially if
--- you are not familiar with the old operators.  We have:
+-- The traditional @=~@ and @=~~@ operators are exported by the above
+-- API module, but we recommend that you use the two new operators,
+-- especially if you are not familiar with the old operators.  We have:
 --
 -- * @txt ?=~ re@ searches for a single match yielding a value of type
 --   'Match' @a@ where @a@ is the type of the text you are searching.
@@ -131,5 +87,6 @@ import           Text.RE.Types.Replace
 -- * @txt *=~ re@ searches for all non-overlapping matches in @txt@,
 --   returning a value of type 'Matches' @a@.
 --
--- See the sections below for more information on these @Matches@ and
--- @Match@ result types.
+-- The remainder of this module outlines these @Matches@ and
+-- @Match@ result types. Only an outline is given here. For more details
+-- see the 'Text.RE.Type.Matches' and 'Text.RE.Type.Match' modules.

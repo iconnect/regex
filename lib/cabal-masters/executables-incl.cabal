@@ -6,14 +6,14 @@
     Other-Modules:
       TestKit
 
-%build-depends regex array base base-compat containers bytestring directory regex-base regex-tdfa shelly text
+%build-depends-prog regex array base base-compat containers bytestring directory regex-base regex-tdfa shelly text
 
 %test-exe re-gen-modules
     Hs-Source-Dirs:     examples
 
     Main-Is:            re-gen-modules.lhs
 
-%build-depends regex array base base-compat bytestring directory regex-base regex-tdfa shelly text
+%build-depends-prog regex array base base-compat bytestring directory regex-base regex-tdfa shelly text
 
 %test-exe re-include
     Hs-Source-Dirs:     examples
@@ -23,14 +23,14 @@
     Other-Modules:
       TestKit
 
-%build-depends regex base base-compat bytestring directory shelly text
+%build-depends-prog regex base base-compat bytestring directory shelly text
 
 %test-exe re-nginx-log-processor
     Hs-Source-Dirs:     examples
 
     Main-Is:            re-nginx-log-processor.lhs
 
-%build-depends regex regex-with-pcre array base base-compat bytestring directory regex-base regex-tdfa shelly text time time-locale-compat transformers unordered-containers
+%build-depends-prog regex regex-with-pcre array base base-compat bytestring directory regex-base regex-tdfa shelly text time time-locale-compat transformers unordered-containers
 
 %test-exe re-prep
     Hs-Source-Dirs:     examples
@@ -40,7 +40,7 @@
     Other-Modules:
       TestKit
 
-%build-depends regex base base-compat bytestring directory heredoc http-conduit shelly text
+%build-depends-prog regex base base-compat bytestring directory heredoc http-conduit shelly text
 
 %test-exe re-tests
     Hs-Source-Dirs:     examples
@@ -50,7 +50,7 @@
     Other-Modules:
       TestKit
 
-%build-depends regex regex-with-pcre array base base-compat bytestring containers directory heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin smallcheck tasty tasty-hunit tasty-smallcheck template-haskell text unordered-containers
+%build-depends-prog regex regex-with-pcre array base base-compat bytestring containers directory heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin smallcheck tasty tasty-hunit tasty-smallcheck template-haskell text unordered-containers
 
 %test-exe re-tutorial
     Hs-Source-Dirs:     examples
@@ -61,7 +61,7 @@
       TestKit
 
     Default-Extensions: QuasiQuotes
-%build-depends regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
+%build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
 
 %test re-tutorial-os
     Hs-Source-Dirs:     examples
@@ -73,4 +73,4 @@
 
     Extensions:         OverloadedStrings
     Default-Extensions: QuasiQuotes
-%build-depends regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
+%build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers

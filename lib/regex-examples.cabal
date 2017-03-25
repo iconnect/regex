@@ -1,5 +1,5 @@
 Name:                   regex-examples
-Version:                0.8.0.0
+Version:                0.9.0.0
 Synopsis:               Tutorial, tests and example programs for regex
 Description:            Tutorial, tests and example programs for regex,
                         a Regular Expression Toolkit for regex-base with
@@ -54,7 +54,7 @@ Extra-Source-Files:
     src/Text/RE/TDFA/Text/Lazy.hs
 
 
-Cabal-Version:          >= 1.16
+Cabal-Version:          >= 1.10
 
 Source-Repository head
     type:               git
@@ -63,7 +63,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.8.0.0
+    Tag:                0.9.0.0
 
 
 
@@ -76,13 +76,14 @@ Executable re-gen-cabals
       TestKit
 
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
+        regex                == 0.9.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -105,13 +106,14 @@ Test-Suite re-gen-cabals-test
       TestKit
 
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
+        regex                == 0.9.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -131,13 +133,14 @@ Executable re-gen-modules
     Main-Is:            re-gen-modules.lhs
 
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
+        regex                == 0.9.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -156,13 +159,14 @@ Test-Suite re-gen-modules-test
     Main-Is:            re-gen-modules.lhs
 
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
+        regex                == 0.9.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -184,13 +188,14 @@ Executable re-include
       TestKit
 
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
+        regex                == 0.9.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -209,13 +214,14 @@ Test-Suite re-include-test
       TestKit
 
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
+        regex                == 0.9.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -231,14 +237,15 @@ Executable re-nginx-log-processor
     Main-Is:            re-nginx-log-processor.lhs
 
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
-      , regex-with-pcre      == 0.8.0.0
+        regex                == 0.9.0.0
+      , regex-with-pcre      == 0.9.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -261,14 +268,15 @@ Test-Suite re-nginx-log-processor-test
     Main-Is:            re-nginx-log-processor.lhs
 
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
-      , regex-with-pcre      == 0.8.0.0
+        regex                == 0.9.0.0
+      , regex-with-pcre      == 0.9.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -294,13 +302,14 @@ Executable re-prep
       TestKit
 
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
+        regex                == 0.9.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -321,13 +330,14 @@ Test-Suite re-prep-test
       TestKit
 
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
+        regex                == 0.9.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -348,14 +358,15 @@ Executable re-tests
       TestKit
 
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
-      , regex-with-pcre      == 0.8.0.0
+        regex                == 0.9.0.0
+      , regex-with-pcre      == 0.9.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -386,14 +397,15 @@ Test-Suite re-tests-test
       TestKit
 
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
-      , regex-with-pcre      == 0.8.0.0
+        regex                == 0.9.0.0
+      , regex-with-pcre      == 0.9.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -425,13 +437,14 @@ Executable re-tutorial
 
     Default-Extensions: QuasiQuotes
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
+        regex                == 0.9.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -468,13 +481,14 @@ Test-Suite re-tutorial-test
 
     Default-Extensions: QuasiQuotes
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
+        regex                == 0.9.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -513,13 +527,14 @@ Test-Suite re-tutorial-os-test
     Extensions:         OverloadedStrings
     Default-Extensions: QuasiQuotes
     Default-Language:   Haskell2010
+
     GHC-Options:
       -Wall
       -fwarn-tabs
       -Wwarn
 
     Build-depends:
-        regex                == 0.8.0.0
+        regex                == 0.9.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0

@@ -202,7 +202,8 @@ captureMaybe cid mtch<span class="fu">@</span><span class="dt">Match</span>{<spa
 
 <span class="ot">lookupCaptureID ::</span> <span class="dt">CaptureID</span> <span class="ot">-&gt;</span> <span class="dt">Match</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>
 lookupCaptureID cid <span class="dt">Match</span>{<span class="fu">..</span>} <span class="fu">=</span> findCaptureID cid captureNames</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | for matching just the first RE against the source text</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | this instance hooks &#39;Match&#39; into regex-base: regex consumers need</span>
+<span class="co">-- not worry about any of this</span>
 <span class="kw">instance</span>
     ( <span class="dt">RegexContext</span> regex source (<span class="dt">AllTextSubmatches</span> (<span class="dt">Array</span> <span class="dt">Int</span>) (source,(<span class="dt">Int</span>,<span class="dt">Int</span>)))
     , <span class="dt">RegexLike</span>    regex source

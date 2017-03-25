@@ -4,10 +4,12 @@
 |-------------------------------------------|--------------------------------------
 | <http://blog.regex.uk>                    | the regex blog
 | <http://build-status.regex.uk>            | the live build status page
+| <http://builder.regex.uk>                 | the Hackage Matrix Builder regex page
 | <http://contact.regex.uk>                 | contacting the maintainer
 | <http://code.regex.uk>                    | the regex GitHub repository
 | <http://directory.regex.uk>               | this page
 | <http://examples.regex.uk>                | the regex examples, tutorial and tests
+| <http://hackage-matrix-builder.regex.uk>  | the Hackage Matrix Builder regex page
 | <http://haddocks.regex.uk>                | the regex haddocks
 | <http://hs.regex.uk>                      | the regex haddocks
 | <http://installation.regex.uk>            | the regex installation instructions

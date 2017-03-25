@@ -41,6 +41,8 @@ import           Text.RE.TDFA.ByteString.Lazy
 import           Text.RE.TDFA.Text                        as T
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
+import           Text.RE.Types.Match
+import           Text.RE.Types.Matches
 
 
 main :: IO ()
@@ -107,15 +109,16 @@ setup = Ctx <$> (newIORef True) <*> (newIORef False) <*> (newIORef Map.empty) <*
 
 gc_script :: Ctx -> Edits IO RE LBS.ByteString
 gc_script ctx = Select
-    [ (,) [re|^%Werror$|]                                      $ LineEdit $ w_error_gen              ctx
-    , (,) [re|^%Wwarn$|]                                       $ LineEdit $ w_warn_gen               ctx
-    , (,) [re|^%filter-regex-with-pcre$|]                      $ LineEdit $ w_filter_pcre            ctx
-    , (,) [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]             $ LineEdit $ cond_gen                 ctx
-    , (,) [re|^%build-depends +${list}(@{%id-}( +@{%id-})+)$|] $ LineEdit $ build_depends_gen        ctx
-    , (,) [re|^%test +${i}(@{%id-})$|]                         $ LineEdit $ test_exe_gen True  False ctx
-    , (,) [re|^%exe +${i}(@{%id-})$|]                          $ LineEdit $ test_exe_gen False True  ctx
-    , (,) [re|^%test-exe +${i}(@{%id-})$|]                     $ LineEdit $ test_exe_gen True  True  ctx
-    , (,) [re|^.*$|]                                           $ LineEdit $ default_gen              ctx
+    [ LineEdit [re|^%Werror$|]                            $ w_error_gen              ctx
+    , LineEdit [re|^%Wwarn$|]                             $ w_warn_gen               ctx
+    , LineEdit [re|^%filter-regex-with-pcre$|]            $ w_filter_pcre            ctx
+    , LineEdit [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]   $ cond_gen                 ctx
+    , LineEdit [re|^%build-depends-${lb}(lib|prog) +${list}(@{%id-}( +@{%id-})+)$|]
+                                                          $ build_depends_gen        ctx
+    , LineEdit [re|^%test +${i}(@{%id-})$|]               $ test_exe_gen True  False ctx
+    , LineEdit [re|^%exe +${i}(@{%id-})$|]                $ test_exe_gen False True  ctx
+    , LineEdit [re|^%test-exe +${i}(@{%id-})$|]           $ test_exe_gen True  True  ctx
+    , LineEdit [re|^.*$|]                                 $ default_gen              ctx
     ]
 
 w_error_gen, w_warn_gen, w_filter_pcre, cond_gen, build_depends_gen,
@@ -141,8 +144,9 @@ build_depends_gen ctx@Ctx{..} _ mtchs = do
     we <- readIORef _ctx_w_error
     fp <- readIORef _ctx_filter_pcre
     mp <- readIORef _ctx_package_constraints
-    put ctx $ mk_build_depends we fp mp lst
+    put ctx $ mk_build_depends lb we fp mp lst
   where
+    lb   = captureText [cp|lb|] mtch == "lib"
     lst  = LBS.words $ captureText [cp|list|] mtch
     mtch = allMatches mtchs !! 0
 
@@ -208,12 +212,41 @@ mk_test_exe is_t te te_lbs_kw = (<>_te_text te) $ LBS.unlines $ concat
 
 mk_build_depends :: Bool
                  -> Bool
+                 -> Bool
                  -> Map.Map LBS.ByteString LBS.ByteString
                  -> [LBS.ByteString]
                  -> LBS.ByteString
-mk_build_depends we fp mp pks0 = LBS.unlines $
+mk_build_depends lb we fp mp pks0 = LBS.unlines $
         [ "    Default-Language:   Haskell2010"
-        , "    GHC-Options:"
+        , ""
+        ] ++ filter (if lb then const True else const False)
+        [ "    Other-Extensions:"
+        , "      AllowAmbiguousTypes"
+        , "      CPP"
+        , "      DeriveDataTypeable"
+        , "      DeriveGeneric"
+        , "      ExistentialQuantification"
+        , "      FlexibleContexts"
+        , "      FlexibleInstances"
+        , "      FunctionalDependencies"
+        , "      GeneralizedNewtypeDeriving"
+        , "      MultiParamTypeClasses"
+        , "      NoImplicitPrelude"
+        , "      OverloadedStrings"
+        , "      QuasiQuotes"
+        , "      RecordWildCards"
+        , "      ScopedTypeVariables"
+        , "      TemplateHaskell"
+        , "      TypeSynonymInstances"
+        , "      UndecidableInstances"
+        , ""
+        , "    if !impl(ghc >= 8.0)"
+        , "      Other-Extensions: TemplateHaskell"
+        , "    else"
+        , "      Other-Extensions: TemplateHaskellQuotes"
+        , ""
+        ] ++
+        [ "    GHC-Options:"
         , "      -Wall"
         , "      -fwarn-tabs"
         , "      " <> w_error_or_warn

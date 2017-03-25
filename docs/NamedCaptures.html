@@ -66,15 +66,20 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <header>
 <h1 class="title">Text.RE.Internal.NamedCaptures</h1>
 </header>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
-<span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
-<span class="ot">{-# LANGUAGE DeriveGeneric              #-}</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE DeriveGeneric              #-}</span>
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<span class="ot">{-# LANGUAGE CPP                        #-}</span>
+<span class="st">#if __GLASGOW_HASKELL__ &gt;= 800</span>
+<span class="ot">{-# LANGUAGE TemplateHaskellQuotes      #-}</span>
+<span class="st">#else</span>
+<span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
+<span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
+<span class="st">#endif</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.Internal.NamedCaptures</span>
   ( cp
   , extractNamedCaptures
-  , idFormatTokenOptions
+  , idFormatTokenREOptions
   , <span class="dt">Token</span>(<span class="fu">..</span>)
   , validToken
   , formatTokens
@@ -89,28 +94,33 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">GHC.Generics</span>
 <span class="kw">import qualified</span> <span class="dt">Language.Haskell.TH</span>          <span class="kw">as</span> <span class="dt">TH</span>
 <span class="kw">import           </span><span class="dt">Language.Haskell.TH.Quote</span>
-<span class="kw">import           </span><span class="dt">Text.Heredoc</span>
 <span class="kw">import           </span><span class="dt">Text.RE</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Internal.PreludeMacros</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Internal.QQ</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TestBench</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Tools.Lex</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.CaptureID</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Match</span>
 <span class="kw">import           </span><span class="dt">Text.Regex.TDFA</span>
 
 
+<span class="co">-- | quasi quoter for CaptureID ([cp|0|],[cp|y|], etc.)</span>
 <span class="ot">cp ::</span> <span class="dt">QuasiQuoter</span>
 cp <span class="fu">=</span>
     (qq0 <span class="st">&quot;cp&quot;</span>)
       { quoteExp <span class="fu">=</span> parse_capture
       }
 
-<span class="ot">extractNamedCaptures ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">String</span> (<span class="dt">CaptureNames</span>,<span class="dt">String</span>)
+<span class="co">-- | extract the CaptureNames from an RE or return an error diagnostic</span>
+<span class="co">-- if the RE is not well formed; also returs the total number of captures</span>
+<span class="co">-- in the RE</span>
+<span class="ot">extractNamedCaptures ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">String</span> ((<span class="dt">Int</span>,<span class="dt">CaptureNames</span>),<span class="dt">String</span>)
 extractNamedCaptures s <span class="fu">=</span> <span class="dt">Right</span> (analyseTokens tks,formatTokens tks)
   <span class="kw">where</span>
     tks <span class="fu">=</span> scan s</code></pre></div>
 <h2 id="token">Token</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Token</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | our RE scanner returns a list of these tokens</span>
+<span class="kw">data</span> <span class="dt">Token</span>
   <span class="fu">=</span> <span class="dt">ECap</span> (<span class="dt">Maybe</span> <span class="dt">String</span>)
   <span class="fu">|</span> <span class="dt">PGrp</span>
   <span class="fu">|</span> <span class="dt">PCap</span>
@@ -119,6 +129,7 @@ extractNamedCaptures s <span class="fu">=</span> <span class="dt">Right</span> (
   <span class="fu">|</span> <span class="dt">Other</span>       <span class="dt">Char</span>
   <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Generic</span>,<span class="dt">Eq</span>)
 
+<span class="co">-- | check that a token is well formed</span>
 <span class="ot">validToken ::</span> <span class="dt">Token</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
 validToken tkn <span class="fu">=</span> <span class="kw">case</span> tkn <span class="kw">of</span>
     <span class="dt">ECap</span>  mb <span class="ot">-&gt;</span> maybe <span class="dt">True</span> check_ecap mb
@@ -132,11 +143,15 @@ validToken tkn <span class="fu">=</span> <span class="kw">case</span> tkn <span 
     is_dot     c <span class="fu">=</span> c<span class="fu">/=</span><span class="ch">&#39;\n&#39;</span>
     not_br     c <span class="fu">=</span> not <span class="fu">$</span> c <span class="ot">`elem`</span> <span class="st">&quot;{}\n&quot;</span></code></pre></div>
 <h2 id="analysing-token---capturenames">Analysing <a href="#token">Token</a> -&gt; CaptureNames</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">analyseTokens ::</span> [<span class="dt">Token</span>] <span class="ot">-&gt;</span> <span class="dt">CaptureNames</span>
-analyseTokens <span class="fu">=</span> HM.fromList <span class="fu">.</span> count_em <span class="dv">1</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | analyse a token stream, returning the number of captures and the</span>
+<span class="co">-- &#39;CaptureNames&#39;</span>
+<span class="ot">analyseTokens ::</span> [<span class="dt">Token</span>] <span class="ot">-&gt;</span> (<span class="dt">Int</span>,<span class="dt">CaptureNames</span>)
+analyseTokens tks0 <span class="fu">=</span> <span class="kw">case</span> count_em <span class="dv">1</span> tks0 <span class="kw">of</span>
+    (n,as) <span class="ot">-&gt;</span> (n<span class="fu">-</span><span class="dv">1</span>, HM.fromList as)
   <span class="kw">where</span>
-    count_em _ []       <span class="fu">=</span> []
-    count_em n (tk<span class="fu">:</span>tks) <span class="fu">=</span> bd <span class="fu">++</span> count_em (n <span class="ot">`seq`</span> n<span class="fu">+</span>d) tks
+    count_em n []       <span class="fu">=</span> (n,[])
+    count_em n (tk<span class="fu">:</span>tks) <span class="fu">=</span> <span class="kw">case</span> count_em (n <span class="ot">`seq`</span> n<span class="fu">+</span>d) tks <span class="kw">of</span>
+        (n&#39;,as) <span class="ot">-&gt;</span> (n&#39;,bd<span class="fu">++</span>as)
       <span class="kw">where</span>
         (d,bd) <span class="fu">=</span> <span class="kw">case</span> tk <span class="kw">of</span>
           <span class="dt">ECap</span> (<span class="dt">Just</span> nm) <span class="ot">-&gt;</span> (,) <span class="dv">1</span> [(<span class="dt">CaptureName</span> <span class="fu">$</span> T.pack nm,<span class="dt">CaptureOrdinal</span> n)]
@@ -147,18 +162,19 @@ analyseTokens <span class="fu">=</span> HM.fromList <span class="fu">.</span> co
           <span class="dt">BS</span>    _        <span class="ot">-&gt;</span> (,) <span class="dv">0</span> []
           <span class="dt">Other</span> _        <span class="ot">-&gt;</span> (,) <span class="dv">0</span> []</code></pre></div>
 <h2 id="scanning-regex-strings">Scanning Regex Strings</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">scan ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">Token</span>]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | scan a RE string into a list of RE Token</span>
+<span class="ot">scan ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">Token</span>]
 scan <span class="fu">=</span> alex&#39; match al oops
   <span class="kw">where</span>
 <span class="ot">    al ::</span> [(<span class="dt">Regex</span>,<span class="dt">Match</span> <span class="dt">String</span><span class="ot">-&gt;</span><span class="dt">Maybe</span> <span class="dt">Token</span>)]
     al <span class="fu">=</span>
-      [ mk [here|\$\{([^{}]+)\}\(|] <span class="fu">$</span>         <span class="dt">ECap</span> <span class="fu">.</span> <span class="dt">Just</span> <span class="fu">.</span> x_1
-      , mk [here|\$\(|]             <span class="fu">$</span> const <span class="fu">$</span> <span class="dt">ECap</span> <span class="dt">Nothing</span>
-      , mk [here|\(\?:|]            <span class="fu">$</span> const   <span class="dt">PGrp</span>
-      , mk [here|\(\?|]             <span class="fu">$</span> const   <span class="dt">PCap</span>
-      , mk [here|\(|]               <span class="fu">$</span> const   <span class="dt">Bra</span>
-      , mk [here|\\(.)|]            <span class="fu">$</span>         <span class="dt">BS</span>    <span class="fu">.</span> s2c <span class="fu">.</span> x_1
-      , mk [here|(.)|]              <span class="fu">$</span>         <span class="dt">Other</span> <span class="fu">.</span> s2c <span class="fu">.</span> x_1
+      [ mk <span class="st">&quot;\\$\\{([^{}]+)\\}\\(&quot;</span> <span class="fu">$</span>         <span class="dt">ECap</span> <span class="fu">.</span> <span class="dt">Just</span> <span class="fu">.</span> x_1
+      , mk <span class="st">&quot;\\$\\(&quot;</span>               <span class="fu">$</span> const <span class="fu">$</span> <span class="dt">ECap</span> <span class="dt">Nothing</span>
+      , mk <span class="st">&quot;\\(\\?:&quot;</span>              <span class="fu">$</span> const   <span class="dt">PGrp</span>
+      , mk <span class="st">&quot;\\(\\?&quot;</span>               <span class="fu">$</span> const   <span class="dt">PCap</span>
+      , mk <span class="st">&quot;\\(&quot;</span>                  <span class="fu">$</span> const   <span class="dt">Bra</span>
+      , mk <span class="st">&quot;\\\\(.)&quot;</span>              <span class="fu">$</span>         <span class="dt">BS</span>    <span class="fu">.</span> s2c <span class="fu">.</span> x_1
+      , mk <span class="st">&quot;(.)&quot;</span>                  <span class="fu">$</span>         <span class="dt">Other</span> <span class="fu">.</span> s2c <span class="fu">.</span> x_1
       ]
 
     x_1     <span class="fu">=</span> captureText <span class="fu">$</span> <span class="dt">IsCaptureOrdinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="dv">1</span>
@@ -175,35 +191,41 @@ parse_capture s <span class="fu">=</span> <span class="kw">case</span> all isDig
   <span class="dt">True</span>  <span class="ot">-&gt;</span> [<span class="fu">|</span><span class="dt">IsCaptureOrdinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="fu">$</span> read s<span class="fu">|</span>]
   <span class="dt">False</span> <span class="ot">-&gt;</span> [<span class="fu">|</span><span class="dt">IsCaptureName</span>    <span class="fu">$</span> <span class="dt">CaptureName</span> <span class="fu">$</span> T.pack  s<span class="fu">|</span>]</code></pre></div>
 <h2 id="formatting-token">Formatting <a href="#token">Token</a></h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">formatTokens ::</span> [<span class="dt">Token</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
-formatTokens <span class="fu">=</span> formatTokens&#39; defFormatTokenOptions
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | format [Token] into an RE string</span>
+<span class="ot">formatTokens ::</span> [<span class="dt">Token</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
+formatTokens <span class="fu">=</span> formatTokens&#39; defFormatTokenREOptions
 
-<span class="kw">data</span> <span class="dt">FormatTokenOptions</span> <span class="fu">=</span>
-  <span class="dt">FormatTokenOptions</span>
-    {<span class="ot"> _fto_regex_type ::</span> <span class="dt">Maybe</span> <span class="dt">RegexType</span>
-    ,<span class="ot"> _fto_min_caps   ::</span> <span class="dt">Bool</span>
-    ,<span class="ot"> _fto_incl_caps  ::</span> <span class="dt">Bool</span>
+<span class="co">-- | options for the general Token formatter below</span>
+<span class="kw">data</span> <span class="dt">FormatTokenREOptions</span> <span class="fu">=</span>
+  <span class="dt">FormatTokenREOptions</span>
+    { _<span class="ot">fto_regex_type ::</span> <span class="dt">Maybe</span> <span class="dt">RegexType</span>    <span class="co">-- ^ Posix, PCRE or indeterminate REs?</span>
+    , _<span class="ot">fto_min_caps   ::</span> <span class="dt">Bool</span>               <span class="co">-- ^ remove captures where possible</span>
+    , _<span class="ot">fto_incl_caps  ::</span> <span class="dt">Bool</span>               <span class="co">-- ^ include the captures in the output</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)
 
-<span class="ot">defFormatTokenOptions ::</span> <span class="dt">FormatTokenOptions</span>
-defFormatTokenOptions <span class="fu">=</span>
-  <span class="dt">FormatTokenOptions</span>
+<span class="co">-- | the default configuration for the Token formatter</span>
+<span class="ot">defFormatTokenREOptions ::</span> <span class="dt">FormatTokenREOptions</span>
+defFormatTokenREOptions <span class="fu">=</span>
+  <span class="dt">FormatTokenREOptions</span>
     { _fto_regex_type <span class="fu">=</span> <span class="dt">Nothing</span>
     , _fto_min_caps   <span class="fu">=</span> <span class="dt">False</span>
     , _fto_incl_caps  <span class="fu">=</span> <span class="dt">False</span>
     }
 
-<span class="ot">idFormatTokenOptions ::</span> <span class="dt">FormatTokenOptions</span>
-idFormatTokenOptions <span class="fu">=</span>
-  <span class="dt">FormatTokenOptions</span>
+<span class="co">-- | a configuration that will preserve the parsed regular expression</span>
+<span class="co">-- in the output</span>
+<span class="ot">idFormatTokenREOptions ::</span> <span class="dt">FormatTokenREOptions</span>
+idFormatTokenREOptions <span class="fu">=</span>
+  <span class="dt">FormatTokenREOptions</span>
     { _fto_regex_type <span class="fu">=</span> <span class="dt">Nothing</span>
     , _fto_min_caps   <span class="fu">=</span> <span class="dt">False</span>
     , _fto_incl_caps  <span class="fu">=</span> <span class="dt">True</span>
     }
 
-<span class="ot">formatTokens&#39; ::</span> <span class="dt">FormatTokenOptions</span> <span class="ot">-&gt;</span> [<span class="dt">Token</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
-formatTokens&#39; <span class="dt">FormatTokenOptions</span>{<span class="fu">..</span>} <span class="fu">=</span> foldr f <span class="st">&quot;&quot;</span>
+<span class="co">-- | the general Token formatter, generating REs according to the options</span>
+<span class="ot">formatTokens&#39; ::</span> <span class="dt">FormatTokenREOptions</span> <span class="ot">-&gt;</span> [<span class="dt">Token</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
+formatTokens&#39; <span class="dt">FormatTokenREOptions</span>{<span class="fu">..</span>} <span class="fu">=</span> foldr f <span class="st">&quot;&quot;</span>
   <span class="kw">where</span>
     f tk tl <span class="fu">=</span> t_s <span class="fu">++</span> tl
       <span class="kw">where</span>
@@ -224,7 +246,7 @@ formatTokens&#39; <span class="dt">FormatTokenOptions</span>{<span class="fu">..
     bra mc  <span class="fu">=</span> <span class="kw">case</span> mc <span class="fu">&amp;&amp;</span> maybe <span class="dt">False</span> isPCRE _fto_regex_type <span class="kw">of</span>
       <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="st">&quot;(?:&quot;</span>
       <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="st">&quot;(&quot;</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- this is a reference of formatTokens defFormatTokenOptions,</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- this is a reference of formatTokens defFormatTokenREOptions,</span>
 <span class="co">-- used for testing the latter</span>
 <span class="ot">formatTokens0 ::</span> [<span class="dt">Token</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
 formatTokens0 <span class="fu">=</span> foldr f <span class="st">&quot;&quot;</span>

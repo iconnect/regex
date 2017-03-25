@@ -68,14 +68,18 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </header>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE NoImplicitPrelude          #-}</span>
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<span class="ot">{-# LANGUAGE DeriveFunctor              #-}</span>
 <span class="ot">{-# LANGUAGE CPP                        #-}</span>
-<span class="ot">#if __GLASGOW_HASKELL__ &gt;= 800</span>
+<span class="st">#if __GLASGOW_HASKELL__ &gt;= 800</span>
 <span class="ot">{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}</span>
-<span class="ot">#endif</span>
+<span class="st">#endif</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.Tools.Edit</span>
-  ( <span class="dt">Edits</span>(<span class="fu">..</span>)
+  (
+  <span class="co">-- * Editing</span>
+    <span class="dt">Edits</span>(<span class="fu">..</span>)
   , <span class="dt">Edit</span>(<span class="fu">..</span>)
+  , <span class="dt">SearchReplace</span>(<span class="fu">..</span>)
   , <span class="dt">LineEdit</span>(<span class="fu">..</span>)
   , applyEdits
   , applyEdit
@@ -92,30 +96,34 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Data.Maybe</span>
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">Text.RE</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Capture</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.IsRegex</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.LineNo</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.SearchReplace</span>
 
 
 <span class="co">-- | an &#39;Edits&#39; script will, for each line in the file, either perform</span>
 <span class="co">-- the action selected by the first RE in the list, or perform all of the</span>
 <span class="co">-- actions on line, arranged as a pipeline</span>
 <span class="kw">data</span> <span class="dt">Edits</span> m re s
-  <span class="fu">=</span> <span class="dt">Select</span> [(re,<span class="dt">Edit</span> m s)]
-  <span class="fu">|</span> <span class="dt">Pipe</span>   [(re,<span class="dt">Edit</span> m s)]
+  <span class="fu">=</span> <span class="dt">Select</span> <span class="fu">!</span>[<span class="dt">Edit</span> m re s]
+  <span class="fu">|</span> <span class="dt">Pipe</span>   <span class="fu">!</span>[<span class="dt">Edit</span> m re s]
 
 <span class="co">-- | each Edit action specifies how the match should be processed</span>
-<span class="kw">data</span> <span class="dt">Edit</span> m s
-  <span class="fu">=</span> <span class="dt">Template</span> s
-  <span class="fu">|</span> <span class="dt">Function</span> <span class="dt">Context</span> (<span class="dt">LineNo</span><span class="ot">-&gt;</span><span class="dt">Match</span> s<span class="ot">-&gt;</span><span class="dt">Location</span><span class="ot">-&gt;</span><span class="dt">Capture</span> s<span class="ot">-&gt;</span>m (<span class="dt">Maybe</span> s))
-  <span class="fu">|</span> <span class="dt">LineEdit</span>         (<span class="dt">LineNo</span><span class="ot">-&gt;</span><span class="dt">Matches</span> s<span class="ot">-&gt;</span>m (<span class="dt">LineEdit</span> s))
+<span class="kw">data</span> <span class="dt">Edit</span> m re s
+  <span class="fu">=</span> <span class="dt">Template</span> <span class="fu">!</span>(<span class="dt">SearchReplace</span> re s)
+  <span class="fu">|</span> <span class="dt">Function</span> <span class="fu">!</span>re <span class="dt">REContext</span> <span class="fu">!</span>(<span class="dt">LineNo</span><span class="ot">-&gt;</span><span class="dt">Match</span> s<span class="ot">-&gt;</span><span class="dt">Location</span><span class="ot">-&gt;</span><span class="dt">Capture</span> s<span class="ot">-&gt;</span>m (<span class="dt">Maybe</span> s))
+  <span class="fu">|</span> <span class="dt">LineEdit</span> <span class="fu">!</span>re         <span class="fu">!</span>(<span class="dt">LineNo</span><span class="ot">-&gt;</span><span class="dt">Matches</span> s<span class="ot">-&gt;</span>m (<span class="dt">LineEdit</span> s))
 
 <span class="co">-- | a LineEdit is the most general action thar can be performed on a line</span>
 <span class="co">-- and is the only means of deleting a line</span>
 <span class="kw">data</span> <span class="dt">LineEdit</span> s
   <span class="fu">=</span> <span class="dt">NoEdit</span>
-  <span class="fu">|</span> <span class="dt">ReplaceWith</span> s
+  <span class="fu">|</span> <span class="dt">ReplaceWith</span> <span class="fu">!</span>s
   <span class="fu">|</span> <span class="dt">Delete</span>
-  <span class="kw">deriving</span> (<span class="dt">Show</span>)
+  <span class="kw">deriving</span> (<span class="dt">Functor</span>,<span class="dt">Show</span>)
+
 
 <span class="co">-- | apply an &#39;Edit&#39; script to a single line</span>
 <span class="ot">applyEdits ::</span> (<span class="dt">IsRegex</span> re s,<span class="dt">Monad</span> m,<span class="dt">Functor</span> m)
@@ -134,20 +142,23 @@ applyEdits lno ez0 s0 <span class="fu">=</span> <span class="kw">case</span> ez0
 <span class="ot">applyEdit ::</span> (<span class="dt">IsRegex</span> re s,<span class="dt">Monad</span> m,<span class="dt">Functor</span> m)
           <span class="ot">=&gt;</span> (s<span class="ot">-&gt;</span>s)
           <span class="ot">-&gt;</span> <span class="dt">LineNo</span>
-          <span class="ot">-&gt;</span> re
-          <span class="ot">-&gt;</span> <span class="dt">Edit</span> m s
+          <span class="ot">-&gt;</span> <span class="dt">Edit</span> m re s
           <span class="ot">-&gt;</span> s
           <span class="ot">-&gt;</span> m (<span class="dt">Maybe</span> s)
-applyEdit anl lno re edit s <span class="fu">=</span>
+applyEdit anl lno edit s <span class="fu">=</span>
   <span class="kw">case</span> allMatches acs <span class="kw">of</span>
     [] <span class="ot">-&gt;</span> return <span class="dt">Nothing</span>
     _  <span class="ot">-&gt;</span> fmap <span class="dt">Just</span> <span class="fu">$</span> <span class="kw">case</span> edit <span class="kw">of</span>
-      <span class="dt">Template</span> tpl   <span class="ot">-&gt;</span> return <span class="fu">$</span> anl <span class="fu">$</span> replaceAll         tpl acs
-      <span class="dt">Function</span> ctx f <span class="ot">-&gt;</span> anl <span class="fu">&lt;$&gt;</span> replaceAllCapturesM replaceMethods ctx (f lno) acs
-      <span class="dt">LineEdit</span>     g <span class="ot">-&gt;</span> fromMaybe s&#39; <span class="fu">.</span> applyLineEdit anl <span class="fu">&lt;$&gt;</span> g lno acs
+      <span class="dt">Template</span> srch_rpl <span class="ot">-&gt;</span> return <span class="fu">$</span> anl <span class="fu">$</span> replaceAll (getTemplate srch_rpl)       acs
+      <span class="dt">Function</span> _ ctx f  <span class="ot">-&gt;</span> anl <span class="fu">&lt;$&gt;</span> replaceAllCapturesM replaceMethods ctx (f lno) acs
+      <span class="dt">LineEdit</span> _     g  <span class="ot">-&gt;</span> fromMaybe (anl s) <span class="fu">.</span> applyLineEdit anl <span class="fu">&lt;$&gt;</span> g lno        acs
   <span class="kw">where</span>
-    s&#39;  <span class="fu">=</span> anl s
-    acs <span class="fu">=</span> matchMany re s
+    acs <span class="fu">=</span> matchMany rex s
+    rex <span class="fu">=</span> <span class="kw">case</span> edit <span class="kw">of</span>
+      <span class="dt">Template</span> srch_rpl <span class="ot">-&gt;</span> getSearch srch_rpl
+      <span class="dt">Function</span> rex_ _ _ <span class="ot">-&gt;</span> rex_
+      <span class="dt">LineEdit</span> rex_   _ <span class="ot">-&gt;</span> rex_
+
 
 <span class="co">-- | apply a &#39;LineEdit&#39; to a line, using the function in the first</span>
 <span class="co">-- argument to append a new line to the result; Nothing should be</span>
@@ -160,26 +171,26 @@ applyLineEdit _    <span class="dt">Delete</span>         <span class="fu">=</sp
 
 <span class="ot">select_edit_scripts ::</span> (<span class="dt">IsRegex</span> re s,<span class="dt">Monad</span> m,<span class="dt">Functor</span> m)
                     <span class="ot">=&gt;</span> <span class="dt">LineNo</span>
-                    <span class="ot">-&gt;</span> [(re,<span class="dt">Edit</span> m s)]
+                    <span class="ot">-&gt;</span> [<span class="dt">Edit</span> m re s]
                     <span class="ot">-&gt;</span> s
                     <span class="ot">-&gt;</span> m s
 select_edit_scripts lno ps0 s <span class="fu">=</span> select ps0
   <span class="kw">where</span>
-    select []           <span class="fu">=</span> return <span class="fu">$</span> appendNewlineE s
-    select ((re,es)<span class="fu">:</span>ps) <span class="fu">=</span>
-      applyEdit appendNewlineE lno re es s <span class="fu">&gt;&gt;=</span> maybe (select ps) return
+    select []           <span class="fu">=</span> return <span class="fu">$</span> appendNewlineR s
+    select (edit<span class="fu">:</span>edits) <span class="fu">=</span>
+      applyEdit appendNewlineR lno edit s <span class="fu">&gt;&gt;=</span> maybe (select edits) return
 
 <span class="ot">pipe_edit_scripts ::</span> (<span class="dt">IsRegex</span> re s,<span class="dt">Monad</span> m,<span class="dt">Functor</span> m)
                   <span class="ot">=&gt;</span> <span class="dt">LineNo</span>
-                  <span class="ot">-&gt;</span> [(re,<span class="dt">Edit</span> m s)]
+                  <span class="ot">-&gt;</span> [<span class="dt">Edit</span> m re s]
                   <span class="ot">-&gt;</span> s
                   <span class="ot">-&gt;</span> m s
-pipe_edit_scripts lno ez s0 <span class="fu">=</span>
-    appendNewlineE <span class="fu">&lt;$&gt;</span> foldr f (return s0) ez
+pipe_edit_scripts lno edits s0 <span class="fu">=</span>
+    appendNewlineR <span class="fu">&lt;$&gt;</span> foldr f (return s0) edits
   <span class="kw">where</span>
-    f (re,es) act <span class="fu">=</span> <span class="kw">do</span>
+    f edit act <span class="fu">=</span> <span class="kw">do</span>
       s <span class="ot">&lt;-</span> act
-      fromMaybe s <span class="fu">&lt;$&gt;</span> applyEdit id lno re es s</code></pre></div>
+      fromMaybe s <span class="fu">&lt;$&gt;</span> applyEdit id lno edit s</code></pre></div>
 </div>    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

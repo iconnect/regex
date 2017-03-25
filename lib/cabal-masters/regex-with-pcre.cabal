@@ -11,6 +11,6 @@ Library
       Text.RE.PCRE.Sequence
       Text.RE.PCRE.String
 
-%build-depends base base-compat bytestring containers regex-base regex regex-pcre-builtin template-haskell transformers
+%build-depends-lib base base-compat bytestring containers regex-base regex regex-pcre-builtin template-haskell transformers
 
 -- Generated with re-gen-cabals

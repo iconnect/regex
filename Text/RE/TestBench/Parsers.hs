@@ -36,19 +36,19 @@ import           Text.RE.Types.Replace
 
 
 parseInteger :: Replace a => a -> Maybe Int
-parseInteger = readMaybe . unpackE
+parseInteger = readMaybe . unpackR
 
 parseHex :: Replace a => a -> Maybe Int
-parseHex = readMaybe . ("0x"++) . unpackE
+parseHex = readMaybe . ("0x"++) . unpackR
 
 parseDouble :: Replace a => a -> Maybe Double
-parseDouble = readMaybe . unpackE
+parseDouble = readMaybe . unpackR
 
 parseString :: Replace a => a -> Maybe T.Text
-parseString = readMaybe . unpackE
+parseString = readMaybe . unpackR
 
 parseSimpleString :: Replace a => a -> Maybe T.Text
-parseSimpleString = Just . T.dropEnd 1 . T.drop 1 . textifyE
+parseSimpleString = Just . T.dropEnd 1 . T.drop 1 . textifyR
 
 date_templates, time_templates, timezone_templates,
   date_time_8601_templates, date_time_templates :: [String]
@@ -91,10 +91,10 @@ parseDateTimeCLF :: Replace a => a -> Maybe UTCTime
 parseDateTimeCLF = parse_time ["%d/%b/%Y:%H:%M:%S %z"]
 
 parseShortMonth :: Replace a => a -> Maybe Int
-parseShortMonth = flip HM.lookup short_month_hm . unpackE
+parseShortMonth = flip HM.lookup short_month_hm . unpackR
 
 parse_time :: (ParseTime t,Replace s) => [String] -> s -> Maybe t
-parse_time tpls = prs . unpackE
+parse_time tpls = prs . unpackR
   where
     prs s = listToMaybe $ catMaybes
       [ parseTime LC.defaultTimeLocale fmt s
@@ -111,7 +111,7 @@ shortMonthArray = listArray (1,12) $
 type IPV4Address = (Word8,Word8,Word8,Word8)
 
 parseIPv4Address :: Replace a => a -> Maybe IPV4Address
-parseIPv4Address = prs . words_by (=='.') . unpackE
+parseIPv4Address = prs . words_by (=='.') . unpackR
   where
     prs [a_s,b_s,c_s,d_s] = do
       a <- readMaybe a_s
@@ -137,7 +137,7 @@ data Severity
   deriving (Bounded,Enum,Ord,Eq,Show)
 
 parseSeverity :: Replace a => a -> Maybe Severity
-parseSeverity = flip HM.lookup severity_hm . textifyE
+parseSeverity = flip HM.lookup severity_hm . textifyR
 
 severity_hm :: HM.HashMap T.Text Severity
 severity_hm = HM.fromList

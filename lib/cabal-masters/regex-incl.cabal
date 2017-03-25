@@ -21,7 +21,7 @@ Extra-Source-Files:
     README.markdown
     changelog
 
-Cabal-Version:          >= 1.16
+Cabal-Version:          >= 1.10
 
 Source-Repository head
     type:               git

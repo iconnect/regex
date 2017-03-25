@@ -25,14 +25,13 @@ import           Text.RE.Types.Match
 \end{code}
 
 
-
 \begin{code}
 -- | the result type to use when every match is needed, not just the
 -- first match of the RE against the source
 data Matches a =
   Matches
     { matchesSource :: !a          -- ^ the source text being matched
-    , allMatches    :: ![Match a]  -- ^ all captures found, left to right
+    , allMatches    :: ![Match a]  -- ^ all 'Match' instances found, left to right
     }
   deriving (Show,Eq,Typeable)
 \end{code}
@@ -66,9 +65,9 @@ mainCaptures ac = [ capture c0 cs | cs<-allMatches ac ]
     c0 = IsCaptureOrdinal $ CaptureOrdinal 0
 \end{code}
 
-
 \begin{code}
--- | for matching all REs against the source text
+-- | this instance hooks 'Matches' into regex-base: regex consumers need
+-- not worry about any of this
 instance
     ( RegexContext regex source [MatchText source]
     , RegexLike    regex source

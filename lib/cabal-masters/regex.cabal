@@ -11,6 +11,8 @@ Library
       Text.RE.Internal.NamedCaptures
       Text.RE.Internal.PreludeMacros
       Text.RE.Internal.QQ
+      Text.RE.SearchReplace
+      Text.RE.Summa
       Text.RE.TDFA
       Text.RE.TDFA.ByteString
       Text.RE.TDFA.ByteString.Lazy
@@ -26,15 +28,17 @@ Library
       Text.RE.Tools.Grep
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
+      Text.RE.Types
       Text.RE.Types.Capture
       Text.RE.Types.CaptureID
       Text.RE.Types.IsRegex
       Text.RE.Types.LineNo
       Text.RE.Types.Match
       Text.RE.Types.Matches
-      Text.RE.Types.Options
+      Text.RE.Types.REOptions
       Text.RE.Types.Replace
+      Text.RE.Types.SearchReplace
 
-%build-depends array bytestring base base-compat containers hashable heredoc regex-base regex-tdfa regex-tdfa-text template-haskell text time time-locale-compat transformers unordered-containers
+%build-depends-lib array bytestring base base-compat containers hashable regex-base regex-tdfa regex-tdfa-text template-haskell text time time-locale-compat transformers unordered-containers
 
 -- Generated with re-gen-cabals

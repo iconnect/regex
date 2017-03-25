@@ -62,7 +62,7 @@ two packages:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-16  v0.8.0.0  [Tidy up the API](https://github.com/iconnect/regex/milestone/10)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-03-18  v0.9.0.0  [Add type-safe replacement templates and use TemplateHaskellQuotes](https://github.com/iconnect/regex/milestone/9)
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-18  v0.9.0.0  [Finish tidying up the API, Add type-safe replacement templates and exploit TemplateHaskellQuotes](https://github.com/iconnect/regex/milestone/9)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-03-31  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 
@@ -103,10 +103,8 @@ See the [Tutorial page](http://tutorial.regex.uk) and
 
 If you have any feedback or suggestion then please drop us a line.
 
-&nbsp;&nbsp;&nbsp;&nbsp;`t` [&#64;hregex](https://twitter.com/hregex)
-
-&nbsp;&nbsp;&nbsp;&nbsp;`e` maintainers@regex.uk
-
+&nbsp;&nbsp;&nbsp;&nbsp;`t` [&#64;hregex](https://twitter.com/hregex)\n
+&nbsp;&nbsp;&nbsp;&nbsp;`e` maintainers@regex.uk\n
 &nbsp;&nbsp;&nbsp;&nbsp;`w` http://issues.regex.uk
 
 The [Contact page](http://contact.regex.uk) has more details.

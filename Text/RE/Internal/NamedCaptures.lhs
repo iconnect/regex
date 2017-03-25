@@ -1,13 +1,18 @@
 \begin{code}
-{-# LANGUAGE QuasiQuotes                #-}
-{-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE RecordWildCards            #-}
+{-# LANGUAGE CPP                        #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# LANGUAGE TemplateHaskellQuotes      #-}
+#else
+{-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE TemplateHaskell            #-}
+#endif
 
 module Text.RE.Internal.NamedCaptures
   ( cp
   , extractNamedCaptures
-  , idFormatTokenOptions
+  , idFormatTokenREOptions
   , Token(..)
   , validToken
   , formatTokens
@@ -22,23 +27,27 @@ import qualified Data.Text                    as T
 import           GHC.Generics
 import qualified Language.Haskell.TH          as TH
 import           Language.Haskell.TH.Quote
-import           Text.Heredoc
 import           Text.RE
 import           Text.RE.Internal.PreludeMacros
 import           Text.RE.Internal.QQ
 import           Text.RE.TestBench
 import           Text.RE.Tools.Lex
 import           Text.RE.Types.CaptureID
+import           Text.RE.Types.Match
 import           Text.Regex.TDFA
 
 
+-- | quasi quoter for CaptureID ([cp|0|],[cp|y|], etc.)
 cp :: QuasiQuoter
 cp =
     (qq0 "cp")
       { quoteExp = parse_capture
       }
 
-extractNamedCaptures :: String -> Either String (CaptureNames,String)
+-- | extract the CaptureNames from an RE or return an error diagnostic
+-- if the RE is not well formed; also returs the total number of captures
+-- in the RE
+extractNamedCaptures :: String -> Either String ((Int,CaptureNames),String)
 extractNamedCaptures s = Right (analyseTokens tks,formatTokens tks)
   where
     tks = scan s
@@ -49,6 +58,7 @@ Token
 -----
 
 \begin{code}
+-- | our RE scanner returns a list of these tokens
 data Token
   = ECap (Maybe String)
   | PGrp
@@ -58,6 +68,7 @@ data Token
   | Other       Char
   deriving (Show,Generic,Eq)
 
+-- | check that a token is well formed
 validToken :: Token -> Bool
 validToken tkn = case tkn of
     ECap  mb -> maybe True check_ecap mb
@@ -78,11 +89,15 @@ Analysing [Token] -> CaptureNames
 ---------------------------------
 
 \begin{code}
-analyseTokens :: [Token] -> CaptureNames
-analyseTokens = HM.fromList . count_em 1
+-- | analyse a token stream, returning the number of captures and the
+-- 'CaptureNames'
+analyseTokens :: [Token] -> (Int,CaptureNames)
+analyseTokens tks0 = case count_em 1 tks0 of
+    (n,as) -> (n-1, HM.fromList as)
   where
-    count_em _ []       = []
-    count_em n (tk:tks) = bd ++ count_em (n `seq` n+d) tks
+    count_em n []       = (n,[])
+    count_em n (tk:tks) = case count_em (n `seq` n+d) tks of
+        (n',as) -> (n',bd++as)
       where
         (d,bd) = case tk of
           ECap (Just nm) -> (,) 1 [(CaptureName $ T.pack nm,CaptureOrdinal n)]
@@ -99,18 +114,19 @@ Scanning Regex Strings
 ----------------------
 
 \begin{code}
+-- | scan a RE string into a list of RE Token
 scan :: String -> [Token]
 scan = alex' match al oops
   where
     al :: [(Regex,Match String->Maybe Token)]
     al =
-      [ mk [here|\$\{([^{}]+)\}\(|] $         ECap . Just . x_1
-      , mk [here|\$\(|]             $ const $ ECap Nothing
-      , mk [here|\(\?:|]            $ const   PGrp
-      , mk [here|\(\?|]             $ const   PCap
-      , mk [here|\(|]               $ const   Bra
-      , mk [here|\\(.)|]            $         BS    . s2c . x_1
-      , mk [here|(.)|]              $         Other . s2c . x_1
+      [ mk "\\$\\{([^{}]+)\\}\\(" $         ECap . Just . x_1
+      , mk "\\$\\("               $ const $ ECap Nothing
+      , mk "\\(\\?:"              $ const   PGrp
+      , mk "\\(\\?"               $ const   PCap
+      , mk "\\("                  $ const   Bra
+      , mk "\\\\(.)"              $         BS    . s2c . x_1
+      , mk "(.)"                  $         Other . s2c . x_1
       ]
 
     x_1     = captureText $ IsCaptureOrdinal $ CaptureOrdinal 1
@@ -139,35 +155,41 @@ Formatting [Token]
 ------------------
 
 \begin{code}
+-- | format [Token] into an RE string
 formatTokens :: [Token] -> String
-formatTokens = formatTokens' defFormatTokenOptions
+formatTokens = formatTokens' defFormatTokenREOptions
 
-data FormatTokenOptions =
-  FormatTokenOptions
-    { _fto_regex_type :: Maybe RegexType
-    , _fto_min_caps   :: Bool
-    , _fto_incl_caps  :: Bool
+-- | options for the general Token formatter below
+data FormatTokenREOptions =
+  FormatTokenREOptions
+    { _fto_regex_type :: Maybe RegexType    -- ^ Posix, PCRE or indeterminate REs?
+    , _fto_min_caps   :: Bool               -- ^ remove captures where possible
+    , _fto_incl_caps  :: Bool               -- ^ include the captures in the output
     }
   deriving (Show)
 
-defFormatTokenOptions :: FormatTokenOptions
-defFormatTokenOptions =
-  FormatTokenOptions
+-- | the default configuration for the Token formatter
+defFormatTokenREOptions :: FormatTokenREOptions
+defFormatTokenREOptions =
+  FormatTokenREOptions
     { _fto_regex_type = Nothing
     , _fto_min_caps   = False
     , _fto_incl_caps  = False
     }
 
-idFormatTokenOptions :: FormatTokenOptions
-idFormatTokenOptions =
-  FormatTokenOptions
+-- | a configuration that will preserve the parsed regular expression
+-- in the output
+idFormatTokenREOptions :: FormatTokenREOptions
+idFormatTokenREOptions =
+  FormatTokenREOptions
     { _fto_regex_type = Nothing
     , _fto_min_caps   = False
     , _fto_incl_caps  = True
     }
 
-formatTokens' :: FormatTokenOptions -> [Token] -> String
-formatTokens' FormatTokenOptions{..} = foldr f ""
+-- | the general Token formatter, generating REs according to the options
+formatTokens' :: FormatTokenREOptions -> [Token] -> String
+formatTokens' FormatTokenREOptions{..} = foldr f ""
   where
     f tk tl = t_s ++ tl
       where
@@ -191,7 +213,7 @@ formatTokens' FormatTokenOptions{..} = foldr f ""
 \end{code}
 
 \begin{code}
--- this is a reference of formatTokens defFormatTokenOptions,
+-- this is a reference of formatTokens defFormatTokenREOptions,
 -- used for testing the latter
 formatTokens0 :: [Token] -> String
 formatTokens0 = foldr f ""

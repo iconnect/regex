@@ -21,7 +21,7 @@ bug-reports:            http://issues.regex.uk
 
 %include "lib/cabal-masters/test-extra-source-files-incl.cabal"
 
-Cabal-Version:          >= 1.16
+Cabal-Version:          >= 1.10
 
 Source-Repository head
     type:               git

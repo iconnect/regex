@@ -42,11 +42,14 @@ import           System.Environment
 import           System.Exit
 import           System.IO
 import           Text.RE.Tools.Sed
-import           Text.RE.Types.Options
+import           Text.RE.Types.REOptions
 import           Text.RE.TestBench.Parsers
 import           Text.RE.TestBench
 import           Text.RE.PCRE.ByteString.Lazy
 import qualified Text.RE.PCRE.String                      as S
+import           Text.RE.Types.Capture
+import           Text.RE.Types.Match
+import           Text.RE.Types.Replace
 import           Text.Printf
 \end{code}
 
@@ -133,8 +136,7 @@ script ctx = Select
     , on [re_|.*|]            QQQ parse_def
     ]
   where
-    on rex src prs =
-      (,) (rex lpo) $ Function TOP $ process_line ctx src prs
+    on rex src prs = Function (rex lpo) TOP $ process_line ctx src prs
 
     parse_def      = fmap capturedText . matchCapture
 \end{code}
@@ -264,16 +266,16 @@ instance IsEvent LBS.ByteString where
 
 
 --
--- Options and Prelude
+-- REOptions and Prelude
 --
 
-lpo :: Options
-lpo = makeOptions lp_prelude
+lpo :: REOptions
+lpo = makeREOptions lp_prelude
 
 lp_prelude :: Macros RE
 lp_prelude = runIdentity $ mkMacros mk regexType ExclCaptures lp_env
   where
-    mk   = maybe oops Identity . compileRegexWithOptions noPreludeOptions
+    mk   = maybe oops Identity . compileRegexWithOptions noPreludeREOptions
 
     oops = error "lp_prelude"
 
@@ -569,7 +571,7 @@ newtype User =
   deriving (IsString,Ord,Eq,Show)
 
 parse_user :: Replace a => a -> Maybe User
-parse_user = Just . User . LBS.pack . unpackE
+parse_user = Just . User . LBS.pack . unpackR
 
 
 --
@@ -577,7 +579,7 @@ parse_user = Just . User . LBS.pack . unpackE
 --
 
 parse_pid_tid :: Replace a => a -> Maybe (Int,Int)
-parse_pid_tid x = case allMatches $ unpackE x S.*=~ [re|@{%nat}|] of
+parse_pid_tid x = case allMatches $ unpackR x S.*=~ [re|@{%nat}|] of
     [cs,cs'] -> (,) <$> p cs <*> p cs'
     _        -> Nothing
   where

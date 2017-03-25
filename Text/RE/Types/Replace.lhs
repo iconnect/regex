@@ -10,7 +10,7 @@ module Text.RE.Types.Replace
   ( Replace(..)
   , ReplaceMethods(..)
   , replaceMethods
-  , Context(..)
+  , REContext(..)
   , Location(..)
   , isTopLocation
   , replace
@@ -23,6 +23,7 @@ module Text.RE.Types.Replace
   , replaceCapturesM
   , expandMacros
   , expandMacros'
+  , templateCaptures
   ) where
 
 import           Control.Applicative
@@ -40,50 +41,50 @@ import qualified Data.Text                      as T
 import qualified Data.Text.Encoding             as TE
 import qualified Data.Text.Lazy                 as LT
 import           Prelude.Compat
-import           Text.Heredoc
 import           Text.RE.Types.Capture
 import           Text.RE.Types.CaptureID
 import           Text.RE.Types.Match
 import           Text.RE.Types.Matches
-import           Text.RE.Types.Options
+import           Text.RE.Types.REOptions
 import           Text.Read
 import           Text.Regex.TDFA
 import           Text.Regex.TDFA.Text()
 import           Text.Regex.TDFA.Text.Lazy()
 \end{code}
 
+
 \begin{code}
 -- | Replace provides the missing methods needed to replace the matched
--- text; lengthE is the minimum implementation
+-- text; lengthR is the minimum implementation
 class (Show a,Eq a,Ord a,Extract a,Monoid a) => Replace a where
   -- | length function for a
-  lengthE        :: a -> Int
+  lengthR        :: a -> Int
   -- | inject String into a
-  packE          :: String -> a
+  packR          :: String -> a
   -- | project a onto a String
-  unpackE        :: a -> String
+  unpackR        :: a -> String
   -- | inject into Text
-  textifyE       :: a -> T.Text
+  textifyR       :: a -> T.Text
   -- | project Text onto a
-  detextifyE     :: T.Text -> a
+  detextifyR     :: T.Text -> a
   -- | split into lines
-  linesE         :: a -> [a]
+  linesR         :: a -> [a]
   -- | concatenate a list of lines
-  unlinesE       :: [a] -> a
+  unlinesR       :: [a] -> a
   -- | append a newline
-  appendNewlineE :: a -> a
+  appendNewlineR :: a -> a
   -- | apply a substitution function to a Capture
-  substE         :: (a->a) -> Capture a -> a
+  substR         :: (a->a) -> Capture a -> a
   -- | convert a template containing $0, $1, etc., in the first
   -- argument, into a 'phi' replacement function for use with
   -- replaceAllCaptures and replaceCaptures
-  parseTemplateE :: a -> Match a -> Location -> Capture a -> Maybe a
+  parseTemplateR :: a -> Match a -> Location -> Capture a -> Maybe a
 
-  textifyE       = T.pack . unpackE
-  detextifyE     = packE  . T.unpack
-  appendNewlineE = (<> packE "\n")
+  textifyR       = T.pack . unpackR
+  detextifyR     = packR  . T.unpack
+  appendNewlineR = (<> packR "\n")
 
-  substE f m@Capture{..} =
+  substR f m@Capture{..} =
     capturePrefix m <> f capturedText <> captureSuffix m
 \end{code}
 
@@ -100,14 +101,14 @@ data ReplaceMethods a =
 replaceMethods :: Replace a => ReplaceMethods a
 replaceMethods =
   ReplaceMethods
-    { methodLength = lengthE
-    , methodSubst  = substE
+    { methodLength = lengthR
+    , methodSubst  = substR
     }
 \end{code}
 
 \begin{code}
--- | @Context@ specifies which contexts the substitutions should be applied
-data Context
+-- | @REContext@ specifies which contexts the substitutions should be applied
+data REContext
   = TOP   -- ^ substitutions should be applied to the top-level only,
           -- the text that matched the whole RE
   | SUB   -- ^ substitutions should only be applied to the text
@@ -147,7 +148,7 @@ replaceAll :: Replace a
            => a
            -> Matches a
            -> a
-replaceAll tpl ac = replaceAllCaptures TOP (parseTemplateE tpl) ac
+replaceAll tpl ac = replaceAllCaptures TOP (parseTemplateR tpl) ac
 \end{code}
 
 \begin{code}
@@ -155,7 +156,7 @@ replaceAll tpl ac = replaceAllCaptures TOP (parseTemplateE tpl) ac
 -- context and returns the same replacement text as the _phi_phi
 -- context.
 replaceAllCaptures :: Replace a
-                   => Context
+                   => REContext
                    -> (Match a->Location->Capture a->Maybe a)
                    -> Matches a
                    -> a
@@ -170,7 +171,7 @@ replaceAllCaptures = replaceAllCaptures_ replaceMethods
 -- Replace methods through the ReplaceMethods argument
 replaceAllCaptures_ :: Extract a
                     => ReplaceMethods a
-                    -> Context
+                    -> REContext
                     -> (Match a->Location->Capture a->Maybe a)
                     -> Matches a
                     -> a
@@ -183,7 +184,7 @@ replaceAllCaptures_ s ctx phi ac =
 -- replaceAllCaptures_
 replaceAllCapturesM :: (Extract a,Monad m)
                     => ReplaceMethods a
-                    -> Context
+                    -> REContext
                     -> (Match a->Location->Capture a->m (Maybe a))
                     -> Matches a
                     -> m a
@@ -229,10 +230,10 @@ replaceAllCapturesM r ctx phi_ Matches{..} =
 -- | replace with a template containing $0 for whole text,
 -- $1 for first capture, etc.
 replace :: Replace a
-        => Match a
+        => a
+        -> Match a
         -> a
-        -> a
-replace c tpl = replaceCaptures TOP (parseTemplateE tpl) c
+replace tpl c = replaceCaptures TOP (parseTemplateR tpl) c
 \end{code}
 
 \begin{code}
@@ -240,7 +241,7 @@ replace c tpl = replaceCaptures TOP (parseTemplateE tpl) c
 -- context and returns the same replacement text as the _phi_phi
 -- context.
 replaceCaptures :: Replace a
-                 => Context
+                 => REContext
                  -> (Match a->Location->Capture a->Maybe a)
                  -> Match a
                  -> a
@@ -252,7 +253,7 @@ replaceCaptures = replaceCaptures_ replaceMethods
 -- through the ReplaceMethods argument
 replaceCaptures_ :: Extract a
                  => ReplaceMethods a
-                 -> Context
+                 -> REContext
                  -> (Match a->Location->Capture a->Maybe a)
                  -> Match a
                  -> a
@@ -265,7 +266,7 @@ replaceCaptures_ s ctx phi caps =
 -- replaceCaptures_
 replaceCapturesM :: (Monad m,Extract a)
                  => ReplaceMethods a
-                 -> Context
+                 -> REContext
                  -> (Match a->Location->Capture a->m (Maybe a))
                  -> Match a
                  -> m a
@@ -319,67 +320,67 @@ replaceCapturesM ReplaceMethods{..} ctx phi_ caps@Match{..} = do
 -- the Replace instances
 
 instance Replace [Char] where
-  lengthE         = length
-  packE           = id
-  unpackE         = id
-  textifyE        = T.pack
-  detextifyE      = T.unpack
-  linesE          = lines
-  unlinesE        = unlines
-  appendNewlineE  = (<>"\n")
-  parseTemplateE  = parseTemplateE' id
+  lengthR         = length
+  packR           = id
+  unpackR         = id
+  textifyR        = T.pack
+  detextifyR      = T.unpack
+  linesR          = lines
+  unlinesR        = unlines
+  appendNewlineR  = (<>"\n")
+  parseTemplateR  = parseTemplateR' id
 
 instance Replace B.ByteString where
-  lengthE         = B.length
-  packE           = B.pack
-  unpackE         = B.unpack
-  textifyE        = TE.decodeUtf8
-  detextifyE      = TE.encodeUtf8
-  linesE          = B.lines
-  unlinesE        = B.unlines
-  appendNewlineE  = (<>"\n")
-  parseTemplateE  = parseTemplateE' B.unpack
+  lengthR         = B.length
+  packR           = B.pack
+  unpackR         = B.unpack
+  textifyR        = TE.decodeUtf8
+  detextifyR      = TE.encodeUtf8
+  linesR          = B.lines
+  unlinesR        = B.unlines
+  appendNewlineR  = (<>"\n")
+  parseTemplateR  = parseTemplateR' B.unpack
 
 instance Replace LBS.ByteString where
-  lengthE         = fromEnum . LBS.length
-  packE           = LBS.pack
-  unpackE         = LBS.unpack
-  textifyE        = TE.decodeUtf8  . LBS.toStrict
-  linesE          = LBS.lines
-  unlinesE        = LBS.unlines
-  detextifyE      = LBS.fromStrict . TE.encodeUtf8
-  appendNewlineE  = (<>"\n")
-  parseTemplateE  = parseTemplateE' LBS.unpack
+  lengthR         = fromEnum . LBS.length
+  packR           = LBS.pack
+  unpackR         = LBS.unpack
+  textifyR        = TE.decodeUtf8  . LBS.toStrict
+  linesR          = LBS.lines
+  unlinesR        = LBS.unlines
+  detextifyR      = LBS.fromStrict . TE.encodeUtf8
+  appendNewlineR  = (<>"\n")
+  parseTemplateR  = parseTemplateR' LBS.unpack
 
 instance Replace (S.Seq Char) where
-  lengthE         = S.length
-  packE           = S.fromList
-  unpackE         = F.toList
-  linesE          = map packE . lines . unpackE
-  unlinesE        = packE . unlines . map unpackE
-  parseTemplateE  = parseTemplateE' F.toList
+  lengthR         = S.length
+  packR           = S.fromList
+  unpackR         = F.toList
+  linesR          = map packR . lines . unpackR
+  unlinesR        = packR . unlines . map unpackR
+  parseTemplateR  = parseTemplateR' F.toList
 
 instance Replace T.Text where
-  lengthE         = T.length
-  packE           = T.pack
-  unpackE         = T.unpack
-  textifyE        = id
-  detextifyE      = id
-  linesE          = T.lines
-  unlinesE        = T.unlines
-  appendNewlineE  = (<>"\n")
-  parseTemplateE  = parseTemplateE' T.unpack
+  lengthR         = T.length
+  packR           = T.pack
+  unpackR         = T.unpack
+  textifyR        = id
+  detextifyR      = id
+  linesR          = T.lines
+  unlinesR        = T.unlines
+  appendNewlineR  = (<>"\n")
+  parseTemplateR  = parseTemplateR' T.unpack
 
 instance Replace LT.Text where
-  lengthE         = fromEnum . LT.length
-  packE           = LT.pack
-  unpackE         = LT.unpack
-  textifyE        = LT.toStrict
-  detextifyE      = LT.fromStrict
-  linesE          = LT.lines
-  unlinesE        = LT.unlines
-  appendNewlineE  = (<>"\n")
-  parseTemplateE  = parseTemplateE' LT.unpack
+  lengthR         = fromEnum . LT.length
+  packR           = LT.pack
+  unpackR         = LT.unpack
+  textifyR        = LT.toStrict
+  detextifyR      = LT.fromStrict
+  linesR          = LT.lines
+  unlinesR        = LT.unlines
+  appendNewlineR  = (<>"\n")
+  parseTemplateR  = parseTemplateR' LT.unpack
 \end{code}
 
 \begin{code}
@@ -399,7 +400,7 @@ expandMacros x_src hm s =
 expandMacros' :: (MacroID->Maybe String) -> String -> String
 expandMacros' lu = fixpoint e_m
   where
-    e_m re_s = replaceAllCaptures TOP phi $ re_s $=~ [here|@(@|\{([^{}]+)\})|]
+    e_m re_s = replaceAllCaptures TOP phi $ re_s $=~ "@(@|\\{([^{}]+)\\})"
       where
         phi mtch _ cap = case txt == "@@" of
             True  -> Just   "@"
@@ -420,7 +421,12 @@ lift_phi phi_ = phi
 \end{code}
 
 \begin{code}
-parseTemplateE' :: ( Replace a
+-- | parse the replacement template in second argument, substititing
+-- the capture references with corresponding captures from the Match
+-- in the third argument (the result of a single match of the RE
+-- against the input text to be matched); Nothing is returned if the
+-- inputs are not well formed (currently all inputs are well formed)
+parseTemplateR' :: ( Replace a
                    , RegexContext Regex a (Matches a)
                    , RegexMaker   Regex CompOption ExecOption String
                    )
@@ -430,27 +436,56 @@ parseTemplateE' :: ( Replace a
                    -> Location
                    -> Capture a
                    -> Maybe a
-parseTemplateE' unpack tpl mtch _ _ =
-    Just $ replaceAllCaptures TOP phi $
-      tpl $=~ [here|\$(\$|[0-9]|\{([^{}]+)\})|]
+parseTemplateR' unpack tpl mtch _ _ =
+    Just $ replaceAllCaptures TOP phi $ scan_template tpl
   where
-    phi t_mtch _ _ = case t_mtch !$? c2 of
-      Just cap -> case readMaybe stg of
-          Nothing -> this $ IsCaptureName    $ CaptureName $ T.pack stg
-          Just cn -> this $ IsCaptureOrdinal $ CaptureOrdinal cn
-        where
-          stg = unpack $ capturedText cap
-      Nothing -> case s == "$" of
-        True  -> Just t
-        False -> this $ IsCaptureOrdinal $ CaptureOrdinal $ read s
-      where
-        s = unpack t
-        t = capturedText $ capture c1 t_mtch
+    phi t_mtch _ _ = either Just this $ parse_template_capture unpack t_mtch
 
-        this cid = capturedText <$> mtch !$? cid
+    this cid       = capturedText <$> mtch !$? cid
+
+-- | list all of the CaptureID references in the replace template in
+-- the second argument
+templateCaptures :: ( Replace a
+                    , RegexContext Regex a (Matches a)
+                    , RegexMaker   Regex CompOption ExecOption String
+                    )
+                 => (a->String)
+                 -> a
+                 -> [CaptureID]
+templateCaptures unpack tpl =
+    [ cid
+      | mtch <- allMatches $ scan_template tpl
+      , Right cid <- [parse_template_capture unpack mtch]
+      ]
+
+-- | parse a Match generated by acan_template, returning @Left "$")
+-- iff the capture reference is an escaped @$@ (i.e., @$$@)
+parse_template_capture :: (a->String) -> Match a -> Either a CaptureID
+parse_template_capture unpack t_mtch = case t_mtch !$? c2 of
+  Just cap -> case readMaybe stg of
+      Nothing -> Right $ IsCaptureName    $ CaptureName $ T.pack stg
+      Just cn -> Right $ IsCaptureOrdinal $ CaptureOrdinal cn
+    where
+      stg = unpack $ capturedText cap
+  Nothing -> case s == "$" of
+    True  -> Left t
+    False -> Right $ IsCaptureOrdinal $ CaptureOrdinal $ read s
+  where
+    s = unpack t
+    t = capturedText $ capture c1 t_mtch
 
     c1 = IsCaptureOrdinal $ CaptureOrdinal 1
     c2 = IsCaptureOrdinal $ CaptureOrdinal 2
+
+-- | scan a replacement template, returning a Match for each capture
+-- reference in the template (like $1, ${foo})
+scan_template :: ( Replace a
+                 , RegexContext Regex a (Matches a)
+                 , RegexMaker   Regex CompOption ExecOption String
+                 )
+              => a
+              -> Matches a
+scan_template tpl = tpl $=~ "\\$(\\$|[0-9]|\\{([^{}]+)\\})"
 \end{code}
 
 \begin{code}
@@ -467,5 +502,4 @@ fixpoint f = chk . iterate f
          )
       => source -> String -> target
 ($=~) = (=~)
-
 \end{code}

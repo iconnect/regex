@@ -33,6 +33,7 @@ import           Prelude.Compat
 import           Text.RE
 import           Text.RE.Tools.Edit
 import           Text.RE.Types.IsRegex
+import           Text.RE.Types.Replace
 
 
 -- | read a file, apply an 'Edits' script to each line it and
@@ -59,7 +60,7 @@ sed' :: (IsRegex re a,Monad m,Functor m)
 sed' as lbs = do
   mconcat <$> sequence
     [ applyEdits lno as s
-        | (lno,s)<-zip [firstLine..] $ linesE lbs
+        | (lno,s)<-zip [firstLine..] $ linesR lbs
         ]
 
 read_file :: FilePath -> IO LBS.ByteString

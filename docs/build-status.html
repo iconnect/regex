@@ -31,6 +31,7 @@
           <li class='pagenav toi'><a href='contact'>Contact</a></li>
           <li class='pagenav moi'><a href='build-status'>Build Status</a></li>
             <li class='secnav'><a href='#build'>The Live Build Status</a></li>
+            <li class='secnav'><a href='#coveragenote'>Coverage Exceptions</a></li>
           <li class='pagenav toi'><a href='installation'>Installation</a></li>
           <li class='pagenav toi'><a href='tutorial'>Tutorial</a></li>
           <li class='pagenav toi'><a href='examples'>Examples</a></li>
@@ -140,7 +141,7 @@ The Live Build Status
 <td>6.30</td>
 <td></td>
 <td>‑Werror</td>
-<td><a href="https://travis-ci.org/iconnect/regex"><img src="https://travis-ci.org/iconnect/regex.svg?branch=master" alt="Un*x build" /></a></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td></td>
@@ -210,7 +211,7 @@ The Live Build Status
 <td>8.5</td>
 <td></td>
 <td>‑Werror</td>
-<td><a href="https://ci.appveyor.com/project/engineerirngirisconnectcouk/regex/branch/master"><img src="https://ci.appveyor.com/api/projects/status/9gqs37u3h1mlc02b?svg=true" alt="Windows build" /></a></td>
+<td><a href="https://ci.appveyor.com/project/cdornan/regex"><img src="https://ci.appveyor.com/api/projects/status/hmgqoawgptk72epq?svg=true" alt="Windows build" /></a></td>
 </tr>
 <tr class="even">
 <td>coveralls.io</td>
@@ -221,6 +222,28 @@ The Live Build Status
 <td></td>
 <td>‑Werror</td>
 <td><a href="https://coveralls.io/github/iconnect/regex?branch=master"><img src="https://coveralls.io/repos/github/iconnect/regex/badge.svg?branch=master" alt="Coverage" /></a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="coveragenote">
+Coverage Exceptions
+</h2>
+<p>The following modules have been excempted from the code coverage statistics.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 79%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Module Exempted</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://github.com/iconnect/regex/blob/master/Text/RE/Internal/QQ.hs">Text.RE.Internal.QQ</a></td>
+<td>Toolkit for use in quasi quoter contexts only which can't be measured by hps.</td>
 </tr>
 </tbody>
 </table>

@@ -51,7 +51,11 @@ import           Text.Printf
 import           Prelude.Compat
 import           Text.RE
 import           Text.RE.TestBench.Parsers
-import           Text.RE.Types.Options
+import           Text.RE.Types.Capture
+import           Text.RE.Types.REOptions
+import           Text.RE.Types.Match
+import           Text.RE.Types.Matches
+import           Text.RE.Types.Replace
 \end{code}
 
 Types

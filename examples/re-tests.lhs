@@ -16,6 +16,9 @@ regressions.
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE DeriveFunctor              #-}
+{-# LANGUAGE StandaloneDeriving         #-}
 {-# OPTIONS_GHC -fno-warn-orphans       #-}
 
 module Main (main) where
@@ -46,13 +49,17 @@ import           Text.RE
 import           Text.RE.Internal.AddCaptureNames
 import           Text.RE.Internal.NamedCaptures
 import           Text.RE.Internal.PreludeMacros
-import           Text.RE.Internal.QQ
 import qualified Text.RE.PCRE                   as PCRE
 import           Text.RE.TDFA                   as TDFA
+import           Text.RE.SearchReplace
 import           Text.RE.TestBench
+import           Text.RE.Tools.Sed
+import           Text.RE.Types.Capture
 import           Text.RE.Types.CaptureID
-import           Text.RE.Types.IsRegex
-import           Text.RE.Types.Options
+import           Text.RE.Types.Match
+import           Text.RE.Types.Matches
+import           Text.RE.Types.REOptions
+import           Text.RE.Types.Replace
 
 import qualified Text.RE.PCRE.String            as P_ST
 import qualified Text.RE.PCRE.ByteString        as P_BS
@@ -73,13 +80,14 @@ main :: IO ()
 main = defaultMain $
   testGroup "Tests"
     [ prelude_tests
-    , parsing_tests
+    , compiling_tests
     , core_tests
-    , replaceMethodstests
+    , replace_methods_tests
+    , search_replace_tests
     , options_tests
-    , namedCapturesTestTree
+    , named_capture_tests
     , many_tests
-    , escapeTests
+    , escape_tests
     , add_capture_names_tests
     , misc_tests
     ]
@@ -205,8 +213,8 @@ regex_alt_str_matches =
 <h3>testing the compileRegex functions</h3>
 
 \begin{code}
-parsing_tests :: TestTree
-parsing_tests = testGroup "Parsing"
+compiling_tests :: TestTree
+compiling_tests = testGroup "Compiling"
   [ testCase "complete check (matchM/ByteString)" $ do
       r <- TDFA.compileRegex $ reSource regex_
       assertEqual "Match" (B.pack <$> regex_str_match) $ B.pack str_ ?=~ r
@@ -231,18 +239,20 @@ parsing_tests = testGroup "Parsing"
             r <- mk re_s
             assertEqual "RE" re_s $ regexSource r
         , testCase "Match" $ do
-            r <- mk re_s
+            r <- mk' re_s
             assertEqual "Match" (pk <$> regex_str_match) $ matchOnce r $ pk str_
         ]
       where
-        mk   = makeRegex `asTypeOf` mk0
+        mk   = makeRegex              `asTypeOf` mk0
+
+        mk'  = makeRegexWith minBound `asTypeOf` mk0
 
         re_s = pk $ reSource regex_
 
         pk   = mk_pk mk0
 
         mk_pk :: Replace s' => (s'->IO re') -> String -> s'
-        mk_pk _ = packE
+        mk_pk _ = packR
 \end{code}
 
 <h3>core tests</h3>
@@ -281,8 +291,8 @@ core_tests = testGroup "Match"
 <h3>testing the replace functions at different types</h3>
 
 \begin{code}
-replaceMethodstests :: TestTree
-replaceMethodstests = testGroup "Replace"
+replace_methods_tests :: TestTree
+replace_methods_tests = testGroup "Replace"
   [ testCase "String/single" $ do
       let m = str_ =~ regex_ :: Match String
           r = replaceCaptures ALL fmt m
@@ -328,18 +338,98 @@ replaceMethodstests = testGroup "Replace"
         "(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))"
 
     fmt :: (IsString s,Replace s) => a -> Location -> Capture s -> Maybe s
-    fmt _ (Location i j) Capture{..} = Just $ "(" <> packE (show i) <> ":" <>
-      packE (show_co j) <> ":" <> capturedText <> ")"
+    fmt _ (Location i j) Capture{..} = Just $ "(" <> packR (show i) <> ":" <>
+      packR (show_co j) <> ":" <> capturedText <> ")"
 
     show_co (CaptureOrdinal j) = show j
 \end{code}
 
-<h3>Testing The Options</h3>
+
+<h3>SearchReplace</h3>
+
+\begin{code}
+search_replace_tests :: TestTree
+search_replace_tests = testGroup "SearchReplace"
+    [ testCase "TDFA.ed/String" $ test  id         tdfa_eds
+    , testCase "PCRE.ed/String" $ test  id         pcre_eds
+    , testCase "TDFA.ed/B"      $ test  B.pack     tdfa_eds
+    , testCase "PCRE.ed/B"      $ test  B.pack     pcre_eds
+    , testCase "TDFA.ed/LBS"    $ test  LBS.pack   tdfa_eds
+    , testCase "PCRE.ed/LBS"    $ test  LBS.pack   pcre_eds
+    , testCase "TDFA.ed/S"      $ test  S.fromList tdfa_eds
+    , testCase "PCRE.ed/S"      $ test  S.fromList pcre_eds
+    , testCase "TDFA.ed/T"      $ test  T.pack     tdfa_eds
+    , testCase "TDFA.ed/LT"     $ test  LT.pack    tdfa_eds
+    , testCase "TDFA.ed/T(d)"   $ test  T.pack     tdfa_eds'
+    , testCase "PCRE.ed/LBS(d)" $ test  LBS.pack   pcre_eds'
+    , testg "TDFA.op/String" (T_ST.?=~/) (T_ST.*=~/) tdfa_sr
+    , testg "PCRE.op/String" (P_ST.?=~/) (P_ST.*=~/) pcre_sr
+    , testg "TDFA.op/B"      (T_BS.?=~/) (T_BS.*=~/) tdfa_sr
+    , testg "PCRE.op/B"      (P_BS.?=~/) (P_BS.*=~/) pcre_sr
+    , testg "TDFA.op/LBS"    (TLBS.?=~/) (TLBS.*=~/) tdfa_sr
+    , testg "PCRE.op/LBS"    (PLBS.?=~/) (PLBS.*=~/) pcre_sr
+    , testg "TDFA.op/T"      (T_TX.?=~/) (T_TX.*=~/) tdfa_sr
+    , testg "TDFA.op/LT"     (TLTX.?=~/) (TLTX.*=~/) tdfa_sr
+    , testG "TDFA.op/S"      (T_SQ.?=~/) (T_SQ.*=~/) tdfa_sr
+    , testG "PCRE.op/S"      (P_SQ.?=~/) (P_SQ.*=~/) pcre_sr
+    ]
+  where
+    test :: IsRegex re a => (String->a) -> Edits Identity re a -> Assertion
+    test inj eds =  inj rsm @=? runIdentity (sed' eds $ inj inp)
+
+    testg lab op1 opm sr = testGroup lab
+      [ testCase "?=~/" $ rs1 @=? inp `op1` sr
+      , testCase "*=~/" $ rsm @=? inp `opm` sr
+      ]
+
+    testG lab op1 opm sr = testGroup lab
+      [ testCase "?=~/" $ S.fromList rs1 @=? S.fromList inp `op1` sr
+      , testCase "*=~/" $ S.fromList rsm @=? S.fromList inp `opm` sr
+      ]
+
+    inp, rs1, rsm :: IsString a => a
+    inp = "16/03/2017 01/01/2000\n"
+    rs1 = "2017-03-16 01/01/2000\n"
+    rsm = "2017-03-16 2000-01-01\n"
+
+    tdfa_eds :: IsRegex TDFA.RE a => Edits Identity TDFA.RE a
+    tdfa_eds = Select [Template tdfa_sr]
+
+    pcre_eds :: IsRegex PCRE.RE a => Edits Identity PCRE.RE a
+    pcre_eds = Select [Template pcre_sr]
+
+    tdfa_sr  :: IsRegex TDFA.RE a => SearchReplace TDFA.RE a
+    tdfa_sr  = [TDFA.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    pcre_sr  :: IsRegex PCRE.RE a => SearchReplace PCRE.RE a
+    pcre_sr  = [PCRE.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    tdfa_eds' :: IsRegex TDFA.RE a => Edits Identity TDFA.RE a
+    tdfa_eds' = Select [Template $ tdfa_csr "${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})" "${y}-${m}-${d}"]
+
+    pcre_eds' :: IsRegex PCRE.RE a => Edits Identity PCRE.RE a
+    pcre_eds' = Select [Template $ pcre_csr "${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})" "${y}-${m}-${d}"]
+
+    tdfa_csr :: IsRegex TDFA.RE s
+             => String
+             -> String
+             -> SearchReplace TDFA.RE s
+    tdfa_csr re_s = either error id . TDFA.compileSearchReplace re_s
+
+    pcre_csr :: IsRegex PCRE.RE s
+             => String
+             -> String
+             -> SearchReplace PCRE.RE s
+    pcre_csr re_s = either error id . PCRE.compileSearchReplace re_s
+\end{code}
+
+
+<h3>Testing The REOptions</h3>
 
 \begin{code}
 options_tests :: TestTree
-options_tests = testGroup "Simple Options"
-  [ testGroup "TDFA Simple Options"
+options_tests = testGroup "Simple REOptions"
+  [ testGroup "TDFA Simple REOptions"
       [ testCase "default (MultilineSensitive)" $ assertEqual "#" 2 $
           countMatches $ s TDFA.*=~ [TDFA.re|[0-9a-f]{2}$|]
       , testCase "MultilineSensitive" $ assertEqual "#" 2 $
@@ -351,7 +441,7 @@ options_tests = testGroup "Simple Options"
       , testCase "BlockInsensitive" $ assertEqual "#" 1 $
           countMatches $ s TDFA.*=~ [TDFA.reBlockInsensitive|[0-9a-f]{2}$|]
       ]
-  , testGroup "PCRE Simple Options"
+  , testGroup "PCRE Simple REOptions"
       [ testCase "default (MultilineSensitive)" $ assertEqual "#" 2 $
           countMatches $ s PCRE.*=~ [PCRE.re|[0-9a-f]{2}$|]
       , testCase "MultilineSensitive" $ assertEqual "#" 2 $
@@ -374,37 +464,39 @@ options_tests = testGroup "Simple Options"
 \begin{code}
 many_tests :: TestTree
 many_tests = testGroup "Many Tests"
-    [ testCase "PCRE a"               $ test (PCRE.*=~) (PCRE.?=~) (PCRE.=~) (PCRE.=~~) matchOnce matchMany id          re_pcre
-    , testCase "PCRE ByteString"      $ test (P_BS.*=~) (P_BS.?=~) (P_BS.=~) (P_BS.=~~) matchOnce matchMany B.pack      re_pcre
-    , testCase "PCRE ByteString.Lazy" $ test (PLBS.*=~) (PLBS.?=~) (PLBS.=~) (PLBS.=~~) matchOnce matchMany LBS.pack    re_pcre
-    , testCase "PCRE Sequence"        $ test (P_SQ.*=~) (P_SQ.?=~) (P_SQ.=~) (P_SQ.=~~) matchOnce matchMany S.fromList  re_pcre
-    , testCase "PCRE String"          $ test (P_ST.*=~) (P_ST.?=~) (P_ST.=~) (P_ST.=~~) matchOnce matchMany id          re_pcre
-    , testCase "TDFA a"               $ test (TDFA.*=~) (TDFA.?=~) (TDFA.=~) (TDFA.=~~) matchOnce matchMany id          re_tdfa
-    , testCase "TDFA ByteString"      $ test (T_BS.*=~) (T_BS.?=~) (T_BS.=~) (T_BS.=~~) matchOnce matchMany B.pack      re_tdfa
-    , testCase "TDFA ByteString.Lazy" $ test (TLBS.*=~) (TLBS.?=~) (TLBS.=~) (TLBS.=~~) matchOnce matchMany LBS.pack    re_tdfa
-    , testCase "TDFA Sequence"        $ test (T_SQ.*=~) (T_SQ.?=~) (T_SQ.=~) (T_SQ.=~~) matchOnce matchMany S.fromList  re_tdfa
-    , testCase "TDFA String"          $ test (T_ST.*=~) (T_ST.?=~) (T_ST.=~) (T_ST.=~~) matchOnce matchMany id          re_tdfa
-    , testCase "TDFA Text"            $ test (T_TX.*=~) (T_TX.?=~) (T_TX.=~) (T_TX.=~~) matchOnce matchMany T.pack      re_tdfa
-    , testCase "TDFA Text.Lazy"       $ test (TLTX.*=~) (TLTX.?=~) (TLTX.=~) (TLTX.=~~) matchOnce matchMany LT.pack     re_tdfa
+    [ testCase "PCRE a"               $ test (PCRE.*=~) (PCRE.?=~) (PCRE.=~) (PCRE.=~~) matchOnce matchMany makeSearchReplace id          re_pcre
+    , testCase "PCRE ByteString"      $ test (P_BS.*=~) (P_BS.?=~) (P_BS.=~) (P_BS.=~~) matchOnce matchMany makeSearchReplace B.pack      re_pcre
+    , testCase "PCRE ByteString.Lazy" $ test (PLBS.*=~) (PLBS.?=~) (PLBS.=~) (PLBS.=~~) matchOnce matchMany makeSearchReplace LBS.pack    re_pcre
+    , testCase "PCRE Sequence"        $ test (P_SQ.*=~) (P_SQ.?=~) (P_SQ.=~) (P_SQ.=~~) matchOnce matchMany makeSearchReplace S.fromList  re_pcre
+    , testCase "PCRE String"          $ test (P_ST.*=~) (P_ST.?=~) (P_ST.=~) (P_ST.=~~) matchOnce matchMany makeSearchReplace id          re_pcre
+    , testCase "TDFA a"               $ test (TDFA.*=~) (TDFA.?=~) (TDFA.=~) (TDFA.=~~) matchOnce matchMany makeSearchReplace id          re_tdfa
+    , testCase "TDFA ByteString"      $ test (T_BS.*=~) (T_BS.?=~) (T_BS.=~) (T_BS.=~~) matchOnce matchMany makeSearchReplace B.pack      re_tdfa
+    , testCase "TDFA ByteString.Lazy" $ test (TLBS.*=~) (TLBS.?=~) (TLBS.=~) (TLBS.=~~) matchOnce matchMany makeSearchReplace LBS.pack    re_tdfa
+    , testCase "TDFA Sequence"        $ test (T_SQ.*=~) (T_SQ.?=~) (T_SQ.=~) (T_SQ.=~~) matchOnce matchMany makeSearchReplace S.fromList  re_tdfa
+    , testCase "TDFA String"          $ test (T_ST.*=~) (T_ST.?=~) (T_ST.=~) (T_ST.=~~) matchOnce matchMany makeSearchReplace id          re_tdfa
+    , testCase "TDFA Text"            $ test (T_TX.*=~) (T_TX.?=~) (T_TX.=~) (T_TX.=~~) matchOnce matchMany makeSearchReplace T.pack      re_tdfa
+    , testCase "TDFA Text.Lazy"       $ test (TLTX.*=~) (TLTX.?=~) (TLTX.=~) (TLTX.=~~) matchOnce matchMany makeSearchReplace LT.pack     re_tdfa
     ]
   where
-    test :: (Show s,Eq s)
+    test :: (IsRegex r s,Show s,Eq s)
          => (s->r->Matches s)
          -> (s->r->Match   s)
          -> (s->r->Matches s)
          -> (s->r->Maybe(Match s))
          -> (r->s->Match   s)
          -> (r->s->Matches s)
+         -> (s->s->Either String (SearchReplace r s))
          -> (String->s)
          -> r
          -> Assertion
-    test (%*=~) (%?=~) (%=~) (%=~~) mo mm inj r = do
+    test (%*=~) (%?=~) (%=~) (%=~~) mo mm mk_sr0 inj r = do
         2         @=? countMatches mtchs
         Just txt' @=? matchedText  mtch
         mtchs     @=? mtchs'
         mb_mtch   @=? Just mtch
         mtch      @=? mtch''
         mtchs     @=? mtchs''
+        txt''     @=? searchReplaceAll (mk_sr re_t tpl) txt
       where
         mtchs   = txt %*=~ r
         mtch    = txt %?=~ r
@@ -413,11 +505,20 @@ many_tests = testGroup "Many Tests"
         mtch''  = mo r txt
         mtchs'' = mm r txt
 
+        re_t    = inj re_s
+        tpl     = inj "${d}/${m}/${y}"
+
         txt     = inj "2016-01-09 2015-12-5 2015-10-05"
         txt'    = inj "2016-01-09"
+        txt''   = inj "09/01/2016 2015-12-5 05/10/2015"
+
+        mk_sr   = \r_ t_ -> either error id $ mk_sr0 r_ t_
+
 
     re_pcre = fromMaybe oops $ PCRE.compileRegex "[0-9]{4}-[0-9]{2}-[0-9]{2}"
     re_tdfa = fromMaybe oops $ TDFA.compileRegex "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+
+    re_s    = "${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})"
 
     oops    = error "many_tests"
 \end{code}
@@ -427,8 +528,8 @@ Testing the RE Escape Functions
 -------------------------------
 
 \begin{code}
-escapeTests :: TestTree
-escapeTests = testGroup "Escape Tests"
+escape_tests :: TestTree
+escape_tests = testGroup "Escape Tests"
     [ testGroup "PCRE"
         [ testCase  "Escaping empty string" $
             assertBool "empty string" $
@@ -453,11 +554,13 @@ escapeTests = testGroup "Escape Tests"
         ]
     ]
   where
-    tst :: ((String->String)->String->a)
+    tst :: ((String->String)->String->Either String a)
         -> (String->a->Match String)
         -> String
         -> Bool
-    tst esc (%=~) s = matched $ s %=~ esc (("^" ++) . (++ "$")) s
+    tst esc0 (%=~) s = matched $ s %=~ esc s
+      where
+        esc = un_either . esc0 (("^" ++) . (++ "$"))
 
     metacharacters :: String
     metacharacters = "^\\.|*+?()[]{}$"
@@ -468,8 +571,8 @@ Named Capture Tests
 -------------------
 
 \begin{code}
-namedCapturesTestTree :: TestTree
-namedCapturesTestTree = localOption (SmallCheckDepth 4) $
+named_capture_tests :: TestTree
+named_capture_tests = localOption (SmallCheckDepth 4) $
   testGroup "NamedCaptures"
     [ formatScanTestTree
     , analyseTokensTestTree
@@ -484,9 +587,9 @@ formatScanTestTree =
         SC.testProperty "formatTokens == formatTokens0" $
           \tks -> formatTokens tks == formatTokens0 tks
     , localOption (SmallCheckDepth 4) $
-        SC.testProperty "scan . formatTokens' idFormatTokenOptions == id" $
+        SC.testProperty "scan . formatTokens' idFormatTokenREOptions == id" $
           \tks -> all validToken tks ==>
-                    scan (formatTokens' idFormatTokenOptions tks) == tks
+                    scan (formatTokens' idFormatTokenREOptions tks) == tks
     ]
 
 analyseTokensTestTree :: TestTree
@@ -516,7 +619,7 @@ analyseTokensTestTree =
               ]
         )
 
-    xnc = either oops fst . extractNamedCaptures
+    xnc = either oops (snd . fst) . extractNamedCaptures
       where
         oops = error "analyseTokensTestTree: unexpected parse failure"
 \end{code}
@@ -569,11 +672,32 @@ The Miscelaneous Tests
 \begin{code}
 misc_tests :: TestTree
 misc_tests = testGroup "Miscelaneous Tests"
-    [ testGroup "QQ"
-        [ qq_tc "expression"  quoteExp
-        , qq_tc "pattern"     quotePat
-        , qq_tc "type"        quoteType
-        , qq_tc "declaration" quoteDec
+    [ testGroup "CaptureID"
+        [ testCase "CaptureID lookup failure" $ do
+            ok <- isValidError $ findCaptureID [cp|foo|] $ reCaptureNames [re|foo|]
+            assertBool "failed" ok
+        ]
+    , testGroup "QQ"
+        [ qq_tc "re"                      re
+        , qq_tc "reMS"                    reMS
+        , qq_tc "reMI"                    reMI
+        , qq_tc "reBS"                    reBS
+        , qq_tc "reBI"                    reBI
+        , qq_tc "reMultilineSensitive"    reMultilineSensitive
+        , qq_tc "reMultilineInsensitive"  reMultilineInsensitive
+        , qq_tc "reBlockSensitive"        reBlockSensitive
+        , qq_tc "reBlockInsensitive"      reBlockInsensitive
+        , qq_tc "re_"                     re_
+        , qq_tc "ed"                      ed
+        , qq_tc "edMS"                    edMS
+        , qq_tc "edMI"                    edMI
+        , qq_tc "edBS"                    edBS
+        , qq_tc "edBI"                    edBI
+        , qq_tc "edMultilineSensitive"    edMultilineSensitive
+        , qq_tc "edMultilineInsensitive"  edMultilineInsensitive
+        , qq_tc "edBlockSensitive"        edBlockSensitive
+        , qq_tc "edBlockInsensitive"      edBlockInsensitive
+        , qq_tc "ed_"                     ed_
         ]
     , testGroup "PreludeMacros"
         [ valid_string "preludeMacroTable"    preludeMacroTable
@@ -595,10 +719,20 @@ misc_tests = testGroup "Miscelaneous Tests"
             , TDFA.reBlockSensitive
             , TDFA.reBlockInsensitive
             , TDFA.re_
+            , TDFA.ed
+            , TDFA.edMS
+            , TDFA.edMI
+            , TDFA.edBS
+            , TDFA.edBI
+            , TDFA.edMultilineSensitive
+            , TDFA.edMultilineInsensitive
+            , TDFA.edBlockSensitive
+            , TDFA.edBlockInsensitive
+            , TDFA.ed_
             ]
         , testCase  "TDFA.regexType"           $ assertBool "TDFA" $ isTDFA TDFA.regexType
         , testCase  "TDFA.reOptions"           $ assert_empty_macs $ optionsMacs (TDFA.reOptions tdfa_re)
-        , testCase  "TDFA.makeOptions md"      $ assert_empty_macs $ optionsMacs tdfa_opts
+        , testCase  "TDFA.makeREOptions md"      $ assert_empty_macs $ optionsMacs tdfa_opts
         , testCase  "TDFA.preludeTestsFailing" $ []      @=? TDFA.preludeTestsFailing
         , ne_string "TDFA.preludeTable"          TDFA.preludeTable
         , ne_string "TDFA.preludeSources"        TDFA.preludeSources
@@ -623,10 +757,20 @@ misc_tests = testGroup "Miscelaneous Tests"
             , PCRE.reBlockSensitive
             , PCRE.reBlockInsensitive
             , PCRE.re_
+            , PCRE.ed
+            , PCRE.edMS
+            , PCRE.edMI
+            , PCRE.edBS
+            , PCRE.edBI
+            , PCRE.edMultilineSensitive
+            , PCRE.edMultilineInsensitive
+            , PCRE.edBlockSensitive
+            , PCRE.edBlockInsensitive
+            , PCRE.ed_
             ]
         , testCase  "PCRE.regexType"           $ assertBool "PCRE" $ isPCRE PCRE.regexType
         , testCase  "PCRE.reOptions"           $ assert_empty_macs $ optionsMacs (PCRE.reOptions pcre_re)
-        , testCase  "PCRE.makeOptions md"      $ assert_empty_macs $ optionsMacs pcre_opts
+        , testCase  "PCRE.makeREOptions md"      $ assert_empty_macs $ optionsMacs pcre_opts
         , testCase  "PCRE.preludeTestsFailing" $ []      @=? PCRE.preludeTestsFailing
         , ne_string "PCRE.preludeTable"          PCRE.preludeTable
         , ne_string "PCRE.preludeTable"          PCRE.preludeSources
@@ -644,8 +788,8 @@ misc_tests = testGroup "Miscelaneous Tests"
     tdfa_re   = fromMaybe oops $ TDFA.compileRegexWithOptions tdfa_opts ".*"
     pcre_re   = fromMaybe oops $ PCRE.compileRegexWithOptions pcre_opts ".*"
 
-    tdfa_opts = makeOptions no_macs_t :: Options_ TDFA.RE TDFA_.CompOption TDFA_.ExecOption
-    pcre_opts = makeOptions no_macs_p :: Options_ PCRE.RE PCRE_.CompOption PCRE_.ExecOption
+    tdfa_opts = makeREOptions no_macs_t :: REOptions_ TDFA.RE TDFA_.CompOption TDFA_.ExecOption
+    pcre_opts = makeREOptions no_macs_p :: REOptions_ PCRE.RE PCRE_.CompOption PCRE_.ExecOption
 
     no_macs_t = HM.fromList [] :: Macros TDFA.RE
     no_macs_p = HM.fromList [] :: Macros PCRE.RE
@@ -654,17 +798,8 @@ misc_tests = testGroup "Miscelaneous Tests"
 
     assert_empty_macs = assertBool "macros not empty" . HM.null
 
-qq_tc :: String -> (QuasiQuoter->String->a) -> TestTree
-qq_tc sc prj = testCase sc $
-    try tst >>= either hdl (const $ assertFailure "qq0")
-  where
-    tst :: IO ()
-    tst = prj (qq0 "qq_tc") "" `seq` return ()
-
-    hdl :: QQFailure -> IO ()
-    hdl qqf = do
-      "qq_tc" @=? _qqf_context   qqf
-      sc      @=? _qqf_component qqf
+qq_tc :: String -> QuasiQuoter -> TestTree
+qq_tc lab qq = testCase lab $ quoteExp qq `seq` assertBool "qq_tc" True
 
 valid_macro :: String -> (RegexType->PreludeMacro->String) -> TestTree
 valid_macro label f = testGroup label
@@ -696,4 +831,24 @@ tdfa_prelude_macros = [minBound..maxBound]
 
 s_toList :: S.Seq Char -> [Char]
 s_toList = F.toList
+
+newtype Identity a = Identity { runIdentity :: a }
+  deriving (Functor)
+
+instance Applicative Identity where
+  pure = Identity
+  (<*>) (Identity f) (Identity x) = Identity $ f x
+
+instance Monad Identity where
+  return = Identity
+  (>>=) (Identity x) f = f x
+
+isValidError :: a -> IO Bool
+isValidError x = catch (x `seq` return False) hdl
+  where
+    hdl :: SomeException -> IO Bool
+    hdl se = return $ (length $ show se) `seq` True
+
+un_either :: Either String a -> a
+un_either = either error id
 \end{code}

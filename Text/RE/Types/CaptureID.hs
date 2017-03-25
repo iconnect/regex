@@ -12,8 +12,8 @@ import qualified Data.Text                      as T
 -- | CaptureID identifies captures, either by number
 -- (e.g., [cp|1|]) or name (e.g., [cp|foo|]).
 data CaptureID
-  = IsCaptureOrdinal CaptureOrdinal
-  | IsCaptureName    CaptureName
+  = IsCaptureOrdinal CaptureOrdinal   -- [cp|3|]
+  | IsCaptureName    CaptureName      -- [cp|y|]
   deriving (Show,Ord,Eq)
 
 -- | the dictionary for named captures stored in compiled regular

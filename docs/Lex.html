@@ -79,7 +79,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">Text.RE</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Capture</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.IsRegex</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Match</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span>
 
 
 <span class="co">-- | a simple regex-based scanner interpretter for prototyping</span>
@@ -97,7 +100,7 @@ alex <span class="fu">=</span> alex&#39; matchOnce
       <span class="ot">-&gt;</span> [t]
 alex&#39; mo al t_err <span class="fu">=</span> loop
   <span class="kw">where</span>
-    loop s <span class="fu">=</span> <span class="kw">case</span> lengthE s <span class="fu">==</span> <span class="dv">0</span> <span class="kw">of</span>
+    loop s <span class="fu">=</span> <span class="kw">case</span> lengthR s <span class="fu">==</span> <span class="dv">0</span> <span class="kw">of</span>
       <span class="dt">True</span>  <span class="ot">-&gt;</span> []
       <span class="dt">False</span> <span class="ot">-&gt;</span> choose al s
 

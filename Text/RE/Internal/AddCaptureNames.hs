@@ -16,6 +16,7 @@ import qualified Data.Text.Lazy                as TL
 import           Prelude.Compat
 import           Text.RE
 import           Text.RE.Types.CaptureID
+import           Text.RE.Types.Match
 import           Unsafe.Coerce
 
 

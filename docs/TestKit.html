@@ -72,9 +72,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
 <span class="ot">{-# LANGUAGE FlexibleContexts           #-}</span>
 <span class="ot">{-# LANGUAGE CPP                        #-}</span>
-<span class="ot">#if __GLASGOW_HASKELL__ &gt;= 800</span>
+<span class="st">#if __GLASGOW_HASKELL__ &gt;= 800</span>
 <span class="ot">{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}</span>
-<span class="ot">#endif</span>
+<span class="st">#endif</span>
 
 <span class="kw">module</span> <span class="dt">TestKit</span>
   ( <span class="dt">Vrn</span>(<span class="fu">..</span>)
@@ -105,13 +105,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">System.Exit</span>
 <span class="kw">import           </span><span class="dt">System.IO</span>
 <span class="kw">import           </span><span class="dt">Text.Printf</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.IsRegex</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TDFA</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TestBench.Parsers</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Tools.Grep</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span></code></pre></div>
+<span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Match</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span></code></pre></div>
 <h2 id="vrn-and-friends">Vrn and friends</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Vrn</span> <span class="fu">=</span> <span class="dt">Vrn</span> { _vrn_a, _vrn_b, _vrn_c,<span class="ot"> _vrn_d ::</span> <span class="dt">Int</span> }
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Vrn</span> <span class="fu">=</span> <span class="dt">Vrn</span> { _vrn_a, _vrn_b, _vrn_c, _<span class="ot">vrn_d ::</span> <span class="dt">Int</span> }
   <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>,<span class="dt">Ord</span>)
 
 <span class="ot">presentVrn ::</span> <span class="dt">Vrn</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
@@ -119,11 +120,11 @@ presentVrn <span class="dt">Vrn</span>{<span class="fu">..</span>} <span class="
 
 <span class="ot">parseVrn ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Vrn</span>
 parseVrn vrn_s <span class="fu">=</span> <span class="kw">case</span> matched m <span class="kw">of</span>
-    <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Vrn</span> (p [cp|a|]) (p [cp|b|]) (p [cp|c|]) (p [cp|d|])
+    <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Vrn</span> (p [cp<span class="fu">|</span>a<span class="fu">|</span>]) (p [cp<span class="fu">|</span>b<span class="fu">|</span>]) (p [cp<span class="fu">|</span>c<span class="fu">|</span>]) (p [cp<span class="fu">|</span>d<span class="fu">|</span>])
     <span class="dt">False</span> <span class="ot">-&gt;</span> error <span class="fu">$</span> <span class="st">&quot;not a valid version: &quot;</span> <span class="fu">++</span> vrn_s
   <span class="kw">where</span>
     p c  <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> parseInteger <span class="fu">$</span> m <span class="fu">!$$</span> c
-    m    <span class="fu">=</span> vrn_s <span class="fu">?=~</span> [re|^${a}(@{%nat})\.${b}(@{%nat})\.${c}(@{%nat})\.${d}(@{%nat})$|]
+    m    <span class="fu">=</span> vrn_s <span class="fu">?=~</span> [re<span class="fu">|^$</span>{a}(<span class="fu">@</span>{<span class="fu">%</span>nat})\<span class="fu">.$</span>{b}(<span class="fu">@</span>{<span class="fu">%</span>nat})\<span class="fu">.$</span>{c}(<span class="fu">@</span>{<span class="fu">%</span>nat})\<span class="fu">.$</span>{d}(<span class="fu">@</span>{<span class="fu">%</span>nat})<span class="fu">$|</span>]
 
     oops <span class="fu">=</span> error <span class="st">&quot;parseVrn&quot;</span>
 
@@ -154,9 +155,9 @@ substVersion in_f out_f <span class="fu">=</span>
 
 <span class="ot">substVersion_ ::</span> (<span class="dt">IsRegex</span> <span class="dt">RE</span> a,<span class="dt">Replace</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a
 substVersion_ txt <span class="fu">=</span>
-    flip replaceAll ms <span class="fu">.</span> packE <span class="fu">.</span> presentVrn <span class="fu">&lt;$&gt;</span> readCurrentVersion
+    flip replaceAll ms <span class="fu">.</span> packR <span class="fu">.</span> presentVrn <span class="fu">&lt;$&gt;</span> readCurrentVersion
   <span class="kw">where</span>
-    ms <span class="fu">=</span> txt <span class="fu">*=~</span> [re|&lt;&lt;\$version\$&gt;&gt;|]
+    ms <span class="fu">=</span> txt <span class="fu">*=~</span> [re<span class="fu">|&lt;&lt;</span>\<span class="fu">$</span>version\<span class="fu">$&gt;&gt;|</span>]
 
 <span class="ot">readCurrentVersion ::</span> <span class="dt">IO</span> <span class="dt">Vrn</span>
 readCurrentVersion <span class="fu">=</span> parseVrn <span class="fu">&lt;$&gt;</span> readFile <span class="st">&quot;lib/version.txt&quot;</span>
@@ -224,11 +225,11 @@ test_pp lab loop test_file gold_file <span class="fu">=</span> <span class="kw">
 <h2 id="simple-include-processor">simple include processor</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">include ::</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">LBS.ByteString</span>
 include <span class="fu">=</span> sed&#39; <span class="fu">$</span> <span class="dt">Select</span>
-    [ (,) [re|^%include ${file}(@{%string})$|] <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span>   incl
-    , (,) [re|^.*$|]                           <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
+    [ <span class="dt">Function</span> [re<span class="fu">|^%</span>include <span class="fu">$</span>{file}(<span class="fu">@</span>{<span class="fu">%</span>string})<span class="fu">$|</span>] <span class="dt">TOP</span>   incl
+    , <span class="dt">Function</span> [re<span class="fu">|^.*$|</span>]                           <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
     ]
   <span class="kw">where</span>
-    incl _ mtch _ _ <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">&lt;$&gt;</span> LBS.readFile (prs_s <span class="fu">$</span> mtch <span class="fu">!$$</span> [cp|file|])
+    incl _ mtch _ _ <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">&lt;$&gt;</span> LBS.readFile (prs_s <span class="fu">$</span> mtch <span class="fu">!$$</span> [cp<span class="fu">|</span>file<span class="fu">|</span>])
     prs_s           <span class="fu">=</span> maybe (error <span class="st">&quot;include&quot;</span>) T.unpack <span class="fu">.</span> parseString</code></pre></div>
 <h2 id="cmp">cmp</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">cmp ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span>

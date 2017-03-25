@@ -68,7 +68,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </header>
 <h1 id="the-regex-tutorial">The Regex Tutorial</h1>
 <p>This is a literate Haskell programme lightly processed to produce this web presentation and also to generate a test suite that verifies that each of the example calculations are generating the expected results. You can load it into ghci and try out the examples either by running <em>ghci</em> itself from the root folder of the regex package:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">ghci</span> examples/re-tutorial.lhs</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">ghci</span> examples/re-tutorial.lhs</code></pre></div>
 <p>or using <code>cabal repl</code>:</p>
 <pre><code>cabal configure --enable-tests
 cabal repl examples/re-tutorial.lhs</code></pre>
@@ -103,8 +103,11 @@ This pragma is a just technical pragma, combined with the <code>Prelude.Compat</
 </ul>
 For this tutorial we will use classic Haskell strings but any application dealing with bulk text will probably want to choose one of the other options.
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import           </span><span class="dt">Text.RE.TDFA.String</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Capture</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.CaptureID</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Options</span></code></pre></div>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Match</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.REOptions</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span></code></pre></div>
 <p>If you are predominantly matching against a single type in your module then you will probably find it more convenient to use the relevant module rather than than the more polymorphic opertors but it is really a matter of convenience.</p>
 We will also need access to a small selection of common libraries for our examples.
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import           </span><span class="dt">Control.Applicative</span>
@@ -120,35 +123,35 @@ This allows simple calculations to be defined stylistically in the source progra
 <p>This trivial example calculation will be tested for zero-ness.</p>
 <h2 id="matching-with-the-regex-base-operators">Matching with the regex-base Operators</h2>
 regex supports the regex-base polymorphic match operators. Used in a <code>Bool</code> context <code>=~</code> will evaluate to True iff the string on the left matches the RE on the right.
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> (<span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">=~</span> [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]<span class="ot"> ::</span> <span class="dt">Bool</span>)
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> (<span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">=~</span> [re<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">|</span>]<span class="ot"> ::</span> <span class="dt">Bool</span>)
 <span class="dt">True</span></code></pre></div>
 <p>Note that we enclose the RE itself in <code>[re|</code> ... <code>|]</code> quasi quote brackets, allowing the compiler to run some regex code at compile time to verify that the RE conforms to the correct syntax for the chosen RE flavour of choice (<code>TDFA</code> in this case). The above expression should evaluate to <code>True</code> as the string contains a matching sub-string.</p>
 Used in an <code>Int</code> context <code>=~</code> will count the number of matches in the target string.
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> (<span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">=~</span> [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]<span class="ot"> ::</span> <span class="dt">Int</span>)
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> (<span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">=~</span> [re<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">|</span>]<span class="ot"> ::</span> <span class="dt">Int</span>)
 <span class="dv">2</span></code></pre></div>
 To determine the string that has matched the monadic <code>=~~</code> operator can be used in a <code>Maybe</code> context.
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> (<span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">=~~</span> [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]<span class="ot"> ::</span> <span class="dt">Maybe</span> <span class="dt">String</span>)
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> (<span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">=~~</span> [re<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">|</span>]<span class="ot"> ::</span> <span class="dt">Maybe</span> <span class="dt">String</span>)
 <span class="dt">Just</span> <span class="st">&quot;2016-01-09&quot;</span></code></pre></div>
 A <code>=~</code> in a <code>[[String]]</code> extracts all of the matched substrings:
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> (<span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">=~</span> [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]<span class="ot"> ::</span> [[<span class="dt">String</span>]])
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> (<span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">=~</span> [re<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">|</span>]<span class="ot"> ::</span> [[<span class="dt">String</span>]])
 [[<span class="st">&quot;2016-01-09&quot;</span>],[<span class="st">&quot;2015-10-05&quot;</span>]]</code></pre></div>
 <p>regex provides special operators and types for extracting the first match or all of the non-overlapping substrings matching a regular expression which provide a little more structure that the flexible, venerable regex-base match operators.</p>
 <h2 id="single-matches-with">Single Matches with <code>?=~</code></h2>
 regex also provides two matching operators: one for looking for the first match in its search string and the other for finding all of the matches. The first-match operator, <code>?=~</code>, yields the result of attempting to find the first match. (It's result type will be explained below.) The boolean <code>matched</code> function can be used to test whether a match was found.
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> matched <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">?=~</span> [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> matched <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">?=~</span> [re<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">|</span>]
 <span class="dt">True</span></code></pre></div>
 To get the matched text use <code>matchText</code>, which returns <code>Nothing</code> if no match was found in the search string.
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> matchedText <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">?=~</span> [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> matchedText <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">?=~</span> [re<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">|</span>]
 <span class="dt">Just</span> <span class="st">&quot;2016-01-09&quot;</span></code></pre></div>
 <h2 id="multiple-matches-with">Multiple Matches with <code>*=~</code></h2>
 Use <code>*=~</code> to locate all of the non-overlapping substrings that matches a RE. <code>anyMatches</code> will return <code>True</code> iff any matches are found (and they will be).
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> anyMatches <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">*=~</span> [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> anyMatches <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">*=~</span> [re<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">|</span>]
 <span class="dt">True</span></code></pre></div>
 <code>countMatches</code> will tell us how many sub-strings matched (2).
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">*=~</span> [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">*=~</span> [re<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">|</span>]
 <span class="dv">2</span></code></pre></div>
 <code>matches</code> will return all of the matches.
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> matches <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">*=~</span> [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> matches <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">*=~</span> [re<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">-</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>}<span class="fu">|</span>]
 [<span class="st">&quot;2016-01-09&quot;</span>,<span class="st">&quot;2015-10-05&quot;</span>]</code></pre></div>
 <h2 id="simple-text-replacement">Simple Text Replacement</h2>
 <p>regex supports the replacement of matched text with alternative text. This section will cover replacement text specified with templates. More flexible tools that allow functions calculate the replacement text are covered below.</p>
@@ -160,14 +163,14 @@ Use <code>*=~</code> to locate all of the non-overlapping substrings that matche
 A function to convert ISO format dates into a UK-format date could be written thus:
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">uk_dates ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
 uk_dates src <span class="fu">=</span>
-  replaceAll <span class="st">&quot;${d}/${m}/${y}&quot;</span> <span class="fu">$</span> src <span class="fu">*=~</span> [re|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|]</code></pre></div>
+  replaceAll <span class="st">&quot;${d}/${m}/${y}&quot;</span> <span class="fu">$</span> src <span class="fu">*=~</span> [re<span class="fu">|$</span>{y}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>})<span class="fu">-$</span>{m}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>})<span class="fu">-$</span>{d}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>})<span class="fu">|</span>]</code></pre></div>
 with
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> uk_dates <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span>
 <span class="st">&quot;09/01/2016 2015-12-5 05/10/2015&quot;</span></code></pre></div>
 The same function written with numbered captures:
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">uk_dates&#39; ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
 uk_dates&#39; src <span class="fu">=</span>
-  replaceAll <span class="st">&quot;$3/$2/$1&quot;</span> <span class="fu">$</span> src <span class="fu">*=~</span> [re|$([0-9]{4})-$([0-9]{2})-$([0-9]{2})|]</code></pre></div>
+  replaceAll <span class="st">&quot;$3/$2/$1&quot;</span> <span class="fu">$</span> src <span class="fu">*=~</span> [re<span class="fu">|$</span>([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>})<span class="fu">-$</span>([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>})<span class="fu">-$</span>([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>})<span class="fu">|</span>]</code></pre></div>
 with
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> uk_dates&#39; <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span>
 <span class="st">&quot;09/01/2016 2015-12-5 05/10/2015&quot;</span></code></pre></div>
@@ -233,9 +236,9 @@ The type of <code>?=~</code> in this module (imported from <code>Text.RE.TDFA.St
 </div>
 <p>Here we list the whole original search string in <code>captureSource</code> and the text of the sub-string captured in <code>capturedText</code>. <code>captureOffset</code> contains the number of characters preceding the captured substring, or is negative if no substring was captured (which is a different situation from epsilon, the empty string, being captured). <code>captureLength</code> gives the length of the captured string in <code>capturedText</code>.</p>
 <p>The test suite in <a href="re-tests.html">examples/re-tests.lhs</a> contains extensive worked-out examples of these <code>Matches</code>/<code>Match</code>/<code>Capture</code> types.</p>
-<h2 id="simple-options">Simple Options</h2>
+<h2 id="simple-reoptions">Simple REOptions</h2>
 By default regular expressions are of the multi-line case-sensitive variety so this query
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> [re|[0-9a-f]{2}$|]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> [re<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
 <span class="dv">2</span></code></pre></div>
 <p>finds 2 matches, the '$' anchor matching each of the newlines, but only the first two lowercase hex numbers matching the RE. The case sensitivity and multiline-ness can be controled by selecting alternative parsers.</p>
 <table style="width:97%;">
@@ -281,26 +284,26 @@ By default regular expressions are of the multi-line case-sensitive variety so t
 </tbody>
 </table>
 So while the default setup
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> [reMultilineSensitive|[0-9a-f]{2}$|]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> [reMultilineSensitive<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
 <span class="dv">2</span></code></pre></div>
 finds 2 matches, a case-insensitive RE
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> [reMultilineInsensitive|[0-9a-f]{2}$|]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> [reMultilineInsensitive<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
 <span class="dv">4</span></code></pre></div>
 finds 4 matches, while a non-multiline RE
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> [reBlockSensitive|[0-9a-f]{2}$|]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> [reBlockSensitive<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
 <span class="dv">0</span></code></pre></div>
 finds no matches but a non-multiline, case-insensitive match
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> [reBlockInsensitive|[0-9a-f]{2}$|]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> [reBlockInsensitive<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>]
 <span class="dv">1</span></code></pre></div>
 <p>finds the final match.</p>
 For the hard of typing the shortforms are available.
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> matched <span class="fu">$</span> <span class="st">&quot;SuperCaliFragilisticExpialidocious&quot;</span> <span class="fu">?=~</span> [reMI|supercalifragilisticexpialidocious|]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> matched <span class="fu">$</span> <span class="st">&quot;SuperCaliFragilisticExpialidocious&quot;</span> <span class="fu">?=~</span> [reMI<span class="fu">|</span>supercalifragilisticexpialidocious<span class="fu">|</span>]
 <span class="dt">True</span></code></pre></div>
 <h2 id="using-functions-to-replace-text">Using Functions to Replace Text</h2>
-Sometimes you will need to process each string captured by an RE with a function. <code>replaceAllCaptures</code> takes a <code>Context</code>, a substitution function and a <code>Matches</code> and applies the function to each captured substring according to the <code>Context</code>, as we can see in the following example function to clean up all of the mis-formatted dates in the argument string,
+Sometimes you will need to process each string captured by an RE with a function. <code>replaceAllCaptures</code> takes a <code>REContext</code>, a substitution function and a <code>Matches</code> and applies the function to each captured substring according to the <code>REContext</code>, as we can see in the following example function to clean up all of the mis-formatted dates in the argument string,
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">fixup_dates ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
 fixup_dates src <span class="fu">=</span>
-    replaceAllCaptures <span class="dt">SUB</span> phi <span class="fu">$</span> src <span class="fu">*=~</span> [re|([0-9]+)-([0-9]+)-([0-9]+)|]
+    replaceAllCaptures <span class="dt">SUB</span> phi <span class="fu">$</span> src <span class="fu">*=~</span> [re<span class="fu">|</span>([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]<span class="fu">+</span>)<span class="fu">-</span>([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]<span class="fu">+</span>)<span class="fu">-</span>([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]<span class="fu">+</span>)<span class="fu">|</span>]
   <span class="kw">where</span>
     phi _ loc cap <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="kw">case</span> locationCapture loc <span class="kw">of</span>
         <span class="dv">1</span> <span class="ot">-&gt;</span> printf <span class="st">&quot;%04d&quot;</span> (read<span class="ot"> s ::</span> <span class="dt">Int</span>)
@@ -318,15 +321,15 @@ which will fix up our running example
 <span class="co">-- context and returns the same replacement text as the _phi_phi</span>
 <span class="co">-- context.</span>
 <span class="ot">replaceAllCaptures ::</span> <span class="dt">Replace</span> a
-                   <span class="ot">=&gt;</span> <span class="dt">Context</span>
+                   <span class="ot">=&gt;</span> <span class="dt">REContext</span>
                    <span class="ot">-&gt;</span> (<span class="dt">Match</span> a<span class="ot">-&gt;</span><span class="dt">Location</span><span class="ot">-&gt;</span><span class="dt">Capture</span> a<span class="ot">-&gt;</span><span class="dt">Maybe</span> a)
                    <span class="ot">-&gt;</span> <span class="dt">Matches</span> a
                    <span class="ot">-&gt;</span> a</code></pre></div>
 </div>
-<p>and the <code>Context</code> and <code>Location</code> types are defined in <code>Text.RE.Types.Replace</code> as follows,</p>
+<p>and the <code>REContext</code> and <code>Location</code> types are defined in <code>Text.RE.Types.Replace</code> as follows,</p>
 <div class="includedcodeblock">
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | @Context@ specifies which contexts the substitutions should be applied</span>
-<span class="kw">data</span> <span class="dt">Context</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | @REContext@ specifies which contexts the substitutions should be applied</span>
+<span class="kw">data</span> <span class="dt">REContext</span>
   <span class="fu">=</span> <span class="dt">TOP</span>   <span class="co">-- ^ substitutions should be applied to the top-level only,</span>
           <span class="co">-- the text that matched the whole RE</span>
   <span class="fu">|</span> <span class="dt">SUB</span>   <span class="co">-- ^ substitutions should only be applied to the text</span>
@@ -351,13 +354,13 @@ which will fix up our running example
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
 </div>
-<p>The processing function gets applied to the captures specified by the <code>Context</code>, which can be directed to process <code>ALL</code> of the captures, including the substring captured by the whole RE and all of the subsidiary capture, or just the <code>TOP</code>, <code>0</code> capture that the whole RE matches, or just the <code>SUB</code> (subsidiary) captures, as was the case above.</p>
+<p>The processing function gets applied to the captures specified by the <code>REContext</code>, which can be directed to process <code>ALL</code> of the captures, including the substring captured by the whole RE and all of the subsidiary capture, or just the <code>TOP</code>, <code>0</code> capture that the whole RE matches, or just the <code>SUB</code> (subsidiary) captures, as was the case above.</p>
 <p>The substitution function takes the <code>Match</code> corresponding to the current redex being processed, the <code>Location</code> information specifying redex <em>n</em> redex and capure <em>i</em>, and the <code>Capure</code> being substituted. Our substitution function didn't need the <code>Match</code> context so it ignored it.</p>
 <p>The substition function either return <code>Nothing</code> to indicate that no substitution should be made or the replacement text.</p>
 The above fixup function could be extended to enclose whole date in square brackets by specifing an <code>ALL</code> context and a <code>0</code> case for the substitution function.
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">fixup_and_reformat_dates ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
 fixup_and_reformat_dates src <span class="fu">=</span>
-    replaceAllCaptures <span class="dt">ALL</span> f <span class="fu">$</span> src <span class="fu">*=~</span> [re|([0-9]+)-([0-9]+)-([0-9]+)|]
+    replaceAllCaptures <span class="dt">ALL</span> f <span class="fu">$</span> src <span class="fu">*=~</span> [re<span class="fu">|</span>([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]<span class="fu">+</span>)<span class="fu">-</span>([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]<span class="fu">+</span>)<span class="fu">-</span>([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]<span class="fu">+</span>)<span class="fu">|</span>]
   <span class="kw">where</span>
     f _ loc cap <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="kw">case</span> locationCapture loc <span class="kw">of</span>
         <span class="dv">0</span> <span class="ot">-&gt;</span> printf <span class="st">&quot;[%s]&quot;</span>       txt
@@ -374,21 +377,21 @@ The <code>fixup_and_reformat_dates</code> applied to our running example,
 <h2 id="macros-and-parsers">Macros and Parsers</h2>
 <p>regex supports macros in regular expressions. There are a bunch of standard macros and you can define your own.</p>
 RE macros are enclosed in <code>@{</code> ... '}'. By convention the macros in the standard environment start with a '%'. <code>@{%date}</code> will match an ISO 8601 date, this
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">*=~</span> [re|@{%date}|]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span> <span class="fu">*=~</span> [re<span class="fu">|@</span>{<span class="fu">%</span>date}<span class="fu">|</span>]
 <span class="dv">2</span></code></pre></div>
 <p>picking out the two dates.</p>
 <p>See the tables listing the standard macros in the tables folder of the distribution.</p>
 <p>See the log-processor example and the <code>Text.RE.TestBench</code> for more on how you can develop, document and test RE macros with the regex test bench.</p>
-<h2 id="compiling-res-with-the-complete-options">Compiling REs with the Complete Options</h2>
-Each type of RE — TDFA and PCRE — has it own complile-time options and execution-time options, called in each case <code>CompOption</code> and <code>ExecOption</code>. The above simple options selected with the RE parser (<code>reMultilineSensitive</code>, etc.) configures the RE backend accordingly so that you don't have to, but you may need full access to you chosen back end's options, or you may need to supply a different set of macros to those provided in the standard environment. In which case you will need to know about the <code>Options</code> type, defined by each of the back ends in terms of the <code>Options_</code> type of <code>Text.RE.Types.Options</code> as follows.
+<h2 id="compiling-res-with-the-complete-reoptions">Compiling REs with the Complete REOptions</h2>
+Each type of RE — TDFA and PCRE — has it own complile-time options and execution-time options, called in each case <code>CompOption</code> and <code>ExecOption</code>. The above simple options selected with the RE parser (<code>reMultilineSensitive</code>, etc.) configures the RE backend accordingly so that you don't have to, but you may need full access to you chosen back end's options, or you may need to supply a different set of macros to those provided in the standard environment. In which case you will need to know about the <code>REOptions</code> type, defined by each of the back ends in terms of the <code>REOptions_</code> type of <code>Text.RE.Types.REOptions</code> as follows.
 <div class="inlinecodeblock">
-<pre><code>type Options = Options_ RE CompOption ExecOption</code></pre>
+<pre><code>type REOptions = REOptions_ RE CompOption ExecOption</code></pre>
 </div>
 <p>(Bear in mind that <code>CompOption</code> and <code>ExecOption</code> will be different types for each back end.)</p>
-<p>The <code>Options_</code> type is defined in <code>Text.RE.Types.Options</code> as follows:</p>
+<p>The <code>REOptions_</code> type is defined in <code>Text.RE.Types.REOptions</code> as follows:</p>
 <div class="includedcodeblock">
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Options_</span> r c e <span class="fu">=</span>
-  <span class="dt">Options</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">REOptions_</span> r c e <span class="fu">=</span>
+  <span class="dt">REOptions</span>
     {<span class="ot"> optionsMacs ::</span> <span class="fu">!</span>(<span class="dt">Macros</span> r)
     ,<span class="ot"> optionsComp ::</span> <span class="fu">!</span>c
     ,<span class="ot"> optionsExec ::</span> <span class="fu">!</span>e
@@ -415,10 +418,10 @@ Each backend provides a function to compile REs from some options and a string c
 <p>where <code>o</code> is some type that is recognised as a type that can configure REs. Your configuration-type options are:</p>
 <ul>
 <li><p><code>()</code> (the unit type) means just use the default multi-line case-sensitive that we get with the <code>re</code> parser.</p></li>
-<li><p><code>SimpleRegexOptions</code> this is just a simple enum type that we use to encode the standard options:</p></li>
+<li><p><code>SimpleREOptions</code> this is just a simple enum type that we use to encode the standard options:</p></li>
 </ul>
 <div class="includedcodeblock">
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">SimpleRegexOptions</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">SimpleREOptions</span>
   <span class="fu">=</span> <span class="dt">MultilineSensitive</span>
   <span class="fu">|</span> <span class="dt">MultilineInsensitive</span>
   <span class="fu">|</span> <span class="dt">BlockSensitive</span>
@@ -430,7 +433,7 @@ Each backend provides a function to compile REs from some options and a string c
 <li><p><code>Macros RE</code>: you can specify the macros use instead of the standard environment;</p></li>
 <li><p><code>CompOption</code>: you can specify the compile-time options for the back end;</p></li>
 <li><p><code>ExecOption</code>: you can specify the execution-time options for the back end;</p></li>
-<li><p><code>Options</code>: you can specify all of the options.</p></li>
+<li><p><code>REOptions</code>: you can specify all of the options.</p></li>
 </ul>
 The compilation may fail so it is expressed monadically. For the following examples we will use the following helper to just <code>error</code> the failure.
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">check_for_failure ::</span> <span class="dt">Either</span> <span class="dt">String</span> a <span class="ot">-&gt;</span> a
@@ -440,9 +443,9 @@ check_for_failure <span class="fu">=</span> either error id</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> check_for_failure (compileRegexWith <span class="dt">BlockInsensitive</span> <span class="st">&quot;[0-9a-f]{2}$&quot;</span>)
 <span class="dv">1</span></code></pre></div>
 <p>This will allow you to compile regular expressions when the either the text to be compiled or the options have been dynamically determined.</p>
-<h2 id="specifying-options-with-re_">Specifying Options with <code>re_</code></h2>
+<h2 id="specifying-reoptions-with-re_">Specifying REOptions with <code>re_</code></h2>
 If you just need to specify some non-standard options while statically checking the validity of the RE (with the default options) then you can use the <code>re_</code> parser:
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> [re_|[0-9a-f]{2}$|] <span class="dt">BlockInsensitive</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> countMatches <span class="fu">$</span> <span class="st">&quot;0a\nbb\nFe\nA5&quot;</span> <span class="fu">*=~</span> [re_<span class="fu">|</span>[<span class="dv">0</span><span class="fu">-</span>9a<span class="fu">-</span>f]{<span class="dv">2</span>}<span class="fu">$|</span>] <span class="dt">BlockInsensitive</span>
 <span class="dv">1</span></code></pre></div>
 <p>Any option <code>o</code> such that <code>IsOption o RE CompOption ExecOption</code> (i.e., any option type accepted by <code>compileRegex</code> above) can be used with <code>[re_</code> ..<code>|]</code>.</p>
 <h2 id="the-tools-grep-lex-and-sed">The Tools: 'grep', 'lex' and 'sed'</h2>
@@ -460,14 +463,13 @@ If you just need to specify some non-standard options while statically checking 
 <div class="includedcodeblock">
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">script ::</span> <span class="dt">Ctx</span> <span class="ot">-&gt;</span> <span class="dt">Edits</span> <span class="dt">IO</span> <span class="dt">RE</span> <span class="dt">LBS.ByteString</span>
 script ctx <span class="fu">=</span> <span class="dt">Select</span>
-    [ on [re_|@{access}|]     <span class="dt">ACC</span> parse_access
-    , on [re_|@{access_deg}|] <span class="dt">AQQ</span> parse_deg_access
-    , on [re_|@{error}|]      <span class="dt">ERR</span> parse_error
-    , on [re_|.*|]            <span class="dt">QQQ</span> parse_def
+    [ on [re_<span class="fu">|@</span>{access}<span class="fu">|</span>]     <span class="dt">ACC</span> parse_access
+    , on [re_<span class="fu">|@</span>{access_deg}<span class="fu">|</span>] <span class="dt">AQQ</span> parse_deg_access
+    , on [re_<span class="fu">|@</span>{error}<span class="fu">|</span>]      <span class="dt">ERR</span> parse_error
+    , on [re_<span class="fu">|.*|</span>]            <span class="dt">QQQ</span> parse_def
     ]
   <span class="kw">where</span>
-    on rex src prs <span class="fu">=</span>
-      (,) (rex lpo) <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> process_line ctx src prs
+    on rex src prs <span class="fu">=</span> <span class="dt">Function</span> (rex lpo) <span class="dt">TOP</span> <span class="fu">$</span> process_line ctx src prs
 
     parse_def      <span class="fu">=</span> fmap capturedText <span class="fu">.</span> matchCapture</code></pre></div>
 </div>
@@ -494,18 +496,19 @@ access_re <span class="fu">=</span> <span class="dt">RegexSource</span> <span cl
 <p>This package needs to recognise all captures in a regular expression so that it can associate the named captures with their cature ordinal.</p>
 <p>Here is the prototype scanner.</p>
 <div class="includedcodeblock">
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">scan ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">Token</span>]
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | scan a RE string into a list of RE Token</span>
+<span class="ot">scan ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">Token</span>]
 scan <span class="fu">=</span> alex&#39; match al oops
   <span class="kw">where</span>
 <span class="ot">    al ::</span> [(<span class="dt">Regex</span>,<span class="dt">Match</span> <span class="dt">String</span><span class="ot">-&gt;</span><span class="dt">Maybe</span> <span class="dt">Token</span>)]
     al <span class="fu">=</span>
-      [ mk [here|\$\{([^{}]+)\}\(|] <span class="fu">$</span>         <span class="dt">ECap</span> <span class="fu">.</span> <span class="dt">Just</span> <span class="fu">.</span> x_1
-      , mk [here|\$\(|]             <span class="fu">$</span> const <span class="fu">$</span> <span class="dt">ECap</span> <span class="dt">Nothing</span>
-      , mk [here|\(\?:|]            <span class="fu">$</span> const   <span class="dt">PGrp</span>
-      , mk [here|\(\?|]             <span class="fu">$</span> const   <span class="dt">PCap</span>
-      , mk [here|\(|]               <span class="fu">$</span> const   <span class="dt">Bra</span>
-      , mk [here|\\(.)|]            <span class="fu">$</span>         <span class="dt">BS</span>    <span class="fu">.</span> s2c <span class="fu">.</span> x_1
-      , mk [here|(.)|]              <span class="fu">$</span>         <span class="dt">Other</span> <span class="fu">.</span> s2c <span class="fu">.</span> x_1
+      [ mk <span class="st">&quot;\\$\\{([^{}]+)\\}\\(&quot;</span> <span class="fu">$</span>         <span class="dt">ECap</span> <span class="fu">.</span> <span class="dt">Just</span> <span class="fu">.</span> x_1
+      , mk <span class="st">&quot;\\$\\(&quot;</span>               <span class="fu">$</span> const <span class="fu">$</span> <span class="dt">ECap</span> <span class="dt">Nothing</span>
+      , mk <span class="st">&quot;\\(\\?:&quot;</span>              <span class="fu">$</span> const   <span class="dt">PGrp</span>
+      , mk <span class="st">&quot;\\(\\?&quot;</span>               <span class="fu">$</span> const   <span class="dt">PCap</span>
+      , mk <span class="st">&quot;\\(&quot;</span>                  <span class="fu">$</span> const   <span class="dt">Bra</span>
+      , mk <span class="st">&quot;\\\\(.)&quot;</span>              <span class="fu">$</span>         <span class="dt">BS</span>    <span class="fu">.</span> s2c <span class="fu">.</span> x_1
+      , mk <span class="st">&quot;(.)&quot;</span>                  <span class="fu">$</span>         <span class="dt">Other</span> <span class="fu">.</span> s2c <span class="fu">.</span> x_1
       ]
 
     x_1     <span class="fu">=</span> captureText <span class="fu">$</span> <span class="dt">IsCaptureOrdinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="dv">1</span>
@@ -563,7 +566,7 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     pd <span class="st">&quot;RE/Types/Match&quot;</span>
     pd <span class="st">&quot;RE/Types/Capture&quot;</span>
     pd <span class="st">&quot;RE/Types/IsRegex&quot;</span>
-    pd <span class="st">&quot;RE/Types/Options&quot;</span>
+    pd <span class="st">&quot;RE/Types/REOptions&quot;</span>
     pd <span class="st">&quot;RE/Types/Replace&quot;</span>
     pd <span class="st">&quot;RE/TestBench&quot;</span>
     pd <span class="st">&quot;RE/Tools/Edit&quot;</span>
@@ -585,12 +588,12 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     putStrLn <span class="st">&quot;&gt;&gt; examples/re-tutorial.lhs&quot;</span>
     pages
   <span class="kw">where</span>
-    pd fnm <span class="fu">=</span> <span class="kw">case</span> (mtch <span class="fu">!$$?</span> [cp|fdr|],mtch <span class="fu">!$$?</span> [cp|mnm|]) <span class="kw">of</span>
+    pd fnm <span class="fu">=</span> <span class="kw">case</span> (mtch <span class="fu">!$$?</span> [cp<span class="fu">|</span>fdr<span class="fu">|</span>],mtch <span class="fu">!$$?</span> [cp<span class="fu">|</span>mnm<span class="fu">|</span>]) <span class="kw">of</span>
         (<span class="dt">Nothing</span> ,<span class="dt">Just</span> mnm) <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;Text.RE.&quot;</span>          <span class="fu">&lt;&gt;</span>mnm) (<span class="st">&quot;Text/&quot;</span>    <span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
         (<span class="dt">Just</span> fdr,<span class="dt">Just</span> mnm) <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;Text.RE.&quot;</span><span class="fu">&lt;&gt;</span>fdr<span class="fu">&lt;&gt;</span><span class="st">&quot;.&quot;</span><span class="fu">&lt;&gt;</span>mnm) (<span class="st">&quot;Text/&quot;</span>    <span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
         _                   <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span> ) (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
       <span class="kw">where</span>
-        mtch <span class="fu">=</span> fnm <span class="fu">TT.?=~</span> [re|^RE/(${fdr}(Internal|PCRE|TDFA|Testbench|Tools|Types)/)?${mnm}(@{%id})|]</code></pre></div>
+        mtch <span class="fu">=</span> fnm <span class="fu">TT.?=~</span> [re<span class="fu">|^</span><span class="dt">RE</span><span class="fu">/</span>(<span class="fu">$</span>{fdr}(<span class="dt">Internal</span><span class="fu">|</span><span class="dt">PCRE</span><span class="fu">|</span><span class="dt">TDFA</span><span class="fu">|</span><span class="dt">Testbench</span><span class="fu">|</span><span class="dt">Tools</span><span class="fu">|</span><span class="dt">Types</span>)<span class="fu">/</span>)<span class="fu">?$</span>{mnm}(<span class="fu">@</span>{<span class="fu">%</span>id})<span class="fu">|</span>]</code></pre></div>
 </div>
 <p>See <a href="re-prep.html">examples/re-prep.lhs</a></p>
 <h2 id="example-parsing-re-macros">Example: parsing RE macros</h2>
@@ -601,14 +604,14 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
 expandMacros_ lu <span class="fu">=</span> fixpoint e_m
   <span class="kw">where</span>
     e_m re_s <span class="fu">=</span>
-        replaceAllCaptures <span class="dt">TOP</span> phi <span class="fu">$</span> re_s <span class="fu">*=~</span> [re|@$(@|\{${name}([^{}]+)\})|]
+        replaceAllCaptures <span class="dt">TOP</span> phi <span class="fu">$</span> re_s <span class="fu">*=~</span> [re<span class="fu">|@$</span>(<span class="fu">@|</span>\{<span class="fu">$</span>{name}([<span class="fu">^</span>{}]<span class="fu">+</span>)\})<span class="fu">|</span>]
 
     phi mtch _ cap <span class="fu">=</span> <span class="kw">case</span> txt <span class="fu">==</span> <span class="st">&quot;@@&quot;</span> <span class="kw">of</span>
         <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Just</span>   <span class="st">&quot;@&quot;</span>
         <span class="dt">False</span> <span class="ot">-&gt;</span> <span class="dt">Just</span> <span class="fu">$</span> fromMaybe txt <span class="fu">$</span> lu ide
       <span class="kw">where</span>
         txt <span class="fu">=</span> capturedText cap
-        ide <span class="fu">=</span> <span class="dt">MacroID</span> <span class="fu">$</span> capturedText <span class="fu">$</span> capture [cp|name|] mtch
+        ide <span class="fu">=</span> <span class="dt">MacroID</span> <span class="fu">$</span> capturedText <span class="fu">$</span> capture [cp<span class="fu">|</span>name<span class="fu">|</span>] mtch
 
 <span class="ot">fixpoint ::</span> (<span class="dt">Eq</span> a) <span class="ot">=&gt;</span> (a<span class="ot">-&gt;</span>a) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a
 fixpoint f <span class="fu">=</span> chk <span class="fu">.</span> iterate f
@@ -623,16 +626,16 @@ For example:
 <p>The regex replacement templates are parsed with code similar to this.</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Template</span> <span class="fu">=</span> <span class="dt">String</span>
 
-<span class="ot">parseTemplateE&#39; ::</span> <span class="dt">Template</span>
+<span class="ot">parseTemplateR&#39; ::</span> <span class="dt">Template</span>
                 <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">String</span>
                 <span class="ot">-&gt;</span> <span class="dt">Location</span>
                 <span class="ot">-&gt;</span> <span class="dt">Capture</span> <span class="dt">String</span>
                 <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">String</span>
-parseTemplateE&#39; tpl mtch _ _ <span class="fu">=</span>
+parseTemplateR&#39; tpl mtch _ _ <span class="fu">=</span>
     <span class="dt">Just</span> <span class="fu">$</span> replaceAllCaptures <span class="dt">TOP</span> phi <span class="fu">$</span>
-      tpl <span class="fu">*=~</span> [re|\$${arg}(\$|[0-9]+|\{${name}([^{}]+)\})|]
+      tpl <span class="fu">*=~</span> [re<span class="fu">|</span>\<span class="fu">$$</span>{arg}(\<span class="fu">$|</span>[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]<span class="fu">+|</span>\{<span class="fu">$</span>{name}([<span class="fu">^</span>{}]<span class="fu">+</span>)\})<span class="fu">|</span>]
   <span class="kw">where</span>
-    phi t_mtch _ _ <span class="fu">=</span> <span class="kw">case</span> t_mtch <span class="fu">!$?</span> [cp|name|] <span class="kw">of</span>
+    phi t_mtch _ _ <span class="fu">=</span> <span class="kw">case</span> t_mtch <span class="fu">!$?</span> [cp<span class="fu">|</span>name<span class="fu">|</span>] <span class="kw">of</span>
       <span class="dt">Just</span> cap <span class="ot">-&gt;</span> this <span class="fu">$</span> <span class="dt">IsCaptureName</span> <span class="fu">$</span> <span class="dt">CaptureName</span> txt
         <span class="kw">where</span>
           txt <span class="fu">=</span> T.pack <span class="fu">$</span> capturedText cap
@@ -640,15 +643,15 @@ parseTemplateE&#39; tpl mtch _ _ <span class="fu">=</span>
         <span class="dt">True</span>  <span class="ot">-&gt;</span> <span class="dt">Just</span> t
         <span class="dt">False</span> <span class="ot">-&gt;</span> this <span class="fu">$</span> <span class="dt">IsCaptureOrdinal</span> <span class="fu">$</span> <span class="dt">CaptureOrdinal</span> <span class="fu">$</span> read t
       <span class="kw">where</span>
-        t <span class="fu">=</span> capturedText <span class="fu">$</span> capture [cp|arg|] t_mtch
+        t <span class="fu">=</span> capturedText <span class="fu">$</span> capture [cp<span class="fu">|</span>arg<span class="fu">|</span>] t_mtch
 
         this cid <span class="fu">=</span> capturedText <span class="fu">&lt;$&gt;</span> mtch <span class="fu">!$?</span> cid
 
 <span class="ot">my_replace ::</span> <span class="dt">RE</span> <span class="ot">-&gt;</span> <span class="dt">Template</span><span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
-my_replace rex tpl src <span class="fu">=</span> replaceAllCaptures <span class="dt">TOP</span> (parseTemplateE&#39; tpl) <span class="fu">$</span> src <span class="fu">*=~</span> rex</code></pre></div>
+my_replace rex tpl src <span class="fu">=</span> replaceAllCaptures <span class="dt">TOP</span> (parseTemplateR&#39; tpl) <span class="fu">$</span> src <span class="fu">*=~</span> rex</code></pre></div>
 <p>It can be tested with our date-reformater example.</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">date_reformat ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
-date_reformat <span class="fu">=</span> my_replace [re|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] <span class="st">&quot;${y}/${m}/${d}&quot;</span></code></pre></div>
+date_reformat <span class="fu">=</span> my_replace [re<span class="fu">|$</span>{y}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>})<span class="fu">-$</span>{m}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>})<span class="fu">-$</span>{d}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>})<span class="fu">|</span>] <span class="st">&quot;${y}/${m}/${d}&quot;</span></code></pre></div>
 <p>This should yield <code>&quot;2016/01/11&quot;</code>:</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> date_reformat <span class="st">&quot;2016-01-11&quot;</span>
 <span class="st">&quot;2016/01/11&quot;</span></code></pre></div>
@@ -660,8 +663,8 @@ date_reformat <span class="fu">=</span> my_replace [re|${y}([0-9]{4})-${m}([0-9]
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">loop ::</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 loop <span class="fu">=</span>
   sed <span class="fu">$</span> <span class="dt">Select</span>
-    [ (,) [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span>   include_file
-    , (,) [re|^.*$|]                                              <span class="fu">$</span> <span class="dt">Function</span> <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
+    [ <span class="dt">Function</span> [re<span class="fu">|^%</span>include <span class="fu">$</span>{file}(<span class="fu">@</span>{<span class="fu">%</span>string}) <span class="fu">$</span>{rex}(<span class="fu">@</span>{<span class="fu">%</span>string})<span class="fu">$|</span>] <span class="dt">TOP</span> include_file
+    , <span class="dt">Function</span> [re<span class="fu">|^.*$|</span>]                                              <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
     ]</code></pre></div>
 </div>
 <p>The <code>extract</code> action takes the path to the file containing the fragment and the RE that will match a line in the fragment and returns the text of the fragment (wrapped in a simple styling div).</p>
@@ -690,9 +693,9 @@ extract fp rex <span class="fu">=</span> extr <span class="fu">.</span> LBS.line
 <div class="includedcodeblock">
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">scan ::</span> <span class="dt">RE</span> <span class="ot">-&gt;</span> [<span class="dt">LBS.ByteString</span>] <span class="ot">-&gt;</span> [<span class="dt">Token</span>]
 scan rex <span class="fu">=</span> grepScript
-    [ (,) [re|\\begin\{code\}|] <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Bra</span> i
+    [ (,) [re<span class="fu">|</span>\\begin\{code\}<span class="fu">|</span>] <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Bra</span> i
     , (,) rex                   <span class="fu">$</span> \_ <span class="ot">-&gt;</span> chk   <span class="dt">Hit</span>
-    , (,) [re|\\end\{code\}|]   <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Ket</span> i
+    , (,) [re<span class="fu">|</span>\\end\{code\}<span class="fu">|</span>]   <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Ket</span> i
     ]
   <span class="kw">where</span>
     chk x mtchs <span class="fu">=</span> <span class="kw">case</span> anyMatches mtchs <span class="kw">of</span>

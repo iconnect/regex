@@ -189,7 +189,7 @@ The type of <code>*=~</code> in this module (imported from <code>Text.RE.TDFA.St
 <span class="kw">data</span> <span class="dt">Matches</span> a <span class="fu">=</span>
   <span class="dt">Matches</span>
     {<span class="ot"> matchesSource ::</span> <span class="fu">!</span>a          <span class="co">-- ^ the source text being matched</span>
-    ,<span class="ot"> allMatches    ::</span> <span class="fu">!</span>[<span class="dt">Match</span> a]  <span class="co">-- ^ all captures found, left to right</span>
+    ,<span class="ot"> allMatches    ::</span> <span class="fu">!</span>[<span class="dt">Match</span> a]  <span class="co">-- ^ all &#39;Match&#39; instances found, left to right</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>,<span class="dt">Typeable</span>)</code></pre></div>
 </div>
@@ -390,11 +390,17 @@ Each type of RE — TDFA and PCRE — has it own complile-time options and execu
 <p>(Bear in mind that <code>CompOption</code> and <code>ExecOption</code> will be different types for each back end.)</p>
 <p>The <code>REOptions_</code> type is defined in <code>Text.RE.Types.REOptions</code> as follows:</p>
 <div class="includedcodeblock">
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">REOptions_</span> r c e <span class="fu">=</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the general options for an RE are dependent on which back end is</span>
+<span class="co">-- being used and are parameterised over the @RE@ type for the back end,</span>
+<span class="co">-- and its @CompOption@ and @ExecOption@ types (the compile-time and</span>
+<span class="co">-- execution time options, respectively); each back end will define an</span>
+<span class="co">-- @REOptions@ type that fills out these three type parameters with the</span>
+<span class="co">-- apropriate types</span>
+<span class="kw">data</span> <span class="dt">REOptions_</span> r c e <span class="fu">=</span>
   <span class="dt">REOptions</span>
-    {<span class="ot"> optionsMacs ::</span> <span class="fu">!</span>(<span class="dt">Macros</span> r)
-    ,<span class="ot"> optionsComp ::</span> <span class="fu">!</span>c
-    ,<span class="ot"> optionsExec ::</span> <span class="fu">!</span>e
+    {<span class="ot"> optionsMacs ::</span> <span class="fu">!</span>(<span class="dt">Macros</span> r)    <span class="co">-- ^ the available TestBench RE macros</span>
+    ,<span class="ot"> optionsComp ::</span> <span class="fu">!</span>c             <span class="co">-- ^ the back end compile-time options</span>
+    ,<span class="ot"> optionsExec ::</span> <span class="fu">!</span>e             <span class="co">-- ^ the back end execution-time options</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
 </div>
@@ -421,11 +427,14 @@ Each backend provides a function to compile REs from some options and a string c
 <li><p><code>SimpleREOptions</code> this is just a simple enum type that we use to encode the standard options:</p></li>
 </ul>
 <div class="includedcodeblock">
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">SimpleREOptions</span>
-  <span class="fu">=</span> <span class="dt">MultilineSensitive</span>
-  <span class="fu">|</span> <span class="dt">MultilineInsensitive</span>
-  <span class="fu">|</span> <span class="dt">BlockSensitive</span>
-  <span class="fu">|</span> <span class="dt">BlockInsensitive</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the default API uses these simple, universal RE options,</span>
+<span class="co">-- which get auto-converted into the apropriate &#39;REOptions_&#39; actually</span>
+<span class="co">-- as apropriate the chosen back end</span>
+<span class="kw">data</span> <span class="dt">SimpleREOptions</span>
+  <span class="fu">=</span> <span class="dt">MultilineSensitive</span>        <span class="co">-- ^ case-sensitive with ^ and $ matching the start and end of a line</span>
+  <span class="fu">|</span> <span class="dt">MultilineInsensitive</span>      <span class="co">-- ^ case-insensitive with ^ and $ matsh the start and end of a line</span>
+  <span class="fu">|</span> <span class="dt">BlockSensitive</span>            <span class="co">-- ^ case-sensitive with ^ and $ matching the start and end of the input text</span>
+  <span class="fu">|</span> <span class="dt">BlockInsensitive</span>          <span class="co">-- ^ case-insensitive with ^ and $ matching the start and end of the input text</span>
   <span class="kw">deriving</span> (<span class="dt">Bounded</span>,<span class="dt">Enum</span>,<span class="dt">Eq</span>,<span class="dt">Ord</span>,<span class="dt">Show</span>)</code></pre></div>
 </div>
 <ul>

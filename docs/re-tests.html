@@ -110,6 +110,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Text.RE.Internal.PreludeMacros</span>
 <span class="kw">import qualified</span> <span class="dt">Text.RE.PCRE</span>                   <span class="kw">as</span> <span class="dt">PCRE</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TDFA</span>                   <span class="kw">as</span> <span class="dt">TDFA</span>
+<span class="kw">import           </span><span class="dt">Text.RE.SearchReplace</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TestBench</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.Capture</span>
@@ -118,7 +119,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Text.RE.Types.Matches</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.REOptions</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.SearchReplace</span>
 
 <span class="kw">import qualified</span> <span class="dt">Text.RE.PCRE.String</span>            <span class="kw">as</span> <span class="dt">P_ST</span>
 <span class="kw">import qualified</span> <span class="dt">Text.RE.PCRE.ByteString</span>        <span class="kw">as</span> <span class="dt">P_BS</span>
@@ -135,14 +135,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 main <span class="fu">=</span> defaultMain <span class="fu">$</span>
   testGroup <span class="st">&quot;Tests&quot;</span>
     [ prelude_tests
-    , parsing_tests
+    , compiling_tests
     , core_tests
-    , replaceMethodstests
-    , searchReplaceReplaceTests
+    , replace_methods_tests
+    , search_replace_tests
     , options_tests
-    , namedCapturesTestTree
+    , named_capture_tests
     , many_tests
-    , escapeTests
+    , escape_tests
     , add_capture_names_tests
     , misc_tests
     ]</code></pre></div>
@@ -256,8 +256,8 @@ regex_alt_str_matches <span class="fu">=</span>
 <h3>
 testing the compileRegex functions
 </h3>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">parsing_tests ::</span> <span class="dt">TestTree</span>
-parsing_tests <span class="fu">=</span> testGroup <span class="st">&quot;Parsing&quot;</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">compiling_tests ::</span> <span class="dt">TestTree</span>
+compiling_tests <span class="fu">=</span> testGroup <span class="st">&quot;Compiling&quot;</span>
   [ testCase <span class="st">&quot;complete check (matchM/ByteString)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       r <span class="ot">&lt;-</span> TDFA.compileRegex <span class="fu">$</span> reSource regex_
       assertEqual <span class="st">&quot;Match&quot;</span> (B.pack <span class="fu">&lt;$&gt;</span> regex_str_match) <span class="fu">$</span> B.pack str_ <span class="fu">?=~</span> r
@@ -330,8 +330,8 @@ core_tests <span class="fu">=</span> testGroup <span class="st">&quot;Match&quot
 <h3>
 testing the replace functions at different types
 </h3>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">replaceMethodstests ::</span> <span class="dt">TestTree</span>
-replaceMethodstests <span class="fu">=</span> testGroup <span class="st">&quot;Replace&quot;</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">replace_methods_tests ::</span> <span class="dt">TestTree</span>
+replace_methods_tests <span class="fu">=</span> testGroup <span class="st">&quot;Replace&quot;</span>
   [ testCase <span class="st">&quot;String/single&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> m <span class="fu">=</span> str_ <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Match</span> <span class="dt">String</span>
           r <span class="fu">=</span> replaceCaptures <span class="dt">ALL</span> fmt m
@@ -384,8 +384,8 @@ replaceMethodstests <span class="fu">=</span> testGroup <span class="st">&quot;R
 <h3>
 SearchReplace
 </h3>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">searchReplaceReplaceTests ::</span> <span class="dt">TestTree</span>
-searchReplaceReplaceTests <span class="fu">=</span> testGroup <span class="st">&quot;SearchReplace&quot;</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">search_replace_tests ::</span> <span class="dt">TestTree</span>
+search_replace_tests <span class="fu">=</span> testGroup <span class="st">&quot;SearchReplace&quot;</span>
     [ testCase <span class="st">&quot;TDFA.ed/String&quot;</span> <span class="fu">$</span> test  id         tdfa_eds
     , testCase <span class="st">&quot;PCRE.ed/String&quot;</span> <span class="fu">$</span> test  id         pcre_eds
     , testCase <span class="st">&quot;TDFA.ed/B&quot;</span>      <span class="fu">$</span> test  B.pack     tdfa_eds
@@ -441,10 +441,22 @@ searchReplaceReplaceTests <span class="fu">=</span> testGroup <span class="st">&
     pcre_sr  <span class="fu">=</span> [PCRE.ed<span class="fu">|$</span>{d}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>})<span class="fu">/$</span>{m}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>})<span class="fu">/$</span>{y}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>})<span class="fu">///$</span>{y}<span class="fu">-$</span>{m}<span class="fu">-$</span>{d}<span class="fu">|</span>]
 
 <span class="ot">    tdfa_eds&#39; ::</span> <span class="dt">IsRegex</span> <span class="dt">TDFA.RE</span> a <span class="ot">=&gt;</span> <span class="dt">Edits</span> <span class="dt">Identity</span> <span class="dt">TDFA.RE</span> a
-    tdfa_eds&#39; <span class="fu">=</span> <span class="dt">Select</span> [<span class="dt">Template</span> <span class="fu">$</span> TDFA.unsafeCompileSearchReplaceSimple minBound <span class="st">&quot;${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}&quot;</span>]
+    tdfa_eds&#39; <span class="fu">=</span> <span class="dt">Select</span> [<span class="dt">Template</span> <span class="fu">$</span> tdfa_csr <span class="st">&quot;${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})&quot;</span> <span class="st">&quot;${y}-${m}-${d}&quot;</span>]
 
 <span class="ot">    pcre_eds&#39; ::</span> <span class="dt">IsRegex</span> <span class="dt">PCRE.RE</span> a <span class="ot">=&gt;</span> <span class="dt">Edits</span> <span class="dt">Identity</span> <span class="dt">PCRE.RE</span> a
-    pcre_eds&#39; <span class="fu">=</span> <span class="dt">Select</span> [<span class="dt">Template</span> <span class="fu">$</span> PCRE.unsafeCompileSearchReplaceSimple minBound <span class="st">&quot;${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}&quot;</span>]</code></pre></div>
+    pcre_eds&#39; <span class="fu">=</span> <span class="dt">Select</span> [<span class="dt">Template</span> <span class="fu">$</span> pcre_csr <span class="st">&quot;${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})&quot;</span> <span class="st">&quot;${y}-${m}-${d}&quot;</span>]
+
+<span class="ot">    tdfa_csr ::</span> <span class="dt">IsRegex</span> <span class="dt">TDFA.RE</span> s
+             <span class="ot">=&gt;</span> <span class="dt">String</span>
+             <span class="ot">-&gt;</span> <span class="dt">String</span>
+             <span class="ot">-&gt;</span> <span class="dt">SearchReplace</span> <span class="dt">TDFA.RE</span> s
+    tdfa_csr re_s <span class="fu">=</span> either error id <span class="fu">.</span> TDFA.compileSearchReplace re_s
+
+<span class="ot">    pcre_csr ::</span> <span class="dt">IsRegex</span> <span class="dt">PCRE.RE</span> s
+             <span class="ot">=&gt;</span> <span class="dt">String</span>
+             <span class="ot">-&gt;</span> <span class="dt">String</span>
+             <span class="ot">-&gt;</span> <span class="dt">SearchReplace</span> <span class="dt">PCRE.RE</span> s
+    pcre_csr re_s <span class="fu">=</span> either error id <span class="fu">.</span> PCRE.compileSearchReplace re_s</code></pre></div>
 <h3>
 Testing The REOptions
 </h3>
@@ -482,37 +494,39 @@ Exercising Our Many APIs
 </h3>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">many_tests ::</span> <span class="dt">TestTree</span>
 many_tests <span class="fu">=</span> testGroup <span class="st">&quot;Many Tests&quot;</span>
-    [ testCase <span class="st">&quot;PCRE a&quot;</span>               <span class="fu">$</span> test (<span class="fu">PCRE.*=~</span>) (<span class="fu">PCRE.?=~</span>) (<span class="fu">PCRE.=~</span>) (<span class="fu">PCRE.=~~</span>) matchOnce matchMany id          re_pcre
-    , testCase <span class="st">&quot;PCRE ByteString&quot;</span>      <span class="fu">$</span> test (<span class="fu">P_BS.*=~</span>) (<span class="fu">P_BS.?=~</span>) (<span class="fu">P_BS.=~</span>) (<span class="fu">P_BS.=~~</span>) matchOnce matchMany B.pack      re_pcre
-    , testCase <span class="st">&quot;PCRE ByteString.Lazy&quot;</span> <span class="fu">$</span> test (<span class="fu">PLBS.*=~</span>) (<span class="fu">PLBS.?=~</span>) (<span class="fu">PLBS.=~</span>) (<span class="fu">PLBS.=~~</span>) matchOnce matchMany LBS.pack    re_pcre
-    , testCase <span class="st">&quot;PCRE Sequence&quot;</span>        <span class="fu">$</span> test (<span class="fu">P_SQ.*=~</span>) (<span class="fu">P_SQ.?=~</span>) (<span class="fu">P_SQ.=~</span>) (<span class="fu">P_SQ.=~~</span>) matchOnce matchMany S.fromList  re_pcre
-    , testCase <span class="st">&quot;PCRE String&quot;</span>          <span class="fu">$</span> test (<span class="fu">P_ST.*=~</span>) (<span class="fu">P_ST.?=~</span>) (<span class="fu">P_ST.=~</span>) (<span class="fu">P_ST.=~~</span>) matchOnce matchMany id          re_pcre
-    , testCase <span class="st">&quot;TDFA a&quot;</span>               <span class="fu">$</span> test (<span class="fu">TDFA.*=~</span>) (<span class="fu">TDFA.?=~</span>) (<span class="fu">TDFA.=~</span>) (<span class="fu">TDFA.=~~</span>) matchOnce matchMany id          re_tdfa
-    , testCase <span class="st">&quot;TDFA ByteString&quot;</span>      <span class="fu">$</span> test (<span class="fu">T_BS.*=~</span>) (<span class="fu">T_BS.?=~</span>) (<span class="fu">T_BS.=~</span>) (<span class="fu">T_BS.=~~</span>) matchOnce matchMany B.pack      re_tdfa
-    , testCase <span class="st">&quot;TDFA ByteString.Lazy&quot;</span> <span class="fu">$</span> test (<span class="fu">TLBS.*=~</span>) (<span class="fu">TLBS.?=~</span>) (<span class="fu">TLBS.=~</span>) (<span class="fu">TLBS.=~~</span>) matchOnce matchMany LBS.pack    re_tdfa
-    , testCase <span class="st">&quot;TDFA Sequence&quot;</span>        <span class="fu">$</span> test (<span class="fu">T_SQ.*=~</span>) (<span class="fu">T_SQ.?=~</span>) (<span class="fu">T_SQ.=~</span>) (<span class="fu">T_SQ.=~~</span>) matchOnce matchMany S.fromList  re_tdfa
-    , testCase <span class="st">&quot;TDFA String&quot;</span>          <span class="fu">$</span> test (<span class="fu">T_ST.*=~</span>) (<span class="fu">T_ST.?=~</span>) (<span class="fu">T_ST.=~</span>) (<span class="fu">T_ST.=~~</span>) matchOnce matchMany id          re_tdfa
-    , testCase <span class="st">&quot;TDFA Text&quot;</span>            <span class="fu">$</span> test (<span class="fu">T_TX.*=~</span>) (<span class="fu">T_TX.?=~</span>) (<span class="fu">T_TX.=~</span>) (<span class="fu">T_TX.=~~</span>) matchOnce matchMany T.pack      re_tdfa
-    , testCase <span class="st">&quot;TDFA Text.Lazy&quot;</span>       <span class="fu">$</span> test (<span class="fu">TLTX.*=~</span>) (<span class="fu">TLTX.?=~</span>) (<span class="fu">TLTX.=~</span>) (<span class="fu">TLTX.=~~</span>) matchOnce matchMany <span class="dt">LT</span><span class="fu">.</span>pack     re_tdfa
+    [ testCase <span class="st">&quot;PCRE a&quot;</span>               <span class="fu">$</span> test (<span class="fu">PCRE.*=~</span>) (<span class="fu">PCRE.?=~</span>) (<span class="fu">PCRE.=~</span>) (<span class="fu">PCRE.=~~</span>) matchOnce matchMany makeSearchReplace id          re_pcre
+    , testCase <span class="st">&quot;PCRE ByteString&quot;</span>      <span class="fu">$</span> test (<span class="fu">P_BS.*=~</span>) (<span class="fu">P_BS.?=~</span>) (<span class="fu">P_BS.=~</span>) (<span class="fu">P_BS.=~~</span>) matchOnce matchMany makeSearchReplace B.pack      re_pcre
+    , testCase <span class="st">&quot;PCRE ByteString.Lazy&quot;</span> <span class="fu">$</span> test (<span class="fu">PLBS.*=~</span>) (<span class="fu">PLBS.?=~</span>) (<span class="fu">PLBS.=~</span>) (<span class="fu">PLBS.=~~</span>) matchOnce matchMany makeSearchReplace LBS.pack    re_pcre
+    , testCase <span class="st">&quot;PCRE Sequence&quot;</span>        <span class="fu">$</span> test (<span class="fu">P_SQ.*=~</span>) (<span class="fu">P_SQ.?=~</span>) (<span class="fu">P_SQ.=~</span>) (<span class="fu">P_SQ.=~~</span>) matchOnce matchMany makeSearchReplace S.fromList  re_pcre
+    , testCase <span class="st">&quot;PCRE String&quot;</span>          <span class="fu">$</span> test (<span class="fu">P_ST.*=~</span>) (<span class="fu">P_ST.?=~</span>) (<span class="fu">P_ST.=~</span>) (<span class="fu">P_ST.=~~</span>) matchOnce matchMany makeSearchReplace id          re_pcre
+    , testCase <span class="st">&quot;TDFA a&quot;</span>               <span class="fu">$</span> test (<span class="fu">TDFA.*=~</span>) (<span class="fu">TDFA.?=~</span>) (<span class="fu">TDFA.=~</span>) (<span class="fu">TDFA.=~~</span>) matchOnce matchMany makeSearchReplace id          re_tdfa
+    , testCase <span class="st">&quot;TDFA ByteString&quot;</span>      <span class="fu">$</span> test (<span class="fu">T_BS.*=~</span>) (<span class="fu">T_BS.?=~</span>) (<span class="fu">T_BS.=~</span>) (<span class="fu">T_BS.=~~</span>) matchOnce matchMany makeSearchReplace B.pack      re_tdfa
+    , testCase <span class="st">&quot;TDFA ByteString.Lazy&quot;</span> <span class="fu">$</span> test (<span class="fu">TLBS.*=~</span>) (<span class="fu">TLBS.?=~</span>) (<span class="fu">TLBS.=~</span>) (<span class="fu">TLBS.=~~</span>) matchOnce matchMany makeSearchReplace LBS.pack    re_tdfa
+    , testCase <span class="st">&quot;TDFA Sequence&quot;</span>        <span class="fu">$</span> test (<span class="fu">T_SQ.*=~</span>) (<span class="fu">T_SQ.?=~</span>) (<span class="fu">T_SQ.=~</span>) (<span class="fu">T_SQ.=~~</span>) matchOnce matchMany makeSearchReplace S.fromList  re_tdfa
+    , testCase <span class="st">&quot;TDFA String&quot;</span>          <span class="fu">$</span> test (<span class="fu">T_ST.*=~</span>) (<span class="fu">T_ST.?=~</span>) (<span class="fu">T_ST.=~</span>) (<span class="fu">T_ST.=~~</span>) matchOnce matchMany makeSearchReplace id          re_tdfa
+    , testCase <span class="st">&quot;TDFA Text&quot;</span>            <span class="fu">$</span> test (<span class="fu">T_TX.*=~</span>) (<span class="fu">T_TX.?=~</span>) (<span class="fu">T_TX.=~</span>) (<span class="fu">T_TX.=~~</span>) matchOnce matchMany makeSearchReplace T.pack      re_tdfa
+    , testCase <span class="st">&quot;TDFA Text.Lazy&quot;</span>       <span class="fu">$</span> test (<span class="fu">TLTX.*=~</span>) (<span class="fu">TLTX.?=~</span>) (<span class="fu">TLTX.=~</span>) (<span class="fu">TLTX.=~~</span>) matchOnce matchMany makeSearchReplace <span class="dt">LT</span><span class="fu">.</span>pack     re_tdfa
     ]
   <span class="kw">where</span>
-<span class="ot">    test ::</span> (<span class="dt">Show</span> s,<span class="dt">Eq</span> s)
+<span class="ot">    test ::</span> (<span class="dt">IsRegex</span> r s,<span class="dt">Show</span> s,<span class="dt">Eq</span> s)
          <span class="ot">=&gt;</span> (s<span class="ot">-&gt;</span>r<span class="ot">-&gt;</span><span class="dt">Matches</span> s)
          <span class="ot">-&gt;</span> (s<span class="ot">-&gt;</span>r<span class="ot">-&gt;</span><span class="dt">Match</span>   s)
          <span class="ot">-&gt;</span> (s<span class="ot">-&gt;</span>r<span class="ot">-&gt;</span><span class="dt">Matches</span> s)
          <span class="ot">-&gt;</span> (s<span class="ot">-&gt;</span>r<span class="ot">-&gt;</span><span class="dt">Maybe</span>(<span class="dt">Match</span> s))
          <span class="ot">-&gt;</span> (r<span class="ot">-&gt;</span>s<span class="ot">-&gt;</span><span class="dt">Match</span>   s)
          <span class="ot">-&gt;</span> (r<span class="ot">-&gt;</span>s<span class="ot">-&gt;</span><span class="dt">Matches</span> s)
+         <span class="ot">-&gt;</span> (s<span class="ot">-&gt;</span>s<span class="ot">-&gt;</span><span class="dt">Either</span> <span class="dt">String</span> (<span class="dt">SearchReplace</span> r s))
          <span class="ot">-&gt;</span> (<span class="dt">String</span><span class="ot">-&gt;</span>s)
          <span class="ot">-&gt;</span> r
          <span class="ot">-&gt;</span> <span class="dt">Assertion</span>
-    test (<span class="fu">%*=~</span>) (<span class="fu">%?=~</span>) (<span class="fu">%=~</span>) (<span class="fu">%=~~</span>) mo mm inj r <span class="fu">=</span> <span class="kw">do</span>
+    test (<span class="fu">%*=~</span>) (<span class="fu">%?=~</span>) (<span class="fu">%=~</span>) (<span class="fu">%=~~</span>) mo mm mk_sr0 inj r <span class="fu">=</span> <span class="kw">do</span>
         <span class="dv">2</span>         <span class="fu">@=?</span> countMatches mtchs
         <span class="dt">Just</span> txt&#39; <span class="fu">@=?</span> matchedText  mtch
         mtchs     <span class="fu">@=?</span> mtchs&#39;
         mb_mtch   <span class="fu">@=?</span> <span class="dt">Just</span> mtch
         mtch      <span class="fu">@=?</span> mtch&#39;&#39;
         mtchs     <span class="fu">@=?</span> mtchs&#39;&#39;
+        txt&#39;&#39;     <span class="fu">@=?</span> searchReplaceAll (mk_sr re_t tpl) txt
       <span class="kw">where</span>
         mtchs   <span class="fu">=</span> txt <span class="fu">%*=~</span> r
         mtch    <span class="fu">=</span> txt <span class="fu">%?=~</span> r
@@ -521,16 +535,25 @@ many_tests <span class="fu">=</span> testGroup <span class="st">&quot;Many Tests
         mtch&#39;&#39;  <span class="fu">=</span> mo r txt
         mtchs&#39;&#39; <span class="fu">=</span> mm r txt
 
+        re_t    <span class="fu">=</span> inj re_s
+        tpl     <span class="fu">=</span> inj <span class="st">&quot;${d}/${m}/${y}&quot;</span>
+
         txt     <span class="fu">=</span> inj <span class="st">&quot;2016-01-09 2015-12-5 2015-10-05&quot;</span>
         txt&#39;    <span class="fu">=</span> inj <span class="st">&quot;2016-01-09&quot;</span>
+        txt&#39;&#39;   <span class="fu">=</span> inj <span class="st">&quot;09/01/2016 2015-12-5 05/10/2015&quot;</span>
+
+        mk_sr   <span class="fu">=</span> \r_ t_ <span class="ot">-&gt;</span> either error id <span class="fu">$</span> mk_sr0 r_ t_
+
 
     re_pcre <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> PCRE.compileRegex <span class="st">&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;</span>
     re_tdfa <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> TDFA.compileRegex <span class="st">&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;</span>
 
+    re_s    <span class="fu">=</span> <span class="st">&quot;${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})&quot;</span>
+
     oops    <span class="fu">=</span> error <span class="st">&quot;many_tests&quot;</span></code></pre></div>
 <h2 id="testing-the-re-escape-functions">Testing the RE Escape Functions</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">escapeTests ::</span> <span class="dt">TestTree</span>
-escapeTests <span class="fu">=</span> testGroup <span class="st">&quot;Escape Tests&quot;</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">escape_tests ::</span> <span class="dt">TestTree</span>
+escape_tests <span class="fu">=</span> testGroup <span class="st">&quot;Escape Tests&quot;</span>
     [ testGroup <span class="st">&quot;PCRE&quot;</span>
         [ testCase  <span class="st">&quot;Escaping empty string&quot;</span> <span class="fu">$</span>
             assertBool <span class="st">&quot;empty string&quot;</span> <span class="fu">$</span>
@@ -555,17 +578,19 @@ escapeTests <span class="fu">=</span> testGroup <span class="st">&quot;Escape Te
         ]
     ]
   <span class="kw">where</span>
-<span class="ot">    tst ::</span> ((<span class="dt">String</span><span class="ot">-&gt;</span><span class="dt">String</span>)<span class="ot">-&gt;</span><span class="dt">String</span><span class="ot">-&gt;</span>a)
+<span class="ot">    tst ::</span> ((<span class="dt">String</span><span class="ot">-&gt;</span><span class="dt">String</span>)<span class="ot">-&gt;</span><span class="dt">String</span><span class="ot">-&gt;</span><span class="dt">Either</span> <span class="dt">String</span> a)
         <span class="ot">-&gt;</span> (<span class="dt">String</span><span class="ot">-&gt;</span>a<span class="ot">-&gt;</span><span class="dt">Match</span> <span class="dt">String</span>)
         <span class="ot">-&gt;</span> <span class="dt">String</span>
         <span class="ot">-&gt;</span> <span class="dt">Bool</span>
-    tst esc (<span class="fu">%=~</span>) s <span class="fu">=</span> matched <span class="fu">$</span> s <span class="fu">%=~</span> esc ((<span class="st">&quot;^&quot;</span> <span class="fu">++</span>) <span class="fu">.</span> (<span class="fu">++</span> <span class="st">&quot;$&quot;</span>)) s
+    tst esc0 (<span class="fu">%=~</span>) s <span class="fu">=</span> matched <span class="fu">$</span> s <span class="fu">%=~</span> esc s
+      <span class="kw">where</span>
+        esc <span class="fu">=</span> un_either <span class="fu">.</span> esc0 ((<span class="st">&quot;^&quot;</span> <span class="fu">++</span>) <span class="fu">.</span> (<span class="fu">++</span> <span class="st">&quot;$&quot;</span>))
 
 <span class="ot">    metacharacters ::</span> <span class="dt">String</span>
     metacharacters <span class="fu">=</span> <span class="st">&quot;^\\.|*+?()[]{}$&quot;</span></code></pre></div>
 <h2 id="named-capture-tests">Named Capture Tests</h2>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">namedCapturesTestTree ::</span> <span class="dt">TestTree</span>
-namedCapturesTestTree <span class="fu">=</span> localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">4</span>) <span class="fu">$</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">named_capture_tests ::</span> <span class="dt">TestTree</span>
+named_capture_tests <span class="fu">=</span> localOption (<span class="dt">SmallCheckDepth</span> <span class="dv">4</span>) <span class="fu">$</span>
   testGroup <span class="st">&quot;NamedCaptures&quot;</span>
     [ formatScanTestTree
     , analyseTokensTestTree
@@ -712,7 +737,7 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
             , TDFA.ed_
             ]
         , testCase  <span class="st">&quot;TDFA.regexType&quot;</span>           <span class="fu">$</span> assertBool <span class="st">&quot;TDFA&quot;</span> <span class="fu">$</span> isTDFA TDFA.regexType
-        , testCase  <span class="st">&quot;TDFA.reREOptions&quot;</span>           <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs (TDFA.reREOptions tdfa_re)
+        , testCase  <span class="st">&quot;TDFA.reOptions&quot;</span>           <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs (TDFA.reOptions tdfa_re)
         , testCase  <span class="st">&quot;TDFA.makeREOptions md&quot;</span>      <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs tdfa_opts
         , testCase  <span class="st">&quot;TDFA.preludeTestsFailing&quot;</span> <span class="fu">$</span> []      <span class="fu">@=?</span> TDFA.preludeTestsFailing
         , ne_string <span class="st">&quot;TDFA.preludeTable&quot;</span>          TDFA.preludeTable
@@ -750,7 +775,7 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
             , PCRE.ed_
             ]
         , testCase  <span class="st">&quot;PCRE.regexType&quot;</span>           <span class="fu">$</span> assertBool <span class="st">&quot;PCRE&quot;</span> <span class="fu">$</span> isPCRE PCRE.regexType
-        , testCase  <span class="st">&quot;PCRE.reREOptions&quot;</span>           <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs (PCRE.reREOptions pcre_re)
+        , testCase  <span class="st">&quot;PCRE.reOptions&quot;</span>           <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs (PCRE.reOptions pcre_re)
         , testCase  <span class="st">&quot;PCRE.makeREOptions md&quot;</span>      <span class="fu">$</span> assert_empty_macs <span class="fu">$</span> optionsMacs pcre_opts
         , testCase  <span class="st">&quot;PCRE.preludeTestsFailing&quot;</span> <span class="fu">$</span> []      <span class="fu">@=?</span> PCRE.preludeTestsFailing
         , ne_string <span class="st">&quot;PCRE.preludeTable&quot;</span>          PCRE.preludeTable
@@ -766,8 +791,8 @@ misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneo
         ]
     ]
   <span class="kw">where</span>
-    tdfa_re   <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> TDFA.compileRegexWithREOptions tdfa_opts <span class="st">&quot;.*&quot;</span>
-    pcre_re   <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> PCRE.compileRegexWithREOptions pcre_opts <span class="st">&quot;.*&quot;</span>
+    tdfa_re   <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> TDFA.compileRegexWithOptions tdfa_opts <span class="st">&quot;.*&quot;</span>
+    pcre_re   <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> PCRE.compileRegexWithOptions pcre_opts <span class="st">&quot;.*&quot;</span>
 
     tdfa_opts <span class="fu">=</span> makeREOptions<span class="ot"> no_macs_t ::</span> <span class="dt">REOptions_</span> <span class="dt">TDFA.RE</span> <span class="dt">TDFA_.CompOption</span> <span class="dt">TDFA_.ExecOption</span>
     pcre_opts <span class="fu">=</span> makeREOptions<span class="ot"> no_macs_p ::</span> <span class="dt">REOptions_</span> <span class="dt">PCRE.RE</span> <span class="dt">PCRE_.CompOption</span> <span class="dt">PCRE_.ExecOption</span>
@@ -828,7 +853,10 @@ s_toList <span class="fu">=</span> F.toList
 isValidError x <span class="fu">=</span> catch (x <span class="ot">`seq`</span> return <span class="dt">False</span>) hdl
   <span class="kw">where</span>
 <span class="ot">    hdl ::</span> <span class="dt">SomeException</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span>
-    hdl se <span class="fu">=</span> return <span class="fu">$</span> (length <span class="fu">$</span> show se) <span class="ot">`seq`</span> <span class="dt">True</span></code></pre></div>
+    hdl se <span class="fu">=</span> return <span class="fu">$</span> (length <span class="fu">$</span> show se) <span class="ot">`seq`</span> <span class="dt">True</span>
+
+<span class="ot">un_either ::</span> <span class="dt">Either</span> <span class="dt">String</span> a <span class="ot">-&gt;</span> a
+un_either <span class="fu">=</span> either error id</code></pre></div>
 </div>    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

@@ -13,16 +13,23 @@ Travis-CI and AppVeyor pipelines that monitor the head of the repository.
 |              | Linux   | stack         | 7.8.4  | 2.22 | regex-tdfa-text-1.0.0.3 | &#8209;Werror |
 |              | Linux   | stack         | 8.0.2  | 8.5  |                         | &#8209;Werror |
 |              | Linux   | cabal         | 7.10.3 |      |                         | &#8209;Werror |
-|              | Linux   | stack         | 8.0.2  | 2017&#8209;03&#8209;11 |       | &#8209;Werror |
+|              | Linux   | stack         | 8.0.2  | 2017&#8209;03&#8209;25 |       | &#8209;Werror |
 |              | macOS   | stack         | 7.8.4  | 2.22 |                         | &#8209;Werror |
 |              | macOS   | stack         | 8.0.2  | 8.5  |                         | &#8209;Werror |
 | AppVeyor     | Windows | stack         | 8.0.2  | 8.5  |                         | &#8209;Werror |  [![Windows build](https://ci.appveyor.com/api/projects/status/hmgqoawgptk72epq?svg=true)](https://ci.appveyor.com/project/cdornan/regex)
 | coveralls.io | Linux   | stack         | 7.10.3 | 6.30 |                         | &#8209;Werror |  [![Coverage](https://coveralls.io/repos/github/iconnect/regex/badge.svg?branch=master)](https://coveralls.io/github/iconnect/regex?branch=master)
 
+
 %heading#coveragenote Coverage Exceptions
 
-The following modules have been excempted from the code coverage statistics.
+The following modules have been exempted from the code coverage statistics.
 
-| Module Exempted     | Reason                                                                
-| ------------------- | -----------------------------------------------------------------------------
+| Module&nbsp;Exempted | Reason                                                                
+| -------------------  | -----------------------------------------------------------------------------
 | [Text.RE.Internal.QQ](https://github.com/iconnect/regex/blob/master/Text/RE/Internal/QQ.hs) | Toolkit for use in quasi quoter contexts only which can't be measured by hps.
+
+
+%heading#hackagebuild The regex Hackage Matrix Builder
+
+The [regex Hackage Matrix Builder](http://104.239.175.197:8080/package/regex)
+summarizes the buildability of each version of the package published on Hackage.

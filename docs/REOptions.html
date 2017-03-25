@@ -84,36 +84,56 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Data.String</span>
 <span class="kw">import           </span><span class="dt">Language.Haskell.TH</span>
 <span class="kw">import           </span><span class="dt">Language.Haskell.TH.Syntax</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">REOptions_</span> r c e <span class="fu">=</span>
-  <span class="dt">REOptions</span>
-    {<span class="ot"> optionsMacs ::</span> <span class="fu">!</span>(<span class="dt">Macros</span> r)
-    ,<span class="ot"> optionsComp ::</span> <span class="fu">!</span>c
-    ,<span class="ot"> optionsExec ::</span> <span class="fu">!</span>e
-    }
-  <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">IsOption</span> o r c e <span class="fu">|</span>
-    e <span class="ot">-&gt;</span> r, c <span class="ot">-&gt;</span> e , e <span class="ot">-&gt;</span> c, r <span class="ot">-&gt;</span> c, c <span class="ot">-&gt;</span> r, r <span class="ot">-&gt;</span> e <span class="kw">where</span>
-<span class="ot">  makeREOptions ::</span> o <span class="ot">-&gt;</span> <span class="dt">REOptions_</span> r c e</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">MacroID</span> <span class="fu">=</span>
-    <span class="dt">MacroID</span> {<span class="ot"> getMacroID ::</span> <span class="dt">String</span> }
-  <span class="kw">deriving</span> (<span class="dt">IsString</span>,<span class="dt">Ord</span>,<span class="dt">Eq</span>,<span class="dt">Show</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Hashable</span> <span class="dt">MacroID</span> <span class="kw">where</span>
-  hashWithSalt i <span class="fu">=</span> hashWithSalt i <span class="fu">.</span> getMacroID</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Macros</span> r <span class="fu">=</span> <span class="dt">HM.HashMap</span> <span class="dt">MacroID</span> r</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">emptyMacros ::</span> <span class="dt">Macros</span> r
-emptyMacros <span class="fu">=</span> HM.empty</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">SimpleREOptions</span>
-  <span class="fu">=</span> <span class="dt">MultilineSensitive</span>
-  <span class="fu">|</span> <span class="dt">MultilineInsensitive</span>
-  <span class="fu">|</span> <span class="dt">BlockSensitive</span>
-  <span class="fu">|</span> <span class="dt">BlockInsensitive</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the default API uses these simple, universal RE options,</span>
+<span class="co">-- which get auto-converted into the apropriate &#39;REOptions_&#39; actually</span>
+<span class="co">-- as apropriate the chosen back end</span>
+<span class="kw">data</span> <span class="dt">SimpleREOptions</span>
+  <span class="fu">=</span> <span class="dt">MultilineSensitive</span>        <span class="co">-- ^ case-sensitive with ^ and $ matching the start and end of a line</span>
+  <span class="fu">|</span> <span class="dt">MultilineInsensitive</span>      <span class="co">-- ^ case-insensitive with ^ and $ matsh the start and end of a line</span>
+  <span class="fu">|</span> <span class="dt">BlockSensitive</span>            <span class="co">-- ^ case-sensitive with ^ and $ matching the start and end of the input text</span>
+  <span class="fu">|</span> <span class="dt">BlockInsensitive</span>          <span class="co">-- ^ case-insensitive with ^ and $ matching the start and end of the input text</span>
   <span class="kw">deriving</span> (<span class="dt">Bounded</span>,<span class="dt">Enum</span>,<span class="dt">Eq</span>,<span class="dt">Ord</span>,<span class="dt">Show</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Lift</span> <span class="dt">SimpleREOptions</span> <span class="kw">where</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | we need to use this in the quasi quoters to specify @SimpleREOptions@</span>
+<span class="co">-- selected by the quasi quoter</span>
+<span class="kw">instance</span> <span class="dt">Lift</span> <span class="dt">SimpleREOptions</span> <span class="kw">where</span>
   lift sro <span class="fu">=</span> <span class="kw">case</span> sro <span class="kw">of</span>
     <span class="dt">MultilineSensitive</span>    <span class="ot">-&gt;</span> conE <span class="ch">&#39;MultilineSensitive</span>
     <span class="dt">MultilineInsensitive</span>  <span class="ot">-&gt;</span> conE <span class="ch">&#39;MultilineInsensitive</span>
     <span class="dt">BlockSensitive</span>        <span class="ot">-&gt;</span> conE <span class="ch">&#39;BlockSensitive</span>
     <span class="dt">BlockInsensitive</span>      <span class="ot">-&gt;</span> conE <span class="ch">&#39;BlockInsensitive</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the general options for an RE are dependent on which back end is</span>
+<span class="co">-- being used and are parameterised over the @RE@ type for the back end,</span>
+<span class="co">-- and its @CompOption@ and @ExecOption@ types (the compile-time and</span>
+<span class="co">-- execution time options, respectively); each back end will define an</span>
+<span class="co">-- @REOptions@ type that fills out these three type parameters with the</span>
+<span class="co">-- apropriate types</span>
+<span class="kw">data</span> <span class="dt">REOptions_</span> r c e <span class="fu">=</span>
+  <span class="dt">REOptions</span>
+    {<span class="ot"> optionsMacs ::</span> <span class="fu">!</span>(<span class="dt">Macros</span> r)    <span class="co">-- ^ the available TestBench RE macros</span>
+    ,<span class="ot"> optionsComp ::</span> <span class="fu">!</span>c             <span class="co">-- ^ the back end compile-time options</span>
+    ,<span class="ot"> optionsExec ::</span> <span class="fu">!</span>e             <span class="co">-- ^ the back end execution-time options</span>
+    }
+  <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | a number of types can be used to encode @REOptions@, each of which</span>
+<span class="co">-- can be made a member of this class.</span>
+<span class="kw">class</span> <span class="dt">IsOption</span> o r c e <span class="fu">|</span>
+    e <span class="ot">-&gt;</span> r, c <span class="ot">-&gt;</span> e , e <span class="ot">-&gt;</span> c, r <span class="ot">-&gt;</span> c, c <span class="ot">-&gt;</span> r, r <span class="ot">-&gt;</span> e <span class="kw">where</span>
+  <span class="co">-- | convert the @o@ type into an @REOptions r c e@</span>
+<span class="ot">  makeREOptions ::</span> o <span class="ot">-&gt;</span> <span class="dt">REOptions_</span> r c e</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | @MacroID@ is just a wrapped @String@ type with an @IsString@</span>
+<span class="co">-- instance</span>
+<span class="kw">newtype</span> <span class="dt">MacroID</span> <span class="fu">=</span>
+    <span class="dt">MacroID</span> {<span class="ot"> getMacroID ::</span> <span class="dt">String</span> }
+  <span class="kw">deriving</span> (<span class="dt">IsString</span>,<span class="dt">Ord</span>,<span class="dt">Eq</span>,<span class="dt">Show</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | @MacroID@ is used with @HM.HashMap@ to build macro lookup tables</span>
+<span class="kw">instance</span> <span class="dt">Hashable</span> <span class="dt">MacroID</span> <span class="kw">where</span>
+  hashWithSalt i <span class="fu">=</span> hashWithSalt i <span class="fu">.</span> getMacroID</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | our macro tables are parameterised over the backend @RE@ type and</span>
+<span class="co">-- and just associate each @MacroID@ with an @RE@</span>
+<span class="kw">type</span> <span class="dt">Macros</span> r <span class="fu">=</span> <span class="dt">HM.HashMap</span> <span class="dt">MacroID</span> r</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | a macro table containing no entries</span>
+<span class="ot">emptyMacros ::</span> <span class="dt">Macros</span> r
+emptyMacros <span class="fu">=</span> HM.empty</code></pre></div>
 </div>    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

@@ -114,7 +114,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">data</span> <span class="dt">Edit</span> m re s
   <span class="fu">=</span> <span class="dt">Template</span> <span class="fu">!</span>(<span class="dt">SearchReplace</span> re s)
   <span class="fu">|</span> <span class="dt">Function</span> <span class="fu">!</span>re <span class="dt">REContext</span> <span class="fu">!</span>(<span class="dt">LineNo</span><span class="ot">-&gt;</span><span class="dt">Match</span> s<span class="ot">-&gt;</span><span class="dt">Location</span><span class="ot">-&gt;</span><span class="dt">Capture</span> s<span class="ot">-&gt;</span>m (<span class="dt">Maybe</span> s))
-  <span class="fu">|</span> <span class="dt">LineEdit</span> <span class="fu">!</span>re         <span class="fu">!</span>(<span class="dt">LineNo</span><span class="ot">-&gt;</span><span class="dt">Matches</span> s<span class="ot">-&gt;</span>m (<span class="dt">LineEdit</span> s))
+  <span class="fu">|</span> <span class="dt">LineEdit</span> <span class="fu">!</span>re           <span class="fu">!</span>(<span class="dt">LineNo</span><span class="ot">-&gt;</span><span class="dt">Matches</span> s<span class="ot">-&gt;</span>m (<span class="dt">LineEdit</span> s))
 
 <span class="co">-- | a LineEdit is the most general action thar can be performed on a line</span>
 <span class="co">-- and is the only means of deleting a line</span>

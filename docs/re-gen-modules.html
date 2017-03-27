@@ -91,6 +91,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Text.RE.Types.SearchReplace</span>
 
 
+<span class="kw">type</span> <span class="dt">ModPath</span> <span class="fu">=</span> <span class="dt">String</span>
+
+
 <span class="ot">main ::</span> <span class="dt">IO</span> ()
 main <span class="fu">=</span> <span class="kw">do</span>
   (pn,as) <span class="ot">&lt;-</span> (,) <span class="fu">&lt;$&gt;</span> getProgName <span class="fu">&lt;*&gt;</span> getArgs
@@ -102,87 +105,178 @@ main <span class="fu">=</span> <span class="kw">do</span>
       hPutStrLn stderr <span class="fu">$</span> <span class="st">&quot;usage: &quot;</span> <span class="fu">++</span> pn <span class="fu">++</span> <span class="st">&quot; [test|gen]&quot;</span>
       exitWith <span class="fu">$</span> <span class="dt">ExitFailure</span> <span class="dv">1</span>
 
+
+<span class="fu">------------------------------------------------------------------------</span>
+<span class="co">-- Testing</span>
+<span class="fu">------------------------------------------------------------------------</span>
+
 <span class="ot">test ::</span> <span class="dt">IO</span> ()
 test <span class="fu">=</span> <span class="kw">do</span>
   createDirectoryIfMissing <span class="dt">False</span> <span class="st">&quot;tmp&quot;</span>
-  tdfa_ok <span class="ot">&lt;-</span> and <span class="fu">&lt;$&gt;</span> mapM test&#39; tdfa_edits
-  pcre_ok <span class="ot">&lt;-</span> and <span class="fu">&lt;$&gt;</span> mapM test&#39; pcre_edits
-  <span class="kw">case</span> tdfa_ok <span class="fu">&amp;&amp;</span> pcre_ok <span class="kw">of</span>
+  tdfa_ap_ok <span class="ot">&lt;-</span> and <span class="fu">&lt;$&gt;</span> mapM (test&#39; source_api_mp) tdfa_api_edits
+  pcre_ap_ok <span class="ot">&lt;-</span> and <span class="fu">&lt;$&gt;</span> mapM (test&#39; source_api_mp) pcre_api_edits
+  <span class="kw">case</span> tdfa_ap_ok <span class="fu">&amp;&amp;</span> pcre_ap_ok <span class="kw">of</span>
     <span class="dt">True</span>  <span class="ot">-&gt;</span> return ()
     <span class="dt">False</span> <span class="ot">-&gt;</span> exitWith <span class="fu">$</span> <span class="dt">ExitFailure</span> <span class="dv">1</span>
 
 <span class="kw">type</span> <span class="dt">SedScript</span> <span class="fu">=</span> <span class="dt">Edits</span> <span class="dt">IO</span> <span class="dt">RE</span> <span class="dt">LBS.ByteString</span>
 
-<span class="ot">test&#39; ::</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span>) <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span>
-test&#39; (mp,scr) <span class="fu">=</span> <span class="kw">do</span>
+<span class="ot">test&#39; ::</span> <span class="dt">ModPath</span> <span class="ot">-&gt;</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span>) <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span>
+test&#39; src_mp (mp,scr) <span class="fu">=</span> <span class="kw">do</span>
     putStrLn mp
     tp <span class="ot">&lt;-</span> is_text_present
-    sed scr (mod_filepath tp source_mp) tmp_pth
+    sed scr (mod_filepath tp src_mp) tmp_pth
     cmp     (T.pack tmp_pth) (T.pack <span class="fu">$</span> mod_filepath tp mp)
   <span class="kw">where</span>
     tmp_pth <span class="fu">=</span> <span class="st">&quot;tmp/prog.hs&quot;</span>
 
+
+<span class="fu">------------------------------------------------------------------------</span>
+<span class="co">-- Generating</span>
+<span class="fu">------------------------------------------------------------------------</span>
+
 <span class="ot">gen ::</span> <span class="dt">IO</span> ()
 gen <span class="fu">=</span> <span class="kw">do</span>
-  mapM_ gen&#39; tdfa_edits
-  mapM_ gen&#39; pcre_edits
+  mapM_ (gen&#39; source_api_mp) tdfa_api_edits
+  mapM_ (gen&#39; source_api_mp) pcre_api_edits
+  mapM_ (gen&#39; source_ed_mp ) tdfa_ed_edits
+  mapM_ (gen&#39; source_ed_mp ) pcre_ed_edits
 
-<span class="ot">gen&#39; ::</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span>) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
-gen&#39; (mp,scr) <span class="fu">=</span> <span class="kw">do</span>
+<span class="ot">gen&#39; ::</span> FilePath <span class="ot">-&gt;</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span>) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+gen&#39; src_mp (mp,scr) <span class="fu">=</span> <span class="kw">do</span>
   putStrLn mp
   tp <span class="ot">&lt;-</span> is_text_present
-  sed scr (mod_filepath tp source_mp) (mod_filepath tp mp)
+  sed scr (mod_filepath tp src_mp) (mod_filepath tp mp)
 
-<span class="ot">tdfa_edits ::</span> [(<span class="dt">ModPath</span>,<span class="dt">SedScript</span>)]
-tdfa_edits <span class="fu">=</span>
-  [ tdfa_edit <span class="st">&quot;Text.RE.TDFA.ByteString&quot;</span>       <span class="st">&quot;B.ByteString&quot;</span>    <span class="st">&quot;import qualified Data.ByteString               as B&quot;</span>
-  , tdfa_edit <span class="st">&quot;Text.RE.TDFA.Sequence&quot;</span>         <span class="st">&quot;(S.Seq Char)&quot;</span>    <span class="st">&quot;import qualified Data.Sequence                 as S&quot;</span>
-  , tdfa_edit <span class="st">&quot;Text.RE.TDFA.String&quot;</span>           <span class="st">&quot;String&quot;</span>          <span class="st">&quot;&quot;</span>
-  , tdfa_edit <span class="st">&quot;Text.RE.TDFA.Text&quot;</span>             <span class="st">&quot;T.Text&quot;</span>          <span class="st">&quot;import qualified Data.Text                     as T&quot;</span>
-  , tdfa_edit <span class="st">&quot;Text.RE.TDFA.Text.Lazy&quot;</span>        <span class="st">&quot;TL.Text&quot;</span>         <span class="st">&quot;import qualified Data.Text.Lazy                as TL&quot;</span>
+
+<span class="fu">------------------------------------------------------------------------</span>
+<span class="co">-- The API edits</span>
+<span class="fu">------------------------------------------------------------------------</span>
+
+<span class="ot">tdfa_api_edits ::</span> [(<span class="dt">ModPath</span>,<span class="dt">SedScript</span>)]
+tdfa_api_edits <span class="fu">=</span>
+  [ tdfa_api_edit <span class="st">&quot;TDFA.ByteString&quot;</span>       <span class="st">&quot;B.ByteString&quot;</span>    <span class="st">&quot;import qualified Data.ByteString               as B&quot;</span>
+  , tdfa_api_edit <span class="st">&quot;TDFA.Sequence&quot;</span>         <span class="st">&quot;(S.Seq Char)&quot;</span>    <span class="st">&quot;import qualified Data.Sequence                 as S&quot;</span>
+  , tdfa_api_edit <span class="st">&quot;TDFA.String&quot;</span>           <span class="st">&quot;String&quot;</span>          <span class="st">&quot;&quot;</span>
+  , tdfa_api_edit <span class="st">&quot;TDFA.Text&quot;</span>             <span class="st">&quot;T.Text&quot;</span>          <span class="st">&quot;import qualified Data.Text                     as T&quot;</span>
+  , tdfa_api_edit <span class="st">&quot;TDFA.Text.Lazy&quot;</span>        <span class="st">&quot;TL.Text&quot;</span>         <span class="st">&quot;import qualified Data.Text.Lazy                as TL&quot;</span>
   ]
 
-<span class="ot">pcre_edits ::</span> [(<span class="dt">ModPath</span>,<span class="dt">SedScript</span>)]
-pcre_edits <span class="fu">=</span>
-  [ pcre_edit <span class="st">&quot;Text.RE.PCRE.ByteString&quot;</span>       <span class="st">&quot;B.ByteString&quot;</span>    <span class="st">&quot;import qualified Data.ByteString               as B&quot;</span>
-  , pcre_edit <span class="st">&quot;Text.RE.PCRE.ByteString.Lazy&quot;</span>  <span class="st">&quot;LBS.ByteString&quot;</span>  <span class="st">&quot;import qualified Data.ByteString.Lazy          as LBS&quot;</span>
-  , pcre_edit <span class="st">&quot;Text.RE.PCRE.Sequence&quot;</span>         <span class="st">&quot;(S.Seq Char)&quot;</span>    <span class="st">&quot;import qualified Data.Sequence                 as S&quot;</span>
-  , pcre_edit <span class="st">&quot;Text.RE.PCRE.String&quot;</span>           <span class="st">&quot;String&quot;</span>          <span class="st">&quot;&quot;</span>
+<span class="ot">pcre_api_edits ::</span> [(<span class="dt">ModPath</span>,<span class="dt">SedScript</span>)]
+pcre_api_edits <span class="fu">=</span>
+  [ pcre_api_edit <span class="st">&quot;PCRE.ByteString&quot;</span>       <span class="st">&quot;B.ByteString&quot;</span>    <span class="st">&quot;import qualified Data.ByteString               as B&quot;</span>
+  , pcre_api_edit <span class="st">&quot;PCRE.ByteString.Lazy&quot;</span>  <span class="st">&quot;LBS.ByteString&quot;</span>  <span class="st">&quot;import qualified Data.ByteString.Lazy          as LBS&quot;</span>
+  , pcre_api_edit <span class="st">&quot;PCRE.Sequence&quot;</span>         <span class="st">&quot;(S.Seq Char)&quot;</span>    <span class="st">&quot;import qualified Data.Sequence                 as S&quot;</span>
+  , pcre_api_edit <span class="st">&quot;PCRE.String&quot;</span>           <span class="st">&quot;String&quot;</span>          <span class="st">&quot;&quot;</span>
   ]
 
-<span class="ot">tdfa_edit ::</span> <span class="dt">ModPath</span>
-          <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
-          <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
-          <span class="ot">-&gt;</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span>)
-tdfa_edit mp bs_lbs import_lbs <span class="fu">=</span>
-    (,) mp <span class="fu">$</span> <span class="dt">Pipe</span>
+<span class="ot">tdfa_api_edit ::</span> <span class="dt">ModPath</span>
+              <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
+              <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
+              <span class="ot">-&gt;</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span>)
+tdfa_api_edit mp bs_lbs import_lbs <span class="fu">=</span>
+    (,) fmp <span class="fu">$</span> <span class="dt">Pipe</span>
         [ <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> module_re <span class="fu">$</span> LBS.pack mp
         , <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> import_re   import_lbs
         , <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> bs_re       bs_lbs
         ]
+  <span class="kw">where</span>
+    fmp <span class="fu">=</span> <span class="st">&quot;Text.RE.&quot;</span> <span class="fu">++</span> mp
 
-<span class="ot">pcre_edit ::</span> <span class="dt">ModPath</span>
-          <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
-          <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
-          <span class="ot">-&gt;</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span>)
-pcre_edit mp bs_lbs import_lbs <span class="fu">=</span>
-    (,) mp <span class="fu">$</span> <span class="dt">Pipe</span>
+<span class="ot">pcre_api_edit ::</span> <span class="dt">ModPath</span>
+              <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
+              <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
+              <span class="ot">-&gt;</span> (<span class="dt">ModPath</span>,<span class="dt">SedScript</span>)
+pcre_api_edit mp bs_lbs import_lbs <span class="fu">=</span>
+    (,) fmp <span class="fu">$</span> <span class="dt">Pipe</span>
         [ <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> tdfa_re     <span class="st">&quot;PCRE&quot;</span>
         , <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> module_re <span class="fu">$</span> LBS.pack mp
         , <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> import_re   import_lbs
         , <span class="dt">Template</span> <span class="fu">$</span> <span class="dt">SearchReplace</span> bs_re       bs_lbs
         ]
+  <span class="kw">where</span>
+    fmp <span class="fu">=</span> <span class="st">&quot;Text.RE.&quot;</span> <span class="fu">++</span> mp
 
-<span class="kw">type</span> <span class="dt">ModPath</span> <span class="fu">=</span> <span class="dt">String</span>
-
-<span class="ot">source_mp ::</span> <span class="dt">ModPath</span>
-source_mp <span class="fu">=</span> <span class="st">&quot;Text.RE.TDFA.ByteString.Lazy&quot;</span>
+<span class="ot">source_api_mp ::</span> <span class="dt">ModPath</span>
+source_api_mp <span class="fu">=</span> <span class="st">&quot;Text.RE.TDFA.ByteString.Lazy&quot;</span>
 
 tdfa_re, module_re, import_re,<span class="ot"> bs_re ::</span> <span class="dt">RE</span>
 tdfa_re   <span class="fu">=</span> [re<span class="fu">|</span><span class="dt">TDFA</span><span class="fu">|</span>]
-module_re <span class="fu">=</span> [re<span class="fu">|</span><span class="dt">Text.RE.TDFA.ByteString.Lazy</span><span class="fu">|</span>]
+module_re <span class="fu">=</span> [re<span class="fu">|</span><span class="dt">TDFA.ByteString.Lazy</span><span class="fu">|</span>]
 import_re <span class="fu">=</span> [re<span class="fu">|</span><span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span> *<span class="kw">as</span> <span class="dt">LBS</span>|]
 bs_re     <span class="fu">=</span> [re<span class="fu">|</span><span class="dt">LBS.ByteString</span><span class="fu">|</span>]
+
+
+<span class="fu">------------------------------------------------------------------------</span>
+<span class="co">-- The ed quasi quoter edits</span>
+<span class="fu">------------------------------------------------------------------------</span>
+
+<span class="ot">source_ed_mp ::</span> <span class="dt">ModPath</span>
+source_ed_mp <span class="fu">=</span> <span class="st">&quot;Text.RE.Internal.SearchReplace.TDFA.ByteString.Lazy&quot;</span>
+
+<span class="ot">tdfa_ed_edits ::</span> [(<span class="dt">ModPath</span>,<span class="dt">SedScript</span>)]
+tdfa_ed_edits <span class="fu">=</span>
+  [ (,) <span class="st">&quot;Text.RE.Internal.SearchReplace.TDFA.ByteString&quot;</span> <span class="fu">$</span> <span class="dt">Pipe</span>
+      [ <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">SearchReplace.TDFA.ByteString.Lazy</span><span class="fu">///</span><span class="dt">SearchReplace.TDFA.ByteString</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">Data.ByteString.Lazy.Char8</span>    as <span class="dt">LBS</span><span class="fu">///</span><span class="dt">Data.ByteString.Char8</span>         as <span class="dt">B</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">LBS.ByteString</span><span class="fu">///</span><span class="dt">B.ByteString</span><span class="fu">|</span>]
+      ]
+  , (,) <span class="st">&quot;Text.RE.Internal.SearchReplace.TDFA.Sequence&quot;</span> <span class="fu">$</span> <span class="dt">Pipe</span>
+      [ <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">SearchReplace.TDFA.ByteString.Lazy</span><span class="fu">///</span><span class="dt">SearchReplace.TDFA.Sequence</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">Data.ByteString.Lazy.Char8</span>    as <span class="dt">LBS</span><span class="fu">///</span><span class="dt">Data.Sequence</span>                 as <span class="dt">S</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">LBS.ByteString</span><span class="fu">///</span>(<span class="dt">S.Seq</span> <span class="dt">Char</span>)<span class="fu">|</span>]
+      ]
+  , (,) <span class="st">&quot;Text.RE.Internal.SearchReplace.TDFA.String&quot;</span> <span class="fu">$</span> <span class="dt">Pipe</span>
+      [ <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">SearchReplace.TDFA.ByteString.Lazy</span><span class="fu">///</span><span class="dt">SearchReplace.TDFA.String</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>    <span class="kw">as</span> <span class="dt">LBS</span>///|]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">LBS.ByteString</span><span class="fu">///</span><span class="dt">String</span><span class="fu">|</span>]
+      ]
+  , (,) <span class="st">&quot;Text.RE.Internal.SearchReplace.TDFA.Text&quot;</span> <span class="fu">$</span> <span class="dt">Pipe</span>
+      [ <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">SearchReplace.TDFA.ByteString.Lazy</span><span class="fu">///</span><span class="dt">SearchReplace.TDFA.Text</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">Data.ByteString.Lazy.Char8</span>    as <span class="dt">LBS</span><span class="fu">///</span><span class="dt">Data.Text</span>                     as <span class="dt">T</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">LBS.ByteString</span><span class="fu">///</span><span class="dt">T.Text</span><span class="fu">|</span>]
+      ]
+  , (,) <span class="st">&quot;Text.RE.Internal.SearchReplace.TDFA.Text.Lazy&quot;</span> <span class="fu">$</span> <span class="dt">Pipe</span>
+      [ <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">SearchReplace.TDFA.ByteString.Lazy</span><span class="fu">///</span><span class="dt">SearchReplace.TDFA.Text.Lazy</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">Data.ByteString.Lazy.Char8</span>    as <span class="dt">LBS</span><span class="fu">///</span><span class="dt">Data.Text.Lazy</span>                as <span class="dt">TL</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">LBS.ByteString</span><span class="fu">///</span><span class="dt">TL.Text</span><span class="fu">|</span>]
+      ]
+  ]
+
+<span class="ot">pcre_ed_edits ::</span> [(<span class="dt">ModPath</span>,<span class="dt">SedScript</span>)]
+pcre_ed_edits <span class="fu">=</span>
+  [ (,) <span class="st">&quot;Text.RE.Internal.SearchReplace.PCRE.ByteString&quot;</span> <span class="fu">$</span> pipe
+      [ <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">SearchReplace.TDFA.ByteString.Lazy</span><span class="fu">///</span><span class="dt">SearchReplace.PCRE.ByteString</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">Data.ByteString.Lazy.Char8</span>    as <span class="dt">LBS</span><span class="fu">///</span><span class="dt">Data.ByteString.Char8</span>         as <span class="dt">B</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">LBS.ByteString</span><span class="fu">///</span><span class="dt">B.ByteString</span><span class="fu">|</span>]
+      ]
+  , (,) <span class="st">&quot;Text.RE.Internal.SearchReplace.PCRE.ByteString.Lazy&quot;</span> <span class="fu">$</span> pipe
+      [ <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">SearchReplace.TDFA.ByteString.Lazy</span><span class="fu">///</span><span class="dt">SearchReplace.PCRE.ByteString.Lazy</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">Text.RE.TDFA.RE</span><span class="fu">///</span><span class="dt">Text.RE.PCRE.RE</span><span class="fu">|</span>]
+      ]
+  , (,) <span class="st">&quot;Text.RE.Internal.SearchReplace.PCRE.Sequence&quot;</span> <span class="fu">$</span> pipe
+      [ <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">SearchReplace.TDFA.ByteString.Lazy</span><span class="fu">///</span><span class="dt">SearchReplace.PCRE.Sequence</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">Data.ByteString.Lazy.Char8</span>    as <span class="dt">LBS</span><span class="fu">///</span><span class="dt">Data.Sequence</span>                 as <span class="dt">S</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">LBS.ByteString</span><span class="fu">///</span>(<span class="dt">S.Seq</span> <span class="dt">Char</span>)<span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">Text.RE.TDFA.RE</span><span class="fu">///</span><span class="dt">Text.RE.PCRE.RE</span><span class="fu">|</span>]
+      ]
+  , (,) <span class="st">&quot;Text.RE.Internal.SearchReplace.PCRE.String&quot;</span> <span class="fu">$</span> pipe
+      [ <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">SearchReplace.TDFA.ByteString.Lazy</span><span class="fu">///</span><span class="dt">SearchReplace.PCRE.String</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="kw">import qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span>    <span class="kw">as</span> <span class="dt">LBS</span>///|]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">LBS.ByteString</span><span class="fu">///</span><span class="dt">String</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">Text.RE.TDFA.RE</span><span class="fu">///</span><span class="dt">Text.RE.PCRE.RE</span><span class="fu">|</span>]
+      ]
+  ]
+  <span class="kw">where</span>
+    pipe as <span class="fu">=</span> <span class="dt">Pipe</span> <span class="fu">$</span> as <span class="fu">++</span>
+      [ <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">Text.RE.TDFA.RE</span><span class="fu">///</span><span class="dt">Text.RE.PCRE.RE</span><span class="fu">|</span>]
+      , <span class="dt">Template</span> [ed<span class="fu">|</span><span class="dt">Text.RE.Internal.SearchReplace.TDFAEdPrime</span><span class="fu">///</span><span class="dt">Text.RE.Internal.SearchReplace.PCREEdPrime</span><span class="fu">|</span>]
+      ]
+
+
+<span class="fu">------------------------------------------------------------------------</span>
+<span class="co">-- Helpers</span>
+<span class="fu">------------------------------------------------------------------------</span>
 
 <span class="ot">mod_filepath ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">ModPath</span> <span class="ot">-&gt;</span> FilePath
 mod_filepath text_present mp <span class="fu">=</span> pfx <span class="fu">++</span> map tr mp <span class="fu">++</span> <span class="st">&quot;.hs&quot;</span>

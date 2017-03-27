@@ -4,13 +4,13 @@ Name:                   regex
 
 Library
     Hs-Source-Dirs:     .
+
     Exposed-Modules:
       Text.RE
       Text.RE.Internal.AddCaptureNames
       Text.RE.Internal.EscapeREString
       Text.RE.Internal.NamedCaptures
       Text.RE.Internal.PreludeMacros
-      Text.RE.Internal.QQ
       Text.RE.SearchReplace
       Text.RE.Summa
       Text.RE.TDFA
@@ -38,6 +38,18 @@ Library
       Text.RE.Types.REOptions
       Text.RE.Types.Replace
       Text.RE.Types.SearchReplace
+
+    Other-Modules:
+      Text.RE.Internal.QQ
+      Text.RE.Internal.SearchReplace
+      Text.RE.Internal.SearchReplace.TDFA
+      Text.RE.Internal.SearchReplace.TDFA.ByteString
+      Text.RE.Internal.SearchReplace.TDFA.ByteString.Lazy
+      Text.RE.Internal.SearchReplace.TDFA.Sequence
+      Text.RE.Internal.SearchReplace.TDFA.String
+      Text.RE.Internal.SearchReplace.TDFA.Text
+      Text.RE.Internal.SearchReplace.TDFA.Text.Lazy
+      Text.RE.Internal.SearchReplace.TDFAEdPrime
 
 %build-depends-lib array bytestring base base-compat containers hashable regex-base regex-tdfa regex-tdfa-text template-haskell text time time-locale-compat transformers unordered-containers
 

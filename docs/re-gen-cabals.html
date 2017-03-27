@@ -110,6 +110,7 @@ main <span class="fu">=</span> <span class="kw">do</span>
     []                    <span class="ot">-&gt;</span> test
     [<span class="st">&quot;test&quot;</span>]              <span class="ot">-&gt;</span> test
     [<span class="st">&quot;bump-version&quot;</span>,vrn]  <span class="ot">-&gt;</span> bumpVersion vrn
+    [<span class="st">&quot;test-release&quot;</span>,vrn]  <span class="ot">-&gt;</span> test_release <span class="fu">$</span> T.pack vrn
     [<span class="st">&quot;sdist&quot;</span>]             <span class="ot">-&gt;</span> sdist
     [<span class="st">&quot;gen&quot;</span>]               <span class="ot">-&gt;</span> <span class="kw">do</span>
       gen  <span class="st">&quot;lib/cabal-masters/mega-regex.cabal&quot;</span>       <span class="st">&quot;lib/mega-regex.cabal&quot;</span>
@@ -124,6 +125,7 @@ main <span class="fu">=</span> <span class="kw">do</span>
         , prg <span class="st">&quot;--help&quot;</span>
         , prg <span class="st">&quot;[test]&quot;</span>
         , prg <span class="st">&quot;bump-version &lt;version&gt;&quot;</span>
+        , prg <span class="st">&quot;test-release &lt;version&gt;&quot;</span>
         , prg <span class="st">&quot;sdist&quot;</span>
         , prg <span class="st">&quot;gen&quot;</span>
         ]
@@ -171,7 +173,7 @@ gc_script ctx <span class="fu">=</span> <span class="dt">Select</span>
     , <span class="dt">LineEdit</span> [re<span class="fu">|^%</span><span class="dt">Wwarn</span><span class="fu">$|</span>]                             <span class="fu">$</span> w_warn_gen               ctx
     , <span class="dt">LineEdit</span> [re<span class="fu">|^%</span>filter<span class="fu">-</span>regex<span class="fu">-</span>with<span class="fu">-</span>pcre<span class="fu">$|</span>]            <span class="fu">$</span> w_filter_pcre            ctx
     , <span class="dt">LineEdit</span> [re<span class="fu">|^%-</span> <span class="fu">+$</span>{pkg}(<span class="fu">@</span>{<span class="fu">%</span>id<span class="fu">-</span>}) <span class="fu">+$</span>{cond}(<span class="fu">.*</span>)<span class="fu">$|</span>]   <span class="fu">$</span> cond_gen                 ctx
-    , <span class="dt">LineEdit</span> [re<span class="fu">|^%</span>build<span class="fu">-</span>depends<span class="fu">-$</span>{lb}(lib<span class="fu">|</span>prog) <span class="fu">+$</span>{list}(<span class="fu">@</span>{<span class="fu">%</span>id<span class="fu">-</span>}( <span class="fu">+@</span>{<span class="fu">%</span>id<span class="fu">-</span>})<span class="fu">+</span>)<span class="fu">$|</span>]
+    , <span class="dt">LineEdit</span> [re<span class="fu">|^%</span>build<span class="fu">-</span>depends<span class="fu">-$</span>{lb}(lib<span class="fu">|</span>prog) <span class="fu">+$</span>{list}(<span class="fu">@</span>{<span class="fu">%</span>id<span class="fu">-</span>}( <span class="fu">+@</span>{<span class="fu">%</span>id<span class="fu">-</span>})<span class="fu">*</span>)<span class="fu">$|</span>]
                                                           <span class="fu">$</span> build_depends_gen        ctx
     , <span class="dt">LineEdit</span> [re<span class="fu">|^%</span>test <span class="fu">+$</span>{i}(<span class="fu">@</span>{<span class="fu">%</span>id<span class="fu">-</span>})<span class="fu">$|</span>]               <span class="fu">$</span> test_exe_gen <span class="dt">True</span>  <span class="dt">False</span> ctx
     , <span class="dt">LineEdit</span> [re<span class="fu">|^%</span>exe <span class="fu">+$</span>{i}(<span class="fu">@</span>{<span class="fu">%</span>id<span class="fu">-</span>})<span class="fu">$|</span>]                <span class="fu">$</span> test_exe_gen <span class="dt">False</span> <span class="dt">True</span>  ctx
@@ -350,6 +352,7 @@ sdist <span class="fu">=</span> <span class="kw">do</span>
   sdist&#39;    <span class="st">&quot;regex-examples&quot;</span>   <span class="st">&quot;lib/README-regex-examples.md&quot;</span>
   establish <span class="st">&quot;mega-regex&quot;</span> <span class="st">&quot;regex&quot;</span>
   vrn_t <span class="ot">&lt;-</span> T.pack <span class="fu">.</span> presentVrn <span class="fu">&lt;$&gt;</span> readCurrentVersion
+  test_release vrn_t
   smy_t <span class="ot">&lt;-</span> summary
   SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span> <span class="kw">do</span>
     SH.run_ <span class="st">&quot;git&quot;</span> [<span class="st">&quot;add&quot;</span>,<span class="st">&quot;--all&quot;</span>]
@@ -397,7 +400,27 @@ summary <span class="fu">=</span> <span class="kw">do</span>
   lns <span class="ot">&lt;-</span> linesMatched <span class="dt">LinesMatched</span> <span class="fu">&lt;$&gt;</span> grepLines rex <span class="st">&quot;lib/md/roadmap-incl.md&quot;</span>
   <span class="kw">case</span> lns <span class="kw">of</span>
     [<span class="dt">Line</span> _ (<span class="dt">Matches</span> _ [mtch])] <span class="ot">-&gt;</span> return <span class="fu">$</span> TE.decodeUtf8 <span class="fu">$</span> LBS.toStrict <span class="fu">$</span> mtch <span class="fu">!$$</span> [cp<span class="fu">|</span>smy<span class="fu">|</span>]
-    _ <span class="ot">-&gt;</span> error <span class="st">&quot;failed to locate the summary text in the roadmap&quot;</span></code></pre></div>
+    _ <span class="ot">-&gt;</span> error <span class="st">&quot;failed to locate the summary text in the roadmap&quot;</span>
+
+<span class="ot">test_release ::</span> <span class="dt">T.Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+test_release vrn_t <span class="fu">=</span> <span class="kw">do</span>
+    setCurrentDirectory <span class="st">&quot;releases&quot;</span>
+    SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span> <span class="kw">do</span>
+      SH.rm_rf <span class="st">&quot;test-regex-examples&quot;</span>
+      unpack <span class="st">&quot;.&quot;</span> <span class="st">&quot;regex-examples&quot;</span>
+    setCurrentDirectory <span class="st">&quot;test-regex-examples&quot;</span>
+    SH.shelly <span class="fu">$</span> SH.verbosely <span class="fu">$</span> <span class="kw">do</span>
+      unpack <span class="st">&quot;..&quot;</span> <span class="st">&quot;regex&quot;</span>
+      unpack <span class="st">&quot;..&quot;</span> <span class="st">&quot;regex-with-pcre&quot;</span>
+      SH.cp <span class="st">&quot;../../lib/release-testing/stack.yaml&quot;</span> <span class="st">&quot;.&quot;</span>
+      SH.run_ <span class="st">&quot;stack&quot;</span> [<span class="st">&quot;--no-terminal&quot;</span>,<span class="st">&quot;test&quot;</span>, <span class="st">&quot;--haddock&quot;</span>, <span class="st">&quot;--no-haddock-deps&quot;</span>]
+    setCurrentDirectory <span class="st">&quot;../..&quot;</span>
+  <span class="kw">where</span>
+    unpack rp pn <span class="fu">=</span> <span class="kw">do</span>
+        SH.run_ <span class="st">&quot;tar&quot;</span> [<span class="st">&quot;xzf&quot;</span>,rp<span class="fu">&lt;&gt;</span><span class="st">&quot;/&quot;</span><span class="fu">&lt;&gt;</span>pn_vrn<span class="fu">&lt;&gt;</span><span class="st">&quot;.tar.gz&quot;</span>]
+        SH.mv (SH.fromText pn_vrn) (SH.fromText <span class="fu">$</span> <span class="st">&quot;test-&quot;</span><span class="fu">&lt;&gt;</span>pn)
+      <span class="kw">where</span>
+        pn_vrn <span class="fu">=</span> pn<span class="fu">&lt;&gt;</span><span class="st">&quot;-&quot;</span><span class="fu">&lt;&gt;</span>vrn_t</code></pre></div>
 <p>let vrn_res = concat [ show $ _vrn_a vrn, &quot;\.&quot;, show $ _vrn_b vrn, &quot;\.&quot;, show $ _vrn_c vrn, &quot;\.&quot;, show $ _vrn_d vrn ]</p>
 </div>    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

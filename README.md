@@ -48,7 +48,8 @@ two packages:
 - [X] 2017-03-13  v0.6.0.1  [Fix .travis.yml release-stack script](https://github.com/iconnect/regex/issues/67)
 - [X] 2017-03-15  v0.7.0.0  [Better organization of API](https://github.com/iconnect/regex/milestone/8)
 - [X] 2017-03-16  v0.8.0.0  [Tidy up the API](https://github.com/iconnect/regex/milestone/10)
-- [X] 2017-03-18  v0.9.0.0  [Finish tidying up the API, Add type-safe replacement templates and exploit TemplateHaskellQuotes](https://github.com/iconnect/regex/milestone/9)
+- [X] 2017-03-24  v0.9.0.0  [Finish tidying up the API, Add type-safe replacement templates and exploit TemplateHaskellQuotes](https://github.com/iconnect/regex/milestone/9)
+- [X] 2017-03-27  v0.10.0.2 [Tweak Templates, Fix release scripts and update Haddocks commentary](https://github.com/iconnect/regex/milestone/12)
 - [ ] 2017-03-31  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 - [ ] 2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)
 

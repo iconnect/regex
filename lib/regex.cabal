@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                0.9.0.0
+Version:                0.10.0.2
 Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
@@ -31,20 +31,20 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.9.0.0
+    Tag:                0.10.0.2
 
 
 
 
 Library
     Hs-Source-Dirs:     .
+
     Exposed-Modules:
       Text.RE
       Text.RE.Internal.AddCaptureNames
       Text.RE.Internal.EscapeREString
       Text.RE.Internal.NamedCaptures
       Text.RE.Internal.PreludeMacros
-      Text.RE.Internal.QQ
       Text.RE.SearchReplace
       Text.RE.Summa
       Text.RE.TDFA
@@ -72,6 +72,18 @@ Library
       Text.RE.Types.REOptions
       Text.RE.Types.Replace
       Text.RE.Types.SearchReplace
+
+    Other-Modules:
+      Text.RE.Internal.QQ
+      Text.RE.Internal.SearchReplace
+      Text.RE.Internal.SearchReplace.TDFA
+      Text.RE.Internal.SearchReplace.TDFA.ByteString
+      Text.RE.Internal.SearchReplace.TDFA.ByteString.Lazy
+      Text.RE.Internal.SearchReplace.TDFA.Sequence
+      Text.RE.Internal.SearchReplace.TDFA.String
+      Text.RE.Internal.SearchReplace.TDFA.Text
+      Text.RE.Internal.SearchReplace.TDFA.Text.Lazy
+      Text.RE.Internal.SearchReplace.TDFAEdPrime
 
     Default-Language:   Haskell2010
 

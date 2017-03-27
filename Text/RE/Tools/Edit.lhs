@@ -47,7 +47,7 @@ data Edits m re s
 data Edit m re s
   = Template !(SearchReplace re s)
   | Function !re REContext !(LineNo->Match s->Location->Capture s->m (Maybe s))
-  | LineEdit !re         !(LineNo->Matches s->m (LineEdit s))
+  | LineEdit !re           !(LineNo->Matches s->m (LineEdit s))
 
 -- | a LineEdit is the most general action thar can be performed on a line
 -- and is the only means of deleting a line

@@ -1,5 +1,18 @@
 -*-change-log-*-
 
+0.10.0.2 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-27
+  * Constrain the types of the template quasi quoters (#86)
+  * Add escape methods to IsRegex (#87)
+  * Better Haddock Commentary (#90)
+  * Better release-testing scripts (#91)
+  * Make travis stack-release tests advisory (#92)
+
+0.10.0.1 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-26
+  Withdrawn
+
+0.10.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-25
+  Withdrawn
+
 0.9.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-23
   * Flip the order of the arguments to replace (#78)
   * Add type-safe replacement templates (#60)

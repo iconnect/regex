@@ -41,6 +41,8 @@ module Text.RE.PCRE
   , escape
   , escapeWith
   , module Text.RE.PCRE.RE
+  -- * The [ed| ... |] quasi quoters
+  , module Text.RE.Internal.SearchReplace.PCRE
   -- * The Operator Instances
   -- $instances
   , module Text.RE.PCRE.ByteString
@@ -54,6 +56,7 @@ module Text.RE.PCRE
 import qualified Text.Regex.Base                          as B
 import           Text.RE
 import           Text.RE.Internal.AddCaptureNames
+import           Text.RE.Internal.SearchReplace.PCRE
 import           Text.RE.PCRE.RE
 import qualified Text.Regex.PCRE                          as PCRE
 import           Text.RE.PCRE.ByteString()
@@ -111,5 +114,4 @@ import           Text.RE.Types.REOptions
 
 -- $instances
 --
--- These modules merely provide the instances for the above regex
--- match operators at the various text types.
+-- These modules merely provide the 'IsRegex' instances.

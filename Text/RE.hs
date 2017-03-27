@@ -15,9 +15,6 @@ module Text.RE
   -- * How to use this library
   -- $use
 
-  -- ** The Match Operators
-  -- $operators
-
   -- * Matches
     Matches
   , matchesSource
@@ -74,19 +71,3 @@ import           Text.RE.Types.Matches
 -- * "Text.RE.PCRE.RE"
 -- * "Text.RE.PCRE.Sequence"
 -- * "Text.RE.PCRE.String"
-
--- $operators
---
--- The traditional @=~@ and @=~~@ operators are exported by the above
--- API module, but we recommend that you use the two new operators,
--- especially if you are not familiar with the old operators.  We have:
---
--- * @txt ?=~ re@ searches for a single match yielding a value of type
---   'Match' @a@ where @a@ is the type of the text you are searching.
---
--- * @txt *=~ re@ searches for all non-overlapping matches in @txt@,
---   returning a value of type 'Matches' @a@.
---
--- The remainder of this module outlines these @Matches@ and
--- @Match@ result types. Only an outline is given here. For more details
--- see the 'Text.RE.Type.Matches' and 'Text.RE.Type.Match' modules.

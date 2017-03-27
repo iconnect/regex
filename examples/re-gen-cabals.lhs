@@ -52,6 +52,7 @@ main = do
     []                    -> test
     ["test"]              -> test
     ["bump-version",vrn]  -> bumpVersion vrn
+    ["test-release",vrn]  -> test_release $ T.pack vrn
     ["sdist"]             -> sdist
     ["gen"]               -> do
       gen  "lib/cabal-masters/mega-regex.cabal"       "lib/mega-regex.cabal"
@@ -66,6 +67,7 @@ main = do
         , prg "--help"
         , prg "[test]"
         , prg "bump-version <version>"
+        , prg "test-release <version>"
         , prg "sdist"
         , prg "gen"
         ]
@@ -113,7 +115,7 @@ gc_script ctx = Select
     , LineEdit [re|^%Wwarn$|]                             $ w_warn_gen               ctx
     , LineEdit [re|^%filter-regex-with-pcre$|]            $ w_filter_pcre            ctx
     , LineEdit [re|^%- +${pkg}(@{%id-}) +${cond}(.*)$|]   $ cond_gen                 ctx
-    , LineEdit [re|^%build-depends-${lb}(lib|prog) +${list}(@{%id-}( +@{%id-})+)$|]
+    , LineEdit [re|^%build-depends-${lb}(lib|prog) +${list}(@{%id-}( +@{%id-})*)$|]
                                                           $ build_depends_gen        ctx
     , LineEdit [re|^%test +${i}(@{%id-})$|]               $ test_exe_gen True  False ctx
     , LineEdit [re|^%exe +${i}(@{%id-})$|]                $ test_exe_gen False True  ctx
@@ -295,6 +297,7 @@ sdist = do
   sdist'    "regex-examples"   "lib/README-regex-examples.md"
   establish "mega-regex" "regex"
   vrn_t <- T.pack . presentVrn <$> readCurrentVersion
+  test_release vrn_t
   smy_t <- summary
   SH.shelly $ SH.verbosely $ do
     SH.run_ "git" ["add","--all"]
@@ -343,6 +346,26 @@ summary = do
   case lns of
     [Line _ (Matches _ [mtch])] -> return $ TE.decodeUtf8 $ LBS.toStrict $ mtch !$$ [cp|smy|]
     _ -> error "failed to locate the summary text in the roadmap"
+
+test_release :: T.Text -> IO ()
+test_release vrn_t = do
+    setCurrentDirectory "releases"
+    SH.shelly $ SH.verbosely $ do
+      SH.rm_rf "test-regex-examples"
+      unpack "." "regex-examples"
+    setCurrentDirectory "test-regex-examples"
+    SH.shelly $ SH.verbosely $ do
+      unpack ".." "regex"
+      unpack ".." "regex-with-pcre"
+      SH.cp "../../lib/release-testing/stack.yaml" "."
+      SH.run_ "stack" ["--no-terminal","test", "--haddock", "--no-haddock-deps"]
+    setCurrentDirectory "../.."
+  where
+    unpack rp pn = do
+        SH.run_ "tar" ["xzf",rp<>"/"<>pn_vrn<>".tar.gz"]
+        SH.mv (SH.fromText pn_vrn) (SH.fromText $ "test-"<>pn)
+      where
+        pn_vrn = pn<>"-"<>vrn_t
 \end{code}
 
 

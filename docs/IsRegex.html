@@ -75,6 +75,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <span class="kw">module</span> <span class="dt">Text.RE.Types.IsRegex</span> <span class="kw">where</span>
 
+<span class="kw">import           </span><span class="dt">Text.RE.Internal.EscapeREString</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.Match</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.Matches</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Types.REOptions</span>
@@ -95,11 +96,17 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="ot">  makeSearchReplace     ::</span> (<span class="dt">Functor</span> m,<span class="dt">Monad</span> m,<span class="dt">IsRegex</span> re s) <span class="ot">=&gt;</span> s <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> m (<span class="dt">SearchReplace</span> re s)
   <span class="co">-- | compiling a &#39;SearchReplace&#39; template specifing the &#39;SimpleREOptions&#39; for the RE</span>
 <span class="ot">  makeSearchReplaceWith ::</span> (<span class="dt">Functor</span> m,<span class="dt">Monad</span> m,<span class="dt">IsRegex</span> re s) <span class="ot">=&gt;</span> <span class="dt">SimpleREOptions</span> <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> m (<span class="dt">SearchReplace</span> re s)
+  <span class="co">-- | incorporate an escaped string into a compiled RE with the default options</span>
+<span class="ot">  makeEscaped           ::</span> (<span class="dt">Functor</span> m,<span class="dt">Monad</span> m) <span class="ot">=&gt;</span> (s<span class="ot">-&gt;</span>s) <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> m re
+  <span class="co">-- | incorporate an escaped string into a compiled RE with the specified &#39;SimpleREOptions&#39;</span>
+<span class="ot">  makeEscapedWith       ::</span> (<span class="dt">Functor</span> m,<span class="dt">Monad</span> m) <span class="ot">=&gt;</span> <span class="dt">SimpleREOptions</span> <span class="ot">-&gt;</span> (s<span class="ot">-&gt;</span>s) <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> m re
   <span class="co">-- | extract the text of the RE from the RE</span>
 <span class="ot">  regexSource           ::</span> re <span class="ot">-&gt;</span> s
 
-  makeRegex         <span class="fu">=</span> makeRegexWith         minBound
-  makeSearchReplace <span class="fu">=</span> makeSearchReplaceWith minBound</code></pre></div>
+  makeRegex           <span class="fu">=</span> makeRegexWith         minBound
+  makeSearchReplace   <span class="fu">=</span> makeSearchReplaceWith minBound
+  makeEscaped         <span class="fu">=</span> makeEscapedWith       minBound
+  makeEscapedWith o f <span class="fu">=</span> makeRegexWith o <span class="fu">.</span> f <span class="fu">.</span> packR <span class="fu">.</span> escapeREString <span class="fu">.</span> unpackR</code></pre></div>
 </div>    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

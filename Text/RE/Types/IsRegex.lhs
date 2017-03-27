@@ -8,13 +8,13 @@
 
 module Text.RE.Types.IsRegex where
 
+import           Text.RE.Internal.EscapeREString
 import           Text.RE.Types.Match
 import           Text.RE.Types.Matches
 import           Text.RE.Types.REOptions
 import           Text.RE.Types.Replace
 import           Text.RE.Types.SearchReplace
 \end{code}
-
 
 \begin{code}
 -- | the 'IsRegex' class allows tools to be written that will work with
@@ -32,9 +32,15 @@ class Replace s => IsRegex re s where
   makeSearchReplace     :: (Functor m,Monad m,IsRegex re s) => s -> s -> m (SearchReplace re s)
   -- | compiling a 'SearchReplace' template specifing the 'SimpleREOptions' for the RE
   makeSearchReplaceWith :: (Functor m,Monad m,IsRegex re s) => SimpleREOptions -> s -> s -> m (SearchReplace re s)
+  -- | incorporate an escaped string into a compiled RE with the default options
+  makeEscaped           :: (Functor m,Monad m) => (s->s) -> s -> m re
+  -- | incorporate an escaped string into a compiled RE with the specified 'SimpleREOptions'
+  makeEscapedWith       :: (Functor m,Monad m) => SimpleREOptions -> (s->s) -> s -> m re
   -- | extract the text of the RE from the RE
   regexSource           :: re -> s
 
-  makeRegex         = makeRegexWith         minBound
-  makeSearchReplace = makeSearchReplaceWith minBound
+  makeRegex           = makeRegexWith         minBound
+  makeSearchReplace   = makeSearchReplaceWith minBound
+  makeEscaped         = makeEscapedWith       minBound
+  makeEscapedWith o f = makeRegexWith o . f . packR . escapeREString . unpackR
 \end{code}

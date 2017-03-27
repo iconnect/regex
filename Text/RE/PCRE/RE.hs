@@ -59,16 +59,6 @@ module Text.RE.PCRE.RE
   , reBlockSensitive
   , reBlockInsensitive
   , re_
-  , ed
-  , edMS
-  , edMI
-  , edBS
-  , edBI
-  , edMultilineSensitive
-  , edMultilineInsensitive
-  , edBlockSensitive
-  , edBlockInsensitive
-  , ed_
   , cp
   ) where
 
@@ -81,6 +71,7 @@ import           Text.RE.Internal.EscapeREString
 import           Text.RE.Internal.NamedCaptures
 import           Text.RE.Internal.PreludeMacros
 import           Text.RE.Internal.QQ
+import           Text.RE.Internal.SearchReplace
 import           Text.RE.SearchReplace
 import           Text.RE.TestBench
 import           Text.RE.Types.CaptureID
@@ -321,17 +312,7 @@ re
   , reMultilineInsensitive
   , reBlockSensitive
   , reBlockInsensitive
-  , re_
-  , ed
-  , edMS
-  , edMI
-  , edBS
-  , edBI
-  , edMultilineSensitive
-  , edMultilineInsensitive
-  , edBlockSensitive
-  , edBlockInsensitive
-  , ed_ :: QuasiQuoter
+  , re_ :: QuasiQuoter
 
 re                       = re' $ Just minBound
 reMS                     = reMultilineSensitive
@@ -343,17 +324,6 @@ reMultilineInsensitive   = re' $ Just  MultilineInsensitive
 reBlockSensitive         = re' $ Just  BlockSensitive
 reBlockInsensitive       = re' $ Just  BlockInsensitive
 re_                      = re'   Nothing
-
-ed                       = ed' $ Just minBound
-edMS                     = edMultilineSensitive
-edMI                     = edMultilineInsensitive
-edBS                     = edBlockSensitive
-edBI                     = edBlockInsensitive
-edMultilineSensitive     = ed' $ Just  MultilineSensitive
-edMultilineInsensitive   = ed' $ Just  MultilineInsensitive
-edBlockSensitive         = ed' $ Just  BlockSensitive
-edBlockInsensitive       = ed' $ Just  BlockInsensitive
-ed_                      = ed'   Nothing
 
 
 ------------------------------------------------------------------------
@@ -418,50 +388,8 @@ compileRegex_ os re_s = uncurry mk <$> compileRegex' os re_s
 
 
 ------------------------------------------------------------------------
--- ed Helpers
+-- Helpers
 ------------------------------------------------------------------------
-
-ed' :: Maybe SimpleREOptions -> QuasiQuoter
-ed' mb = case mb of
-  Nothing  ->
-    (qq0 "ed'")
-      { quoteExp = parse minBound (\rs->[|flip unsafe_compile_sr rs|])
-      }
-  Just sro ->
-    (qq0 "ed'")
-      { quoteExp = parse sro (\rs->[|unsafe_compile_sr_simple sro rs|])
-      }
-  where
-    parse :: SimpleREOptions -> (String->Q Exp) -> String -> Q Exp
-    parse sro mk ts = either error (\_->mk ts) ei
-      where
-        ei :: Either String (SearchReplace RE String)
-        ei = compileSearchReplace_ id (compileRegexWith sro) ts
-
-unsafe_compile_sr_simple :: IsRegex RE s
-                         => SimpleREOptions
-                         -> String
-                         -> SearchReplace RE s
-unsafe_compile_sr_simple sro =
-    unsafe_compile_sr $ unpackSimpleREOptions sro
-
-unsafe_compile_sr :: ( IsOption o RE CompOption ExecOption
-                              , IsRegex RE s
-                              )
-                           => o
-                           -> String
-                           -> SearchReplace RE s
-unsafe_compile_sr os =
-    unsafeCompileSearchReplace_ packR $ compileRegexWithOptions os
-
-
-
-
-
-
-
-
-
 
 def_comp_option :: CompOption
 def_comp_option = optionsComp defaultREOptions

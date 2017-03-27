@@ -240,12 +240,17 @@ compiling_tests = testGroup "Compiling"
             assertEqual "RE" re_s $ regexSource r
         , testCase "Match" $ do
             r <- mk' re_s
-            assertEqual "Match" (pk <$> regex_str_match) $ matchOnce r $ pk str_
+            assertEqual "Match"  (pk <$> regex_str_match) $ matchOnce r $ pk str_
+        , testCase "Escape" $ do
+            r <- esc $ pk "foobar"
+            assertEqual "String" (pk "bar") $ matchSource $ matchOnce r $ pk "bar"
         ]
       where
         mk   = makeRegex              `asTypeOf` mk0
 
         mk'  = makeRegexWith minBound `asTypeOf` mk0
+
+        esc  = makeEscaped id         `asTypeOf` mk0
 
         re_s = pk $ reSource regex_
 

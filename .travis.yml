@@ -40,12 +40,6 @@ matrix:
   # For the Stack builds we can pass in arbitrary Stack arguments via the ARGS
   # variable, such as using --stack-yaml to point to a different file.
 
-  # Linux/stack/hackage release
-
-  - env: BUILD=release-stack GHCVER=8.0.2 STACK_YAML=stack-8.0.yaml
-    compiler: ": #stack 8.0.2"
-    addons: {apt: {packages: [libgmp-dev]}}
-
   # Linux/stack
 
   - env: BUILD=stack GHCVER=7.10.3 STACK_YAML=stack-7.10.yaml
@@ -84,6 +78,12 @@ matrix:
     os: osx
 
 
+  # Linux/stack/hackage release
+
+  - env: BUILD=release-stack GHCVER=8.0.2 STACK_YAML=stack-8.0.yaml
+    compiler: ": #stack 8.0.2"
+    addons: {apt: {packages: [libgmp-dev]}}
+
   # Nightly builds are allowed to fail
 
   - env: BUILD=stack STACK_YAML=stack-nightly.yaml
@@ -97,6 +97,7 @@ matrix:
   allow_failures:
   - env: BUILD=cabal GHCVER=head  CABALVER=head HAPPYVER=1.19.5 ALEXVER=3.1.7
   - env: BUILD=stack STACK_YAML=stack-nightly.yaml
+  - env: BUILD=release-stack GHCVER=8.0.2 STACK_YAML=stack-8.0.yaml
   - os: osx
 
 

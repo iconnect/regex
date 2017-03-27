@@ -283,12 +283,17 @@ compiling_tests <span class="fu">=</span> testGroup <span class="st">&quot;Compi
             assertEqual <span class="st">&quot;RE&quot;</span> re_s <span class="fu">$</span> regexSource r
         , testCase <span class="st">&quot;Match&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
             r <span class="ot">&lt;-</span> mk&#39; re_s
-            assertEqual <span class="st">&quot;Match&quot;</span> (pk <span class="fu">&lt;$&gt;</span> regex_str_match) <span class="fu">$</span> matchOnce r <span class="fu">$</span> pk str_
+            assertEqual <span class="st">&quot;Match&quot;</span>  (pk <span class="fu">&lt;$&gt;</span> regex_str_match) <span class="fu">$</span> matchOnce r <span class="fu">$</span> pk str_
+        , testCase <span class="st">&quot;Escape&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
+            r <span class="ot">&lt;-</span> esc <span class="fu">$</span> pk <span class="st">&quot;foobar&quot;</span>
+            assertEqual <span class="st">&quot;String&quot;</span> (pk <span class="st">&quot;bar&quot;</span>) <span class="fu">$</span> matchSource <span class="fu">$</span> matchOnce r <span class="fu">$</span> pk <span class="st">&quot;bar&quot;</span>
         ]
       <span class="kw">where</span>
         mk   <span class="fu">=</span> makeRegex              <span class="ot">`asTypeOf`</span> mk0
 
         mk&#39;  <span class="fu">=</span> makeRegexWith minBound <span class="ot">`asTypeOf`</span> mk0
+
+        esc  <span class="fu">=</span> makeEscaped id         <span class="ot">`asTypeOf`</span> mk0
 
         re_s <span class="fu">=</span> pk <span class="fu">$</span> reSource regex_
 

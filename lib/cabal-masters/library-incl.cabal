@@ -1,7 +1,3 @@
-
-
-
-
 Library
     Hs-Source-Dirs:     .
     Exposed-Modules:
@@ -11,6 +7,21 @@ Library
       Text.RE.Internal.NamedCaptures
       Text.RE.Internal.PreludeMacros
       Text.RE.Internal.QQ
+      Text.RE.Internal.SearchReplace
+      Text.RE.Internal.SearchReplace.PCRE
+      Text.RE.Internal.SearchReplace.PCRE.ByteString
+      Text.RE.Internal.SearchReplace.PCRE.ByteString.Lazy
+      Text.RE.Internal.SearchReplace.PCRE.Sequence
+      Text.RE.Internal.SearchReplace.PCRE.String
+      Text.RE.Internal.SearchReplace.PCREEdPrime
+      Text.RE.Internal.SearchReplace.TDFA
+      Text.RE.Internal.SearchReplace.TDFA.ByteString
+      Text.RE.Internal.SearchReplace.TDFA.ByteString.Lazy
+      Text.RE.Internal.SearchReplace.TDFA.Sequence
+      Text.RE.Internal.SearchReplace.TDFA.String
+      Text.RE.Internal.SearchReplace.TDFA.Text
+      Text.RE.Internal.SearchReplace.TDFA.Text.Lazy
+      Text.RE.Internal.SearchReplace.TDFAEdPrime
       Text.RE.PCRE
       Text.RE.PCRE.ByteString
       Text.RE.PCRE.ByteString.Lazy

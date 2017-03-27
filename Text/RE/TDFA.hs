@@ -41,6 +41,8 @@ module Text.RE.TDFA
   , escape
   , escapeWith
   , module Text.RE.TDFA.RE
+  -- * The [ed| ... |] quasi quoters
+  , module Text.RE.Internal.SearchReplace.TDFA
   -- * The Operator Instances
   -- $instances
   , module Text.RE.TDFA.ByteString
@@ -54,6 +56,7 @@ module Text.RE.TDFA
 import qualified Text.Regex.Base                          as B
 import           Text.RE
 import           Text.RE.Internal.AddCaptureNames
+import           Text.RE.Internal.SearchReplace.TDFA
 import           Text.RE.TDFA.RE
 import qualified Text.Regex.TDFA                          as TDFA
 import           Text.RE.SearchReplace
@@ -113,5 +116,4 @@ import           Text.RE.Types.REOptions
 
 -- $instances
 --
--- These modules merely provide the instances for the above regex
--- match operators at the various text types.
+-- These modules merely provide the 'IsRegex' instances.

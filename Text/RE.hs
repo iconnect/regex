@@ -53,7 +53,6 @@ import           Text.RE.Types.Matches
 -- While we aim to provide all combinations of these choices, some of them
 -- are currently not available.  In the regex package we have:
 --
--- * "Text.RE.TDFA"
 -- * "Text.RE.TDFA.ByteString"
 -- * "Text.RE.TDFA.ByteString.Lazy"
 -- * "Text.RE.TDFA.RE"
@@ -61,13 +60,14 @@ import           Text.RE.Types.Matches
 -- * "Text.RE.TDFA.String"
 -- * "Text.RE.TDFA.Text"
 -- * "Text.RE.TDFA.Text.Lazy"
+-- * "Text.RE.TDFA"
 --
 -- The PCRE modules are contained in the separate @regex-with-pcre@
 -- package:
 --
--- * "Text.RE.PCRE"
--- * "Text.RE.PCRE.ByteString"
--- * "Text.RE.PCRE.ByteString.Lazy"
--- * "Text.RE.PCRE.RE"
--- * "Text.RE.PCRE.Sequence"
--- * "Text.RE.PCRE.String"
+-- * Text.RE.PCRE.ByteString
+-- * Text.RE.PCRE.ByteString.Lazy
+-- * Text.RE.PCRE.RE
+-- * Text.RE.PCRE.Sequence
+-- * Text.RE.PCRE.String
+-- * Text.RE.PCRE

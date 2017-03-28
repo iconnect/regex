@@ -10,7 +10,10 @@ module Text.RE.TDFA
   (
   -- * Tutorial
   -- $tutorial
-  --
+
+  -- * About this Module
+  -- $about
+
   -- * The Match Operators
     (*=~)
   , (?=~)
@@ -40,6 +43,7 @@ module Text.RE.TDFA
   , compileRegexWith
   , escape
   , escapeWith
+  , escapeREString
   , module Text.RE.TDFA.RE
   -- * The [ed| ... |] quasi quoters
   , module Text.RE.Internal.SearchReplace.TDFA
@@ -70,7 +74,10 @@ import           Text.RE.Types.IsRegex
 import           Text.RE.Types.REOptions
 
 
--- | find all matches in text
+-- | find all matches in text; e.g., to count the number of naturals in s:
+--
+--   @countMatches $ s *=~ [re|[0-9]+|]@
+--
 (*=~) :: IsRegex RE s
       => s
       -> RE
@@ -84,13 +91,17 @@ import           Text.RE.Types.REOptions
       -> Match s
 (?=~) bs rex = addCaptureNamesToMatch (reCaptureNames rex) $ matchOnce rex bs
 
--- | search and replace once
-(?=~/) :: IsRegex RE s => s -> SearchReplace RE s -> s
-(?=~/) = flip searchReplaceFirst
-
--- | search and replace, all occurrences
+-- | search and replace all occurrences; e.g., this section will yield a function to
+-- convert every a YYYY-MM-DD into a DD/MM/YYYY:
+--
+--   @(*=~/ [ed|${y}([0-9]{4})-0*${m}([0-9]{2})-0*${d}([0-9]{2})///${d}/${m}/${y}|])@
+--
 (*=~/) :: IsRegex RE s => s -> SearchReplace RE s -> s
 (*=~/) = flip searchReplaceAll
+
+-- | search and replace the first occurrence only
+(?=~/) :: IsRegex RE s => s -> SearchReplace RE s -> s
+(?=~/) = flip searchReplaceFirst
 
 -- | the regex-base polymorphic match operator
 (=~) :: ( B.RegexContext TDFA.Regex s a
@@ -113,6 +124,20 @@ import           Text.RE.Types.REOptions
 
 -- $tutorial
 -- We have a regex tutorial at <http://tutorial.regex.uk>.
+
+-- $about
+-- This module provides access to the back end through polymorphic functions
+-- that operate over all of the String/Text/ByteString types supported by the
+-- back end. If you don't need this generality you might want to consider
+-- using one of the modules that have been specialised for each of these types:
+--
+-- * "Text.RE.TDFA.ByteString"
+-- * "Text.RE.TDFA.ByteString.Lazy"
+-- * "Text.RE.TDFA.RE"
+-- * "Text.RE.TDFA.Sequence"
+-- * "Text.RE.TDFA.String"
+-- * "Text.RE.TDFA.Text"
+-- * "Text.RE.TDFA.Text.Lazy"
 
 -- $instances
 --

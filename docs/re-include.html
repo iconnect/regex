@@ -119,8 +119,8 @@ main <span class="fu">=</span> <span class="kw">do</span>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">loop ::</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 loop <span class="fu">=</span>
   sed <span class="fu">$</span> <span class="dt">Select</span>
-    [ <span class="dt">Function</span> [re<span class="fu">|^%</span>include <span class="fu">$</span>{file}(<span class="fu">@</span>{<span class="fu">%</span>string}) <span class="fu">$</span>{rex}(<span class="fu">@</span>{<span class="fu">%</span>string})<span class="fu">$|</span>] <span class="dt">TOP</span> include_file
-    , <span class="dt">Function</span> [re<span class="fu">|^.*$|</span>]                                              <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
+    [ <span class="dt">Function</span> [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] <span class="dt">TOP</span> include_file
+    , <span class="dt">Function</span> [re|^.*$|]                                              <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="dt">Nothing</span>
     ]</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">include_file ::</span> <span class="dt">LineNo</span>
              <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
@@ -130,8 +130,8 @@ loop <span class="fu">=</span>
 include_file _ mtch _ _ <span class="fu">=</span> fmap <span class="dt">Just</span> <span class="fu">$</span>
     extract fp <span class="fu">=&lt;&lt;</span> compileRegex re_s
   <span class="kw">where</span>
-    fp    <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp<span class="fu">|</span>file<span class="fu">|</span>] mtch
-    re_s  <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp<span class="fu">|</span>rex<span class="fu">|</span>]  mtch
+    fp    <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|file|] mtch
+    re_s  <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|rex|]  mtch
 
     prs_s <span class="fu">=</span> maybe (error <span class="st">&quot;includeDoc&quot;</span>) T.unpack <span class="fu">.</span> parseString</code></pre></div>
 <h2 id="extracting-a-literate-fragment-from-a-haskell-program-text">Extracting a Literate Fragment from a Haskell Program Text</h2>
@@ -165,9 +165,9 @@ count_lines_incl b_ln k_ln <span class="fu">=</span>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Token</span> <span class="fu">=</span> <span class="dt">Bra</span> <span class="dt">LineNo</span> <span class="fu">|</span> <span class="dt">Hit</span> <span class="fu">|</span> <span class="dt">Ket</span> <span class="dt">LineNo</span>   <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">scan ::</span> <span class="dt">RE</span> <span class="ot">-&gt;</span> [<span class="dt">LBS.ByteString</span>] <span class="ot">-&gt;</span> [<span class="dt">Token</span>]
 scan rex <span class="fu">=</span> grepScript
-    [ (,) [re<span class="fu">|</span>\\begin\{code\}<span class="fu">|</span>] <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Bra</span> i
+    [ (,) [re|\\begin\{code\}|] <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Bra</span> i
     , (,) rex                   <span class="fu">$</span> \_ <span class="ot">-&gt;</span> chk   <span class="dt">Hit</span>
-    , (,) [re<span class="fu">|</span>\\end\{code\}<span class="fu">|</span>]   <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Ket</span> i
+    , (,) [re|\\end\{code\}|]   <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Ket</span> i
     ]
   <span class="kw">where</span>
     chk x mtchs <span class="fu">=</span> <span class="kw">case</span> anyMatches mtchs <span class="kw">of</span>

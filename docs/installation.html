@@ -130,40 +130,40 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 Installing with Cabal
 </h2>
 <p>The regex package is <a href="build-status">tested with</a> GHC 7.8.4, 7.10.3 and 8.0.1:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cabal</span> update <span class="kw">&amp;&amp;</span> <span class="kw">cabal</span> install regex</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">cabal</span> update <span class="kw">&amp;&amp;</span> <span class="ex">cabal</span> install regex</code></pre></div>
 <h2 id="stackinstall">
 Installing with Stack
 </h2>
 <p>We maintain three stack configurations:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">stack</span> --stack-yaml stack-8.0.yaml install regex</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">stack</span> --stack-yaml stack-8.0.yaml install regex</code></pre></div>
 <p>and</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">stack</span> --stack-yaml stack-7.10.yaml install regex</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">stack</span> --stack-yaml stack-7.10.yaml install regex</code></pre></div>
 <p>and</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">stack</span> --stack-yaml stack-7.8.yaml install regex</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">stack</span> --stack-yaml stack-7.8.yaml install regex</code></pre></div>
 <h2 id="cabaltutorial">
 Loading the Tutorial with Cabal
 </h2>
 <p>First unpack the source distribution and change into the root folder</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cabal</span> unpack regex
-<span class="kw">cd</span> regex-*</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">cabal</span> unpack regex
+<span class="bu">cd</span> regex-*</code></pre></div>
 <p>And load the tutorial into ghci with cabal:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cabal</span> configure
-<span class="kw">cabal</span> repl re-tutorial</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">cabal</span> configure
+<span class="ex">cabal</span> repl re-tutorial</code></pre></div>
 <h2 id="stacktutorial">
 Loading the Tutorial with Stack
 </h2>
 <p>To load the tutorial into ghc-8.0 with stack (from the unpacked root folder):</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">stack</span> --stack-yaml stack-8.0.yaml exec ghci -- -ghci-script lib/ghci examples/re-tutorial.lhs</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">stack</span> --stack-yaml stack-8.0.yaml exec ghci -- -ghci-script lib/ghci examples/re-tutorial.lhs</code></pre></div>
 <h2 id="cabaltest">
 Running the tests with Cabal
 </h2>
 <p>To run the tests with cabal, change into the root folder and:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">cabal</span> test</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">cabal</span> test</code></pre></div>
 <h2 id="stacktest">
 Running the tests with Stack
 </h2>
 <p>To test with GHC-8.0 from the root folder:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">stack</span> test --stack-yaml stack-8.0.yaml</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">stack</span> test --stack-yaml stack-8.0.yaml</code></pre></div>
       </div>
     </div>
     <script>

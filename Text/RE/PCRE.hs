@@ -10,7 +10,10 @@ module Text.RE.PCRE
   (
   -- * Tutorial
   -- $tutorial
-  --
+
+  -- * About this Module
+  -- $about
+
   -- * The Match Operators
     (*=~)
   , (?=~)
@@ -40,6 +43,7 @@ module Text.RE.PCRE
   , compileRegexWith
   , escape
   , escapeWith
+  , escapeREString
   , module Text.RE.PCRE.RE
   -- * The [ed| ... |] quasi quoters
   , module Text.RE.Internal.SearchReplace.PCRE
@@ -68,7 +72,10 @@ import           Text.RE.Types.IsRegex
 import           Text.RE.Types.REOptions
 
 
--- | find all matches in text
+-- | find all matches in text; e.g., to count the number of naturals in s:
+--
+--   @countMatches $ s *=~ [re|[0-9]+|]@
+--
 (*=~) :: IsRegex RE s
       => s
       -> RE
@@ -111,6 +118,19 @@ import           Text.RE.Types.REOptions
 
 -- $tutorial
 -- We have a regex tutorial at <http://tutorial.regex.uk>.
+
+-- $about
+-- This module provides access to the back end through polymorphic functions
+-- that operate over all of the String/Text/ByteString types supported by the
+-- PCRE back end. If you don't need this generality you might find it easier
+-- to work with one of the modules that have been specialised for each of these
+-- types:
+--
+-- * "Text.RE.PCRE.ByteString"
+-- * "Text.RE.PCRE.ByteString.Lazy"
+-- * "Text.RE.PCRE.RE"
+-- * "Text.RE.PCRE.Sequence"
+-- * "Text.RE.PCRE.String"
 
 -- $instances
 --

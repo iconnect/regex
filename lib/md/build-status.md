@@ -8,12 +8,12 @@ Travis-CI and AppVeyor pipelines that monitor the head of the repository.
 | ------------ | ------- | ------------- | ------ | ---- | ----------------------- | ------------- | -------------
 | Hackage      |         |               |        |      |                         | &#8209;Wwarn  | [![Hackage](https://img.shields.io/hackage/v/regex.svg)](https://hackage.haskell.org/package/regex)
 | Licence      |         |               |        |      |                         |               | [![BSD3 License](http://img.shields.io/badge/license-BSD3-brightgreen.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
-| Travis CI    | Linux   | release-stack | 8.0.2  | 8.5  |                         | &#8209;Werror | [![Un*x build](https://travis-ci.org/iconnect/regex.svg?branch=master)](https://travis-ci.org/iconnect/regex)
+| Travis CI    | Linux   | release-stack | 8.0.2  | 8.6  |                         | &#8209;Werror | [![Un*x build](https://travis-ci.org/iconnect/regex.svg?branch=master)](https://travis-ci.org/iconnect/regex)
 |              | Linux   | stack         | 7.10.3 | 6.30 |                         | &#8209;Werror |
 |              | Linux   | stack         | 7.8.4  | 2.22 | regex-tdfa-text-1.0.0.3 | &#8209;Werror |
 |              | Linux   | stack         | 8.0.2  | 8.5  |                         | &#8209;Werror |
 |              | Linux   | cabal         | 7.10.3 |      |                         | &#8209;Werror |
-|              | Linux   | stack         | 8.0.2  | 2017&#8209;03&#8209;25 |       | &#8209;Werror |
+|              | Linux   | stack         | 8.0.2  | 2017&#8209;03&#8209;28 |       | &#8209;Werror |
 |              | macOS   | stack         | 7.8.4  | 2.22 |                         | &#8209;Werror |
 |              | macOS   | stack         | 8.0.2  | 8.5  |                         | &#8209;Werror |
 | AppVeyor     | Windows | stack         | 8.0.2  | 8.5  |                         | &#8209;Werror |  [![Windows build](https://ci.appveyor.com/api/projects/status/hmgqoawgptk72epq?svg=true)](https://ci.appveyor.com/project/cdornan/regex)
@@ -31,5 +31,9 @@ The following modules have been exempted from the code coverage statistics.
 
 %heading#hackagebuild The regex Hackage Matrix Builder
 
-The [regex Hackage Matrix Builder](http://104.239.175.197:8080/package/regex)
-summarizes the buildability of each version of the package published on Hackage.
+The regex Hackage Matrix Builder summarizes the buildability of each version of
+each Hackage package:
+
+  * [`regex` age](http://104.239.175.197:8080/package/regex)
+  * [`regex-with-pcre` page](http://104.239.175.197:8080/package/regex-with-pcre)
+  * [`regex-examples` page](http://104.239.175.197:8080/package/regex-examples)

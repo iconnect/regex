@@ -69,12 +69,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE DeriveGeneric              #-}</span>
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE CPP                        #-}</span>
-<span class="st">#if __GLASGOW_HASKELL__ &gt;= 800</span>
+<span class="ot">#if __GLASGOW_HASKELL__ &gt;= 800</span>
 <span class="ot">{-# LANGUAGE TemplateHaskellQuotes      #-}</span>
-<span class="st">#else</span>
+<span class="ot">#else</span>
 <span class="ot">{-# LANGUAGE QuasiQuotes                #-}</span>
 <span class="ot">{-# LANGUAGE TemplateHaskell            #-}</span>
-<span class="st">#endif</span>
+<span class="ot">#endif</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.Internal.NamedCaptures</span>
   ( cp
@@ -198,9 +198,9 @@ formatTokens <span class="fu">=</span> formatTokens&#39; defFormatTokenREOptions
 <span class="co">-- | options for the general Token formatter below</span>
 <span class="kw">data</span> <span class="dt">FormatTokenREOptions</span> <span class="fu">=</span>
   <span class="dt">FormatTokenREOptions</span>
-    { _<span class="ot">fto_regex_type ::</span> <span class="dt">Maybe</span> <span class="dt">RegexType</span>    <span class="co">-- ^ Posix, PCRE or indeterminate REs?</span>
-    , _<span class="ot">fto_min_caps   ::</span> <span class="dt">Bool</span>               <span class="co">-- ^ remove captures where possible</span>
-    , _<span class="ot">fto_incl_caps  ::</span> <span class="dt">Bool</span>               <span class="co">-- ^ include the captures in the output</span>
+    {<span class="ot"> _fto_regex_type ::</span> <span class="dt">Maybe</span> <span class="dt">RegexType</span>    <span class="co">-- ^ Posix, PCRE or indeterminate REs?</span>
+    ,<span class="ot"> _fto_min_caps   ::</span> <span class="dt">Bool</span>               <span class="co">-- ^ remove captures where possible</span>
+    ,<span class="ot"> _fto_incl_caps  ::</span> <span class="dt">Bool</span>               <span class="co">-- ^ include the captures in the output</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)
 

@@ -15,7 +15,10 @@
 {-# OPTIONS_GHC -fno-warn-orphans       #-}
 
 module Text.RE.TDFA.RE
-  ( -- * RE Type
+  ( -- * About
+    -- $about
+
+    -- * RE Type
     RE
   , regexType
   , reOptions
@@ -413,3 +416,14 @@ def_comp_option = optionsComp defaultREOptions
 
 def_exec_option :: ExecOption
 def_exec_option = optionsExec defaultREOptions
+
+
+------------------------------------------------------------------------
+-- Haddock Sections
+------------------------------------------------------------------------
+
+-- $about
+--
+-- This module provides the regex PCRE back end. Most of the functions that
+-- you will need for day to day use are provided by the primary API modules
+-- (e.g., "Text.RE.TDFA.Text").

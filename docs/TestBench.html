@@ -71,9 +71,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span>
 <span class="ot">{-# LANGUAGE OverloadedStrings          #-}</span>
 <span class="ot">{-# LANGUAGE CPP                        #-}</span>
-<span class="st">#if __GLASGOW_HASKELL__ &gt;= 800</span>
+<span class="ot">#if __GLASGOW_HASKELL__ &gt;= 800</span>
 <span class="ot">{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}</span>
-<span class="st">#endif</span>
+<span class="ot">#endif</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.TestBench</span>
   ( <span class="dt">MacroID</span>(<span class="fu">..</span>)
@@ -170,18 +170,18 @@ presentRegexType (<span class="dt">PCRE</span> _) <span class="fu">=</span> <spa
 <span class="co">-- description</span>
 <span class="kw">data</span> <span class="dt">MacroDescriptor</span> <span class="fu">=</span>
   <span class="dt">MacroDescriptor</span>
-    { _<span class="ot">md_source          ::</span> <span class="fu">!</span><span class="dt">RegexSource</span>         <span class="co">-- ^ the RE</span>
-    , _<span class="ot">md_samples         ::</span> <span class="fu">!</span>[<span class="dt">String</span>]            <span class="co">-- ^ some sample matches</span>
-    , _<span class="ot">md_counter_samples ::</span> <span class="fu">!</span>[<span class="dt">String</span>]            <span class="co">-- ^ some sample non-matches</span>
-    , _<span class="ot">md_test_results    ::</span> <span class="fu">!</span>[<span class="dt">TestResult</span>]        <span class="co">-- ^ validation test results</span>
-    , _<span class="ot">md_parser          ::</span> <span class="fu">!</span>(<span class="dt">Maybe</span> <span class="dt">FunctionID</span>)  <span class="co">-- ^ WA, the parser function</span>
-    , _<span class="ot">md_description     ::</span> <span class="fu">!</span><span class="dt">String</span>              <span class="co">-- ^ summary comment</span>
+    {<span class="ot"> _md_source          ::</span> <span class="fu">!</span><span class="dt">RegexSource</span>         <span class="co">-- ^ the RE</span>
+    ,<span class="ot"> _md_samples         ::</span> <span class="fu">!</span>[<span class="dt">String</span>]            <span class="co">-- ^ some sample matches</span>
+    ,<span class="ot"> _md_counter_samples ::</span> <span class="fu">!</span>[<span class="dt">String</span>]            <span class="co">-- ^ some sample non-matches</span>
+    ,<span class="ot"> _md_test_results    ::</span> <span class="fu">!</span>[<span class="dt">TestResult</span>]        <span class="co">-- ^ validation test results</span>
+    ,<span class="ot"> _md_parser          ::</span> <span class="fu">!</span>(<span class="dt">Maybe</span> <span class="dt">FunctionID</span>)  <span class="co">-- ^ WA, the parser function</span>
+    ,<span class="ot"> _md_description     ::</span> <span class="fu">!</span><span class="dt">String</span>              <span class="co">-- ^ summary comment</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)
 
 <span class="co">-- | list of failures on a validation run</span>
 <span class="kw">newtype</span> <span class="dt">TestResult</span> <span class="fu">=</span>
-  <span class="dt">TestResult</span> { _<span class="dt">TestResult</span><span class="ot"> ::</span> <span class="dt">String</span> }
+  <span class="dt">TestResult</span> {<span class="ot"> _TestResult ::</span> <span class="dt">String</span> }
   <span class="kw">deriving</span> (<span class="dt">IsString</span>,<span class="dt">Show</span>)
 
 <span class="co">-- | a RE that should work for POSIX and PCRE with open brackets (&#39;(&#39;)</span>
@@ -192,13 +192,13 @@ presentRegexType (<span class="dt">PCRE</span> _) <span class="fu">=</span> <spa
 <span class="co">--    (]:   used for captures and grouping</span>
 <span class="co">--    (     do not modify</span>
 <span class="kw">newtype</span> <span class="dt">RegexSource</span> <span class="fu">=</span>
-    <span class="dt">RegexSource</span> { _<span class="dt">RegexSource</span><span class="ot"> ::</span> <span class="dt">String</span> }
+    <span class="dt">RegexSource</span> {<span class="ot"> _RegexSource ::</span> <span class="dt">String</span> }
   <span class="kw">deriving</span> (<span class="dt">IsString</span>,<span class="dt">Show</span>)
 
 <span class="co">-- | name of the Haskell parser function for parsing the text matched</span>
 <span class="co">-- by a macro</span>
 <span class="kw">newtype</span> <span class="dt">FunctionID</span> <span class="fu">=</span>
-    <span class="dt">FunctionID</span> { _<span class="dt">FunctionID</span><span class="ot"> ::</span> <span class="dt">String</span> }
+    <span class="dt">FunctionID</span> {<span class="ot"> _FunctionID ::</span> <span class="dt">String</span> }
   <span class="kw">deriving</span> (<span class="dt">IsString</span>,<span class="dt">Show</span>)
 
 <span class="co">-- | we are only interested in the open parentheses used for</span>
@@ -206,10 +206,10 @@ presentRegexType (<span class="dt">PCRE</span> _) <span class="fu">=</span> <spa
 <span class="co">-- there is no initial &#39;(&#39; or &#39;(?:&#39;, just the suffic text</span>
 <span class="kw">data</span> <span class="dt">REToken</span> <span class="fu">=</span>
   <span class="dt">REToken</span>
-    { _<span class="ot">ret_prefix    ::</span> <span class="dt">String</span>  <span class="co">-- ^ following text optional ( or (?:</span>
-    , _<span class="ot">ret_fixed     ::</span> <span class="dt">Bool</span>    <span class="co">-- ^ a &#39;(&#39; that is not safe to modify</span>
-    , _<span class="ot">ret_grouping  ::</span> <span class="dt">Bool</span>    <span class="co">-- ^ is this a grouping group</span>
-    , _<span class="ot">ret_capturing ::</span> <span class="dt">Bool</span>    <span class="co">-- ^ is this a capturing group</span>
+    {<span class="ot"> _ret_prefix    ::</span> <span class="dt">String</span>  <span class="co">-- ^ following text optional ( or (?:</span>
+    ,<span class="ot"> _ret_fixed     ::</span> <span class="dt">Bool</span>    <span class="co">-- ^ a &#39;(&#39; that is not safe to modify</span>
+    ,<span class="ot"> _ret_grouping  ::</span> <span class="dt">Bool</span>    <span class="co">-- ^ is this a grouping group</span>
+    ,<span class="ot"> _ret_capturing ::</span> <span class="dt">Bool</span>    <span class="co">-- ^ is this a capturing group</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
 <h2 id="mkmacros">mkMacros</h2>
@@ -379,8 +379,8 @@ macro_attribute rty mid <span class="dt">MacroDescriptor</span>{<span class="fu"
       <span class="dt">C_regex</span>         <span class="ot">-&gt;</span> [regexSource rty <span class="dt">ExclCaptures</span> _md_source]
       <span class="dt">C_examples</span>      <span class="ot">-&gt;</span> _md_samples
       <span class="dt">C_anti_examples</span> <span class="ot">-&gt;</span> _md_counter_samples
-      <span class="dt">C_fails</span>         <span class="ot">-&gt;</span> map _<span class="dt">TestResult</span> _md_test_results
-      <span class="dt">C_parser</span>        <span class="ot">-&gt;</span> [maybe <span class="st">&quot;-&quot;</span> _<span class="dt">FunctionID</span> _md_parser]
+      <span class="dt">C_fails</span>         <span class="ot">-&gt;</span> map _TestResult _md_test_results
+      <span class="dt">C_parser</span>        <span class="ot">-&gt;</span> [maybe <span class="st">&quot;-&quot;</span> _FunctionID _md_parser]
       <span class="dt">C_comment</span>       <span class="ot">-&gt;</span> [_md_description]
 
 <span class="ot">format_table ::</span> <span class="dt">TableRow</span> <span class="ot">-&gt;</span> [<span class="dt">TableRow</span>] <span class="ot">-&gt;</span> [<span class="dt">String</span>]

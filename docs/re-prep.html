@@ -154,11 +154,11 @@ genMode <span class="fu">=</span> <span class="dt">Gen</span> <span class="fu">&
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prep_tut ::</span> <span class="dt">MODE</span> <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 prep_tut mode <span class="fu">=</span>
   sed <span class="fu">$</span> <span class="dt">Select</span>
-    [ <span class="dt">Function</span> [re<span class="fu">|^%</span>include <span class="fu">$</span>{file}(<span class="fu">@</span>{<span class="fu">%</span>string}) <span class="fu">$</span>{rex}(<span class="fu">@</span>{<span class="fu">%</span>string})<span class="fu">$|</span>] <span class="dt">TOP</span> <span class="fu">$</span> inclde   mode
-    , <span class="dt">LineEdit</span> [re<span class="fu">|^%</span>main <span class="fu">$</span>{arg}(top<span class="fu">|</span>bottom)<span class="fu">$|</span>]                            <span class="fu">$</span> main_    mode
-    , <span class="dt">Function</span> [re<span class="fu">|^$</span>{fn}(evalme<span class="fu">@</span>{<span class="fu">%</span>id}) <span class="fu">=</span> checkThis <span class="fu">$</span>{arg}(<span class="fu">@</span>{<span class="fu">%</span>string}) \(<span class="fu">$</span>{ans}([<span class="fu">^</span>)]<span class="fu">+</span>)\) \<span class="fu">$</span> <span class="fu">*$</span>{exp}(<span class="fu">.*</span>)<span class="fu">$|</span>]
+    [ <span class="dt">Function</span> [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] <span class="dt">TOP</span> <span class="fu">$</span> inclde   mode
+    , <span class="dt">LineEdit</span> [re|^%main ${arg}(top|bottom)$|]                            <span class="fu">$</span> main_    mode
+    , <span class="dt">Function</span> [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}) \(${ans}([^)]+)\) \$ *${exp}(.*)$|]
                                                                        <span class="dt">TOP</span> <span class="fu">$</span> evalme   mode
-    , <span class="dt">Function</span> [re<span class="fu">|^.*$|</span>]                                              <span class="dt">TOP</span> <span class="fu">$</span> passthru
+    , <span class="dt">Function</span> [re|^.*$|]                                              <span class="dt">TOP</span> <span class="fu">$</span> passthru
     ]</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">inclde,
 <span class="ot">  evalme ::</span> <span class="dt">MODE</span>
@@ -230,12 +230,12 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
     putStrLn <span class="st">&quot;&gt;&gt; examples/re-tutorial.lhs&quot;</span>
     pages
   <span class="kw">where</span>
-    pd fnm <span class="fu">=</span> <span class="kw">case</span> (mtch <span class="fu">!$$?</span> [cp<span class="fu">|</span>fdr<span class="fu">|</span>],mtch <span class="fu">!$$?</span> [cp<span class="fu">|</span>mnm<span class="fu">|</span>]) <span class="kw">of</span>
+    pd fnm <span class="fu">=</span> <span class="kw">case</span> (mtch <span class="fu">!$$?</span> [cp|fdr|],mtch <span class="fu">!$$?</span> [cp|mnm|]) <span class="kw">of</span>
         (<span class="dt">Nothing</span> ,<span class="dt">Just</span> mnm) <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;Text.RE.&quot;</span>          <span class="fu">&lt;&gt;</span>mnm) (<span class="st">&quot;Text/&quot;</span>    <span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
         (<span class="dt">Just</span> fdr,<span class="dt">Just</span> mnm) <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;Text.RE.&quot;</span><span class="fu">&lt;&gt;</span>fdr<span class="fu">&lt;&gt;</span><span class="st">&quot;.&quot;</span><span class="fu">&lt;&gt;</span>mnm) (<span class="st">&quot;Text/&quot;</span>    <span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>mnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
         _                   <span class="ot">-&gt;</span> pandoc_lhs (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span> ) (<span class="st">&quot;examples/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.lhs&quot;</span>) (<span class="st">&quot;docs/&quot;</span><span class="fu">&lt;&gt;</span>fnm<span class="fu">&lt;&gt;</span><span class="st">&quot;.html&quot;</span>)
       <span class="kw">where</span>
-        mtch <span class="fu">=</span> fnm <span class="fu">TT.?=~</span> [re<span class="fu">|^</span><span class="dt">RE</span><span class="fu">/</span>(<span class="fu">$</span>{fdr}(<span class="dt">Internal</span><span class="fu">|</span><span class="dt">PCRE</span><span class="fu">|</span><span class="dt">TDFA</span><span class="fu">|</span><span class="dt">Testbench</span><span class="fu">|</span><span class="dt">Tools</span><span class="fu">|</span><span class="dt">Types</span>)<span class="fu">/</span>)<span class="fu">?$</span>{mnm}(<span class="fu">@</span>{<span class="fu">%</span>id})<span class="fu">|</span>]</code></pre></div>
+        mtch <span class="fu">=</span> fnm <span class="fu">TT.?=~</span> [re|^RE/(${fdr}(Internal|PCRE|TDFA|Testbench|Tools|Types)/)?${mnm}(@{%id})|]</code></pre></div>
 <h2 id="generating-the-tutorial">Generating the Tutorial</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">includeDoc ::</span> <span class="dt">LineNo</span>
            <span class="ot">-&gt;</span> <span class="dt">Match</span> <span class="dt">LBS.ByteString</span>
@@ -245,8 +245,8 @@ gen_all <span class="fu">=</span> <span class="kw">do</span>
 includeDoc _ mtch _ _ <span class="fu">=</span> fmap <span class="dt">Just</span> <span class="fu">$</span>
     extract fp <span class="fu">=&lt;&lt;</span> compileRegex re_s
   <span class="kw">where</span>
-    fp    <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp<span class="fu">|</span>file<span class="fu">|</span>] mtch
-    re_s  <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp<span class="fu">|</span>rex<span class="fu">|</span>]  mtch
+    fp    <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|file|] mtch
+    re_s  <span class="fu">=</span> prs_s <span class="fu">$</span> captureText [cp|rex|]  mtch
 
     prs_s <span class="fu">=</span> maybe (error <span class="st">&quot;includeDoc&quot;</span>) T.unpack <span class="fu">.</span> parseString</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">evalmeDoc ::</span> <span class="dt">LineNo</span>
@@ -273,7 +273,7 @@ evalmeGen gs _ mtch0 _ _ <span class="fu">=</span> <span class="dt">Just</span> 
           modifyIORef gs (ide<span class="fu">:</span>)
           return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> LBS.pack <span class="fu">$</span> show ide
         <span class="kw">where</span>
-          ide <span class="fu">=</span> LBS.unpack <span class="fu">$</span> captureText [cp<span class="fu">|</span>fn<span class="fu">|</span>] mtch
+          ide <span class="fu">=</span> LBS.unpack <span class="fu">$</span> captureText [cp|fn|] mtch
       _ <span class="ot">-&gt;</span> return <span class="fu">$</span> <span class="dt">Just</span> <span class="fu">$</span> capturedText cap</code></pre></div>
 <p>How are we doing?</p>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mainGen ::</span> <span class="dt">GenState</span>
@@ -282,7 +282,7 @@ evalmeGen gs _ mtch0 _ _ <span class="fu">=</span> <span class="dt">Just</span> 
         <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">LineEdit</span> <span class="dt">LBS.ByteString</span>)
 mainGen gs _ mtchs <span class="fu">=</span> <span class="kw">case</span> allMatches mtchs <span class="kw">of</span>
   [mtch]  <span class="ot">-&gt;</span>
-    <span class="kw">case</span> captureText [cp<span class="fu">|</span>arg<span class="fu">|</span>] <span class="fu">$</span> mtch <span class="kw">of</span>
+    <span class="kw">case</span> captureText [cp|arg|] <span class="fu">$</span> mtch <span class="kw">of</span>
       <span class="st">&quot;top&quot;</span>    <span class="ot">-&gt;</span> return <span class="fu">$</span> <span class="dt">ReplaceWith</span> <span class="fu">$</span> LBS.unlines <span class="fu">$</span>
           [ begin_code
           , <span class="st">&quot;module Main(main) where&quot;</span>
@@ -345,9 +345,9 @@ count_lines_incl b_ln k_ln <span class="fu">=</span>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Token</span> <span class="fu">=</span> <span class="dt">Bra</span> <span class="dt">LineNo</span> <span class="fu">|</span> <span class="dt">Hit</span> <span class="fu">|</span> <span class="dt">Ket</span> <span class="dt">LineNo</span>   <span class="kw">deriving</span> (<span class="dt">Show</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">scan ::</span> <span class="dt">RE</span> <span class="ot">-&gt;</span> [<span class="dt">LBS.ByteString</span>] <span class="ot">-&gt;</span> [<span class="dt">Token</span>]
 scan rex <span class="fu">=</span> grepScript
-    [ (,) [re<span class="fu">|</span>\\begin\{code\}<span class="fu">|</span>] <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Bra</span> i
+    [ (,) [re|\\begin\{code\}|] <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Bra</span> i
     , (,) rex                   <span class="fu">$</span> \_ <span class="ot">-&gt;</span> chk   <span class="dt">Hit</span>
-    , (,) [re<span class="fu">|</span>\\end\{code\}<span class="fu">|</span>]   <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Ket</span> i
+    , (,) [re|\\end\{code\}|]   <span class="fu">$</span> \i <span class="ot">-&gt;</span> chk <span class="fu">$</span> <span class="dt">Ket</span> i
     ]
   <span class="kw">where</span>
     chk x mtchs <span class="fu">=</span> <span class="kw">case</span> anyMatches mtchs <span class="kw">of</span>
@@ -451,8 +451,8 @@ pandoc_page pg <span class="fu">=</span> <span class="kw">do</span>
 
 <span class="kw">data</span> <span class="dt">Heading</span> <span class="fu">=</span>
   <span class="dt">Heading</span>
-    { _<span class="ot">hdg_id    ::</span> <span class="dt">LBS.ByteString</span>
-    , _<span class="ot">hdg_title ::</span> <span class="dt">LBS.ByteString</span>
+    {<span class="ot"> _hdg_id    ::</span> <span class="dt">LBS.ByteString</span>
+    ,<span class="ot"> _hdg_title ::</span> <span class="dt">LBS.ByteString</span>
     }
   <span class="kw">deriving</span> (<span class="dt">Show</span>)
 
@@ -475,7 +475,7 @@ prep_page ttl mmd in_fp out_fp <span class="fu">=</span> <span class="kw">do</sp
 
 <span class="ot">set_title ::</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
 set_title ttl lbs <span class="fu">=</span> fromMaybe oops <span class="fu">$</span> flip sed&#39; lbs <span class="fu">$</span> <span class="dt">Pipe</span>
-    [ <span class="dt">Function</span> [re<span class="fu">|&lt;&lt;</span>\<span class="fu">$</span>title\<span class="fu">$&gt;&gt;|</span>] <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="fu">$</span> <span class="dt">Just</span> ttl
+    [ <span class="dt">Function</span> [re|&lt;&lt;\$title\$&gt;&gt;|] <span class="dt">TOP</span> <span class="fu">$</span> \_ _ _ _<span class="ot">-&gt;</span>return <span class="fu">$</span> <span class="dt">Just</span> ttl
     ]
   <span class="kw">where</span>
     <span class="co">-- runIdentity added to base in 4.9 only</span>
@@ -491,10 +491,10 @@ prep_page&#39; mmd lbs <span class="fu">=</span> <span class="kw">do</span>
     return (hdgs,lbs1<span class="fu">&lt;&gt;</span>lbs2)
   <span class="kw">where</span>
     scr rf_h rf_t <span class="fu">=</span> <span class="dt">Select</span>
-      [ <span class="dt">Function</span> [re<span class="fu">|^%</span>heading<span class="fu">#$</span>{ide}(<span class="fu">@</span>{<span class="fu">%</span>id}) <span class="fu">+$</span>{ttl}([<span class="fu">^</span> ]<span class="fu">.*</span>)<span class="fu">$|</span>] <span class="dt">TOP</span> <span class="fu">$</span> heading       mmd rf_t rf_h
-      , <span class="dt">Function</span> [re<span class="fu">|^-</span> \[ \] <span class="fu">+$</span>{itm}(<span class="fu">.*</span>)<span class="fu">$|</span>]                     <span class="dt">TOP</span> <span class="fu">$</span> task_list     mmd rf_t <span class="dt">False</span>
-      , <span class="dt">Function</span> [re<span class="fu">|^-</span> \[[<span class="dt">Xx</span>]\] <span class="fu">+$</span>{itm}(<span class="fu">.*</span>)<span class="fu">$|</span>]                  <span class="dt">TOP</span> <span class="fu">$</span> task_list     mmd rf_t <span class="dt">True</span>
-      , <span class="dt">Function</span> [re<span class="fu">|^.*$|</span>]                                      <span class="dt">TOP</span> <span class="fu">$</span> fin_task_list mmd rf_t
+      [ <span class="dt">Function</span> [re|^%heading#${ide}(@{%id}) +${ttl}([^ ].*)$|] <span class="dt">TOP</span> <span class="fu">$</span> heading       mmd rf_t rf_h
+      , <span class="dt">Function</span> [re|^- \[ \] +${itm}(.*)$|]                     <span class="dt">TOP</span> <span class="fu">$</span> task_list     mmd rf_t <span class="dt">False</span>
+      , <span class="dt">Function</span> [re|^- \[[Xx]\] +${itm}(.*)$|]                  <span class="dt">TOP</span> <span class="fu">$</span> task_list     mmd rf_t <span class="dt">True</span>
+      , <span class="dt">Function</span> [re|^.*$|]                                      <span class="dt">TOP</span> <span class="fu">$</span> fin_task_list mmd rf_t
       ]
 
 <span class="ot">heading ::</span> <span class="dt">MarkdownMode</span>
@@ -515,21 +515,21 @@ heading mmd rf_t rf_h _ mtch _ _ <span class="fu">=</span> <span class="kw">do</
       <span class="dt">MM_hackage</span> <span class="ot">-&gt;</span> <span class="st">&quot;## &quot;</span><span class="fu">&lt;&gt;</span>ttl
       <span class="dt">MM_pandoc</span>  <span class="ot">-&gt;</span> <span class="st">&quot;&lt;h2 id=&#39;&quot;</span><span class="fu">&lt;&gt;</span>ide<span class="fu">&lt;&gt;</span><span class="st">&quot;&#39;&gt;&quot;</span><span class="fu">&lt;&gt;</span>ttl<span class="fu">&lt;&gt;</span><span class="st">&quot;&lt;/h2&gt;&quot;</span>
 
-    ide <span class="fu">=</span> mtch <span class="fu">!$$</span> [cp<span class="fu">|</span>ide<span class="fu">|</span>]
-    ttl <span class="fu">=</span> mtch <span class="fu">!$$</span> [cp<span class="fu">|</span>ttl<span class="fu">|</span>]
+    ide <span class="fu">=</span> mtch <span class="fu">!$$</span> [cp|ide|]
+    ttl <span class="fu">=</span> mtch <span class="fu">!$$</span> [cp|ttl|]
 
 <span class="ot">mk_pre_body_html ::</span> <span class="dt">Page</span> <span class="ot">-&gt;</span> [<span class="dt">Heading</span>] <span class="ot">-&gt;</span> <span class="dt">LBS.ByteString</span>
 mk_pre_body_html pg hdgs <span class="fu">=</span> hdr <span class="fu">&lt;&gt;</span> LBS.concat (map nav [minBound<span class="fu">..</span>maxBound]) <span class="fu">&lt;&gt;</span> ftr
   <span class="kw">where</span>
 <span class="ot">    hdr ::</span> <span class="dt">LBS.ByteString</span>
-    hdr <span class="fu">=</span> [here<span class="fu">|</span>    <span class="fu">&lt;</span>div id<span class="fu">=</span><span class="st">&quot;container&quot;</span><span class="fu">&gt;</span>
-    <span class="fu">&lt;</span>div id<span class="fu">=</span><span class="st">&quot;sidebar&quot;</span><span class="fu">&gt;</span>
-      <span class="fu">&lt;</span>div id<span class="fu">=</span><span class="st">&quot;corner&quot;</span><span class="fu">&gt;</span>
-        <span class="fu">|</span>] <span class="fu">&lt;&gt;</span> branding <span class="fu">&lt;&gt;</span> [here<span class="fu">|</span>
-      <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-      <span class="fu">&lt;</span>div <span class="kw">class</span><span class="fu">=</span><span class="st">&quot;widget&quot;</span> id<span class="fu">=</span><span class="st">&quot;pages&quot;</span><span class="fu">&gt;</span>
-        <span class="fu">&lt;</span>ul <span class="kw">class</span><span class="fu">=</span><span class="st">&quot;page-nav&quot;</span><span class="fu">&gt;</span>
-<span class="fu">|</span>]
+    hdr <span class="fu">=</span> [here|    &lt;div id=&quot;container&quot;&gt;
+    &lt;div id=&quot;sidebar&quot;&gt;
+      &lt;div id=&quot;corner&quot;&gt;
+        |] <span class="fu">&lt;&gt;</span> branding <span class="fu">&lt;&gt;</span> [here|
+      &lt;/div&gt;
+      &lt;div class=&quot;widget&quot; id=&quot;pages&quot;&gt;
+        &lt;ul class=&quot;page-nav&quot;&gt;
+|]
 
     nav dst_pg <span class="fu">=</span> LBS.unlines <span class="fu">$</span>
       nav_li <span class="st">&quot;          &quot;</span> pg_cls pg_adr pg_ttl <span class="fu">:</span>
@@ -554,52 +554,52 @@ mk_pre_body_html pg hdgs <span class="fu">=</span> hdr <span class="fu">&lt;&gt;
       , <span class="st">&quot;&lt;/a&gt;&lt;/li&gt;&quot;</span>
       ]
 
-    ftr <span class="fu">=</span> [here<span class="fu">|</span>          <span class="fu">&lt;/</span>ul<span class="fu">&gt;</span>
-      <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-      <span class="fu">&lt;</span>div <span class="kw">class</span><span class="fu">=</span><span class="st">&quot;supplementary widget&quot;</span> id<span class="fu">=</span><span class="st">&quot;github&quot;</span><span class="fu">&gt;</span>
-        <span class="fu">&lt;</span>a href<span class="fu">=</span><span class="st">&quot;http://code.regex.uk&quot;</span><span class="fu">&gt;&lt;</span>img src<span class="fu">=</span><span class="st">&quot;images/code.svg&quot;</span> alt<span class="fu">=</span><span class="st">&quot;github code&quot;</span> <span class="fu">/&gt;</span> <span class="dt">Code</span><span class="fu">&lt;/</span>a<span class="fu">&gt;</span>
-      <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-      <span class="fu">&lt;</span>div <span class="kw">class</span><span class="fu">=</span><span class="st">&quot;supplementary widget&quot;</span> id<span class="fu">=</span><span class="st">&quot;github-issues&quot;</span><span class="fu">&gt;</span>
-        <span class="fu">&lt;</span>a href<span class="fu">=</span><span class="st">&quot;http://issues.regex.uk&quot;</span><span class="fu">&gt;&lt;</span>img src<span class="fu">=</span><span class="st">&quot;images/issue-opened.svg&quot;</span> alt<span class="fu">=</span><span class="st">&quot;github issues&quot;</span> <span class="fu">/&gt;</span> <span class="dt">Issues</span><span class="fu">&lt;/</span>a<span class="fu">&gt;</span>
-      <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-      <span class="fu">&lt;</span>div <span class="kw">class</span><span class="fu">=</span><span class="st">&quot;widget-divider&quot;</span><span class="fu">&gt;&amp;</span>nbsp;<span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-      <span class="fu">&lt;</span>div <span class="kw">class</span><span class="fu">=</span><span class="st">&quot;supplementary widget&quot;</span> id<span class="fu">=</span><span class="st">&quot;blog-badge&quot;</span><span class="fu">&gt;</span>
-        <span class="fu">&lt;</span>a href<span class="fu">=</span><span class="st">&quot;http://blog.regex.uk&quot;</span><span class="fu">&gt;</span>
-          <span class="fu">&lt;</span>img src<span class="fu">=</span><span class="st">&quot;badges/blog.svg&quot;</span> alt<span class="fu">=</span><span class="st">&quot;regex blog&quot;</span> <span class="fu">/&gt;</span>
-        <span class="fu">&lt;/</span>a<span class="fu">&gt;</span>
-      <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-      <span class="fu">&lt;</span>div <span class="kw">class</span><span class="fu">=</span><span class="st">&quot;supplementary widget&quot;</span> id<span class="fu">=</span><span class="st">&quot;hackage-badge&quot;</span><span class="fu">&gt;</span>
-        <span class="fu">&lt;</span>a href<span class="fu">=</span><span class="st">&quot;https://hackage.haskell.org/package/regex&quot;</span><span class="fu">&gt;</span>
-          <span class="fu">&lt;</span>img src<span class="fu">=</span><span class="st">&quot;badges/hackage.svg&quot;</span> alt<span class="fu">=</span><span class="st">&quot;hackage version&quot;</span> <span class="fu">/&gt;</span>
-        <span class="fu">&lt;/</span>a<span class="fu">&gt;</span>
-      <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-      <span class="fu">&lt;</span>div <span class="kw">class</span><span class="fu">=</span><span class="st">&quot;supplementary widget&quot;</span> id<span class="fu">=</span><span class="st">&quot;build-status-badge&quot;</span><span class="fu">&gt;</span>
-        <span class="fu">&lt;</span>a href<span class="fu">=</span><span class="st">&quot;build-status&quot;</span><span class="fu">&gt;</span>
-          <span class="fu">&lt;</span>img src<span class="fu">=</span><span class="st">&quot;badges/build-status.svg&quot;</span> alt<span class="fu">=</span><span class="st">&quot;build status&quot;</span> <span class="fu">/&gt;</span>
-        <span class="fu">&lt;/</span>a<span class="fu">&gt;</span>
-      <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-      <span class="fu">&lt;</span>div <span class="kw">class</span><span class="fu">=</span><span class="st">&quot;supplementary widget&quot;</span> id<span class="fu">=</span><span class="st">&quot;maintainers-contact&quot;</span><span class="fu">&gt;</span>
-        <span class="fu">&lt;</span>a href<span class="fu">=</span><span class="st">&quot;mailto:maintainers@regex.uk&quot;</span><span class="fu">&gt;</span>
-          <span class="fu">&lt;</span>img src<span class="fu">=</span><span class="st">&quot;badges/maintainers-contact.svg&quot;</span> alt<span class="fu">=</span><span class="st">&quot;maintainers contact&quot;</span> <span class="fu">/&gt;</span>
-        <span class="fu">&lt;/</span>a<span class="fu">&gt;</span>
-      <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-      <span class="fu">&lt;</span>div <span class="kw">class</span><span class="fu">=</span><span class="st">&quot;supplementary widget&quot;</span> id<span class="fu">=</span><span class="st">&quot;feedback-contact&quot;</span><span class="fu">&gt;</span>
-        <span class="fu">&lt;</span>a href<span class="fu">=</span><span class="st">&quot;mailto:feedback@regex.uk&quot;</span><span class="fu">&gt;</span>
-          <span class="fu">&lt;</span>img src<span class="fu">=</span><span class="st">&quot;badges/feedback-contact.svg&quot;</span> alt<span class="fu">=</span><span class="st">&quot;deedback contact&quot;</span> <span class="fu">/&gt;</span>
-        <span class="fu">&lt;/</span>a<span class="fu">&gt;</span>
-      <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-      <span class="fu">&lt;</span>div <span class="kw">class</span><span class="fu">=</span><span class="st">&quot;supplementary widget twitter&quot;</span><span class="fu">&gt;</span>
-        <span class="fu">&lt;</span>iframe style<span class="fu">=</span><span class="st">&quot;width:162px; height:20px;&quot;</span> src<span class="fu">=</span><span class="st">&quot;https://platform.twitter.com/widgets/follow_button.html?screen_name=hregex&amp;amp;show_count=false&quot;</span><span class="fu">&gt;</span>
-        <span class="fu">&lt;/</span>iframe<span class="fu">&gt;</span>
-      <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-    <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-    <span class="fu">&lt;</span>div id<span class="fu">=</span><span class="st">&quot;content&quot;</span><span class="fu">&gt;</span>
-<span class="fu">|</span>]
+    ftr <span class="fu">=</span> [here|          &lt;/ul&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;supplementary widget&quot; id=&quot;github&quot;&gt;
+        &lt;a href=&quot;http://code.regex.uk&quot;&gt;&lt;img src=&quot;images/code.svg&quot; alt=&quot;github code&quot; /&gt; Code&lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;supplementary widget&quot; id=&quot;github-issues&quot;&gt;
+        &lt;a href=&quot;http://issues.regex.uk&quot;&gt;&lt;img src=&quot;images/issue-opened.svg&quot; alt=&quot;github issues&quot; /&gt; Issues&lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;widget-divider&quot;&gt;&amp;nbsp;&lt;/div&gt;
+      &lt;div class=&quot;supplementary widget&quot; id=&quot;blog-badge&quot;&gt;
+        &lt;a href=&quot;http://blog.regex.uk&quot;&gt;
+          &lt;img src=&quot;badges/blog.svg&quot; alt=&quot;regex blog&quot; /&gt;
+        &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;supplementary widget&quot; id=&quot;hackage-badge&quot;&gt;
+        &lt;a href=&quot;https://hackage.haskell.org/package/regex&quot;&gt;
+          &lt;img src=&quot;badges/hackage.svg&quot; alt=&quot;hackage version&quot; /&gt;
+        &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;supplementary widget&quot; id=&quot;build-status-badge&quot;&gt;
+        &lt;a href=&quot;build-status&quot;&gt;
+          &lt;img src=&quot;badges/build-status.svg&quot; alt=&quot;build status&quot; /&gt;
+        &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;supplementary widget&quot; id=&quot;maintainers-contact&quot;&gt;
+        &lt;a href=&quot;mailto:maintainers@regex.uk&quot;&gt;
+          &lt;img src=&quot;badges/maintainers-contact.svg&quot; alt=&quot;maintainers contact&quot; /&gt;
+        &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;supplementary widget&quot; id=&quot;feedback-contact&quot;&gt;
+        &lt;a href=&quot;mailto:feedback@regex.uk&quot;&gt;
+          &lt;img src=&quot;badges/feedback-contact.svg&quot; alt=&quot;deedback contact&quot; /&gt;
+        &lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;supplementary widget twitter&quot;&gt;
+        &lt;iframe style=&quot;width:162px; height:20px;&quot; src=&quot;https://platform.twitter.com/widgets/follow_button.html?screen_name=hregex&amp;amp;show_count=false&quot;&gt;
+        &lt;/iframe&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;content&quot;&gt;
+|]
 
 <span class="ot">pst_body_html ::</span> <span class="dt">LBS.ByteString</span>
-pst_body_html <span class="fu">=</span> [here<span class="fu">|</span>      <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-    <span class="fu">&lt;/</span>div<span class="fu">&gt;</span>
-<span class="fu">|</span>] <span class="fu">&lt;&gt;</span> tracking</code></pre></div>
+pst_body_html <span class="fu">=</span> [here|      &lt;/div&gt;
+    &lt;/div&gt;
+|] <span class="fu">&lt;&gt;</span> tracking</code></pre></div>
 <h2 id="task-lists">Task Lists</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | replacement function to convert GFM task list line into HTML if we</span>
 <span class="co">-- aren&#39;t writing GFM (i.e.,  generating markdown for GitHub)</span>
@@ -632,7 +632,7 @@ task_list mmd rf chk _ mtch _ _ <span class="fu">=</span>
 
     cb  <span class="fu">=</span> <span class="kw">if</span> chk <span class="kw">then</span> <span class="st">&quot;&amp;#x2612;&quot;</span> <span class="kw">else</span> <span class="st">&quot;&amp;#x2610;&quot;</span>
 
-    itm <span class="fu">=</span> mtch <span class="fu">!$$</span> [cp<span class="fu">|</span>itm<span class="fu">|</span>]
+    itm <span class="fu">=</span> mtch <span class="fu">!$$</span> [cp|itm|]
 
 <span class="co">-- | replacement function used for &#39;other&#39; lines -- terminate any task</span>
 <span class="co">-- list that was being generated</span>
@@ -715,10 +715,10 @@ pandoc_lhs&#39; title repo_path in_file out_file <span class="fu">=</span> <span
 tweak_md mm lbs <span class="fu">=</span> <span class="kw">case</span> mm <span class="kw">of</span>
     <span class="dt">MM_github</span>  <span class="ot">-&gt;</span> lbs
     <span class="dt">MM_pandoc</span>  <span class="ot">-&gt;</span> awk
-      [ <span class="dt">Template</span> [ed<span class="fu">|&lt;</span>https<span class="fu">?://$</span>{rest}([<span class="fu">^</span>)]<span class="fu">+</span>)<span class="fu">&gt;///</span>[<span class="fu">$</span>{rest}](<span class="fu">$</span><span class="dv">0</span>)<span class="fu">|</span>]
+      [ <span class="dt">Template</span> [ed|&lt;https?://${rest}([^)]+)&gt;///[${rest}]($0)|]
       ]
     <span class="dt">MM_hackage</span> <span class="ot">-&gt;</span> awk
-      [ <span class="dt">Template</span> [ed<span class="fu">|&lt;</span>br<span class="fu">/&gt;$///</span>\n<span class="fu">|</span>]
+      [ <span class="dt">Template</span> [ed|&lt;br/&gt;$///\n|]
       ]
   <span class="kw">where</span>
     awk <span class="fu">=</span> fromMaybe oops <span class="fu">.</span> flip sed&#39; lbs <span class="fu">.</span> <span class="dt">Pipe</span>
@@ -727,20 +727,20 @@ tweak_md mm lbs <span class="fu">=</span> <span class="kw">case</span> mm <span 
     oops <span class="fu">=</span> error <span class="st">&quot;tweak_md&quot;</span></code></pre></div>
 <h2 id="branding">branding</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">branding ::</span> <span class="dt">LBS.ByteString</span>
-branding <span class="fu">=</span> [here<span class="fu">|&lt;</span>a href<span class="fu">=</span><span class="st">&quot;.&quot;</span> style<span class="fu">=</span><span class="st">&quot;font-family: Arial, &#39;Helvetica Neue&#39;, Helvetica, sans-serif;&quot;</span> id<span class="fu">=</span><span class="st">&quot;branding&quot;</span><span class="fu">&gt;</span>[<span class="fu">&lt;</span>span style<span class="fu">=</span><span class="ch">&#39;color:red;&#39;</span><span class="fu">&gt;</span>re<span class="fu">&lt;/</span>span<span class="fu">&gt;|$</span>{<span class="fu">&lt;</span>span style<span class="fu">=</span><span class="ch">&#39;color:red;&#39;</span><span class="fu">&gt;</span>gex<span class="fu">&lt;/</span>span<span class="fu">&gt;</span>}(<span class="fu">.*</span>)<span class="fu">|&lt;</span>span<span class="fu">&gt;&lt;/</span>span<span class="fu">&gt;</span>]<span class="fu">&lt;/</span>a<span class="fu">&gt;|</span>]</code></pre></div>
+branding <span class="fu">=</span> [here|&lt;a href=&quot;.&quot; style=&quot;font-family: Arial, &#39;Helvetica Neue&#39;, Helvetica, sans-serif;&quot; id=&quot;branding&quot;&gt;[&lt;span style=&#39;color:red;&#39;&gt;re&lt;/span&gt;|${&lt;span style=&#39;color:red;&#39;&gt;gex&lt;/span&gt;}(.*)|&lt;span&gt;&lt;/span&gt;]&lt;/a&gt;|]</code></pre></div>
 <h2 id="tracking">tracking</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">tracking ::</span> <span class="dt">LBS.ByteString</span>
-tracking <span class="fu">=</span> [here<span class="fu">|</span>    <span class="fu">&lt;</span>script<span class="fu">&gt;</span>
-      (function(i,s,o,g,r,a,m){i[<span class="ch">&#39;GoogleAnalyticsObject&#39;</span>]<span class="fu">=</span>r;i[r]<span class="fu">=</span>i[r]<span class="fu">||</span>function(){
-      (i[r]<span class="fu">.</span>q<span class="fu">=</span>i[r]<span class="fu">.</span>q<span class="fu">||</span>[])<span class="fu">.</span>push(arguments)},i[r]<span class="fu">.</span>l<span class="fu">=</span><span class="dv">1</span><span class="fu">*</span>new <span class="dt">Date</span>();a<span class="fu">=</span>s<span class="fu">.</span>createElement(o),
-      m<span class="fu">=</span>s<span class="fu">.</span>getElementsByTagName(o)[<span class="dv">0</span>];a<span class="fu">.</span>async<span class="fu">=</span><span class="dv">1</span>;a<span class="fu">.</span>src<span class="fu">=</span>g;m<span class="fu">.</span>parentNode<span class="fu">.</span>insertBefore(a,m)
-      })(window,document,<span class="ch">&#39;script&#39;</span>,<span class="ch">&#39;https://www.google-analytics.com/analytics.js&#39;</span>,<span class="ch">&#39;ga&#39;</span>);
+tracking <span class="fu">=</span> [here|    &lt;script&gt;
+      (function(i,s,o,g,r,a,m){i[&#39;GoogleAnalyticsObject&#39;]=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,&#39;script&#39;,&#39;https://www.google-analytics.com/analytics.js&#39;,&#39;ga&#39;);
 
-      ga(<span class="ch">&#39;create&#39;</span>, <span class="ch">&#39;UA-92650418-1&#39;</span>, <span class="ch">&#39;auto&#39;</span>);
-      ga(<span class="ch">&#39;send&#39;</span>, <span class="ch">&#39;pageview&#39;</span>);
+      ga(&#39;create&#39;, &#39;UA-92650418-1&#39;, &#39;auto&#39;);
+      ga(&#39;send&#39;, &#39;pageview&#39;);
 
-    <span class="fu">&lt;/</span>script<span class="fu">&gt;</span>
-<span class="fu">|</span>]</code></pre></div>
+    &lt;/script&gt;
+|]</code></pre></div>
 <h2 id="testing">testing</h2>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">test ::</span> <span class="dt">IO</span> ()
 test <span class="fu">=</span> <span class="kw">do</span>

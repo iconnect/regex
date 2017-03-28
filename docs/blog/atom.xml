@@ -8,8 +8,23 @@
         <name>Chris Dornan</name>
         <email>chris@regex.uk</email>
     </author>
-    <updated>2017-03-16T00:00:00Z</updated>
+    <updated>2017-03-28T00:00:00Z</updated>
     <entry>
+    <title>regex-0.10.0.3</title>
+    <link href="http://blog.regex.uk/posts/2017-03-28-update.html" />
+    <id>http://blog.regex.uk/posts/2017-03-28-update.html</id>
+    <published>2017-03-28T00:00:00Z</published>
+    <updated>2017-03-28T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<p>The preparation for regex-1.0.0.0 is almost complete.</p>
+<ul>
+<li><p>The schedule of releasing on 2017-03-31 <a href="https://github.com/iconnect/regex/milestone/3">remains on track</a>.</p></li>
+<li><p>The reorganization of the API is almost complete in <a href="https://hackage.haskell.org/package/regex-0.10.0.3">regex-0.10.0.3</a>, with (I hope) only relatively minor adjustments to make;</p></li>
+<li><p>While I will continue to refine the Haddocks, most of the effort that I have available will be focused on reorganizing the tutorial in line with the new API.</p></li>
+<li><p><em>All</em> of the latter effort has been driven by the feedback from you and all of the feedback has been acted on (just because it is so good) — please keep it up; I am sorry if you have not received an acknowledgment of some feedback yet — it is coming; it is just that it has just been a spectacularly busy time for me.</p></li>
+</ul>
+<p>Thanks — you are amazing!</p>]]></summary>
+</entry>
+<entry>
     <title>regex-0.8.0.0</title>
     <link href="http://blog.regex.uk/posts/2017-03-16-update.html" />
     <id>http://blog.regex.uk/posts/2017-03-16-update.html</id>

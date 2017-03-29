@@ -32,8 +32,8 @@ import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Prelude.Compat
 import           Text.RE
 import           Text.RE.Tools.Edit
-import           Text.RE.Types.IsRegex
-import           Text.RE.Types.Replace
+import           Text.RE.IsRegex
+import           Text.RE.Replace
 
 
 -- | read a file, apply an 'Edits' script to each line it and

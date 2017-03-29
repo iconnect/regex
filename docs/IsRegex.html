@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>regex – Text.RE.Types.IsRegex</title>
+  <title>regex – Text.RE.IsRegex</title>
   <style type="text/css">code{white-space: pre;}</style>
   <style type="text/css">
 div.sourceCode { overflow-x: auto; }
@@ -59,28 +59,34 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class='bcdiv'>
   <ol class='breadcrumb'>
     <li><a href="." style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;" id="branding">[<span style='color:red;'>re</span>|${<span style='color:red;'>gex</span>}(.*)|<span></span>]</a></li>
-    <li><a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/Types/IsRegex.lhs'>Text.RE.Types.IsRegex</a></li>
+    <li><a title='source file' href='https://github.com/iconnect/regex/blob/master/Text/RE/IsRegex.lhs'>Text.RE.IsRegex</a></li>
 </ol>
 </div>
 <div class='litcontent'>
 <header>
-<h1 class="title">Text.RE.Types.IsRegex</h1>
+<h1 class="title">Text.RE.IsRegex</h1>
 </header>
-<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE MultiParamTypeClasses      #-}</span>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
+<span class="ot">{-# LANGUAGE MultiParamTypeClasses      #-}</span>
 <span class="ot">{-# LANGUAGE AllowAmbiguousTypes        #-}</span>
 <span class="ot">{-# LANGUAGE CPP                        #-}</span>
-<span class="ot">#if __GLASGOW_HASKELL__ &gt;= 800</span>
+<span class="st">#if __GLASGOW_HASKELL__ &gt;= 800</span>
 <span class="ot">{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}</span>
-<span class="ot">#endif</span>
+<span class="st">#endif</span>
 
-<span class="kw">module</span> <span class="dt">Text.RE.Types.IsRegex</span> <span class="kw">where</span>
+<span class="kw">module</span> <span class="dt">Text.RE.IsRegex</span>
+  ( <span class="dt">IsRegex</span>(<span class="fu">..</span>)
+  , <span class="dt">SearchReplace</span>(<span class="fu">..</span>)
+  , searchReplaceAll
+  , searchReplaceFirst
+  ) <span class="kw">where</span>
 
-<span class="kw">import           </span><span class="dt">Text.RE.Internal.EscapeREString</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Match</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Matches</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.REOptions</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.SearchReplace</span></code></pre></div>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.EscapeREString</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.Types.Match</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.Types.Matches</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.Types.REOptions</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Replace</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.Types.SearchReplace</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- | the &#39;IsRegex&#39; class allows tools to be written that will work with</span>
 <span class="co">-- regex back end text type supported by the back end</span>
 <span class="kw">class</span> <span class="dt">Replace</span> s <span class="ot">=&gt;</span> <span class="dt">IsRegex</span> re s <span class="kw">where</span>
@@ -106,7 +112,15 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   makeRegex           <span class="fu">=</span> makeRegexWith         minBound
   makeSearchReplace   <span class="fu">=</span> makeSearchReplaceWith minBound
   makeEscaped         <span class="fu">=</span> makeEscapedWith       minBound
-  makeEscapedWith o f <span class="fu">=</span> makeRegexWith o <span class="fu">.</span> f <span class="fu">.</span> packR <span class="fu">.</span> escapeREString <span class="fu">.</span> unpackR</code></pre></div>
+  makeEscapedWith o f <span class="fu">=</span> makeRegexWith o <span class="fu">.</span> f <span class="fu">.</span> packR <span class="fu">.</span> escapeREString <span class="fu">.</span> unpackR
+
+<span class="co">-- | searching and replacing the first occurrence</span>
+<span class="ot">searchReplaceAll ::</span> <span class="dt">IsRegex</span> re s <span class="ot">=&gt;</span> <span class="dt">SearchReplace</span> re s <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> s
+searchReplaceAll <span class="dt">SearchReplace</span>{<span class="fu">..</span>} <span class="fu">=</span> replaceAll getTemplate <span class="fu">.</span> matchMany getSearch
+
+<span class="co">-- | searching and replaceing all occurrences</span>
+<span class="ot">searchReplaceFirst ::</span> <span class="dt">IsRegex</span> re s <span class="ot">=&gt;</span> <span class="dt">SearchReplace</span> re s <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> s
+searchReplaceFirst <span class="dt">SearchReplace</span>{<span class="fu">..</span>} <span class="fu">=</span> replace    getTemplate <span class="fu">.</span> matchOnce getSearch</code></pre></div>
 </div>    <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

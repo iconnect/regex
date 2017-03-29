@@ -58,7 +58,7 @@ evalme_PPT_01 = checkThis "evalme_PPT_01" (Just 0) $
 And the main bottom stuff.
 \begin{code}
 main :: IO ()
-main = runTests
+main = runTheTests
   [ evalme_PPT_01
   ]
 \end{code}

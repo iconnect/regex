@@ -70,9 +70,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE DeriveFunctor              #-}</span>
 <span class="ot">{-# LANGUAGE CPP                        #-}</span>
-<span class="ot">#if __GLASGOW_HASKELL__ &gt;= 800</span>
+<span class="st">#if __GLASGOW_HASKELL__ &gt;= 800</span>
 <span class="ot">{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}</span>
-<span class="ot">#endif</span>
+<span class="st">#endif</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.Tools.Edit</span>
   (
@@ -96,11 +96,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Data.Maybe</span>
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">Text.RE</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Capture</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.IsRegex</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.LineNo</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.SearchReplace</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.Types.Capture</span>
+<span class="kw">import           </span><span class="dt">Text.RE.IsRegex</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.Types.LineNo</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Replace</span>
 
 
 <span class="co">-- | an &#39;Edits&#39; script will, for each line in the file, either perform</span>
@@ -113,7 +112,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="co">-- | each Edit action specifies how the match should be processed</span>
 <span class="kw">data</span> <span class="dt">Edit</span> m re s
   <span class="fu">=</span> <span class="dt">Template</span> <span class="fu">!</span>(<span class="dt">SearchReplace</span> re s)
-  <span class="fu">|</span> <span class="dt">Function</span> <span class="fu">!</span>re <span class="dt">REContext</span> <span class="fu">!</span>(<span class="dt">LineNo</span><span class="ot">-&gt;</span><span class="dt">Match</span> s<span class="ot">-&gt;</span><span class="dt">Location</span><span class="ot">-&gt;</span><span class="dt">Capture</span> s<span class="ot">-&gt;</span>m (<span class="dt">Maybe</span> s))
+  <span class="fu">|</span> <span class="dt">Function</span> <span class="fu">!</span>re <span class="dt">REContext</span> <span class="fu">!</span>(<span class="dt">LineNo</span><span class="ot">-&gt;</span><span class="dt">Match</span> s<span class="ot">-&gt;</span><span class="dt">RELocation</span><span class="ot">-&gt;</span><span class="dt">Capture</span> s<span class="ot">-&gt;</span>m (<span class="dt">Maybe</span> s))
   <span class="fu">|</span> <span class="dt">LineEdit</span> <span class="fu">!</span>re           <span class="fu">!</span>(<span class="dt">LineNo</span><span class="ot">-&gt;</span><span class="dt">Matches</span> s<span class="ot">-&gt;</span>m (<span class="dt">LineEdit</span> s))
 
 <span class="co">-- | a LineEdit is the most general action thar can be performed on a line</span>

@@ -105,20 +105,20 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import qualified</span> <span class="dt">Text.Regex.PCRE</span>                <span class="kw">as</span> <span class="dt">PCRE_</span>
 <span class="kw">import qualified</span> <span class="dt">Text.Regex.TDFA</span>                <span class="kw">as</span> <span class="dt">TDFA_</span>
 <span class="kw">import           </span><span class="dt">Text.RE</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Internal.AddCaptureNames</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Internal.NamedCaptures</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Internal.PreludeMacros</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.AddCaptureNames</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.NamedCaptures</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.PreludeMacros</span>
 <span class="kw">import qualified</span> <span class="dt">Text.RE.PCRE</span>                   <span class="kw">as</span> <span class="dt">PCRE</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TDFA</span>                   <span class="kw">as</span> <span class="dt">TDFA</span>
-<span class="kw">import           </span><span class="dt">Text.RE.SearchReplace</span>
 <span class="kw">import           </span><span class="dt">Text.RE.TestBench</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Tools.Sed</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Capture</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.CaptureID</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Match</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Matches</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.REOptions</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.Types.Capture</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.Types.CaptureID</span>
+<span class="kw">import           </span><span class="dt">Text.RE.IsRegex</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.Types.Match</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.Types.Matches</span>
+<span class="kw">import           </span><span class="dt">Text.RE.ZeInternals.Types.REOptions</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Replace</span>
 
 <span class="kw">import qualified</span> <span class="dt">Text.RE.PCRE.String</span>            <span class="kw">as</span> <span class="dt">P_ST</span>
 <span class="kw">import qualified</span> <span class="dt">Text.RE.PCRE.ByteString</span>        <span class="kw">as</span> <span class="dt">P_BS</span>
@@ -169,8 +169,8 @@ str&#39;      <span class="fu">=</span> <span class="st">&quot;foo&quot;</span>
 
 <span class="co">-- | standard test REs</span>
 regex_,<span class="ot"> regex_alt ::</span> <span class="dt">RE</span>
-regex_    <span class="fu">=</span> [re|(a+) (b+)|]
-regex_alt <span class="fu">=</span> [re|(a+)|(b+)|]
+regex_    <span class="fu">=</span> [re<span class="fu">|</span>(a<span class="fu">+</span>) (b<span class="fu">+</span>)<span class="fu">|</span>]
+regex_alt <span class="fu">=</span> [re<span class="fu">|</span>(a<span class="fu">+</span>)<span class="fu">|</span>(b<span class="fu">+</span>)<span class="fu">|</span>]
 
 <span class="co">-- | golden matches result 1</span>
 <span class="ot">regex_str_matches ::</span> <span class="dt">Matches</span> <span class="dt">String</span>
@@ -307,11 +307,11 @@ core tests
 <div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">core_tests ::</span> <span class="dt">TestTree</span>
 core_tests <span class="fu">=</span> testGroup <span class="st">&quot;Match&quot;</span>
   [ testCase <span class="st">&quot;text (=~~Text.Lazy)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
-      txt <span class="ot">&lt;-</span> <span class="dt">LT</span><span class="fu">.</span>pack str_ <span class="fu">=~~</span> [re|(a+) (b+)|]<span class="ot"> ::</span> <span class="dt">IO</span> (<span class="dt">LT</span><span class="fu">.</span><span class="dt">Text</span>)
+      txt <span class="ot">&lt;-</span> <span class="dt">LT</span><span class="fu">.</span>pack str_ <span class="fu">=~~</span> [re<span class="fu">|</span>(a<span class="fu">+</span>) (b<span class="fu">+</span>)<span class="fu">|</span>]<span class="ot"> ::</span> <span class="dt">IO</span> (<span class="dt">LT</span><span class="fu">.</span><span class="dt">Text</span>)
       assertEqual <span class="st">&quot;text&quot;</span> txt <span class="st">&quot;a bbbb&quot;</span>
   , testCase <span class="st">&quot;multi (=~~/String)&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> sm <span class="fu">=</span> str_ <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Match</span> <span class="dt">String</span>
-          m  <span class="fu">=</span> capture [cp|0|] sm
+          m  <span class="fu">=</span> capture [cp<span class="fu">|</span><span class="dv">0</span><span class="fu">|</span>] sm
       assertEqual <span class="st">&quot;captureSource&quot;</span> <span class="st">&quot;a bbbb aa b&quot;</span> <span class="fu">$</span> captureSource m
       assertEqual <span class="st">&quot;capturedText&quot;</span>  <span class="st">&quot;a bbbb&quot;</span>      <span class="fu">$</span> capturedText  m
       assertEqual <span class="st">&quot;capturePrefix&quot;</span> <span class="st">&quot;&quot;</span>            <span class="fu">$</span> capturePrefix m
@@ -359,7 +359,7 @@ replace_methods_tests <span class="fu">=</span> testGroup <span class="st">&quot
       chk r
   , testCase <span class="st">&quot;Seq Char&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
       <span class="kw">let</span> ms <span class="fu">=</span> S.fromList str_ <span class="fu">=~</span><span class="ot"> regex_ ::</span> <span class="dt">Matches</span> (<span class="dt">S.Seq</span> <span class="dt">Char</span>)
-          f  <span class="fu">=</span> \_ (<span class="dt">Location</span> i j) <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="ot">-&gt;</span> <span class="dt">Just</span> <span class="fu">$</span> S.fromList <span class="fu">$</span>
+          f  <span class="fu">=</span> \_ (<span class="dt">RELocation</span> i j) <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="ot">-&gt;</span> <span class="dt">Just</span> <span class="fu">$</span> S.fromList <span class="fu">$</span>
                   <span class="st">&quot;(&quot;</span> <span class="fu">&lt;&gt;</span> show i <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span> show_co j <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span>
                     F.toList capturedText <span class="fu">&lt;&gt;</span> <span class="st">&quot;)&quot;</span>
           r  <span class="fu">=</span> replaceAllCaptures <span class="dt">ALL</span> f ms
@@ -381,8 +381,8 @@ replace_methods_tests <span class="fu">=</span> testGroup <span class="st">&quot
         r
         <span class="st">&quot;(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))&quot;</span>
 
-<span class="ot">    fmt ::</span> (<span class="dt">IsString</span> s,<span class="dt">Replace</span> s) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Location</span> <span class="ot">-&gt;</span> <span class="dt">Capture</span> s <span class="ot">-&gt;</span> <span class="dt">Maybe</span> s
-    fmt _ (<span class="dt">Location</span> i j) <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="st">&quot;(&quot;</span> <span class="fu">&lt;&gt;</span> packR (show i) <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span>
+<span class="ot">    fmt ::</span> (<span class="dt">IsString</span> s,<span class="dt">Replace</span> s) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">RELocation</span> <span class="ot">-&gt;</span> <span class="dt">Capture</span> s <span class="ot">-&gt;</span> <span class="dt">Maybe</span> s
+    fmt _ (<span class="dt">RELocation</span> i j) <span class="dt">Capture</span>{<span class="fu">..</span>} <span class="fu">=</span> <span class="dt">Just</span> <span class="fu">$</span> <span class="st">&quot;(&quot;</span> <span class="fu">&lt;&gt;</span> packR (show i) <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span>
       packR (show_co j) <span class="fu">&lt;&gt;</span> <span class="st">&quot;:&quot;</span> <span class="fu">&lt;&gt;</span> capturedText <span class="fu">&lt;&gt;</span> <span class="st">&quot;)&quot;</span>
 
     show_co (<span class="dt">CaptureOrdinal</span> j) <span class="fu">=</span> show j</code></pre></div>
@@ -618,19 +618,19 @@ formatScanTestTree <span class="fu">=</span>
 <span class="ot">analyseTokensTestTree ::</span> <span class="dt">TestTree</span>
 analyseTokensTestTree <span class="fu">=</span>
   testGroup <span class="st">&quot;Analysing [Token] Unit Tests&quot;</span>
-    [ tc [here|foobar|]                                       []
-    , tc [here||]                                             []
-    , tc [here|$([0-9]{4})|]                                  []
-    , tc [here|${x}()|]                                       [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>)]
-    , tc [here|${}()|]                                        []
-    , tc [here|${}()${foo}()|]                                [(<span class="dv">2</span>,<span class="st">&quot;foo&quot;</span>)]
-    , tc [here|${x}(${y()})|]                                 [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>)]
-    , tc [here|${x}(${y}())|]                                 [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>),(<span class="dv">2</span>,<span class="st">&quot;y&quot;</span>)]
-    , tc [here|${a}(${b{}())|]                                [(<span class="dv">1</span>,<span class="st">&quot;a&quot;</span>)]
-    , tc [here|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] [(<span class="dv">1</span>,<span class="st">&quot;y&quot;</span>),(<span class="dv">2</span>,<span class="st">&quot;m&quot;</span>),(<span class="dv">3</span>,<span class="st">&quot;d&quot;</span>)]
-    , tc [here|@$(@|\{${name}([^{}]+)\})|]                    [(<span class="dv">2</span>,<span class="st">&quot;name&quot;</span>)]
-    , tc [here|${y}[0-9]{4}|]                                 []
-    , tc [here|${}([0-9]{4})|]                                []
+    [ tc [here<span class="fu">|</span>foobar<span class="fu">|</span>]                                       []
+    , tc [here<span class="fu">||</span>]                                             []
+    , tc [here<span class="fu">|$</span>([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>})<span class="fu">|</span>]                                  []
+    , tc [here<span class="fu">|$</span>{x}()<span class="fu">|</span>]                                       [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>)]
+    , tc [here<span class="fu">|$</span>{}()<span class="fu">|</span>]                                        []
+    , tc [here<span class="fu">|$</span>{}()<span class="fu">$</span>{foo}()<span class="fu">|</span>]                                [(<span class="dv">2</span>,<span class="st">&quot;foo&quot;</span>)]
+    , tc [here<span class="fu">|$</span>{x}(<span class="fu">$</span>{y()})<span class="fu">|</span>]                                 [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>)]
+    , tc [here<span class="fu">|$</span>{x}(<span class="fu">$</span>{y}())<span class="fu">|</span>]                                 [(<span class="dv">1</span>,<span class="st">&quot;x&quot;</span>),(<span class="dv">2</span>,<span class="st">&quot;y&quot;</span>)]
+    , tc [here<span class="fu">|$</span>{a}(<span class="fu">$</span>{b{}())<span class="fu">|</span>]                                [(<span class="dv">1</span>,<span class="st">&quot;a&quot;</span>)]
+    , tc [here<span class="fu">|$</span>{y}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>})<span class="fu">-$</span>{m}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>})<span class="fu">-$</span>{d}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">2</span>})<span class="fu">|</span>] [(<span class="dv">1</span>,<span class="st">&quot;y&quot;</span>),(<span class="dv">2</span>,<span class="st">&quot;m&quot;</span>),(<span class="dv">3</span>,<span class="st">&quot;d&quot;</span>)]
+    , tc [here<span class="fu">|@$</span>(<span class="fu">@|</span>\{<span class="fu">$</span>{name}([<span class="fu">^</span>{}]<span class="fu">+</span>)\})<span class="fu">|</span>]                    [(<span class="dv">2</span>,<span class="st">&quot;name&quot;</span>)]
+    , tc [here<span class="fu">|$</span>{y}[<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>}<span class="fu">|</span>]                                 []
+    , tc [here<span class="fu">|$</span>{}([<span class="dv">0</span><span class="fu">-</span><span class="dv">9</span>]{<span class="dv">4</span>})<span class="fu">|</span>]                                []
     ]
   <span class="kw">where</span>
     tc s al <span class="fu">=</span>
@@ -685,7 +685,7 @@ test_add_capture_name lab tst x <span class="fu">=</span> testCase lab <span cla
 misc_tests <span class="fu">=</span> testGroup <span class="st">&quot;Miscelaneous Tests&quot;</span>
     [ testGroup <span class="st">&quot;CaptureID&quot;</span>
         [ testCase <span class="st">&quot;CaptureID lookup failure&quot;</span> <span class="fu">$</span> <span class="kw">do</span>
-            ok <span class="ot">&lt;-</span> isValidError <span class="fu">$</span> findCaptureID [cp|foo|] <span class="fu">$</span> reCaptureNames [re|foo|]
+            ok <span class="ot">&lt;-</span> isValidError <span class="fu">$</span> findCaptureID [cp<span class="fu">|</span>foo<span class="fu">|</span>] <span class="fu">$</span> reCaptureNames [re<span class="fu">|</span>foo<span class="fu">|</span>]
             assertBool <span class="st">&quot;failed&quot;</span> ok
         ]
     , testGroup <span class="st">&quot;QQ&quot;</span>

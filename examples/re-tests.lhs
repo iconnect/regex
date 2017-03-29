@@ -46,20 +46,21 @@ import           Text.Heredoc
 import qualified Text.Regex.PCRE                as PCRE_
 import qualified Text.Regex.TDFA                as TDFA_
 import           Text.RE
-import           Text.RE.Internal.AddCaptureNames
-import           Text.RE.Internal.NamedCaptures
-import           Text.RE.Internal.PreludeMacros
+import           Text.RE.Replace
+import           Text.RE.IsRegex
 import qualified Text.RE.PCRE                   as PCRE
 import           Text.RE.TDFA                   as TDFA
-import           Text.RE.SearchReplace
 import           Text.RE.TestBench
 import           Text.RE.Tools.Sed
-import           Text.RE.Types.Capture
-import           Text.RE.Types.CaptureID
-import           Text.RE.Types.Match
-import           Text.RE.Types.Matches
-import           Text.RE.Types.REOptions
-import           Text.RE.Types.Replace
+import           Text.RE.ZeInternals.AddCaptureNames
+import           Text.RE.ZeInternals.NamedCaptures
+import           Text.RE.ZeInternals.PreludeMacros
+import           Text.RE.ZeInternals.TestBench
+import           Text.RE.ZeInternals.Types.Capture
+import           Text.RE.ZeInternals.Types.CaptureID
+import           Text.RE.ZeInternals.Types.Match
+import           Text.RE.ZeInternals.Types.Matches
+import           Text.RE.REOptions
 
 import qualified Text.RE.PCRE.String            as P_ST
 import qualified Text.RE.PCRE.ByteString        as P_BS
@@ -320,7 +321,7 @@ replace_methods_tests = testGroup "Replace"
       chk r
   , testCase "Seq Char" $ do
       let ms = S.fromList str_ =~ regex_ :: Matches (S.Seq Char)
-          f  = \_ (Location i j) Capture{..} -> Just $ S.fromList $
+          f  = \_ (RELocation i j) Capture{..} -> Just $ S.fromList $
                   "(" <> show i <> ":" <> show_co j <> ":" <>
                     F.toList capturedText <> ")"
           r  = replaceAllCaptures ALL f ms
@@ -342,8 +343,8 @@ replace_methods_tests = testGroup "Replace"
         r
         "(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))"
 
-    fmt :: (IsString s,Replace s) => a -> Location -> Capture s -> Maybe s
-    fmt _ (Location i j) Capture{..} = Just $ "(" <> packR (show i) <> ":" <>
+    fmt :: (IsString s,Replace s) => a -> RELocation -> Capture s -> Maybe s
+    fmt _ (RELocation i j) Capture{..} = Just $ "(" <> packR (show i) <> ":" <>
       packR (show_co j) <> ":" <> capturedText <> ")"
 
     show_co (CaptureOrdinal j) = show j

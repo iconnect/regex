@@ -29,8 +29,8 @@ module Text.RE
   , matchedText
   ) where
 
-import           Text.RE.Types.Match
-import           Text.RE.Types.Matches
+import           Text.RE.ZeInternals.Types.Match
+import           Text.RE.ZeInternals.Types.Matches
 
 -- $tutorial
 --
@@ -55,7 +55,7 @@ import           Text.RE.Types.Matches
 --
 -- * "Text.RE.TDFA.ByteString"
 -- * "Text.RE.TDFA.ByteString.Lazy"
--- * "Text.RE.TDFA.RE"
+-- * "Text.RE.ZeInternals.TDFA"
 -- * "Text.RE.TDFA.Sequence"
 -- * "Text.RE.TDFA.String"
 -- * "Text.RE.TDFA.Text"
@@ -67,7 +67,7 @@ import           Text.RE.Types.Matches
 --
 -- * Text.RE.PCRE.ByteString
 -- * Text.RE.PCRE.ByteString.Lazy
--- * Text.RE.PCRE.RE
+-- * Text.RE.ZeInternals.PCRE
 -- * Text.RE.PCRE.Sequence
 -- * Text.RE.PCRE.String
 -- * Text.RE.PCRE

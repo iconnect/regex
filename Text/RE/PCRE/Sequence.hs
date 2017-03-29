@@ -44,8 +44,8 @@ module Text.RE.PCRE.Sequence
   , escape
   , escapeWith
   , escapeREString
-  , module Text.RE.PCRE.RE
-  , module Text.RE.Internal.SearchReplace.PCRE.Sequence
+  , module Text.RE.ZeInternals.PCRE
+  , module Text.RE.ZeInternals.SearchReplace.PCRE.Sequence
   ) where
 
 import           Prelude.Compat
@@ -53,13 +53,12 @@ import qualified Data.Sequence                 as S
 import           Data.Typeable
 import           Text.Regex.Base
 import           Text.RE
-import           Text.RE.Internal.AddCaptureNames
-import           Text.RE.Internal.SearchReplace.PCRE.Sequence
-import           Text.RE.SearchReplace
-import           Text.RE.Types.IsRegex
-import           Text.RE.Types.REOptions
-import           Text.RE.Types.Replace
-import           Text.RE.PCRE.RE
+import           Text.RE.ZeInternals.AddCaptureNames
+import           Text.RE.ZeInternals.SearchReplace.PCRE.Sequence
+import           Text.RE.IsRegex
+import           Text.RE.REOptions
+import           Text.RE.Replace
+import           Text.RE.ZeInternals.PCRE
 import qualified Text.Regex.PCRE               as PCRE
 
 

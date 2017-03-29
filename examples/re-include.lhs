@@ -33,12 +33,12 @@ import           System.Environment
 import           TestKit
 import           Text.RE.Tools.Edit
 import           Text.RE.TDFA.ByteString.Lazy
-import           Text.RE.TestBench.Parsers
+import           Text.RE.TestBench
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
-import           Text.RE.Types.Capture
-import           Text.RE.Types.Match
-import           Text.RE.Types.Replace
+import           Text.RE.ZeInternals.Types.Capture
+import           Text.RE.ZeInternals.Types.Match
+import           Text.RE.Replace
 \end{code}
 
 \begin{code}
@@ -78,7 +78,7 @@ loop =
 \begin{code}
 include_file :: LineNo
              -> Match LBS.ByteString
-             -> Location
+             -> RELocation
              -> Capture LBS.ByteString
              -> IO (Maybe LBS.ByteString)
 include_file _ mtch _ _ = fmap Just $

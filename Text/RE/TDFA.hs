@@ -44,9 +44,9 @@ module Text.RE.TDFA
   , escape
   , escapeWith
   , escapeREString
-  , module Text.RE.TDFA.RE
+  , module Text.RE.ZeInternals.TDFA
   -- * The [ed| ... |] quasi quoters
-  , module Text.RE.Internal.SearchReplace.TDFA
+  , module Text.RE.ZeInternals.SearchReplace.TDFA
   -- * The Operator Instances
   -- $instances
   , module Text.RE.TDFA.ByteString
@@ -59,19 +59,18 @@ module Text.RE.TDFA
 
 import qualified Text.Regex.Base                          as B
 import           Text.RE
-import           Text.RE.Internal.AddCaptureNames
-import           Text.RE.Internal.SearchReplace.TDFA
-import           Text.RE.TDFA.RE
+import           Text.RE.ZeInternals.AddCaptureNames
+import           Text.RE.ZeInternals.SearchReplace.TDFA
+import           Text.RE.ZeInternals.TDFA
 import qualified Text.Regex.TDFA                          as TDFA
-import           Text.RE.SearchReplace
 import           Text.RE.TDFA.ByteString()
 import           Text.RE.TDFA.ByteString.Lazy()
 import           Text.RE.TDFA.Sequence()
 import           Text.RE.TDFA.String()
 import           Text.RE.TDFA.Text()
 import           Text.RE.TDFA.Text.Lazy()
-import           Text.RE.Types.IsRegex
-import           Text.RE.Types.REOptions
+import           Text.RE.IsRegex
+import           Text.RE.REOptions
 
 
 -- | find all matches in text; e.g., to count the number of naturals in s:
@@ -133,7 +132,7 @@ import           Text.RE.Types.REOptions
 --
 -- * "Text.RE.TDFA.ByteString"
 -- * "Text.RE.TDFA.ByteString.Lazy"
--- * "Text.RE.TDFA.RE"
+-- * "Text.RE.ZeInternals.TDFA"
 -- * "Text.RE.TDFA.Sequence"
 -- * "Text.RE.TDFA.String"
 -- * "Text.RE.TDFA.Text"

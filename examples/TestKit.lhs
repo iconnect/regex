@@ -18,7 +18,7 @@ module TestKit
   , substVersion_
   , readCurrentVersion
   , Test
-  , runTests
+  , runTheTests
   , checkThis
   , test_pp
   , include
@@ -39,11 +39,11 @@ import           System.Exit
 import           System.IO
 import           Text.Printf
 import           Text.RE.TDFA
-import           Text.RE.TestBench.Parsers
+import           Text.RE.TestBench
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
-import           Text.RE.Types.Match
-import           Text.RE.Types.Replace
+import           Text.RE.ZeInternals.Types.Match
+import           Text.RE.Replace
 \end{code}
 
 
@@ -119,8 +119,8 @@ data Test =
     }
   deriving (Show)
 
-runTests :: [Test] -> IO ()
-runTests tests = do
+runTheTests :: [Test] -> IO ()
+runTheTests tests = do
   as <- getArgs
   case as of
     [] -> return ()

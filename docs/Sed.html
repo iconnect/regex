@@ -70,9 +70,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="ot">{-# LANGUAGE RecordWildCards            #-}</span>
 <span class="ot">{-# LANGUAGE FlexibleContexts           #-}</span>
 <span class="ot">{-# LANGUAGE CPP                        #-}</span>
-<span class="ot">#if __GLASGOW_HASKELL__ &gt;= 800</span>
+<span class="st">#if __GLASGOW_HASKELL__ &gt;= 800</span>
 <span class="ot">{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}</span>
-<span class="ot">#endif</span>
+<span class="st">#endif</span>
 
 <span class="kw">module</span> <span class="dt">Text.RE.Tools.Sed</span>
   ( sed
@@ -99,8 +99,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">import           </span><span class="dt">Prelude.Compat</span>
 <span class="kw">import           </span><span class="dt">Text.RE</span>
 <span class="kw">import           </span><span class="dt">Text.RE.Tools.Edit</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.IsRegex</span>
-<span class="kw">import           </span><span class="dt">Text.RE.Types.Replace</span>
+<span class="kw">import           </span><span class="dt">Text.RE.IsRegex</span>
+<span class="kw">import           </span><span class="dt">Text.RE.Replace</span>
 
 
 <span class="co">-- | read a file, apply an &#39;Edits&#39; script to each line it and</span>

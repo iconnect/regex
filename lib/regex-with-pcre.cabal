@@ -1,5 +1,5 @@
 Name:                   regex-with-pcre
-Version:                0.10.0.3
+Version:                0.11.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
@@ -31,7 +31,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.10.0.3
+    Tag:                0.11.0.0
 
 
 
@@ -42,19 +42,19 @@ Library
       Text.RE.PCRE
       Text.RE.PCRE.ByteString
       Text.RE.PCRE.ByteString.Lazy
-      Text.RE.PCRE.RE
+      Text.RE.ZeInternals.PCRE
       Text.RE.PCRE.Sequence
       Text.RE.PCRE.String
 
     Other-Modules:
-      Text.RE.Internal.QQ
-      Text.RE.Internal.SearchReplace
-      Text.RE.Internal.SearchReplace.PCRE
-      Text.RE.Internal.SearchReplace.PCRE.ByteString
-      Text.RE.Internal.SearchReplace.PCRE.ByteString.Lazy
-      Text.RE.Internal.SearchReplace.PCRE.Sequence
-      Text.RE.Internal.SearchReplace.PCRE.String
-      Text.RE.Internal.SearchReplace.PCREEdPrime
+      Text.RE.ZeInternals.QQ
+      Text.RE.ZeInternals.SearchReplace
+      Text.RE.ZeInternals.SearchReplace.PCRE
+      Text.RE.ZeInternals.SearchReplace.PCRE.ByteString
+      Text.RE.ZeInternals.SearchReplace.PCRE.ByteString.Lazy
+      Text.RE.ZeInternals.SearchReplace.PCRE.Sequence
+      Text.RE.ZeInternals.SearchReplace.PCRE.String
+      Text.RE.ZeInternals.SearchReplace.PCREEdPrime
 
     Default-Language:   Haskell2010
 
@@ -89,7 +89,7 @@ Library
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0

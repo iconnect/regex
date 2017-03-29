@@ -92,12 +92,12 @@ For this tutorial we will use classic Haskell strings but any application
 dealing with bulk text will probably want to choose one of the other
 options.
 \begin{code}
+import           Text.RE.Replace
 import           Text.RE.TDFA.String
-import           Text.RE.Types.Capture
-import           Text.RE.Types.CaptureID
-import           Text.RE.Types.Match
-import           Text.RE.Types.REOptions
-import           Text.RE.Types.Replace
+import           Text.RE.ZeInternals.Types.Capture
+import           Text.RE.ZeInternals.Types.CaptureID
+import           Text.RE.ZeInternals.Types.Match
+import           Text.RE.REOptions
 \end{code}
 If you are predominantly matching against a single type in your module
 then you will probably find it more convenient to use the relevant module
@@ -267,9 +267,9 @@ The type of `*=~` in this module (imported from
 (*=~) :: String -> RE -> Matches String
 ```
 </div>
-with `Matches` defined in `Text.RE.Types.Capture` thus:
+with `Matches` defined in `Text.RE.ZeInternals.Types.Capture` thus:
 
-%include "Text/RE/Types/Matches.lhs" "^data Matches "
+%include "Text/RE/ZeInternals/Types/Matches.lhs" "^data Matches "
 
 The critical component of the `Matches` type is the `[Match a]` in
 `allMatches`, containing the details all of each substring matched by
@@ -284,9 +284,9 @@ The type of `?=~` in this module (imported from
 ```
 </div>
 with `Match` (referenced in the definition of `Matches` above) defined
-in `Text.RE.Types.Capture` thus:
+in `Text.RE.ZeInternals.Types.Capture` thus:
 
-%include "Text/RE/Types/Match.lhs" "^data Match "
+%include "Text/RE/ZeInternals/Types/Match.lhs" "^data Match "
 
 Like `matchesSource` above, `matchSource` retains the original search
 string, but also a `CaptureNames` field listing all of the capture
@@ -300,7 +300,7 @@ on.
 
 Each captured substring is represented by the following `Capture` type:
 
-%include "Text/RE/Types/Capture.lhs" "^data Capture "
+%include "Text/RE/ZeInternals/Types/Capture.lhs" "^data Capture "
 
 Here we list the whole original search string in `captureSource` and
 the text of the sub-string captured in `capturedText`. `captureOffset`
@@ -391,12 +391,12 @@ evalme_RPF_01 = checkThis "evalme_RPF_01" ("2016-01-09 2015-12-05 2015-10-05") $
 
 The `replaceAllCaptures` function is of type
 
-%include "Text/RE/Types/Replace.lhs" "replaceAllCaptures ::"
+%include "Text/RE/Replace.lhs" "replaceAllCaptures ::"
 
-and the `REContext` and `Location` types are defined in
-`Text.RE.Types.Replace` as follows,
+and the `REContext` and `RELocation` types are defined in
+`Text.RE.Replace` as follows,
 
-%include "Text/RE/Types/Replace.lhs" "^data REContext"
+%include "Text/RE/Replace.lhs" "^data REContext"
 
 The processing function gets applied to the captures specified by the
 `REContext`, which can be directed to process `ALL` of the captures,
@@ -405,7 +405,7 @@ subsidiary capture, or just the `TOP`, `0` capture that the whole RE
 matches, or just the `SUB` (subsidiary) captures, as was the case above.
 
 The substitution function takes the `Match` corresponding to the current
-redex being processed, the `Location` information specifying redex _n_
+redex being processed, the `RELocation` information specifying redex _n_
 redex and capure _i_, and the `Capure` being substituted. Our substitution
 function didn't need the `Match` context so it ignored it.
 
@@ -434,7 +434,7 @@ The `fixup_and_reformat_dates` applied to our running example,
 evalme_RPF_02 = checkThis "evalme_RPF_02" ("[2016-01-09] [2015-12-05] [2015-10-05]") $ fixup_and_reformat_dates "2016-01-09 2015-12-5 2015-10-05"
 \end{code}
 
-`Text.RE.Types.Replace` provides analagous functions for replacing the
+`Text.RE.Replace` provides analagous functions for replacing the
 test of a single `Match` returned from `?=~`.
 
 
@@ -471,7 +471,7 @@ accordingly so that you don't have to, but you may need full access to
 you chosen back end's options, or you may need to supply a different
 set of macros to those provided in the standard environment. In which
 case you will need to know about the `REOptions` type, defined by each of
-the back ends in terms of the `REOptions_` type of `Text.RE.Types.REOptions`
+the back ends in terms of the `REOptions_` type of `Text.RE.REOptions`
 as follows.
 <div class='inlinecodeblock'>
 ```
@@ -481,9 +481,9 @@ type REOptions = REOptions_ RE CompOption ExecOption
 (Bear in mind that `CompOption` and `ExecOption` will be different
 types for each back end.)
 
-The `REOptions_` type is defined in `Text.RE.Types.REOptions` as follows:
+The `REOptions_` type is defined in `Text.RE.REOptions` as follows:
 
-%include "Text/RE/Types/REOptions.lhs" "data REOptions_"
+%include "Text/RE/ZeInternals/Types/REOptions.lhs" "data REOptions_"
 
   * `optionsMode` is an experimental feature that controls the RE
     parser.
@@ -520,7 +520,7 @@ REs. Your configuration-type options are:
   * `SimpleREOptions` this is just a simple enum type that we use to
     encode the standard options:
 
-%include "Text/RE/Types/REOptions.lhs" "^data SimpleREOptions"
+%include "Text/RE/ZeInternals/Types/REOptions.lhs" "^data SimpleREOptions"
 
   * `Mode`: you can specify the parser mode;
 
@@ -582,7 +582,7 @@ regex conterparts.
     token-generating functions and the input text and returns a list of tokens.
     This should never be used where performance is important (use Alex),
     except as a development prototype (used internally in
-    [Text.RE.Internal.NamedCaptures](NamedCaptures.html)).
+    [Text.RE.ZeInternals.NamedCaptures](NamedCaptures.html)).
 
   * [Text.RE.Tools.Sed](Sed.html) using [Text.RE.Tools.Edit](Edit.html):
     takes an association list of regular expressions and substitution actions,
@@ -641,24 +641,24 @@ that it can associate the named captures with their cature ordinal.
 
 Here is the prototype scanner.
 
-%include "Text/RE/Internal/NamedCaptures.lhs" "scan ::"
+%include "Text/RE/ZeInternals/NamedCaptures.lhs" "scan ::"
 
 Once the package has stabilised it should be rewritten with Alex.
 
-See [Text.RE.Internal.NamedCaptures](NamedCaptures.html) for
+See [Text.RE.ZeInternals.NamedCaptures](NamedCaptures.html) for
 details.
 
 
 Anti-Example: Scanning REs in the TestBench
 -------------------------------------------
 
-The [Text.RE.TestBench](TestBench.html) contains an almost
+The [Text.RE.ZeInternals.TestBench](TestBench.html) contains an almost
 identical parser to the above, written with recursive functions.
 
-%include "Text/RE/TestBench.lhs" "scan_re ::"
+%include "Text/RE/ZeInternals/TestBench.lhs" "scan_re ::"
 
 Once some technical issues have been ersolved it will use the above
-scanner in [Text.RE.Internal.NamedCaptures](NamedCaptures.html).
+scanner in [Text.RE.ZeInternals.NamedCaptures](NamedCaptures.html).
 
 
 Example: filename analysis
@@ -707,7 +707,7 @@ For example:
 evalme_PMC_00 = checkThis "evalme_PMC_00" ("foo MacroID {getMacroID = \"bar\"} baz") $ expandMacros_ (Just . show) "foo @{bar} baz"
 \end{code}
 
-See [Text.RE.Types.Replace](Replace.html) for details.
+See [Text.RE.Replace](Replace.html) for details.
 
 
 Example: Parsing Replace Templates
@@ -720,7 +720,7 @@ type Template = String
 
 parseTemplateR' :: Template
                 -> Match String
-                -> Location
+                -> RELocation
                 -> Capture String
                 -> Maybe String
 parseTemplateR' tpl mtch _ _ =
@@ -756,7 +756,7 @@ This should yield `"2016/01/11"`:
 evalme_TPL_00 = checkThis "evalme_TPL_00" ("2016/01/11") $ date_reformat "2016-01-11"
 \end{code}
 
-See [Text.RE.Types.Replace](Replace.html)
+See [Text.RE.Replace](Replace.html)
 
 
 Example: include preprocessor
@@ -802,7 +802,7 @@ application of regex.
 
 \begin{code}
 main :: IO ()
-main = runTests
+main = runTheTests
   [ evalme_TPL_00
   , evalme_PMC_00
   , evalme_REU_01

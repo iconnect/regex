@@ -41,15 +41,15 @@ import           System.Directory
 import           System.Environment
 import           System.Exit
 import           System.IO
-import           Text.RE.Tools.Sed
-import           Text.RE.Types.REOptions
-import           Text.RE.TestBench.Parsers
-import           Text.RE.TestBench
 import           Text.RE.PCRE.ByteString.Lazy
 import qualified Text.RE.PCRE.String                      as S
-import           Text.RE.Types.Capture
-import           Text.RE.Types.Match
-import           Text.RE.Types.Replace
+import           Text.RE.TestBench
+import           Text.RE.Tools.Sed
+import           Text.RE.ZeInternals.TestBench
+import           Text.RE.ZeInternals.Types.Capture
+import           Text.RE.ZeInternals.Types.Match
+import           Text.RE.REOptions
+import           Text.RE.Replace
 import           Text.Printf
 \end{code}
 
@@ -148,7 +148,7 @@ process_line :: IsEvent a
              -> (Match LBS.ByteString->Maybe a)
              -> LineNo
              -> Match LBS.ByteString
-             -> Location
+             -> RELocation
              -> Capture LBS.ByteString
              -> IO (Maybe LBS.ByteString)
 process_line ctx src prs lno cs _ _ = do
@@ -311,12 +311,12 @@ user_macro :: MacroEnv -> MacroID -> MacroDescriptor
 user_macro env mid =
   runTests regexType parse_user samples env mid
     MacroDescriptor
-      { _md_source          = "(?:-|[^[:space:]]+)"
-      , _md_samples         = map fst samples
-      , _md_counter_samples = counter_samples
-      , _md_test_results    = []
-      , _md_parser          = Just "parse_user"
-      , _md_description     = "a user ident (per RFC1413)"
+      { macroSource          = "(?:-|[^[:space:]]+)"
+      , macroSamples         = map fst samples
+      , macroCounterSamples = counter_samples
+      , macroTestResults    = []
+      , macroParser          = Just "parse_user"
+      , macroDescription     = "a user ident (per RFC1413)"
       }
   where
     samples :: [(String,User)]
@@ -334,12 +334,12 @@ pid_tid_macro :: MacroEnv -> MacroID -> MacroDescriptor
 pid_tid_macro env mid =
   runTests regexType parse_pid_tid samples env mid
     MacroDescriptor
-      { _md_source          = "(?:@{%nat})#(?:@{%nat}):"
-      , _md_samples         = map fst samples
-      , _md_counter_samples = counter_samples
-      , _md_test_results    = []
-      , _md_parser          = Just "parse_pid_tid"
-      , _md_description     = "<PID>#<TID>:"
+      { macroSource          = "(?:@{%nat})#(?:@{%nat}):"
+      , macroSamples         = map fst samples
+      , macroCounterSamples = counter_samples
+      , macroTestResults    = []
+      , macroParser          = Just "parse_pid_tid"
+      , macroDescription     = "<PID>#<TID>:"
       }
   where
     samples :: [(String,(Int,Int))]
@@ -359,12 +359,12 @@ access_macro :: MacroEnv -> MacroID -> MacroDescriptor
 access_macro env mid =
   runTests' regexType (parse_access . fmap LBS.pack) samples env mid
     MacroDescriptor
-      { _md_source          = access_re
-      , _md_samples         = map fst samples
-      , _md_counter_samples = counter_samples
-      , _md_test_results    = []
-      , _md_parser          = Just "parse_a"
-      , _md_description     = "an Nginx access log file line"
+      { macroSource          = access_re
+      , macroSamples         = map fst samples
+      , macroCounterSamples = counter_samples
+      , macroTestResults    = []
+      , macroParser          = Just "parse_a"
+      , macroDescription     = "an Nginx access log file line"
       }
   where
     samples :: [(String,Access)]
@@ -392,12 +392,12 @@ access_deg_macro :: MacroEnv -> MacroID -> MacroDescriptor
 access_deg_macro env mid =
   runTests' regexType (parse_deg_access . fmap LBS.pack) samples env mid
     MacroDescriptor
-      { _md_source          = " -  \\[\\] \"\"   \"\" \"\" \"\""
-      , _md_samples         = map fst samples
-      , _md_counter_samples = counter_samples
-      , _md_test_results    = []
-      , _md_parser          = Nothing
-      , _md_description     = "a degenerate Nginx access log file line"
+      { macroSource          = " -  \\[\\] \"\"   \"\" \"\" \"\""
+      , macroSamples         = map fst samples
+      , macroCounterSamples = counter_samples
+      , macroTestResults    = []
+      , macroParser          = Nothing
+      , macroDescription     = "a degenerate Nginx access log file line"
       }
   where
     samples :: [(String,Access)]
@@ -414,12 +414,12 @@ error_macro :: MacroEnv -> MacroID -> MacroDescriptor
 error_macro env mid =
   runTests' regexType (parse_error . fmap LBS.pack) samples env mid
     MacroDescriptor
-      { _md_source          = error_re
-      , _md_samples         = map fst samples
-      , _md_counter_samples = counter_samples
-      , _md_test_results    = []
-      , _md_parser          = Just "parse_e"
-      , _md_description     = "an Nginx error log file line"
+      { macroSource          = error_re
+      , macroSamples         = map fst samples
+      , macroCounterSamples = counter_samples
+      , macroTestResults    = []
+      , macroParser          = Just "parse_e"
+      , macroDescription     = "an Nginx error log file line"
       }
   where
     samples :: [(String,Error)]

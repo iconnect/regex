@@ -44,9 +44,9 @@ module Text.RE.PCRE
   , escape
   , escapeWith
   , escapeREString
-  , module Text.RE.PCRE.RE
+  , module Text.RE.ZeInternals.PCRE
   -- * The [ed| ... |] quasi quoters
-  , module Text.RE.Internal.SearchReplace.PCRE
+  , module Text.RE.ZeInternals.SearchReplace.PCRE
   -- * The Operator Instances
   -- $instances
   , module Text.RE.PCRE.ByteString
@@ -59,17 +59,16 @@ module Text.RE.PCRE
 
 import qualified Text.Regex.Base                          as B
 import           Text.RE
-import           Text.RE.Internal.AddCaptureNames
-import           Text.RE.Internal.SearchReplace.PCRE
-import           Text.RE.PCRE.RE
+import           Text.RE.ZeInternals.AddCaptureNames
+import           Text.RE.ZeInternals.SearchReplace.PCRE
+import           Text.RE.ZeInternals.PCRE
 import qualified Text.Regex.PCRE                          as PCRE
 import           Text.RE.PCRE.ByteString()
 import           Text.RE.PCRE.ByteString.Lazy()
 import           Text.RE.PCRE.Sequence()
 import           Text.RE.PCRE.String()
-import           Text.RE.SearchReplace
-import           Text.RE.Types.IsRegex
-import           Text.RE.Types.REOptions
+import           Text.RE.IsRegex
+import           Text.RE.REOptions
 
 
 -- | find all matches in text; e.g., to count the number of naturals in s:
@@ -128,7 +127,7 @@ import           Text.RE.Types.REOptions
 --
 -- * "Text.RE.PCRE.ByteString"
 -- * "Text.RE.PCRE.ByteString.Lazy"
--- * "Text.RE.PCRE.RE"
+-- * "Text.RE.ZeInternals.PCRE"
 -- * "Text.RE.PCRE.Sequence"
 -- * "Text.RE.PCRE.String"
 

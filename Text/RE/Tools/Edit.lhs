@@ -29,11 +29,10 @@ module Text.RE.Tools.Edit
 import           Data.Maybe
 import           Prelude.Compat
 import           Text.RE
-import           Text.RE.Types.Capture
-import           Text.RE.Types.IsRegex
-import           Text.RE.Types.LineNo
-import           Text.RE.Types.Replace
-import           Text.RE.Types.SearchReplace
+import           Text.RE.ZeInternals.Types.Capture
+import           Text.RE.IsRegex
+import           Text.RE.ZeInternals.Types.LineNo
+import           Text.RE.Replace
 
 
 -- | an 'Edits' script will, for each line in the file, either perform
@@ -46,7 +45,7 @@ data Edits m re s
 -- | each Edit action specifies how the match should be processed
 data Edit m re s
   = Template !(SearchReplace re s)
-  | Function !re REContext !(LineNo->Match s->Location->Capture s->m (Maybe s))
+  | Function !re REContext !(LineNo->Match s->RELocation->Capture s->m (Maybe s))
   | LineEdit !re           !(LineNo->Matches s->m (LineEdit s))
 
 -- | a LineEdit is the most general action thar can be performed on a line

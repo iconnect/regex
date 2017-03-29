@@ -12,10 +12,10 @@ module Text.RE.Tools.Lex
 
 import           Prelude.Compat
 import           Text.RE
-import           Text.RE.Types.Capture
-import           Text.RE.Types.IsRegex
-import           Text.RE.Types.Match
-import           Text.RE.Types.Replace
+import           Text.RE.ZeInternals.Types.Capture
+import           Text.RE.IsRegex
+import           Text.RE.ZeInternals.Types.Match
+import           Text.RE.Replace
 
 
 -- | a simple regex-based scanner interpretter for prototyping

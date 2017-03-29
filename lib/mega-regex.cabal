@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                0.10.0.3
+Version:                0.11.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A Regular Expression Toolkit for regex-base with
                         Compile-time checking of RE syntax, data types for
@@ -62,7 +62,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.10.0.3
+    Tag:                0.11.0.0
 
 
 
@@ -70,59 +70,60 @@ Library
     Hs-Source-Dirs:     .
     Exposed-Modules:
       Text.RE
-      Text.RE.Internal.AddCaptureNames
-      Text.RE.Internal.EscapeREString
-      Text.RE.Internal.NamedCaptures
-      Text.RE.Internal.PreludeMacros
-      Text.RE.Internal.QQ
-      Text.RE.Internal.SearchReplace
-      Text.RE.Internal.SearchReplace.PCRE
-      Text.RE.Internal.SearchReplace.PCRE.ByteString
-      Text.RE.Internal.SearchReplace.PCRE.ByteString.Lazy
-      Text.RE.Internal.SearchReplace.PCRE.Sequence
-      Text.RE.Internal.SearchReplace.PCRE.String
-      Text.RE.Internal.SearchReplace.PCREEdPrime
-      Text.RE.Internal.SearchReplace.TDFA
-      Text.RE.Internal.SearchReplace.TDFA.ByteString
-      Text.RE.Internal.SearchReplace.TDFA.ByteString.Lazy
-      Text.RE.Internal.SearchReplace.TDFA.Sequence
-      Text.RE.Internal.SearchReplace.TDFA.String
-      Text.RE.Internal.SearchReplace.TDFA.Text
-      Text.RE.Internal.SearchReplace.TDFA.Text.Lazy
-      Text.RE.Internal.SearchReplace.TDFAEdPrime
+      Text.RE.IsRegex
       Text.RE.PCRE
       Text.RE.PCRE.ByteString
       Text.RE.PCRE.ByteString.Lazy
-      Text.RE.PCRE.RE
       Text.RE.PCRE.Sequence
       Text.RE.PCRE.String
-      Text.RE.SearchReplace
+      Text.RE.REOptions
+      Text.RE.Replace
       Text.RE.Summa
       Text.RE.TDFA
       Text.RE.TDFA.ByteString
       Text.RE.TDFA.ByteString.Lazy
-      Text.RE.TDFA.RE
       Text.RE.TDFA.Sequence
       Text.RE.TDFA.String
       Text.RE.TDFA.Text
       Text.RE.TDFA.Text.Lazy
       Text.RE.TestBench
-      Text.RE.TestBench.Parsers
       Text.RE.Tools
       Text.RE.Tools.Edit
       Text.RE.Tools.Grep
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
-      Text.RE.Types
-      Text.RE.Types.Capture
-      Text.RE.Types.CaptureID
-      Text.RE.Types.IsRegex
-      Text.RE.Types.LineNo
-      Text.RE.Types.Match
-      Text.RE.Types.Matches
-      Text.RE.Types.REOptions
-      Text.RE.Types.Replace
-      Text.RE.Types.SearchReplace
+      Text.RE.ZeInternals.AddCaptureNames
+      Text.RE.ZeInternals.EscapeREString
+      Text.RE.ZeInternals.NamedCaptures
+      Text.RE.ZeInternals.PCRE
+      Text.RE.ZeInternals.PreludeMacros
+      Text.RE.ZeInternals.Replace
+      Text.RE.ZeInternals.TDFA
+      Text.RE.ZeInternals.TestBench
+      Text.RE.ZeInternals.Types.Capture
+      Text.RE.ZeInternals.Types.CaptureID
+      Text.RE.ZeInternals.Types.LineNo
+      Text.RE.ZeInternals.Types.Match
+      Text.RE.ZeInternals.Types.Matches
+      Text.RE.ZeInternals.Types.SearchReplace
+
+    Other-Modules:
+      Text.RE.ZeInternals.QQ
+      Text.RE.ZeInternals.SearchReplace
+      Text.RE.ZeInternals.SearchReplace.PCRE
+      Text.RE.ZeInternals.SearchReplace.PCRE.ByteString
+      Text.RE.ZeInternals.SearchReplace.PCRE.ByteString.Lazy
+      Text.RE.ZeInternals.SearchReplace.PCRE.Sequence
+      Text.RE.ZeInternals.SearchReplace.PCRE.String
+      Text.RE.ZeInternals.SearchReplace.PCREEdPrime
+      Text.RE.ZeInternals.SearchReplace.TDFA
+      Text.RE.ZeInternals.SearchReplace.TDFA.ByteString
+      Text.RE.ZeInternals.SearchReplace.TDFA.ByteString.Lazy
+      Text.RE.ZeInternals.SearchReplace.TDFA.Sequence
+      Text.RE.ZeInternals.SearchReplace.TDFA.String
+      Text.RE.ZeInternals.SearchReplace.TDFA.Text
+      Text.RE.ZeInternals.SearchReplace.TDFA.Text.Lazy
+      Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
 
     Default-Language:   Haskell2010
 
@@ -192,7 +193,7 @@ Executable re-gen-cabals
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -222,7 +223,7 @@ Test-Suite re-gen-cabals-test
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -249,7 +250,7 @@ Executable re-gen-modules
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -275,7 +276,7 @@ Test-Suite re-gen-modules-test
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -304,7 +305,7 @@ Executable re-include
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -330,7 +331,7 @@ Test-Suite re-include-test
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -353,7 +354,7 @@ Executable re-nginx-log-processor
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -383,7 +384,7 @@ Test-Suite re-nginx-log-processor-test
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -416,7 +417,7 @@ Executable re-prep
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -444,7 +445,7 @@ Test-Suite re-prep-test
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -472,7 +473,7 @@ Executable re-tests
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -510,7 +511,7 @@ Test-Suite re-tests-test
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -549,7 +550,7 @@ Executable re-tutorial
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -593,7 +594,7 @@ Test-Suite re-tutorial-test
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -639,7 +640,7 @@ Test-Suite re-tutorial-os-test
       -Werror
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0

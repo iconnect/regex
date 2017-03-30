@@ -37,14 +37,14 @@ import           System.Environment
 import           System.IO
 import           TestKit
 import           Text.Heredoc
-import           Text.RE.TestBench.Parsers
+import           Text.RE.TestBench
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
 import           Text.RE.TDFA.ByteString.Lazy
 import qualified Text.RE.TDFA.Text                        as TT
-import           Text.RE.Types.Capture
-import           Text.RE.Types.Match
-import           Text.RE.Types.Replace
+import           Text.RE.ZeInternals.Types.Capture
+import           Text.RE.ZeInternals.Types.Match
+import           Text.RE.Replace
 \end{code}
 
 \begin{code}
@@ -129,7 +129,7 @@ inclde,
   evalme :: MODE
          -> LineNo
          -> Match LBS.ByteString
-         -> Location
+         -> RELocation
          -> Capture LBS.ByteString
          -> IO (Maybe LBS.ByteString)
 
@@ -149,7 +149,7 @@ evalme (Gen gs) = evalmeGen  gs
 
 passthru :: LineNo
          -> Match LBS.ByteString
-         -> Location
+         -> RELocation
          -> Capture LBS.ByteString
          -> IO (Maybe LBS.ByteString)
 passthru _ _ _ _ = return Nothing
@@ -175,18 +175,18 @@ gen_all = do
     pd "re-prep"
     pd "re-tests"
     pd "TestKit"
-    pd "RE/Types/Matches"
-    pd "RE/Types/Match"
-    pd "RE/Types/Capture"
-    pd "RE/Types/IsRegex"
-    pd "RE/Types/REOptions"
-    pd "RE/Types/Replace"
-    pd "RE/TestBench"
+    pd "RE/IsRegex"
+    pd "RE/Replace"
+    pd "RE/REOptions"
     pd "RE/Tools/Edit"
     pd "RE/Tools/Grep"
     pd "RE/Tools/Lex"
     pd "RE/Tools/Sed"
-    pd "RE/Internal/NamedCaptures"
+    pd "RE/ZeInternals/NamedCaptures"
+    pd "RE/ZeInternals/TestBench"
+    pd "RE/ZeInternals/Types/Matches"
+    pd "RE/ZeInternals/Types/Match"
+    pd "RE/ZeInternals/Types/Capture"
     -- render the tutorial in HTML
     prep_tut Doc "examples/re-tutorial-master.lhs" "tmp/re-tutorial.lhs"
     createDirectoryIfMissing False "tmp"
@@ -216,7 +216,7 @@ Generating the Tutorial
 \begin{code}
 includeDoc :: LineNo
            -> Match LBS.ByteString
-           -> Location
+           -> RELocation
            -> Capture LBS.ByteString
            -> IO (Maybe LBS.ByteString)
 includeDoc _ mtch _ _ = fmap Just $
@@ -231,7 +231,7 @@ includeDoc _ mtch _ _ = fmap Just $
 \begin{code}
 evalmeDoc :: LineNo
           -> Match LBS.ByteString
-          -> Location
+          -> RELocation
           -> Capture LBS.ByteString
           -> IO (Maybe LBS.ByteString)
 evalmeDoc _ mtch _ _ = return $ Just $ flip replace mtch $ LBS.intercalate "\n"
@@ -248,7 +248,7 @@ Generating the Tests
 evalmeGen :: GenState
           -> LineNo
           -> Match LBS.ByteString
-          -> Location
+          -> RELocation
           -> Capture LBS.ByteString
           -> IO (Maybe LBS.ByteString)
 evalmeGen gs _ mtch0 _ _ = Just <$>
@@ -289,7 +289,7 @@ mainGen gs _ mtchs = case allMatches mtchs of
         return $ ReplaceWith $ LBS.unlines $
           [ begin_code
           , "main :: IO ()"
-          , "main = runTests"
+          , "main = runTheTests"
           ] ++ mk_list fns ++
           [ end_code
           ]
@@ -536,7 +536,7 @@ heading :: MarkdownMode
         -> IORef [Heading]
         -> LineNo
         -> Match LBS.ByteString
-        -> Location
+        -> RELocation
         -> Capture LBS.ByteString
         -> IO (Maybe LBS.ByteString)
 heading mmd rf_t rf_h _ mtch _ _ = do
@@ -648,7 +648,7 @@ task_list :: MarkdownMode               -- ^ what flavour of md are we generatin
           -> Bool                       -- ^ true if this is a checjed line
           -> LineNo                     -- ^ line no of the replacement redex (unused)
           -> Match LBS.ByteString       -- ^ the matched task-list line
-          -> Location                   -- ^ which match and capure (unused)
+          -> RELocation                   -- ^ which match and capure (unused)
           -> Capture LBS.ByteString     -- ^ the capture weare replacing (unsuded)
           -> IO (Maybe LBS.ByteString)  -- ^ the replacement text, or Nothing to indicate no change to this line
 task_list mmd rf chk _ mtch _ _ =
@@ -680,7 +680,7 @@ fin_task_list :: MarkdownMode               -- ^ what flavour of md are we gener
               -> IORef Bool                 -- ^ will contain True iff we have already entered a task list
               -> LineNo                     -- ^ line no of the replacement redex (unused)
               -> Match LBS.ByteString       -- ^ the matched task-list line
-              -> Location                   -- ^ which match and capure (unused)
+              -> RELocation                   -- ^ which match and capure (unused)
               -> Capture LBS.ByteString     -- ^ the capture weare replacing (unsuded)
               -> IO (Maybe LBS.ByteString)  -- ^ the replacement text, or Nothing to indicate no change to this line
 fin_task_list mmd rf_t _ mtch _ _ =
@@ -814,8 +814,8 @@ testing
 \begin{code}
 test :: IO ()
 test = do
-  test_pp "pp-doc" (prep_tut Doc) "data/pp-test.lhs" "data/pp-result-doc.lhs"
+  test_pp "re-prep doc" (prep_tut Doc) "data/pp-test.lhs" "data/pp-result-doc.lhs"
   gm <- genMode
-  test_pp "pp-gen" (prep_tut gm ) "data/pp-test.lhs" "data/pp-result-gen.lhs"
+  test_pp "re-prep gen" (prep_tut gm ) "data/pp-test.lhs" "data/pp-result-gen.lhs"
   putStrLn "tests passed"
 \end{code}

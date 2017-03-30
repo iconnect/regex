@@ -44,8 +44,8 @@ module Text.RE.TDFA.Text
   , escape
   , escapeWith
   , escapeREString
-  , module Text.RE.TDFA.RE
-  , module Text.RE.Internal.SearchReplace.TDFA.Text
+  , module Text.RE.ZeInternals.TDFA
+  , module Text.RE.ZeInternals.SearchReplace.TDFA.Text
   ) where
 
 import           Prelude.Compat
@@ -53,13 +53,12 @@ import qualified Data.Text                     as T
 import           Data.Typeable
 import           Text.Regex.Base
 import           Text.RE
-import           Text.RE.Internal.AddCaptureNames
-import           Text.RE.Internal.SearchReplace.TDFA.Text
-import           Text.RE.SearchReplace
-import           Text.RE.Types.IsRegex
-import           Text.RE.Types.REOptions
-import           Text.RE.Types.Replace
-import           Text.RE.TDFA.RE
+import           Text.RE.ZeInternals.AddCaptureNames
+import           Text.RE.ZeInternals.SearchReplace.TDFA.Text
+import           Text.RE.IsRegex
+import           Text.RE.REOptions
+import           Text.RE.Replace
+import           Text.RE.ZeInternals.TDFA
 import qualified Text.Regex.TDFA               as TDFA
 
 

@@ -2,58 +2,59 @@ Library
     Hs-Source-Dirs:     .
     Exposed-Modules:
       Text.RE
-      Text.RE.Internal.AddCaptureNames
-      Text.RE.Internal.EscapeREString
-      Text.RE.Internal.NamedCaptures
-      Text.RE.Internal.PreludeMacros
-      Text.RE.Internal.QQ
-      Text.RE.Internal.SearchReplace
-      Text.RE.Internal.SearchReplace.PCRE
-      Text.RE.Internal.SearchReplace.PCRE.ByteString
-      Text.RE.Internal.SearchReplace.PCRE.ByteString.Lazy
-      Text.RE.Internal.SearchReplace.PCRE.Sequence
-      Text.RE.Internal.SearchReplace.PCRE.String
-      Text.RE.Internal.SearchReplace.PCREEdPrime
-      Text.RE.Internal.SearchReplace.TDFA
-      Text.RE.Internal.SearchReplace.TDFA.ByteString
-      Text.RE.Internal.SearchReplace.TDFA.ByteString.Lazy
-      Text.RE.Internal.SearchReplace.TDFA.Sequence
-      Text.RE.Internal.SearchReplace.TDFA.String
-      Text.RE.Internal.SearchReplace.TDFA.Text
-      Text.RE.Internal.SearchReplace.TDFA.Text.Lazy
-      Text.RE.Internal.SearchReplace.TDFAEdPrime
+      Text.RE.IsRegex
       Text.RE.PCRE
       Text.RE.PCRE.ByteString
       Text.RE.PCRE.ByteString.Lazy
-      Text.RE.PCRE.RE
       Text.RE.PCRE.Sequence
       Text.RE.PCRE.String
-      Text.RE.SearchReplace
+      Text.RE.REOptions
+      Text.RE.Replace
       Text.RE.Summa
       Text.RE.TDFA
       Text.RE.TDFA.ByteString
       Text.RE.TDFA.ByteString.Lazy
-      Text.RE.TDFA.RE
       Text.RE.TDFA.Sequence
       Text.RE.TDFA.String
       Text.RE.TDFA.Text
       Text.RE.TDFA.Text.Lazy
       Text.RE.TestBench
-      Text.RE.TestBench.Parsers
       Text.RE.Tools
       Text.RE.Tools.Edit
       Text.RE.Tools.Grep
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
-      Text.RE.Types
-      Text.RE.Types.Capture
-      Text.RE.Types.CaptureID
-      Text.RE.Types.IsRegex
-      Text.RE.Types.LineNo
-      Text.RE.Types.Match
-      Text.RE.Types.Matches
-      Text.RE.Types.REOptions
-      Text.RE.Types.Replace
-      Text.RE.Types.SearchReplace
+      Text.RE.ZeInternals.AddCaptureNames
+      Text.RE.ZeInternals.EscapeREString
+      Text.RE.ZeInternals.NamedCaptures
+      Text.RE.ZeInternals.PCRE
+      Text.RE.ZeInternals.PreludeMacros
+      Text.RE.ZeInternals.Replace
+      Text.RE.ZeInternals.TDFA
+      Text.RE.ZeInternals.TestBench
+      Text.RE.ZeInternals.Types.Capture
+      Text.RE.ZeInternals.Types.CaptureID
+      Text.RE.ZeInternals.Types.LineNo
+      Text.RE.ZeInternals.Types.Match
+      Text.RE.ZeInternals.Types.Matches
+      Text.RE.ZeInternals.Types.SearchReplace
+
+    Other-Modules:
+      Text.RE.ZeInternals.QQ
+      Text.RE.ZeInternals.SearchReplace
+      Text.RE.ZeInternals.SearchReplace.PCRE
+      Text.RE.ZeInternals.SearchReplace.PCRE.ByteString
+      Text.RE.ZeInternals.SearchReplace.PCRE.ByteString.Lazy
+      Text.RE.ZeInternals.SearchReplace.PCRE.Sequence
+      Text.RE.ZeInternals.SearchReplace.PCRE.String
+      Text.RE.ZeInternals.SearchReplace.PCREEdPrime
+      Text.RE.ZeInternals.SearchReplace.TDFA
+      Text.RE.ZeInternals.SearchReplace.TDFA.ByteString
+      Text.RE.ZeInternals.SearchReplace.TDFA.ByteString.Lazy
+      Text.RE.ZeInternals.SearchReplace.TDFA.Sequence
+      Text.RE.ZeInternals.SearchReplace.TDFA.String
+      Text.RE.ZeInternals.SearchReplace.TDFA.Text
+      Text.RE.ZeInternals.SearchReplace.TDFA.Text.Lazy
+      Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
 
 %build-depends-lib array bytestring base base-compat containers hashable regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin template-haskell text time time-locale-compat transformers unordered-containers

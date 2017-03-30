@@ -1,5 +1,5 @@
 Name:                   regex-examples
-Version:                0.10.0.3
+Version:                0.11.0.0
 Synopsis:               Tutorial, tests and example programs for regex
 Description:            Tutorial, tests and example programs for regex,
                         a Regular Expression Toolkit for regex-base with
@@ -63,7 +63,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.10.0.3
+    Tag:                0.11.0.0
 
 
 Executable re-gen-cabals
@@ -82,7 +82,7 @@ Executable re-gen-cabals
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -112,7 +112,7 @@ Test-Suite re-gen-cabals-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -139,7 +139,7 @@ Executable re-gen-modules
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -165,7 +165,7 @@ Test-Suite re-gen-modules-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -194,7 +194,7 @@ Executable re-include
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -220,7 +220,7 @@ Test-Suite re-include-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -243,8 +243,8 @@ Executable re-nginx-log-processor
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
-      , regex-with-pcre      == 0.10.0.3
+        regex                == 0.11.0.0
+      , regex-with-pcre      == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -274,8 +274,8 @@ Test-Suite re-nginx-log-processor-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
-      , regex-with-pcre      == 0.10.0.3
+        regex                == 0.11.0.0
+      , regex-with-pcre      == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -308,7 +308,7 @@ Executable re-prep
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -336,7 +336,7 @@ Test-Suite re-prep-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -364,8 +364,8 @@ Executable re-tests
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
-      , regex-with-pcre      == 0.10.0.3
+        regex                == 0.11.0.0
+      , regex-with-pcre      == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -403,8 +403,8 @@ Test-Suite re-tests-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
-      , regex-with-pcre      == 0.10.0.3
+        regex                == 0.11.0.0
+      , regex-with-pcre      == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -443,7 +443,7 @@ Executable re-tutorial
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -487,7 +487,7 @@ Test-Suite re-tutorial-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -533,7 +533,7 @@ Test-Suite re-tutorial-os-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.10.0.3
+        regex                == 0.11.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0

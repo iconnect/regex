@@ -27,7 +27,7 @@ import           System.Exit
 import           System.IO
 import           Text.RE.TDFA.ByteString.Lazy
 import           Text.RE.Tools.Sed
-import           Text.RE.Types.SearchReplace
+import           Text.RE.ZeInternals.Types.SearchReplace
 
 
 type ModPath = String
@@ -151,31 +151,31 @@ bs_re     = [re|LBS.ByteString|]
 ------------------------------------------------------------------------
 
 source_ed_mp :: ModPath
-source_ed_mp = "Text.RE.Internal.SearchReplace.TDFA.ByteString.Lazy"
+source_ed_mp = "Text.RE.ZeInternals.SearchReplace.TDFA.ByteString.Lazy"
 
 tdfa_ed_edits :: [(ModPath,SedScript)]
 tdfa_ed_edits =
-  [ (,) "Text.RE.Internal.SearchReplace.TDFA.ByteString" $ Pipe
+  [ (,) "Text.RE.ZeInternals.SearchReplace.TDFA.ByteString" $ Pipe
       [ Template [ed|SearchReplace.TDFA.ByteString.Lazy///SearchReplace.TDFA.ByteString|]
       , Template [ed|Data.ByteString.Lazy.Char8    as LBS///Data.ByteString.Char8         as B|]
       , Template [ed|LBS.ByteString///B.ByteString|]
       ]
-  , (,) "Text.RE.Internal.SearchReplace.TDFA.Sequence" $ Pipe
+  , (,) "Text.RE.ZeInternals.SearchReplace.TDFA.Sequence" $ Pipe
       [ Template [ed|SearchReplace.TDFA.ByteString.Lazy///SearchReplace.TDFA.Sequence|]
       , Template [ed|Data.ByteString.Lazy.Char8    as LBS///Data.Sequence                 as S|]
       , Template [ed|LBS.ByteString///(S.Seq Char)|]
       ]
-  , (,) "Text.RE.Internal.SearchReplace.TDFA.String" $ Pipe
+  , (,) "Text.RE.ZeInternals.SearchReplace.TDFA.String" $ Pipe
       [ Template [ed|SearchReplace.TDFA.ByteString.Lazy///SearchReplace.TDFA.String|]
       , Template [ed|import qualified Data.ByteString.Lazy.Char8    as LBS///|]
       , Template [ed|LBS.ByteString///String|]
       ]
-  , (,) "Text.RE.Internal.SearchReplace.TDFA.Text" $ Pipe
+  , (,) "Text.RE.ZeInternals.SearchReplace.TDFA.Text" $ Pipe
       [ Template [ed|SearchReplace.TDFA.ByteString.Lazy///SearchReplace.TDFA.Text|]
       , Template [ed|Data.ByteString.Lazy.Char8    as LBS///Data.Text                     as T|]
       , Template [ed|LBS.ByteString///T.Text|]
       ]
-  , (,) "Text.RE.Internal.SearchReplace.TDFA.Text.Lazy" $ Pipe
+  , (,) "Text.RE.ZeInternals.SearchReplace.TDFA.Text.Lazy" $ Pipe
       [ Template [ed|SearchReplace.TDFA.ByteString.Lazy///SearchReplace.TDFA.Text.Lazy|]
       , Template [ed|Data.ByteString.Lazy.Char8    as LBS///Data.Text.Lazy                as TL|]
       , Template [ed|LBS.ByteString///TL.Text|]
@@ -184,32 +184,32 @@ tdfa_ed_edits =
 
 pcre_ed_edits :: [(ModPath,SedScript)]
 pcre_ed_edits =
-  [ (,) "Text.RE.Internal.SearchReplace.PCRE.ByteString" $ pipe
+  [ (,) "Text.RE.ZeInternals.SearchReplace.PCRE.ByteString" $ pipe
       [ Template [ed|SearchReplace.TDFA.ByteString.Lazy///SearchReplace.PCRE.ByteString|]
       , Template [ed|Data.ByteString.Lazy.Char8    as LBS///Data.ByteString.Char8         as B|]
       , Template [ed|LBS.ByteString///B.ByteString|]
       ]
-  , (,) "Text.RE.Internal.SearchReplace.PCRE.ByteString.Lazy" $ pipe
+  , (,) "Text.RE.ZeInternals.SearchReplace.PCRE.ByteString.Lazy" $ pipe
       [ Template [ed|SearchReplace.TDFA.ByteString.Lazy///SearchReplace.PCRE.ByteString.Lazy|]
-      , Template [ed|Text.RE.TDFA.RE///Text.RE.PCRE.RE|]
+      , Template [ed|Text.RE.ZeInternals.TDFA///Text.RE.ZeInternals.PCRE|]
       ]
-  , (,) "Text.RE.Internal.SearchReplace.PCRE.Sequence" $ pipe
+  , (,) "Text.RE.ZeInternals.SearchReplace.PCRE.Sequence" $ pipe
       [ Template [ed|SearchReplace.TDFA.ByteString.Lazy///SearchReplace.PCRE.Sequence|]
       , Template [ed|Data.ByteString.Lazy.Char8    as LBS///Data.Sequence                 as S|]
       , Template [ed|LBS.ByteString///(S.Seq Char)|]
-      , Template [ed|Text.RE.TDFA.RE///Text.RE.PCRE.RE|]
+      , Template [ed|Text.RE.ZeInternals.TDFA///Text.RE.ZeInternals.PCRE|]
       ]
-  , (,) "Text.RE.Internal.SearchReplace.PCRE.String" $ pipe
+  , (,) "Text.RE.ZeInternals.SearchReplace.PCRE.String" $ pipe
       [ Template [ed|SearchReplace.TDFA.ByteString.Lazy///SearchReplace.PCRE.String|]
       , Template [ed|import qualified Data.ByteString.Lazy.Char8    as LBS///|]
       , Template [ed|LBS.ByteString///String|]
-      , Template [ed|Text.RE.TDFA.RE///Text.RE.PCRE.RE|]
+      , Template [ed|Text.RE.ZeInternals.TDFA///Text.RE.ZeInternals.PCRE|]
       ]
   ]
   where
     pipe as = Pipe $ as ++
-      [ Template [ed|Text.RE.TDFA.RE///Text.RE.PCRE.RE|]
-      , Template [ed|Text.RE.Internal.SearchReplace.TDFAEdPrime///Text.RE.Internal.SearchReplace.PCREEdPrime|]
+      [ Template [ed|Text.RE.ZeInternals.TDFA///Text.RE.ZeInternals.PCRE|]
+      , Template [ed|Text.RE.ZeInternals.SearchReplace.TDFAEdPrime///Text.RE.ZeInternals.SearchReplace.PCREEdPrime|]
       ]
 
 

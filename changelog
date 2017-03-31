@@ -1,5 +1,8 @@
 -*-change-log-*-
 
+0.11.1.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-30
+  * Cannot hide Text.RE.ZeInternals.SearchReaplace modules (#101)
+
 0.11.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-29
   * Simplify API (#97)
   * Rename Location to RELocation (#98)

@@ -24,9 +24,11 @@ regressions.
 module Main (main) where
 
 import           Control.Exception
+import           Control.Monad
 import           Data.Array
 import qualified Data.ByteString.Char8          as B
 import qualified Data.ByteString.Lazy.Char8     as LBS
+import           Data.Char
 import qualified Data.Foldable                  as F
 import qualified Data.HashMap.Strict            as HM
 import           Data.Maybe
@@ -38,6 +40,8 @@ import qualified Data.Text.Lazy                 as LT
 import           Data.Typeable
 import           Language.Haskell.TH.Quote
 import           Prelude.Compat
+import           System.Directory
+import           System.FilePath
 import           Test.SmallCheck.Series
 import           Test.Tasty
 import           Test.Tasty.HUnit
@@ -105,8 +109,15 @@ prelude_tests = testGroup "Prelude"
   where
     tc rty m_env =
       testCase (show rty) $ do
-        dumpMacroTable "macros" rty m_env
+        is_docs <- doesDirectoryExist "docs"
+        when is_docs $
+          dumpMacroTable (fp "docs" ".txt") (fp "docs" "-src.txt") rty m_env
+        dumpMacroTable   (fp "data" ".txt") (fp "data" "-src.txt") rty m_env
         assertBool "testMacroEnv" =<< testMacroEnv "prelude" rty m_env
+      where
+        fp dir sfx = dir </> (rty_s ++ "-macros" ++ sfx)
+
+        rty_s      = map toLower $ presentRegexType rty
 \end{code}
 
 

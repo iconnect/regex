@@ -1,5 +1,5 @@
 Name:                   regex-examples
-Version:                0.11.0.0
+Version:                0.11.1.0
 Synopsis:               Tutorial, tests and example programs for regex
 Description:            Tutorial, tests and example programs for regex,
                         a Regular Expression Toolkit for regex-base with
@@ -16,7 +16,7 @@ Maintainer:             Chris Dornan <chris@regex.uk>
 Copyright:              Chris Dornan 2016-2017
 Category:               Text
 Build-type:             Simple
-Stability:              RFC
+Stability:              Stable
 bug-reports:            http://issues.regex.uk
 
 Extra-Source-Files:
@@ -30,6 +30,9 @@ Extra-Source-Files:
     data/pp-result-doc.lhs
     data/pp-result-gen.lhs
     data/pp-test.lhs
+    data/pcre-nginx-log-processor.txt
+    data/tdfa-macros.txt
+    data/pcre-macros.txt
     lib/cabal-masters/constraints-incl.cabal
     lib/cabal-masters/executables-incl.cabal
     lib/cabal-masters/library-incl.cabal
@@ -39,9 +42,6 @@ Extra-Source-Files:
     lib/cabal-masters/test-extra-source-files-incl.cabal
     lib/mega-regex.cabal
     lib/version.txt
-    docs/pcre-nginx-log-processor.txt
-    docs/tdfa-macros.txt
-    docs/pcre-macros.txt
     src/Text/RE/PCRE/ByteString.hs
     src/Text/RE/PCRE/ByteString/Lazy.hs
     src/Text/RE/PCRE/Sequence.hs
@@ -63,7 +63,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.11.0.0
+    Tag:                0.11.1.0
 
 
 Executable re-gen-cabals
@@ -82,7 +82,7 @@ Executable re-gen-cabals
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
+        regex                == 0.11.1.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -112,7 +112,7 @@ Test-Suite re-gen-cabals-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
+        regex                == 0.11.1.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -139,7 +139,7 @@ Executable re-gen-modules
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
+        regex                == 0.11.1.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -165,7 +165,7 @@ Test-Suite re-gen-modules-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
+        regex                == 0.11.1.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -194,7 +194,7 @@ Executable re-include
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
+        regex                == 0.11.1.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -220,7 +220,7 @@ Test-Suite re-include-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
+        regex                == 0.11.1.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -243,13 +243,14 @@ Executable re-nginx-log-processor
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
-      , regex-with-pcre      == 0.11.0.0
+        regex                == 0.11.1.0
+      , regex-with-pcre      == 0.11.1.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
       , directory            >= 1.2.1.0
+      , filepath             
       , regex-base           >= 0.93.2
       , regex-tdfa           >= 1.2.0
       , shelly               >= 1.6.1.2
@@ -274,13 +275,14 @@ Test-Suite re-nginx-log-processor-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
-      , regex-with-pcre      == 0.11.0.0
+        regex                == 0.11.1.0
+      , regex-with-pcre      == 0.11.1.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
       , directory            >= 1.2.1.0
+      , filepath             
       , regex-base           >= 0.93.2
       , regex-tdfa           >= 1.2.0
       , shelly               >= 1.6.1.2
@@ -308,7 +310,7 @@ Executable re-prep
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
+        regex                == 0.11.1.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -336,7 +338,7 @@ Test-Suite re-prep-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
+        regex                == 0.11.1.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -364,14 +366,15 @@ Executable re-tests
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
-      , regex-with-pcre      == 0.11.0.0
+        regex                == 0.11.1.0
+      , regex-with-pcre      == 0.11.1.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
       , containers           >= 0.4
       , directory            >= 1.2.1.0
+      , filepath             
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93.2
       , regex-pcre-builtin   >= 0.94.4.8.8.35
@@ -403,14 +406,15 @@ Test-Suite re-tests-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
-      , regex-with-pcre      == 0.11.0.0
+        regex                == 0.11.1.0
+      , regex-with-pcre      == 0.11.1.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
       , containers           >= 0.4
       , directory            >= 1.2.1.0
+      , filepath             
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93.2
       , regex-pcre-builtin   >= 0.94.4.8.8.35
@@ -443,7 +447,7 @@ Executable re-tutorial
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
+        regex                == 0.11.1.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -487,7 +491,7 @@ Test-Suite re-tutorial-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
+        regex                == 0.11.1.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -533,7 +537,7 @@ Test-Suite re-tutorial-os-test
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
+        regex                == 0.11.1.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0

@@ -16,5 +16,5 @@ import Text.RE.Tools
 -- This module collects together all of the generic regex APIs not
 -- exported by the back-end-specific API modules. The regex
 -- API is modular with only the most common types and functions being
--- exported by these modules but the remining modules may be imported
+-- exported by these modules but the remaining modules may be imported
 -- en masse by importing this module.

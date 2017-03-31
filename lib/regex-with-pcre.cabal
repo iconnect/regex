@@ -1,12 +1,13 @@
 Name:                   regex-with-pcre
-Version:                0.11.0.0
+Version:                0.11.1.0
 Synopsis:               Toolkit for regex-base
-Description:            A Regular Expression Toolkit for regex-base with
-                        Compile-time checking of RE syntax, data types for
+Description:            A regular expression toolkit for regex-base with
+                        compile-time checking of RE syntax, data types for
                         matches and captures, a text replacement toolkit,
                         portable options, high-level AWK-like tools
                         for building text processing apps, regular expression
-                        macros and test bench, a tutorial and copious examples.
+                        macros with parsers and test bench, omprehensive
+                        documentation, tutorials and copious examples.
 Homepage:               http://regex.uk
 Author:                 Chris Dornan
 License:                BSD3
@@ -15,7 +16,7 @@ Maintainer:             Chris Dornan <chris@regex.uk>
 Copyright:              Chris Dornan 2016-2017
 Category:               Text
 Build-type:             Simple
-Stability:              RFC
+Stability:              Stable
 bug-reports:            http://issues.regex.uk
 
 Extra-Source-Files:
@@ -31,7 +32,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.11.0.0
+    Tag:                0.11.1.0
 
 
 
@@ -42,12 +43,9 @@ Library
       Text.RE.PCRE
       Text.RE.PCRE.ByteString
       Text.RE.PCRE.ByteString.Lazy
-      Text.RE.ZeInternals.PCRE
       Text.RE.PCRE.Sequence
       Text.RE.PCRE.String
-
-    Other-Modules:
-      Text.RE.ZeInternals.QQ
+      Text.RE.ZeInternals.PCRE
       Text.RE.ZeInternals.SearchReplace
       Text.RE.ZeInternals.SearchReplace.PCRE
       Text.RE.ZeInternals.SearchReplace.PCRE.ByteString
@@ -89,7 +87,7 @@ Library
       -Wwarn
 
     Build-depends:
-        regex                == 0.11.0.0
+        regex                == 0.11.1.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0

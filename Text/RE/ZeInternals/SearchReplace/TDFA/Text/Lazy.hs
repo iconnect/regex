@@ -7,7 +7,9 @@
 #endif
 
 module Text.RE.ZeInternals.SearchReplace.TDFA.Text.Lazy
-  ( ed
+  ( -- * The ed Quasi Quoters
+    -- $qq
+    ed
   , edMS
   , edMI
   , edBS
@@ -28,7 +30,6 @@ import           Text.RE.REOptions
 import           Text.RE.ZeInternals.Types.SearchReplace
 
 
--- | the @[ed| ... /// ... |]@ quasi quoters
 ed
   , edMS
   , edMI
@@ -56,3 +57,15 @@ sr_cast = [|\x -> x :: SearchReplace RE TL.Text|]
 
 fn_cast :: Q Exp
 fn_cast = [|\x -> x :: SimpleREOptions -> SearchReplace RE TL.Text|]
+
+-- $qq
+-- The -- | the @[ed| ... \/\/\/ ... |]@ quasi quoters; for exaple,
+--
+--  @[ed|${y}([0-9]{4})-0*${m}([0-9]{2})-0*${d}([0-9]{2})\/\/\/${d}\/${m}\/${y}|])@
+--
+-- represents a @SearchReplace@ that will convert a YYYY-MM-DD format date
+-- into a DD\/MM\/YYYY format date.
+--
+-- The only difference betweem these quasi quoters is the RE options that are set:
+-- see the "Text.RE.REOptions" documentation for details.
+--

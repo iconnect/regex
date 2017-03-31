@@ -1,6 +1,6 @@
 module Text.RE.ZeInternals.EscapeREString where
 
--- | Convert a string into a regular expression that will amtch that
+-- | Convert a string into a regular expression that will match that
 -- string
 escapeREString :: String -> String
 escapeREString = foldr esc []

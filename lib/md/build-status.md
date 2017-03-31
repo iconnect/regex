@@ -25,8 +25,8 @@ Travis-CI and AppVeyor pipelines that monitor the head of the repository.
 The following modules have been exempted from the code coverage statistics.
 
 | Module&nbsp;Exempted | Reason                                                                
-| -------------------  | -----------------------------------------------------------------------------
-| [Text.RE.Internal.QQ](https://github.com/iconnect/regex/blob/master/Text/RE/Internal/QQ.hs) | Toolkit for use in quasi quoter contexts only which can't be measured by hps.
+| -------------------- | -----------------------------------------------------------------------------
+| [Text.RE.ZeInternals.QQ](https://github.com/iconnect/regex/blob/master/Text/RE/Internal/QQ.hs) | Toolkit for use in quasi quoter contexts only which can't be measured by hps.
 
 
 %heading#hackagebuild The regex Hackage Matrix Builder
@@ -34,6 +34,6 @@ The following modules have been exempted from the code coverage statistics.
 The regex Hackage Matrix Builder summarizes the buildability of each version of
 each Hackage package:
 
-  * [`regex` age](http://104.239.175.197:8080/package/regex)
-  * [`regex-with-pcre` page](http://104.239.175.197:8080/package/regex-with-pcre)
-  * [`regex-examples` page](http://104.239.175.197:8080/package/regex-examples)
+  * [`regex`](http://104.239.175.197:8080/package/regex)
+  * [`regex-with-pcre`](http://104.239.175.197:8080/package/regex-with-pcre)
+  * [`regex-examples`](http://104.239.175.197:8080/package/regex-examples)

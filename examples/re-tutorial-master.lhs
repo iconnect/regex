@@ -382,12 +382,12 @@ evalme_RPF_01 = checkThis "" ("2016-01-09 2015-12-05 2015-10-05") $ fixup_dates 
 
 The `replaceAllCaptures` function is of type
 
-%include "Text/RE/Replace.lhs" "replaceAllCaptures ::"
+%include "Text/RE/ZeInternals/Replace.lhs" "replaceAllCaptures ::"
 
 and the `REContext` and `RELocation` types are defined in
 `Text.RE.Replace` as follows,
 
-%include "Text/RE/Replace.lhs" "^data REContext"
+%include "Text/RE/ZeInternals/Replace.lhs" "^data REContext"
 
 The processing function gets applied to the captures specified by the
 `REContext`, which can be directed to process `ALL` of the captures,

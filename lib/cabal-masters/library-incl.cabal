@@ -24,23 +24,14 @@ Library
       Text.RE.Tools.Grep
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
+      Text.RE.ZeInternals
       Text.RE.ZeInternals.AddCaptureNames
       Text.RE.ZeInternals.EscapeREString
       Text.RE.ZeInternals.NamedCaptures
       Text.RE.ZeInternals.PCRE
       Text.RE.ZeInternals.PreludeMacros
-      Text.RE.ZeInternals.Replace
-      Text.RE.ZeInternals.TDFA
-      Text.RE.ZeInternals.TestBench
-      Text.RE.ZeInternals.Types.Capture
-      Text.RE.ZeInternals.Types.CaptureID
-      Text.RE.ZeInternals.Types.LineNo
-      Text.RE.ZeInternals.Types.Match
-      Text.RE.ZeInternals.Types.Matches
-      Text.RE.ZeInternals.Types.SearchReplace
-
-    Other-Modules:
       Text.RE.ZeInternals.QQ
+      Text.RE.ZeInternals.Replace
       Text.RE.ZeInternals.SearchReplace
       Text.RE.ZeInternals.SearchReplace.PCRE
       Text.RE.ZeInternals.SearchReplace.PCRE.ByteString
@@ -56,5 +47,14 @@ Library
       Text.RE.ZeInternals.SearchReplace.TDFA.Text
       Text.RE.ZeInternals.SearchReplace.TDFA.Text.Lazy
       Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
+      Text.RE.ZeInternals.TDFA
+      Text.RE.ZeInternals.TestBench
+      Text.RE.ZeInternals.Types.Capture
+      Text.RE.ZeInternals.Types.CaptureID
+      Text.RE.ZeInternals.Types.LineNo
+      Text.RE.ZeInternals.Types.Match
+      Text.RE.ZeInternals.Types.Matches
+      Text.RE.ZeInternals.Types.SearchReplace
+
 
 %build-depends-lib array bytestring base base-compat containers hashable regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin template-haskell text time time-locale-compat transformers unordered-containers

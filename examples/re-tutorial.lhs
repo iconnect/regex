@@ -92,12 +92,12 @@ For this tutorial we will use classic Haskell strings but any application
 dealing with bulk text will probably want to choose one of the other
 options.
 \begin{code}
+import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.TDFA.String
 import           Text.RE.ZeInternals.Types.Capture
 import           Text.RE.ZeInternals.Types.CaptureID
 import           Text.RE.ZeInternals.Types.Match
-import           Text.RE.REOptions
 \end{code}
 If you are predominantly matching against a single type in your module
 then you will probably find it more convenient to use the relevant module
@@ -315,7 +315,7 @@ worked-out examples of these `Matches`/`Match`/`Capture` types.
 
 
 Simple REOptions
---------------
+----------------
 
 By default regular expressions are of the multi-line case-sensitive
 variety so this query
@@ -391,12 +391,12 @@ evalme_RPF_01 = checkThis "evalme_RPF_01" ("2016-01-09 2015-12-05 2015-10-05") $
 
 The `replaceAllCaptures` function is of type
 
-%include "Text/RE/Replace.lhs" "replaceAllCaptures ::"
+%include "Text/RE/ZeInternals/Replace.lhs" "replaceAllCaptures ::"
 
 and the `REContext` and `RELocation` types are defined in
 `Text.RE.Replace` as follows,
 
-%include "Text/RE/Replace.lhs" "^data REContext"
+%include "Text/RE/ZeInternals/Replace.lhs" "^data REContext"
 
 The processing function gets applied to the captures specified by the
 `REContext`, which can be directed to process `ALL` of the captures,
@@ -461,7 +461,7 @@ regex test bench.
 
 
 Compiling REs with the Complete REOptions
----------------------------------------
+-----------------------------------------
 
 Each type of RE &mdash; TDFA and PCRE &mdash; has it own complile-time
 options and execution-time options, called in each case `CompOption` and
@@ -520,7 +520,7 @@ REs. Your configuration-type options are:
   * `SimpleREOptions` this is just a simple enum type that we use to
     encode the standard options:
 
-%include "Text/RE/ZeInternals/Types/REOptions.lhs" "^data SimpleREOptions"
+%include "Text/RE/REOptions.lhs" "^data SimpleREOptions"
 
   * `Mode`: you can specify the parser mode;
 

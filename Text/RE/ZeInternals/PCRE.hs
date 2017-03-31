@@ -183,7 +183,7 @@ unpackSimpleREOptions sro =
 -- | compile a 'String' into a 'RE' with the default options,
 -- generating an error if the RE is not well formed
 compileRegex :: (Functor m,Monad m) => String -> m RE
-compileRegex = compileRegexWithOptions ()
+compileRegex = compileRegexWith minBound
 
 -- | compile a 'String' into a 'RE' using the given @SimpleREOptions@,
 -- generating an error if the RE is not well formed
@@ -207,7 +207,7 @@ compileRegexWithOptions = compileRegex_ . makeREOptions
 ------------------------------------------------------------------------
 
 -- | compile a SearchReplace template generating errors if the RE or
--- the template are not well formed -- all capture references being checked
+-- the template are not well formed, all capture references being checked
 compileSearchReplace :: (Monad m,Functor m,IsRegex RE s)
                      => String
                      -> String
@@ -215,7 +215,7 @@ compileSearchReplace :: (Monad m,Functor m,IsRegex RE s)
 compileSearchReplace = compileSearchReplaceWith minBound
 
 -- | compile a SearchReplace template, with simple options, generating
--- errors if the RE or the template are not well formed -- all capture
+-- errors if the RE or the template are not well formed, all capture
 -- references being checked
 compileSearchReplaceWith :: (Monad m,Functor m,IsRegex RE s)
                          => SimpleREOptions
@@ -225,7 +225,7 @@ compileSearchReplaceWith :: (Monad m,Functor m,IsRegex RE s)
 compileSearchReplaceWith sro = compileSearchAndReplace_ packR $ compileRegexWith sro
 
 -- | compile a SearchReplace template, with general options, generating
--- errors if the RE or the template are not well formed -- all capture
+-- errors if the RE or the template are not well formed, all capture
 -- references being checked
 compileSearchReplaceWithREOptions :: (Monad m,Functor m,IsRegex RE s)
                                   => REOptions
@@ -241,16 +241,17 @@ compileSearchReplaceWithREOptions os = compileSearchAndReplace_ packR $ compileR
 
 -- | convert a string into a RE that matches that string, and apply it
 -- to an argument continuation function to make up the RE string to be
--- compiled
+-- compiled; e.g., to compile a RE that will only match the string:
+--
+--  @maybe undefined id . escape ((\"^\"++) . (++\"$\"))@
+--
 escape :: (Functor m,Monad m)
        => (String->String)
        -> String
        -> m RE
 escape = escapeWith minBound
 
--- | convert a string into a RE that matches that string, and apply it
--- to an argument continuation function to make up the RE string to be
--- compiled with the default options
+-- | a variant of 'escape' where the 'SimpleREOptions' are specified
 escapeWith :: (Functor m,Monad m)
            => SimpleREOptions
            -> (String->String)
@@ -258,12 +259,11 @@ escapeWith :: (Functor m,Monad m)
            -> m RE
 escapeWith = escapeWithOptions
 
--- | convert a string into a RE that matches that string, and apply it
--- to an argument continuation function to make up the RE string to be
--- compiled the given options
+-- | a variant of 'escapeWith' that allows an 'IsOption' RE option
+-- to be specified
 escapeWithOptions :: ( IsOption o RE CompOption ExecOption
                      , Functor m
-                     , Monad m
+                     , Monad   m
                      )
                   => o
                   -> (String->String)

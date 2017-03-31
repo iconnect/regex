@@ -37,7 +37,6 @@ module Text.RE.ZeInternals.TestBench
   ) where
 
 import           Data.Array
-import           Data.Char
 import qualified Data.HashMap.Lazy              as HML
 import qualified Data.List                      as L
 import           Data.Maybe
@@ -234,15 +233,14 @@ dumpMacroTable, formatMacroTable, formatMacroSummary, formatMacroSources, format
 
 \begin{code}
 -- | dump a MacroEnv into the docs directory
-dumpMacroTable :: String -> RegexType -> MacroEnv -> IO ()
-dumpMacroTable lab rty m_env = do
-    writeFile fp_t $ formatMacroTable   rty              m_env
-    writeFile fp_s $ formatMacroSources rty ExclCaptures m_env
-  where
-    fp_t  = "docs/" ++ rty_s ++ "-" ++ lab ++ ".txt"
-    fp_s  = "docs/" ++ rty_s ++ "-" ++ lab ++ "-src.txt"
-
-    rty_s = map toLower $ presentRegexType rty
+dumpMacroTable :: FilePath
+               -> FilePath
+               -> RegexType
+               -> MacroEnv
+               -> IO ()
+dumpMacroTable fp_t fp_s rty m_env = do
+  writeFile fp_t $ formatMacroTable   rty              m_env
+  writeFile fp_s $ formatMacroSources rty ExclCaptures m_env
 \end{code}
 
 \begin{code}

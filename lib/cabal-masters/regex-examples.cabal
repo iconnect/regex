@@ -16,7 +16,7 @@ Maintainer:             Chris Dornan <chris@regex.uk>
 Copyright:              Chris Dornan 2016-2017
 Category:               Text
 Build-type:             Simple
-Stability:              RFC
+Stability:              Stable
 bug-reports:            http://issues.regex.uk
 
 %include "lib/cabal-masters/test-extra-source-files-incl.cabal"

@@ -8,12 +8,9 @@ Library
       Text.RE.PCRE
       Text.RE.PCRE.ByteString
       Text.RE.PCRE.ByteString.Lazy
-      Text.RE.ZeInternals.PCRE
       Text.RE.PCRE.Sequence
       Text.RE.PCRE.String
-
-    Other-Modules:
-      Text.RE.ZeInternals.QQ
+      Text.RE.ZeInternals.PCRE
       Text.RE.ZeInternals.SearchReplace
       Text.RE.ZeInternals.SearchReplace.PCRE
       Text.RE.ZeInternals.SearchReplace.PCRE.ByteString

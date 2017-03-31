@@ -20,9 +20,6 @@ module Text.RE.TDFA
   -- * The SearchReplace Operators
   , (*=~/)
   , (?=~/)
-  -- * The Classic rexex-base Match Operators
-  , (=~)
-  , (=~~)
   -- * Matches
   , Matches
   , matchesSource
@@ -35,17 +32,25 @@ module Text.RE.TDFA
   , matchSource
   , matched
   , matchedText
-  -- * The 'RE' Type and Functions
+  -- * The 'RE' Type
   , RE
-  , SimpleREOptions(..)
   , reSource
+  -- * Options
+  -- $options
+  , SimpleREOptions(..)
+  -- * Compiling and Escaping REs
   , compileRegex
   , compileRegexWith
   , escape
   , escapeWith
   , escapeREString
+  -- * The Classic rexex-base Match Operators
+  , (=~)
+  , (=~~)
+  -- * The Quasi Quoters and Minor Functions
+  -- $re
   , module Text.RE.ZeInternals.TDFA
-  -- * The [ed| ... |] quasi quoters
+  -- $ed
   , module Text.RE.ZeInternals.SearchReplace.TDFA
   -- * The Operator Instances
   -- $instances
@@ -73,7 +78,8 @@ import           Text.RE.IsRegex
 import           Text.RE.REOptions
 
 
--- | find all matches in text; e.g., to count the number of naturals in s:
+-- | find all the matches in the argument text; e.g., to count the number
+-- of naturals in s:
 --
 --   @countMatches $ s *=~ [re|[0-9]+|]@
 --
@@ -83,17 +89,22 @@ import           Text.RE.REOptions
       -> Matches s
 (*=~) bs rex = addCaptureNamesToMatches (reCaptureNames rex) $ matchMany rex bs
 
--- | find first match in text
+-- | find the first match in the argument text; e.g., to test if there
+-- is a natural number in the input text:
+--
+--   @matched $ s ?=~ [re|[0-9]+|]@
+--
 (?=~) :: IsRegex RE s
       => s
       -> RE
       -> Match s
 (?=~) bs rex = addCaptureNamesToMatch (reCaptureNames rex) $ matchOnce rex bs
 
--- | search and replace all occurrences; e.g., this section will yield a function to
--- convert every a YYYY-MM-DD into a DD/MM/YYYY:
+-- | search and replace all matches in the argument text; e.g., this section
+-- will convert every YYYY-MM-DD format date in its argument text into a
+-- DD\/MM\/YYYY date:
 --
---   @(*=~/ [ed|${y}([0-9]{4})-0*${m}([0-9]{2})-0*${d}([0-9]{2})///${d}/${m}/${y}|])@
+--   @(*=~\/ [ed|${y}([0-9]{4})-0*${m}([0-9]{2})-0*${d}([0-9]{2})\/\/\/${d}\/${m}\/${y}|])@
 --
 (*=~/) :: IsRegex RE s => s -> SearchReplace RE s -> s
 (*=~/) = flip searchReplaceAll
@@ -126,8 +137,8 @@ import           Text.RE.REOptions
 
 -- $about
 -- This module provides access to the back end through polymorphic functions
--- that operate over all of the String/Text/ByteString types supported by the
--- back end. If you don't need this generality you might want to consider
+-- that operate over all of the String\/Text\/ByteString types supported by the
+-- back end. If you don't need this generality then you might want to consider
 -- using one of the modules that have been specialised for each of these types:
 --
 -- * "Text.RE.TDFA.ByteString"
@@ -137,6 +148,15 @@ import           Text.RE.REOptions
 -- * "Text.RE.TDFA.String"
 -- * "Text.RE.TDFA.Text"
 -- * "Text.RE.TDFA.Text.Lazy"
+
+-- $re
+-- The @[re|.*|]@ quasi quoters, with variants for specifing different
+-- options to the RE compiler (see "Text.RE.REOptions"), and the
+-- specialised back-end types and functions.
+
+-- $ed
+-- The @[ed|.*\/\/\/foo|]@ quasi quoters, with variants for specifing different
+-- options to the RE compiler (see "Text.RE.REOptions").
 
 -- $instances
 --

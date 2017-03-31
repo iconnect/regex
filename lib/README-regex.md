@@ -2,18 +2,18 @@
 
 regex is a regular expression toolkit for regex-base with:
 
-  * text-replacement operations with named captures;
+  * a text-replacement toolkit with type-safe text-replacement templates;
   * special datatypes for matches and captures;
   * compile-time checking of RE syntax;
   * a unified means of controlling case-sensitivity and multi-line options;
   * high-level AWK-like tools for building text processing apps;
   * the option of using match operators with reduced polymorphism on the
-    text and/or result types;
+    text and result types;
   * regular expression macros including:
       + a number of useful RE macros;
       + a test bench for testing and documenting new macro environments;
   * built-in support for the TDFA and PCRE backends;
-  * comprehensive documentation and copious examples.
+  * comprehensive documentation, tutorials and copious examples.
 
 
 See the [About page](http://about.regex.uk) for details.
@@ -70,7 +70,9 @@ two packages:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-29  v0.11.0.0 [Simplify the API](https://github.com/iconnect/regex/milestone/14)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-03-31  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-29  v0.11.1.0 [Fix the Haddocks](https://github.com/iconnect/regex/milestone/15)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-04-03  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)
 
@@ -109,9 +111,9 @@ See the [Tutorial page](http://tutorial.regex.uk) and
 
 If you have any feedback or suggestion then please drop us a line.
 
-&nbsp;&nbsp;&nbsp;&nbsp;`t` [&#64;hregex](https://twitter.com/hregex)\n
-&nbsp;&nbsp;&nbsp;&nbsp;`e` maintainers@regex.uk\n
-&nbsp;&nbsp;&nbsp;&nbsp;`w` http://issues.regex.uk
+  * `t` [&#64;hregex](https://twitter.com/hregex)\n
+  * `e` maintainers@regex.uk\n
+  * `w` http://issues.regex.uk
 
 The [Contact page](http://contact.regex.uk) has more details.
 

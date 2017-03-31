@@ -215,4 +215,4 @@ script:
 after_script:
   - travis_retry curl -L https://lainepress.github.io/shc/shc.tar.xz | tar xJ
   - |
-    [ "$BUILD" == stack -a "$GHCVER" == 7.10.3 ] && ./shc --exclude-files=Text/RE/Internal/QQ.hs --partial-coverage regex re-gen-cabals-test re-gen-modules-test re-include-test re-nginx-log-processor-test re-prep-test re-tests-test re-tutorial-test
+    [ "$BUILD" == stack -a "$GHCVER" == 7.10.3 ] && ./shc --exclude-files=Text/RE/ZeInternals/QQ.hs --partial-coverage regex re-gen-cabals-test re-gen-modules-test re-include-test re-nginx-log-processor-test re-prep-test re-tests-test re-tutorial-test

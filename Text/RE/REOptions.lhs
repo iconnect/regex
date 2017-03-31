@@ -12,13 +12,12 @@
 
 module Text.RE.REOptions
   (
-  -- * SimpleREOptions
+  -- * RE Options
     SimpleREOptions(..)
-  -- * REOptions_
   , REOptions_(..)
-  -- * IsOption
+  -- * The IsOption Class
   , IsOption(..)
-  -- * Macros
+  -- * The Macro Tables
   , Macros
   , MacroID(..)
   , emptyMacros
@@ -30,6 +29,10 @@ import           Data.String
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Syntax
 \end{code}
+
+
+The RE Options
+--------------
 
 \begin{code}
 -- | the default API uses these simple, universal RE options,
@@ -59,7 +62,7 @@ instance Lift SimpleREOptions where
 -- and its @CompOption@ and @ExecOption@ types (the compile-time and
 -- execution time options, respectively); each back end will define an
 -- @REOptions@ type that fills out these three type parameters with the
--- apropriate types
+-- apropriate types (see, for example, "Text.RE.ZeInternals.TDFA")
 data REOptions_ r c e =
   REOptions
     { optionsMacs :: !(Macros r)    -- ^ the available TestBench RE macros
@@ -69,18 +72,27 @@ data REOptions_ r c e =
   deriving (Show)
 \end{code}
 
+
+The IsOption Class
+------------------
+
 \begin{code}
--- | a number of types can be used to encode @REOptions@, each of which
--- can be made a member of this class.
+-- | a number of types can be used to encode 'REOptions_', each of which
+-- is made a member of this class
 class IsOption o r c e |
     e -> r, c -> e , e -> c, r -> c, c -> r, r -> e where
   -- | convert the @o@ type into an @REOptions r c e@
   makeREOptions :: o -> REOptions_ r c e
 \end{code}
 
+
+The Macro Tables
+----------------
+
 \begin{code}
 -- | our macro tables are parameterised over the backend @RE@ type and
--- and just associate each @MacroID@ with an @RE@
+-- and just associate each @MacroID@ with an @RE@ (which may in turn
+-- contain macros to be expanded)
 type Macros r = HM.HashMap MacroID r
 \end{code}
 

@@ -15,14 +15,18 @@ module Text.RE
   -- * How to use this library
   -- $use
 
-  -- * Matches
+  -- * Further Use
+  -- $further
+
+  -- * The regex Foundational Types
+  -- ** Matches
     Matches
   , matchesSource
   , allMatches
   , anyMatches
   , countMatches
   , matches
-  -- * Match
+  -- ** Match
   , Match
   , matchSource
   , matched
@@ -38,17 +42,17 @@ import           Text.RE.ZeInternals.Types.Matches
 
 -- $use
 --
--- This module just provides an overview of the key type on which
--- the regex package is built. You will need to import one of the API
--- modules of which there is a choice which will depend upon two factors:
+-- This module just provides a brief overview of the regex package. You
+-- will need to import one of the API modules of which there is a choice
+-- which will depend upon two factors:
 --
--- * Which flavour of regular expression do you want to use? If you want
---   Posix flavour REs then you want the TDFA modules, otherwise its
+-- * Which flavour of regular expression do you want to use? If you need
+--   Posix flavour REs then you will want the TDFA modules, otherwise its
 --   PCRE for Perl-style REs.
 --
 -- * What type of text do you want to match: (slow) @String@s, @ByteString@,
 --   @ByteString.Lazy@, @Text@, @Text.Lazy@ or the anachronistic @Seq Char@
---   or indeed a good old-fashioned polymorphic operators?
+--   or indeed some good old-fashioned polymorphic operators?
 --
 -- While we aim to provide all combinations of these choices, some of them
 -- are currently not available.  In the regex package we have:
@@ -71,3 +75,12 @@ import           Text.RE.ZeInternals.Types.Matches
 -- * Text.RE.PCRE.Sequence
 -- * Text.RE.PCRE.String
 -- * Text.RE.PCRE
+
+-- $further
+-- For more specialist applications we have the following:
+--
+-- * "Text.RE.REOptions" for specifying back-end specific options;
+-- * "Text.RE.Replace"   for the full replace toolkit;
+-- * "Text.RE.TestBench" for building up, testing and doumenting;
+--   macro environments  for use in REs;
+-- * "Text.RE.Tools"     for an AWK-like text-processing toolkit.

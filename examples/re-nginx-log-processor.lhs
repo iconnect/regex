@@ -29,6 +29,7 @@ import           Control.Applicative
 import           Control.Exception
 import           Control.Monad
 import qualified Data.ByteString.Lazy.Char8               as LBS
+import           Data.Char
 import qualified Data.HashMap.Lazy                        as HML
 import           Data.Functor.Identity
 import           Data.Maybe
@@ -38,6 +39,7 @@ import           Data.Time
 import           Prelude.Compat
 import qualified Shelly                                   as SH
 import           System.Directory
+import           System.FilePath
 import           System.Environment
 import           System.Exit
 import           System.IO
@@ -81,7 +83,7 @@ main = do
         , prg " --regex"
         , prg " --regex <macro-id>"
         , prg "[--test]"
-        , prg "(-|<in-file>) [-|<out-fileß>]"
+        , prg "(-|<in-file>) [-|<out-file>]"
         ]
 \end{code}
 
@@ -93,20 +95,26 @@ main = do
 
 test :: IO ()
 test = do
-  putStrLn "============================================================"
-  putStrLn "Testing the macro environment."
-  putStrLn "nginx-log-processor"
-  dumpMacroTable        "nginx-log-processor" regexType lp_env
-  me_ok <- testMacroEnv "nginx-log-processor" regexType lp_env
-  putStrLn "============================================================"
-  putStrLn "Testing the log processor on reference data."
-  putStrLn ""
-  lp_ok <- test_log_processor
-  putStrLn "============================================================"
-  case me_ok && lp_ok of
-    True  -> return ()
-    False -> exitWith $ ExitFailure 1
+    putStrLn "============================================================"
+    putStrLn "Testing the macro environment."
+    putStrLn "nginx-log-processor"
+    is_docs <- doesDirectoryExist "docs"
+    when is_docs $
+      dumpMacroTable  (fp "docs" ".txt") (fp "docs" "-src.txt") regexType lp_env
+    dumpMacroTable    (fp "data" ".txt") (fp "data" "-src.txt") regexType lp_env
+    me_ok <- testMacroEnv "nginx-log-processor" regexType lp_env
+    putStrLn "============================================================"
+    putStrLn "Testing the log processor on reference data."
+    putStrLn ""
+    lp_ok <- test_log_processor
+    putStrLn "============================================================"
+    case me_ok && lp_ok of
+      True  -> return ()
+      False -> exitWith $ ExitFailure 1
+  where
+    fp dir sfx = dir </> (rty_s ++ "-nginx-log-processor" ++ sfx)
 
+    rty_s      = map toLower $ presentRegexType regexType
 
 test_log_processor :: IO Bool
 test_log_processor = do

@@ -16,12 +16,12 @@ module Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
 import           Prelude.Compat
+import           Text.RE.REOptions
+import           Text.RE.Replace
 import           Text.RE.ZeInternals.SearchReplace
 import           Text.RE.ZeInternals.QQ
 import           Text.RE.ZeInternals.TDFA
-import           Text.RE.IsRegex
-import           Text.RE.REOptions
-import           Text.RE.Replace
+import           Text.RE.ZeInternals.Types.IsRegex
 import           Text.Regex.TDFA
 
 

@@ -31,13 +31,12 @@ import qualified Data.Text                                as T
 import           Prelude.Compat
 import           System.Environment
 import           TestKit
+import           Text.RE
 import           Text.RE.Tools.Edit
 import           Text.RE.TDFA.ByteString.Lazy
 import           Text.RE.TestBench
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
-import           Text.RE.ZeInternals.Types.Capture
-import           Text.RE.ZeInternals.Types.Match
 import           Text.RE.Replace
 \end{code}
 

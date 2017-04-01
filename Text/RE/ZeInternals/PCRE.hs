@@ -70,16 +70,16 @@ import           Data.Functor.Identity
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
 import           Prelude.Compat
-import           Text.RE.IsRegex
 import           Text.RE.REOptions
 import           Text.RE.ZeInternals.EscapeREString
 import           Text.RE.ZeInternals.NamedCaptures
 import           Text.RE.ZeInternals.PreludeMacros
-import           Text.RE.ZeInternals.Replace
 import           Text.RE.ZeInternals.QQ
+import           Text.RE.ZeInternals.Replace
 import           Text.RE.ZeInternals.SearchReplace
 import           Text.RE.ZeInternals.TestBench
 import           Text.RE.ZeInternals.Types.CaptureID
+import           Text.RE.ZeInternals.Types.IsRegex
 import           Text.Regex.PCRE
 
 

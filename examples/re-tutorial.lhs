@@ -95,9 +95,6 @@ options.
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.TDFA.String
-import           Text.RE.ZeInternals.Types.Capture
-import           Text.RE.ZeInternals.Types.CaptureID
-import           Text.RE.ZeInternals.Types.Match
 \end{code}
 If you are predominantly matching against a single type in your module
 then you will probably find it more convenient to use the relevant module
@@ -483,7 +480,7 @@ types for each back end.)
 
 The `REOptions_` type is defined in `Text.RE.REOptions` as follows:
 
-%include "Text/RE/ZeInternals/Types/REOptions.lhs" "data REOptions_"
+%include "Text/RE/REOptions.lhs" "data REOptions_"
 
   * `optionsMode` is an experimental feature that controls the RE
     parser.

@@ -39,14 +39,19 @@ module Text.RE.PCRE.ByteString.Lazy
   -- $options
   , SimpleREOptions(..)
   -- * Compiling and Escaping REs
+  , SearchReplace(..)
   , compileRegex
   , compileRegexWith
+  , compileSearchReplace
+  , compileSearchReplaceWith
   , escape
   , escapeWith
   , escapeREString
   -- * The Classic rexex-base Match Operators
   , (=~)
   , (=~~)
+  -- * IsRegex
+  , IsRegex(..)
   -- * The Quasi Quoters and Minor Functions
   -- $re
   , module Text.RE.ZeInternals.PCRE
@@ -57,14 +62,13 @@ module Text.RE.PCRE.ByteString.Lazy
 import           Prelude.Compat
 import qualified Data.ByteString.Lazy          as LBS
 import           Data.Typeable
-import           Text.Regex.Base
-import           Text.RE
-import           Text.RE.ZeInternals.AddCaptureNames
-import           Text.RE.ZeInternals.SearchReplace.PCRE.ByteString.Lazy
-import           Text.RE.IsRegex
 import           Text.RE.REOptions
 import           Text.RE.Replace
+import           Text.RE.ZeInternals.AddCaptureNames
+import           Text.RE.ZeInternals.SearchReplace.PCRE.ByteString.Lazy
 import           Text.RE.ZeInternals.PCRE
+import           Text.RE.ZeInternals.Types.IsRegex
+import           Text.Regex.Base
 import qualified Text.Regex.PCRE               as PCRE
 
 
@@ -101,7 +105,7 @@ import qualified Text.Regex.PCRE               as PCRE
 -- e.g., to prefix the first string of four hex digits in the imput text,
 -- if any, with @0x@:
 --
---  @(?=~\/ [ed|[0-9A-Fa-f]{4}\/\/\/0x$0|])
+--  @(?=~\/ [ed|[0-9A-Fa-f]{4}\/\/\/0x$0|])@
 --
 (?=~/) :: LBS.ByteString -> SearchReplace RE LBS.ByteString -> LBS.ByteString
 (?=~/) = flip searchReplaceFirst

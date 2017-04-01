@@ -27,7 +27,6 @@ import           System.Exit
 import           System.IO
 import           Text.RE.TDFA.ByteString.Lazy
 import           Text.RE.Tools.Sed
-import           Text.RE.ZeInternals.Types.SearchReplace
 
 
 type ModPath = String

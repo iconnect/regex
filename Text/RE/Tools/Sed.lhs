@@ -31,9 +31,8 @@ module Text.RE.Tools.Sed
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Prelude.Compat
 import           Text.RE
-import           Text.RE.Tools.Edit
-import           Text.RE.IsRegex
 import           Text.RE.Replace
+import           Text.RE.Tools.Edit
 
 
 -- | read a file, apply an 'Edits' script to each line it and

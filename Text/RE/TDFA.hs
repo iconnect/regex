@@ -39,14 +39,19 @@ module Text.RE.TDFA
   -- $options
   , SimpleREOptions(..)
   -- * Compiling and Escaping REs
+  , SearchReplace(..)
   , compileRegex
   , compileRegexWith
+  , compileSearchReplace
+  , compileSearchReplaceWith
   , escape
   , escapeWith
   , escapeREString
   -- * The Classic rexex-base Match Operators
   , (=~)
   , (=~~)
+  -- * IsRegex
+  , IsRegex(..)
   -- * The Quasi Quoters and Minor Functions
   -- $re
   , module Text.RE.ZeInternals.TDFA
@@ -62,20 +67,21 @@ module Text.RE.TDFA
   , module Text.RE.TDFA.Text.Lazy
   ) where
 
-import qualified Text.Regex.Base                          as B
-import           Text.RE
-import           Text.RE.ZeInternals.AddCaptureNames
-import           Text.RE.ZeInternals.SearchReplace.TDFA
-import           Text.RE.ZeInternals.TDFA
-import qualified Text.Regex.TDFA                          as TDFA
+import           Text.RE.REOptions
 import           Text.RE.TDFA.ByteString()
 import           Text.RE.TDFA.ByteString.Lazy()
 import           Text.RE.TDFA.Sequence()
 import           Text.RE.TDFA.String()
 import           Text.RE.TDFA.Text()
 import           Text.RE.TDFA.Text.Lazy()
-import           Text.RE.IsRegex
-import           Text.RE.REOptions
+import           Text.RE.ZeInternals.AddCaptureNames
+import           Text.RE.ZeInternals.SearchReplace.TDFA
+import           Text.RE.ZeInternals.TDFA
+import           Text.RE.ZeInternals.Types.IsRegex
+import           Text.RE.ZeInternals.Types.Match
+import           Text.RE.ZeInternals.Types.Matches
+import qualified Text.Regex.Base                          as B
+import qualified Text.Regex.TDFA                          as TDFA
 
 
 -- | find all the matches in the argument text; e.g., to count the number

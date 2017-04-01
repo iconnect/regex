@@ -7,7 +7,6 @@ Library
 
     Exposed-Modules:
       Text.RE
-      Text.RE.IsRegex
       Text.RE.REOptions
       Text.RE.Replace
       Text.RE.Summa
@@ -27,11 +26,11 @@ Library
       Text.RE.ZeInternals
       Text.RE.ZeInternals.AddCaptureNames
       Text.RE.ZeInternals.EscapeREString
+      Text.RE.ZeInternals.Lex
       Text.RE.ZeInternals.NamedCaptures
       Text.RE.ZeInternals.PreludeMacros
       Text.RE.ZeInternals.QQ
       Text.RE.ZeInternals.Replace
-      Text.RE.ZeInternals.Types.SearchReplace
       Text.RE.ZeInternals.SearchReplace
       Text.RE.ZeInternals.SearchReplace.TDFA
       Text.RE.ZeInternals.SearchReplace.TDFA.ByteString
@@ -45,9 +44,11 @@ Library
       Text.RE.ZeInternals.TestBench
       Text.RE.ZeInternals.Types.Capture
       Text.RE.ZeInternals.Types.CaptureID
+      Text.RE.ZeInternals.Types.IsRegex
       Text.RE.ZeInternals.Types.LineNo
       Text.RE.ZeInternals.Types.Match
       Text.RE.ZeInternals.Types.Matches
+      Text.RE.ZeInternals.Types.SearchReplace
 
 %build-depends-lib array bytestring base base-compat containers hashable regex-base regex-tdfa regex-tdfa-text template-haskell text time time-locale-compat transformers unordered-containers
 

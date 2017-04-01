@@ -37,13 +37,12 @@ import           System.Environment
 import           System.IO
 import           TestKit
 import           Text.Heredoc
+import           Text.RE
 import           Text.RE.TestBench
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
 import           Text.RE.TDFA.ByteString.Lazy
 import qualified Text.RE.TDFA.Text                        as TT
-import           Text.RE.ZeInternals.Types.Capture
-import           Text.RE.ZeInternals.Types.Match
 import           Text.RE.Replace
 \end{code}
 
@@ -175,15 +174,15 @@ gen_all = do
     pd "re-prep"
     pd "re-tests"
     pd "TestKit"
-    pd "RE/IsRegex"
     pd "RE/REOptions"
     pd "RE/Tools/Edit"
     pd "RE/Tools/Grep"
-    pd "RE/Tools/Lex"
     pd "RE/Tools/Sed"
+    pd "RE/ZeInternals/Lex"
     pd "RE/ZeInternals/NamedCaptures"
     pd "RE/ZeInternals/Replace"
     pd "RE/ZeInternals/TestBench"
+    pd "RE/ZeInternals/Types/IsRegex"
     pd "RE/ZeInternals/Types/Matches"
     pd "RE/ZeInternals/Types/Match"
     pd "RE/ZeInternals/Types/Capture"

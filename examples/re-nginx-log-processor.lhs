@@ -26,7 +26,6 @@ module Main
   ) where
 
 import           Control.Applicative
-import           Control.Exception
 import           Control.Monad
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Data.Char
@@ -37,19 +36,17 @@ import           Data.String
 import qualified Data.Text                                as T
 import           Data.Time
 import           Prelude.Compat
-import qualified Shelly                                   as SH
 import           System.Directory
 import           System.FilePath
 import           System.Environment
 import           System.Exit
 import           System.IO
+import           TestKit
+import           Text.RE
 import           Text.RE.PCRE.ByteString.Lazy
 import qualified Text.RE.PCRE.String                      as S
 import           Text.RE.TestBench
 import           Text.RE.Tools.Sed
-import           Text.RE.ZeInternals.TestBench
-import           Text.RE.ZeInternals.Types.Capture
-import           Text.RE.ZeInternals.Types.Match
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.Printf
@@ -592,21 +589,4 @@ parse_pid_tid x = case allMatches $ unpackR x S.*=~ [re|@{%nat}|] of
     _        -> Nothing
   where
     p cs = matchCapture cs >>= parseInteger . capturedText
-
-
---
--- cmp
---
-
-cmp :: T.Text -> T.Text -> IO Bool
-cmp src dst = handle hdl $ do
-    _ <- SH.shelly $ SH.verbosely $
-        SH.run "cmp" [src,dst]
-    return True
-  where
-    hdl :: SomeException -> IO Bool
-    hdl se = do
-      hPutStrLn stderr $
-        "testing results against model answers failed: " ++ show se
-      return False
 \end{code}

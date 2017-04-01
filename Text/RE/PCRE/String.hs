@@ -39,14 +39,19 @@ module Text.RE.PCRE.String
   -- $options
   , SimpleREOptions(..)
   -- * Compiling and Escaping REs
+  , SearchReplace(..)
   , compileRegex
   , compileRegexWith
+  , compileSearchReplace
+  , compileSearchReplaceWith
   , escape
   , escapeWith
   , escapeREString
   -- * The Classic rexex-base Match Operators
   , (=~)
   , (=~~)
+  -- * IsRegex
+  , IsRegex(..)
   -- * The Quasi Quoters and Minor Functions
   -- $re
   , module Text.RE.ZeInternals.PCRE
@@ -57,14 +62,13 @@ module Text.RE.PCRE.String
 import           Prelude.Compat
 
 import           Data.Typeable
-import           Text.Regex.Base
-import           Text.RE
-import           Text.RE.ZeInternals.AddCaptureNames
-import           Text.RE.ZeInternals.SearchReplace.PCRE.String
-import           Text.RE.IsRegex
 import           Text.RE.REOptions
 import           Text.RE.Replace
+import           Text.RE.ZeInternals.AddCaptureNames
+import           Text.RE.ZeInternals.SearchReplace.PCRE.String
 import           Text.RE.ZeInternals.PCRE
+import           Text.RE.ZeInternals.Types.IsRegex
+import           Text.Regex.Base
 import qualified Text.Regex.PCRE               as PCRE
 
 
@@ -101,7 +105,7 @@ import qualified Text.Regex.PCRE               as PCRE
 -- e.g., to prefix the first string of four hex digits in the imput text,
 -- if any, with @0x@:
 --
---  @(?=~\/ [ed|[0-9A-Fa-f]{4}\/\/\/0x$0|])
+--  @(?=~\/ [ed|[0-9A-Fa-f]{4}\/\/\/0x$0|])@
 --
 (?=~/) :: String -> SearchReplace RE String -> String
 (?=~/) = flip searchReplaceFirst

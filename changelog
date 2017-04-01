@@ -1,5 +1,9 @@
 -*-change-log-*-
 
+0.12.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-31
+  * Add Text.RE.REOptions to RE.Summa (#103)
+  * Move IsRegex into Text.RE (#104)
+
 0.11.1.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-30
   * Cannot hide Text.RE.ZeInternals.SearchReaplace modules (#101)
 

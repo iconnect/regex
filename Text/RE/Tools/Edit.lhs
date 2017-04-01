@@ -29,10 +29,9 @@ module Text.RE.Tools.Edit
 import           Data.Maybe
 import           Prelude.Compat
 import           Text.RE
-import           Text.RE.ZeInternals.Types.Capture
-import           Text.RE.IsRegex
-import           Text.RE.ZeInternals.Types.LineNo
 import           Text.RE.Replace
+import           Text.RE.ZeInternals.Types.IsRegex
+import           Text.RE.ZeInternals.Types.LineNo
 
 
 -- | an 'Edits' script will, for each line in the file, either perform

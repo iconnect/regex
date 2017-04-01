@@ -8,6 +8,10 @@ module Text.RE.TestBench
   , MacroDescriptor(..)
   , RegexSource(..)
   , WithCaptures(..)
+  , RegexType
+  , isTDFA
+  , isPCRE
+  , presentRegexType
   -- ** Constructing a MacrosEnv
   , mkMacros
   -- ** Formatting Macros
@@ -39,7 +43,6 @@ module Text.RE.TestBench
   , Severity(..)
   , parseSeverity
   , severityKeywords
---  , module Text.RE.ZeInternals.TestBench
   ) where
 
 import           Data.Array

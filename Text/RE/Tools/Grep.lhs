@@ -28,7 +28,6 @@ import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Prelude.Compat
 import           Text.Printf
 import           Text.RE
-import           Text.RE.IsRegex
 import           Text.RE.ZeInternals.Types.LineNo
 
 

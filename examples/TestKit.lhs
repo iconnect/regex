@@ -23,6 +23,7 @@ module TestKit
   , test_pp
   , include
   , cmp
+  , dumpMacroTable
   ) where
 
 import           Control.Applicative
@@ -187,6 +188,7 @@ include = sed' $ Select
     prs_s           = maybe (error "include") T.unpack . parseString
 \end{code}
 
+
 cmp
 ---
 
@@ -202,4 +204,20 @@ cmp src dst = handle hdl $ do
       hPutStrLn stderr $
         "testing results against model answers failed: " ++ show se
       return False
+\end{code}
+
+
+dumpMacroTable
+--------------
+
+\begin{code}
+-- | dump a MacroEnv into the docs directory
+dumpMacroTable :: FilePath
+               -> FilePath
+               -> RegexType
+               -> MacroEnv
+               -> IO ()
+dumpMacroTable fp_t fp_s rty m_env = do
+  writeFile fp_t $ formatMacroTable   rty              m_env
+  writeFile fp_s $ formatMacroSources rty ExclCaptures m_env
 \end{code}

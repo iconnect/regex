@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                0.11.1.0
+Version:                0.12.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A regular expression toolkit for regex-base with
                         compile-time checking of RE syntax, data types for
@@ -63,7 +63,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.11.1.0
+    Tag:                0.12.0.0
 
 
 
@@ -71,7 +71,6 @@ Library
     Hs-Source-Dirs:     .
     Exposed-Modules:
       Text.RE
-      Text.RE.IsRegex
       Text.RE.PCRE
       Text.RE.PCRE.ByteString
       Text.RE.PCRE.ByteString.Lazy
@@ -96,6 +95,7 @@ Library
       Text.RE.ZeInternals
       Text.RE.ZeInternals.AddCaptureNames
       Text.RE.ZeInternals.EscapeREString
+      Text.RE.ZeInternals.Lex
       Text.RE.ZeInternals.NamedCaptures
       Text.RE.ZeInternals.PCRE
       Text.RE.ZeInternals.PreludeMacros
@@ -120,6 +120,7 @@ Library
       Text.RE.ZeInternals.TestBench
       Text.RE.ZeInternals.Types.Capture
       Text.RE.ZeInternals.Types.CaptureID
+      Text.RE.ZeInternals.Types.IsRegex
       Text.RE.ZeInternals.Types.LineNo
       Text.RE.ZeInternals.Types.Match
       Text.RE.ZeInternals.Types.Matches
@@ -194,7 +195,7 @@ Executable re-gen-cabals
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -224,7 +225,7 @@ Test-Suite re-gen-cabals-test
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -251,7 +252,7 @@ Executable re-gen-modules
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -277,7 +278,7 @@ Test-Suite re-gen-modules-test
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -306,7 +307,7 @@ Executable re-include
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -332,7 +333,7 @@ Test-Suite re-include-test
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -355,7 +356,7 @@ Executable re-nginx-log-processor
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -386,7 +387,7 @@ Test-Suite re-nginx-log-processor-test
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -420,7 +421,7 @@ Executable re-prep
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -448,7 +449,7 @@ Test-Suite re-prep-test
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -476,7 +477,7 @@ Executable re-tests
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -489,6 +490,7 @@ Executable re-tests
       , regex-pcre-builtin   >= 0.94.4.8.8.35
       , regex-tdfa           >= 1.2.0
       , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
@@ -515,7 +517,7 @@ Test-Suite re-tests-test
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -528,6 +530,7 @@ Test-Suite re-tests-test
       , regex-pcre-builtin   >= 0.94.4.8.8.35
       , regex-tdfa           >= 1.2.0
       , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
@@ -555,7 +558,7 @@ Executable re-tutorial
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -599,7 +602,7 @@ Test-Suite re-tutorial-test
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -645,7 +648,7 @@ Test-Suite re-tutorial-os-test
       -Werror
 
     Build-depends:
-        regex                == 0.11.1.0
+        regex                == 0.12.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0

@@ -31,8 +31,17 @@ module Text.RE
   , matchSource
   , matched
   , matchedText
+
+  -- * IsRegex
+  -- $isregex
+  , IsRegex(..)
+  , searchReplaceAll
+  , searchReplaceFirst
+  , module Text.RE.TDFA
   ) where
 
+import           Text.RE.TDFA()
+import           Text.RE.ZeInternals.Types.IsRegex
 import           Text.RE.ZeInternals.Types.Match
 import           Text.RE.ZeInternals.Types.Matches
 
@@ -84,3 +93,10 @@ import           Text.RE.ZeInternals.Types.Matches
 -- * "Text.RE.TestBench" for building up, testing and doumenting;
 --   macro environments  for use in REs;
 -- * "Text.RE.Tools"     for an AWK-like text-processing toolkit.
+
+-- $isregex
+-- Class @IsRegex re t@ provides methods for matching the @t@ type for
+-- the @re@ back end as well as compiling REs from @t@ to @re@ and
+-- getting the source @t@ back again. The 'Replace' superclass of
+-- @IsRegex@ contains a useful toolkit for converting between @t@ and
+-- 'String' abd @Text@.

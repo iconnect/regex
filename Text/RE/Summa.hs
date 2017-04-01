@@ -1,12 +1,12 @@
 module Text.RE.Summa
   ( -- $collection
-    module Text.RE.IsRegex
+    module Text.RE.REOptions
   , module Text.RE.Replace
   , module Text.RE.TestBench
   , module Text.RE.Tools
   ) where
 
-import Text.RE.IsRegex
+import Text.RE.REOptions
 import Text.RE.Replace
 import Text.RE.TestBench
 import Text.RE.Tools

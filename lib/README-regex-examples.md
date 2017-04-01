@@ -70,7 +70,9 @@ two packages:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-29  v0.11.0.0 [Simplify the API](https://github.com/iconnect/regex/milestone/14)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-29  v0.11.1.0 [Fix the Haddocks](https://github.com/iconnect/regex/milestone/15)
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-30  v0.11.1.0 [Fix the Haddocks](https://github.com/iconnect/regex/milestone/15)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-31  v0.12.0.0 [Move IsRegex into Text.RE](https://github.com/iconnect/regex/milestone/16)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-04-03  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 

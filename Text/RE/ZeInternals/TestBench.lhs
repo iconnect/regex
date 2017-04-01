@@ -28,7 +28,6 @@ module Text.RE.ZeInternals.TestBench
   , runTests
   , runTests'
   , formatMacroTable
-  , dumpMacroTable
   , formatMacroSummary
   , formatMacroSources
   , formatMacroSource
@@ -59,8 +58,7 @@ Types
 type TestBenchMatcher =
     String -> MacroEnv -> MacroDescriptor -> Matches String
 
--- | what kind of back end will be compiling the RE, and its match
--- function
+-- | what flavour of regex are we dealing with
 data RegexType
   = TDFA TestBenchMatcher
   | PCRE TestBenchMatcher
@@ -228,20 +226,8 @@ runTests' rty parser vector env mid md@MacroDescriptor{..} =
 \end{code}
 
 
-dumpMacroTable, formatMacroTable, formatMacroSummary, formatMacroSources, formatMacroSource
--------------------------------------------------------------------------------------------
-
-\begin{code}
--- | dump a MacroEnv into the docs directory
-dumpMacroTable :: FilePath
-               -> FilePath
-               -> RegexType
-               -> MacroEnv
-               -> IO ()
-dumpMacroTable fp_t fp_s rty m_env = do
-  writeFile fp_t $ formatMacroTable   rty              m_env
-  writeFile fp_s $ formatMacroSources rty ExclCaptures m_env
-\end{code}
+formatMacroTable, formatMacroSummary, formatMacroSources, formatMacroSource
+---------------------------------------------------------------------------
 
 \begin{code}
 -- | format a macros table as a markdown table

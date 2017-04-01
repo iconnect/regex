@@ -27,11 +27,10 @@ import qualified Data.Text                    as T
 import           GHC.Generics
 import qualified Language.Haskell.TH          as TH
 import           Language.Haskell.TH.Quote
-import           Text.RE
+import           Text.RE.ZeInternals.Lex
 import           Text.RE.ZeInternals.PreludeMacros
 import           Text.RE.ZeInternals.QQ
 import           Text.RE.ZeInternals.TestBench
-import           Text.RE.Tools.Lex
 import           Text.RE.ZeInternals.Types.CaptureID
 import           Text.RE.ZeInternals.Types.Match
 import           Text.Regex.TDFA

@@ -43,6 +43,7 @@ import           Prelude.Compat
 import           System.Directory
 import           System.FilePath
 import           Test.SmallCheck.Series
+import           TestKit
 import           Test.Tasty
 import           Test.Tasty.HUnit
 import           Test.Tasty.SmallCheck          as SC
@@ -51,7 +52,6 @@ import qualified Text.Regex.PCRE                as PCRE_
 import qualified Text.Regex.TDFA                as TDFA_
 import           Text.RE
 import           Text.RE.Replace
-import           Text.RE.IsRegex
 import qualified Text.RE.PCRE                   as PCRE
 import           Text.RE.TDFA                   as TDFA
 import           Text.RE.TestBench
@@ -59,11 +59,6 @@ import           Text.RE.Tools.Sed
 import           Text.RE.ZeInternals.AddCaptureNames
 import           Text.RE.ZeInternals.NamedCaptures
 import           Text.RE.ZeInternals.PreludeMacros
-import           Text.RE.ZeInternals.TestBench
-import           Text.RE.ZeInternals.Types.Capture
-import           Text.RE.ZeInternals.Types.CaptureID
-import           Text.RE.ZeInternals.Types.Match
-import           Text.RE.ZeInternals.Types.Matches
 import           Text.RE.REOptions
 
 import qualified Text.RE.PCRE.String            as P_ST

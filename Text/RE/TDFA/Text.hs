@@ -39,14 +39,19 @@ module Text.RE.TDFA.Text
   -- $options
   , SimpleREOptions(..)
   -- * Compiling and Escaping REs
+  , SearchReplace(..)
   , compileRegex
   , compileRegexWith
+  , compileSearchReplace
+  , compileSearchReplaceWith
   , escape
   , escapeWith
   , escapeREString
   -- * The Classic rexex-base Match Operators
   , (=~)
   , (=~~)
+  -- * IsRegex
+  , IsRegex(..)
   -- * The Quasi Quoters and Minor Functions
   -- $re
   , module Text.RE.ZeInternals.TDFA
@@ -57,14 +62,13 @@ module Text.RE.TDFA.Text
 import           Prelude.Compat
 import qualified Data.Text                     as T
 import           Data.Typeable
-import           Text.Regex.Base
-import           Text.RE
-import           Text.RE.ZeInternals.AddCaptureNames
-import           Text.RE.ZeInternals.SearchReplace.TDFA.Text
-import           Text.RE.IsRegex
 import           Text.RE.REOptions
 import           Text.RE.Replace
+import           Text.RE.ZeInternals.AddCaptureNames
+import           Text.RE.ZeInternals.SearchReplace.TDFA.Text
 import           Text.RE.ZeInternals.TDFA
+import           Text.RE.ZeInternals.Types.IsRegex
+import           Text.Regex.Base
 import qualified Text.Regex.TDFA               as TDFA
 
 
@@ -101,7 +105,7 @@ import qualified Text.Regex.TDFA               as TDFA
 -- e.g., to prefix the first string of four hex digits in the imput text,
 -- if any, with @0x@:
 --
---  @(?=~\/ [ed|[0-9A-Fa-f]{4}\/\/\/0x$0|])
+--  @(?=~\/ [ed|[0-9A-Fa-f]{4}\/\/\/0x$0|])@
 --
 (?=~/) :: T.Text -> SearchReplace RE T.Text -> T.Text
 (?=~/) = flip searchReplaceFirst

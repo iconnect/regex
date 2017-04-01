@@ -1,21 +1,14 @@
 \begin{code}
 {-# LANGUAGE NoImplicitPrelude          #-}
 
-module Text.RE.Tools.Lex
+module Text.RE.ZeInternals.Lex
   ( alex
   , alex'
-  -- * IsRegex
-  , IsRegex(..)
-  -- * Text.RE
-  , module Text.RE
   ) where
 
 import           Prelude.Compat
-import           Text.RE
-import           Text.RE.ZeInternals.Types.Capture
-import           Text.RE.IsRegex
-import           Text.RE.ZeInternals.Types.Match
 import           Text.RE.Replace
+import           Text.RE.ZeInternals.Types.IsRegex
 
 
 -- | a simple regex-based scanner interpretter for prototyping

@@ -50,7 +50,7 @@
     Other-Modules:
       TestKit
 
-%build-depends-prog regex regex-with-pcre array base base-compat bytestring containers directory filepath heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin smallcheck tasty tasty-hunit tasty-smallcheck template-haskell text unordered-containers
+%build-depends-prog regex regex-with-pcre array base base-compat bytestring containers directory filepath heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell text unordered-containers
 
 %test-exe re-tutorial
     Hs-Source-Dirs:     examples

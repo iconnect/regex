@@ -24,14 +24,18 @@ module TestKit
   , include
   , cmp
   , dumpMacroTable
+  , sortImports
+  , read_file
+  , write_file
   ) where
 
 import           Control.Applicative
 import           Control.Exception
 import qualified Control.Monad                            as M
+import qualified Data.ByteString.Lazy.Char8               as LBS
+import qualified Data.List                                as L
 import           Data.Maybe
 import qualified Data.Text                                as T
-import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Prelude.Compat
 import qualified Shelly                                   as SH
 import           System.Directory
@@ -39,12 +43,11 @@ import           System.Environment
 import           System.Exit
 import           System.IO
 import           Text.Printf
+import           Text.RE.Replace
 import           Text.RE.TDFA
 import           Text.RE.TestBench
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
-import           Text.RE.ZeInternals.Types.Match
-import           Text.RE.Replace
 \end{code}
 
 
@@ -180,12 +183,28 @@ simple include processor
 \begin{code}
 include :: LBS.ByteString -> IO LBS.ByteString
 include = sed' $ Select
-    [ Function [re|^%include ${file}(@{%string})$|] TOP   incl
-    , Function [re|^.*$|]                           TOP $ \_ _ _ _->return Nothing
+    [ Function [re|^%include ${file}(@{%string})$|]                              TOP incl
+    , Function [re|^%include ${file}(@{%string}) *exclude *${rex}(@{%string})$|] TOP incl
+    , Function [re|^.*$|]                                                        TOP nop
     ]
   where
-    incl _ mtch _ _ = Just <$> LBS.readFile (prs_s $ mtch !$$ [cp|file|])
-    prs_s           = maybe (error "include") T.unpack . parseString
+    incl _ mtch _ _ = include' mtch
+    nop  _ _    _ _ = return Nothing
+
+include' :: Match LBS.ByteString -> IO (Maybe LBS.ByteString)
+include' mtch = do
+    ftr <- case prs_s <$> mtch !$$? [cp|rex|] of
+      Nothing     -> return id
+      Just re_lbs -> excl <$> makeRegex re_lbs
+    Just . ftr <$> LBS.readFile (prs_s $ mtch !$$ [cp|file|])
+  where
+    excl :: RE -> LBS.ByteString -> LBS.ByteString
+    excl rex =
+        LBS.unlines . map (matchesSource . getLineMatches)
+          . filter (not . anyMatches . getLineMatches)
+          . grepFilter rex
+
+    prs_s  = maybe (error "include'") T.unpack . parseString
 \end{code}
 
 
@@ -220,4 +239,43 @@ dumpMacroTable :: FilePath
 dumpMacroTable fp_t fp_s rty m_env = do
   writeFile fp_t $ formatMacroTable   rty              m_env
   writeFile fp_s $ formatMacroSources rty ExclCaptures m_env
+\end{code}
+
+
+sortImports
+-----------
+
+\begin{code}
+sortImports :: LBS.ByteString -> LBS.ByteString
+sortImports lbs =
+    LBS.unlines $ map (matchesSource . getLineMatches) $
+      hdr ++ L.sortBy cMp bdy
+  where
+    cMp ln1 ln2 = case (extr ln1,extr ln2) of
+        (Nothing,Nothing) -> EQ
+        (Nothing,Just _ ) -> GT
+        (Just _ ,Nothing) -> LT
+        (Just x ,Just  y) -> compare x y
+
+    extr Line{..} = case allMatches getLineMatches of
+      mtch:_  -> mtch !$$? [cp|mod|]
+      _       -> Nothing
+
+    (hdr,bdy) = span (not . anyMatches . getLineMatches) lns
+    lns       = grepFilter rex lbs
+    rex        = [re|^import +(qualified)? +${mod}([^ ].*)$|]
+\end{code}
+
+
+read_file and write_file
+------------------------
+
+\begin{code}
+read_file :: FilePath -> IO LBS.ByteString
+read_file "-" = LBS.getContents
+read_file fp  = LBS.readFile fp
+
+write_file :: FilePath -> LBS.ByteString ->IO ()
+write_file "-" = LBS.putStr
+write_file fp  = LBS.writeFile fp
 \end{code}

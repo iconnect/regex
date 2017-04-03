@@ -20,13 +20,13 @@ Library
       Text.RE.TestBench
       Text.RE.Tools
       Text.RE.Tools.Edit
+      Text.RE.Tools.Find
       Text.RE.Tools.Grep
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
       Text.RE.ZeInternals
       Text.RE.ZeInternals.AddCaptureNames
       Text.RE.ZeInternals.EscapeREString
-      Text.RE.ZeInternals.Lex
       Text.RE.ZeInternals.NamedCaptures
       Text.RE.ZeInternals.PCRE
       Text.RE.ZeInternals.PreludeMacros
@@ -49,6 +49,8 @@ Library
       Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
       Text.RE.ZeInternals.TDFA
       Text.RE.ZeInternals.TestBench
+      Text.RE.ZeInternals.TestBench.Parsers
+      Text.RE.ZeInternals.Tools.Lex
       Text.RE.ZeInternals.Types.Capture
       Text.RE.ZeInternals.Types.CaptureID
       Text.RE.ZeInternals.Types.IsRegex
@@ -56,6 +58,5 @@ Library
       Text.RE.ZeInternals.Types.Match
       Text.RE.ZeInternals.Types.Matches
       Text.RE.ZeInternals.Types.SearchReplace
-
 
 %build-depends-lib array bytestring base base-compat containers hashable regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin template-haskell text time time-locale-compat transformers unordered-containers

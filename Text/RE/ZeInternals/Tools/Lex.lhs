@@ -1,7 +1,7 @@
 \begin{code}
 {-# LANGUAGE NoImplicitPrelude          #-}
 
-module Text.RE.ZeInternals.Lex
+module Text.RE.ZeInternals.Tools.Lex
   ( alex
   , alex'
   ) where

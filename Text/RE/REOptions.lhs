@@ -23,8 +23,8 @@ module Text.RE.REOptions
   , emptyMacros
   ) where
 
-import           Data.Hashable
 import qualified Data.HashMap.Strict        as HM
+import           Data.Hashable
 import           Data.String
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Syntax

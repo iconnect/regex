@@ -24,9 +24,9 @@ module Text.RE.ZeInternals.SearchReplace.TDFA.Text.Lazy
 import qualified Data.Text.Lazy                as TL
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
-import           Text.RE.ZeInternals.TDFA
-import           Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
 import           Text.RE.REOptions
+import           Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
+import           Text.RE.ZeInternals.TDFA
 import           Text.RE.ZeInternals.Types.SearchReplace
 
 

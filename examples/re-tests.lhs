@@ -43,35 +43,37 @@ import           Prelude.Compat
 import           System.Directory
 import           System.FilePath
 import           Test.SmallCheck.Series
-import           TestKit
 import           Test.Tasty
 import           Test.Tasty.HUnit
 import           Test.Tasty.SmallCheck          as SC
+import           TestKit
 import           Text.Heredoc
-import qualified Text.Regex.PCRE                as PCRE_
-import qualified Text.Regex.TDFA                as TDFA_
 import           Text.RE
-import           Text.RE.Replace
 import qualified Text.RE.PCRE                   as PCRE
+import qualified Text.RE.PCRE.ByteString        as P_BS
+import qualified Text.RE.PCRE.ByteString.Lazy   as PLBS
+import qualified Text.RE.PCRE.Sequence          as P_SQ
+import qualified Text.RE.PCRE.String            as P_ST
+import           Text.RE.REOptions
+import           Text.RE.Replace
 import           Text.RE.TDFA                   as TDFA
+import qualified Text.RE.TDFA.ByteString        as T_BS
+import qualified Text.RE.TDFA.ByteString.Lazy   as TLBS
+import qualified Text.RE.TDFA.Sequence          as T_SQ
+import qualified Text.RE.TDFA.String            as T_ST
+import qualified Text.RE.TDFA.Text              as T_TX
+import qualified Text.RE.TDFA.Text.Lazy         as TLTX
 import           Text.RE.TestBench
+import           Text.RE.Tools.Find
 import           Text.RE.Tools.Sed
 import           Text.RE.ZeInternals.AddCaptureNames
 import           Text.RE.ZeInternals.NamedCaptures
 import           Text.RE.ZeInternals.PreludeMacros
-import           Text.RE.REOptions
+import           Text.RE.ZeInternals.Types.CaptureID
+import qualified Text.Regex.PCRE                as PCRE_
+import qualified Text.Regex.TDFA                as TDFA_
 
-import qualified Text.RE.PCRE.String            as P_ST
-import qualified Text.RE.PCRE.ByteString        as P_BS
-import qualified Text.RE.PCRE.ByteString.Lazy   as PLBS
-import qualified Text.RE.PCRE.Sequence          as P_SQ
 
-import qualified Text.RE.TDFA.String            as T_ST
-import qualified Text.RE.TDFA.ByteString        as T_BS
-import qualified Text.RE.TDFA.ByteString.Lazy   as TLBS
-import qualified Text.RE.TDFA.Sequence          as T_SQ
-import qualified Text.RE.TDFA.Text              as T_TX
-import qualified Text.RE.TDFA.Text.Lazy         as TLTX
 \end{code}
 
 
@@ -89,6 +91,7 @@ main = defaultMain $
     , many_tests
     , escape_tests
     , add_capture_names_tests
+    , find_tests
     , misc_tests
     ]
 \end{code}
@@ -586,14 +589,14 @@ Named Capture Tests
 named_capture_tests :: TestTree
 named_capture_tests = localOption (SmallCheckDepth 4) $
   testGroup "NamedCaptures"
-    [ formatScanTestTree
-    , analyseTokensTestTree
+    [ format_scan_tests
+    , analyse_tokens_tests
     ]
 
 instance Monad m => Serial m Token
 
-formatScanTestTree :: TestTree
-formatScanTestTree =
+format_scan_tests :: TestTree
+format_scan_tests =
   testGroup "FormatToken/Scan Properties"
     [ localOption (SmallCheckDepth 4) $
         SC.testProperty "formatTokens == formatTokens0" $
@@ -604,8 +607,8 @@ formatScanTestTree =
                     scan (formatTokens' idFormatTokenREOptions tks) == tks
     ]
 
-analyseTokensTestTree :: TestTree
-analyseTokensTestTree =
+analyse_tokens_tests :: TestTree
+analyse_tokens_tests =
   testGroup "Analysing [Token] Unit Tests"
     [ tc [here|foobar|]                                       []
     , tc [here||]                                             []
@@ -633,7 +636,7 @@ analyseTokensTestTree =
 
     xnc = either oops (snd . fst) . extractNamedCaptures
       where
-        oops = error "analyseTokensTestTree: unexpected parse failure"
+        oops = error "analyse_tokens_tests: unexpected parse failure"
 \end{code}
 
 
@@ -678,6 +681,44 @@ test_add_capture_name lab tst x = testCase lab $
 \end{code}
 
 
+The Find Tests
+--------------
+
+\begin{code}
+find_tests :: TestTree
+find_tests = testGroup "Find Tests"
+    [ testCase "examples/" $ do
+        fps <- findMatches findMethods [re|^re-.*\.lhs|] "examples/"
+        example_paths @=? filter (not . matched . (?=~ [re|master\.lhs|])) fps
+    ]
+
+example_paths :: [String]
+example_paths =
+  [ "examples/re-gen-cabals.lhs"
+  , "examples/re-gen-modules.lhs"
+  , "examples/re-include.lhs"
+  , "examples/re-nginx-log-processor.lhs"
+  , "examples/re-prep.lhs"
+  , "examples/re-sort-imports.lhs"
+  , "examples/re-tests.lhs"
+  , "examples/re-tutorial-options.lhs"
+  , "examples/re-tutorial-replacing.lhs"
+  , "examples/re-tutorial-testbench.lhs"
+  , "examples/re-tutorial-tools.lhs"
+  , "examples/re-tutorial.lhs"
+  ]
+
+findMethods :: FindMethods String
+findMethods =
+  FindMethods
+    { doesDirectoryExistDM = doesDirectoryExist
+    , listDirectoryDM      = getDirectoryContents
+    , combineDM            = (</>)
+    }
+
+\end{code}
+
+
 The Miscelaneous Tests
 ----------------------
 
@@ -686,7 +727,7 @@ misc_tests :: TestTree
 misc_tests = testGroup "Miscelaneous Tests"
     [ testGroup "CaptureID"
         [ testCase "CaptureID lookup failure" $ do
-            ok <- isValidError $ findCaptureID [cp|foo|] $ reCaptureNames [re|foo|]
+            ok <- isValidError $ unsafeFindCaptureID [cp|foo|] $ reCaptureNames [re|foo|]
             assertBool "failed" ok
         ]
     , testGroup "QQ"

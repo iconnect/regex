@@ -67,19 +67,19 @@ module Text.RE.PCRE
   ) where
 
 
-import qualified Text.Regex.Base                          as B
-import qualified Text.Regex.PCRE                          as PCRE
 import           Text.RE.PCRE.ByteString()
 import           Text.RE.PCRE.ByteString.Lazy()
 import           Text.RE.PCRE.Sequence()
 import           Text.RE.PCRE.String()
 import           Text.RE.REOptions
 import           Text.RE.ZeInternals.AddCaptureNames
-import           Text.RE.ZeInternals.SearchReplace.PCRE
 import           Text.RE.ZeInternals.PCRE
+import           Text.RE.ZeInternals.SearchReplace.PCRE
 import           Text.RE.ZeInternals.Types.IsRegex
 import           Text.RE.ZeInternals.Types.Match
 import           Text.RE.ZeInternals.Types.Matches
+import qualified Text.Regex.Base                          as B
+import qualified Text.Regex.PCRE                          as PCRE
 
 
 -- | find all the matches in the argument text; e.g., to count the number

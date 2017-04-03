@@ -8,4 +8,4 @@ module Text.RE.Tools.Lex
   ) where
 
 import           Text.RE
-import           Text.RE.ZeInternals.Lex
+import           Text.RE.ZeInternals.Tools.Lex

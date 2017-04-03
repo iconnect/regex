@@ -59,9 +59,9 @@ module Text.RE.TDFA.ByteString
   , module Text.RE.ZeInternals.SearchReplace.TDFA.ByteString
   ) where
 
-import           Prelude.Compat
 import qualified Data.ByteString               as B
 import           Data.Typeable
+import           Prelude.Compat
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.ZeInternals.AddCaptureNames

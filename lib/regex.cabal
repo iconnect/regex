@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                0.12.0.0
+Version:                0.13.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A regular expression toolkit for regex-base with
                         compile-time checking of RE syntax, data types for
@@ -32,14 +32,12 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.12.0.0
-
+    Tag:                0.13.0.0
 
 
 
 Library
     Hs-Source-Dirs:     .
-
     Exposed-Modules:
       Text.RE
       Text.RE.REOptions
@@ -55,13 +53,13 @@ Library
       Text.RE.TestBench
       Text.RE.Tools
       Text.RE.Tools.Edit
+      Text.RE.Tools.Find
       Text.RE.Tools.Grep
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
       Text.RE.ZeInternals
       Text.RE.ZeInternals.AddCaptureNames
       Text.RE.ZeInternals.EscapeREString
-      Text.RE.ZeInternals.Lex
       Text.RE.ZeInternals.NamedCaptures
       Text.RE.ZeInternals.PreludeMacros
       Text.RE.ZeInternals.QQ
@@ -77,6 +75,8 @@ Library
       Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
       Text.RE.ZeInternals.TDFA
       Text.RE.ZeInternals.TestBench
+      Text.RE.ZeInternals.TestBench.Parsers
+      Text.RE.ZeInternals.Tools.Lex
       Text.RE.ZeInternals.Types.Capture
       Text.RE.ZeInternals.Types.CaptureID
       Text.RE.ZeInternals.Types.IsRegex
@@ -125,6 +125,7 @@ Library
       , containers           >= 0.4
       , hashable             >= 1.2.3.3
       , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
       , regex-tdfa           >= 1.2.0
       , regex-tdfa-text      >= 1.0.0.3
       , template-haskell     >= 2.7

@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                0.12.0.0
+Version:                0.13.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A regular expression toolkit for regex-base with
                         compile-time checking of RE syntax, data types for
@@ -63,7 +63,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.12.0.0
+    Tag:                0.13.0.0
 
 
 
@@ -89,13 +89,13 @@ Library
       Text.RE.TestBench
       Text.RE.Tools
       Text.RE.Tools.Edit
+      Text.RE.Tools.Find
       Text.RE.Tools.Grep
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
       Text.RE.ZeInternals
       Text.RE.ZeInternals.AddCaptureNames
       Text.RE.ZeInternals.EscapeREString
-      Text.RE.ZeInternals.Lex
       Text.RE.ZeInternals.NamedCaptures
       Text.RE.ZeInternals.PCRE
       Text.RE.ZeInternals.PreludeMacros
@@ -118,6 +118,8 @@ Library
       Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
       Text.RE.ZeInternals.TDFA
       Text.RE.ZeInternals.TestBench
+      Text.RE.ZeInternals.TestBench.Parsers
+      Text.RE.ZeInternals.Tools.Lex
       Text.RE.ZeInternals.Types.Capture
       Text.RE.ZeInternals.Types.CaptureID
       Text.RE.ZeInternals.Types.IsRegex
@@ -125,7 +127,6 @@ Library
       Text.RE.ZeInternals.Types.Match
       Text.RE.ZeInternals.Types.Matches
       Text.RE.ZeInternals.Types.SearchReplace
-
 
     Default-Language:   Haskell2010
 
@@ -195,7 +196,7 @@ Executable re-gen-cabals
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -225,7 +226,7 @@ Test-Suite re-gen-cabals-test
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -244,6 +245,9 @@ Executable re-gen-modules
 
     Main-Is:            re-gen-modules.lhs
 
+    Other-Modules:
+      TestKit
+
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -252,7 +256,7 @@ Executable re-gen-modules
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -270,6 +274,9 @@ Test-Suite re-gen-modules-test
 
     Main-Is:            re-gen-modules.lhs
 
+    Other-Modules:
+      TestKit
+
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -278,7 +285,7 @@ Test-Suite re-gen-modules-test
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -307,7 +314,7 @@ Executable re-include
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -333,7 +340,7 @@ Test-Suite re-include-test
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
@@ -348,6 +355,9 @@ Executable re-nginx-log-processor
 
     Main-Is:            re-nginx-log-processor.lhs
 
+    Other-Modules:
+      TestKit
+
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -356,7 +366,7 @@ Executable re-nginx-log-processor
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -379,6 +389,9 @@ Test-Suite re-nginx-log-processor-test
 
     Main-Is:            re-nginx-log-processor.lhs
 
+    Other-Modules:
+      TestKit
+
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -387,7 +400,7 @@ Test-Suite re-nginx-log-processor-test
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -421,11 +434,12 @@ Executable re-prep
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
       , directory            >= 1.2.1.0
+      , filepath             
       , heredoc              >= 0.2.0.0
       , http-conduit         >= 2.1.7.2
       , shelly               >= 1.6.1.2
@@ -449,13 +463,68 @@ Test-Suite re-prep-test
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0
       , directory            >= 1.2.1.0
+      , filepath             
       , heredoc              >= 0.2.0.0
       , http-conduit         >= 2.1.7.2
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
+
+
+Executable re-sort-imports
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-sort-imports.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Language:   Haskell2010
+
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+      -Werror
+
+    Build-depends:
+        regex                == 0.13.0.0
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , filepath             
+      , shelly               >= 1.6.1.2
+      , text                 >= 1.2.0.6
+
+
+Test-Suite re-sort-imports-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-sort-imports.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Language:   Haskell2010
+
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+      -Werror
+
+    Build-depends:
+        regex                == 0.13.0.0
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , directory            >= 1.2.1.0
+      , filepath             
       , shelly               >= 1.6.1.2
       , text                 >= 1.2.0.6
 
@@ -477,7 +546,7 @@ Executable re-tests
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -517,7 +586,7 @@ Test-Suite re-tests-test
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -558,7 +627,7 @@ Executable re-tutorial
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -602,7 +671,7 @@ Test-Suite re-tutorial-test
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
@@ -648,7 +717,360 @@ Test-Suite re-tutorial-os-test
       -Werror
 
     Build-depends:
-        regex                == 0.12.0.0
+        regex                == 0.13.0.0
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+
+Executable re-tutorial-options
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial-options.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Extensions: QuasiQuotes
+    Default-Language:   Haskell2010
+
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+      -Werror
+
+    Build-depends:
+        regex                == 0.13.0.0
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+Test-Suite re-tutorial-options-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial-options.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Extensions: QuasiQuotes
+    Default-Language:   Haskell2010
+
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+      -Werror
+
+    Build-depends:
+        regex                == 0.13.0.0
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+
+Executable re-tutorial-replacing
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial-replacing.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Extensions: QuasiQuotes
+    Default-Language:   Haskell2010
+
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+      -Werror
+
+    Build-depends:
+        regex                == 0.13.0.0
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+Test-Suite re-tutorial-replacing-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial-replacing.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Extensions: QuasiQuotes
+    Default-Language:   Haskell2010
+
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+      -Werror
+
+    Build-depends:
+        regex                == 0.13.0.0
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+
+Executable re-tutorial-testbench
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial-testbench.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Extensions: QuasiQuotes
+    Default-Language:   Haskell2010
+
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+      -Werror
+
+    Build-depends:
+        regex                == 0.13.0.0
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+Test-Suite re-tutorial-testbench-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial-testbench.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Extensions: QuasiQuotes
+    Default-Language:   Haskell2010
+
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+      -Werror
+
+    Build-depends:
+        regex                == 0.13.0.0
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+
+Executable re-tutorial-tools
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial-tools.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Extensions: QuasiQuotes
+    Default-Language:   Haskell2010
+
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+      -Werror
+
+    Build-depends:
+        regex                == 0.13.0.0
+      , array                >= 0.4
+      , base                 >= 4 && < 5
+      , base-compat          >= 0.6.0
+      , bytestring           >= 0.10.2.0
+      , containers           >= 0.4
+      , directory            >= 1.2.1.0
+      , hashable             >= 1.2.3.3
+      , heredoc              >= 0.2.0.0
+      , regex-base           >= 0.93.2
+      , regex-pcre-builtin   >= 0.94.4.8.8.35
+      , regex-tdfa           >= 1.2.0
+      , regex-tdfa-text      >= 1.0.0.3
+      , shelly               >= 1.6.1.2
+      , smallcheck           >= 1.1.1
+      , tasty                >= 0.10.1.2
+      , tasty-hunit          >= 0.9.2
+      , tasty-smallcheck     >= 0.8.0.1
+      , template-haskell     >= 2.7
+      , text                 >= 1.2.0.6
+      , time                 >= 1.4.2
+      , time-locale-compat   >= 0.1.0.1
+      , transformers         >= 0.2.2
+      , unordered-containers >= 0.2.5.1
+
+
+
+Test-Suite re-tutorial-tools-test
+    type:               exitcode-stdio-1.0
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial-tools.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Extensions: QuasiQuotes
+    Default-Language:   Haskell2010
+
+    GHC-Options:
+      -Wall
+      -fwarn-tabs
+      -Werror
+
+    Build-depends:
+        regex                == 0.13.0.0
       , array                >= 0.4
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0

@@ -6,8 +6,8 @@
 
 module Text.RE.ZeInternals.AddCaptureNames where
 
-import qualified Data.ByteString.Lazy.Char8    as LBS
 import qualified Data.ByteString.Char8         as B
+import qualified Data.ByteString.Lazy.Char8    as LBS
 import           Data.Dynamic
 import           Data.Maybe
 import qualified Data.Sequence                 as S

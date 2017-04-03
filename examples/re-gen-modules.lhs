@@ -16,15 +16,14 @@ The tool is self-testing: run it with no arguments (or `cabal test`).
 
 module Main (main) where
 
-import           Control.Exception
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import qualified Data.Text                                as T
 import           Prelude.Compat
-import qualified Shelly                                   as SH
 import           System.Directory
 import           System.Environment
 import           System.Exit
 import           System.IO
+import           TestKit
 import           Text.RE.TDFA.ByteString.Lazy
 import           Text.RE.Tools.Sed
 
@@ -62,9 +61,11 @@ type SedScript = Edits IO RE LBS.ByteString
 test' :: ModPath -> (ModPath,SedScript) -> IO Bool
 test' src_mp (mp,scr) = do
     putStrLn mp
-    tp <- is_text_present
-    sed scr (mod_filepath tp src_mp) tmp_pth
-    cmp     (T.pack tmp_pth) (T.pack $ mod_filepath tp mp)
+    tp   <- is_text_present
+    lbs  <- read_file $ mod_filepath tp src_mp
+    lbs' <- sortImports <$> sed' scr lbs
+    write_file tmp_pth lbs'
+    cmp  (T.pack tmp_pth) (T.pack $ mod_filepath tp mp)
   where
     tmp_pth = "tmp/prog.hs"
 
@@ -83,8 +84,10 @@ gen = do
 gen' :: FilePath -> (ModPath,SedScript) -> IO ()
 gen' src_mp (mp,scr) = do
   putStrLn mp
-  tp <- is_text_present
-  sed scr (mod_filepath tp src_mp) (mod_filepath tp mp)
+  tp   <- is_text_present
+  lbs  <- read_file $ mod_filepath tp src_mp
+  lbs' <- sortImports <$> sed' scr lbs
+  write_file (mod_filepath tp mp) lbs'
 
 
 ------------------------------------------------------------------------
@@ -228,16 +231,4 @@ mod_filepath text_present mp = pfx ++ map tr mp ++ ".hs"
 
 is_text_present :: IO Bool
 is_text_present = doesDirectoryExist "Text"
-
-cmp :: T.Text -> T.Text -> IO Bool
-cmp src dst = handle hdl $ do
-    _ <- SH.shelly $ SH.verbosely $
-        SH.run "cmp" [src,dst]
-    return True
-  where
-    hdl :: SomeException -> IO Bool
-    hdl se = do
-      hPutStrLn stderr $
-        "testing results against model answers failed: " ++ show se
-      return False
 \end{code}

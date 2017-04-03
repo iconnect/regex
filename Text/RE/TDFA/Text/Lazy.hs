@@ -59,9 +59,9 @@ module Text.RE.TDFA.Text.Lazy
   , module Text.RE.ZeInternals.SearchReplace.TDFA.Text.Lazy
   ) where
 
-import           Prelude.Compat
 import qualified Data.Text.Lazy                as TL
 import           Data.Typeable
+import           Prelude.Compat
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.ZeInternals.AddCaptureNames

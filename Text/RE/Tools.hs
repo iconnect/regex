@@ -8,13 +8,21 @@ module Text.RE.Tools
   , sed'
   -- * Grep
   , grep
+  , Verbosity(..)
+  , Line(..)
   , grepLines
+  , grepFilter
   , GrepScript
-  , grepScript
+  , grepWithScript
+  , report
   , linesMatched
   -- * Lex
   , alex
   , alex'
+  -- * Find
+  , FindMethods(..)
+  , findMatches
+  , findMatches'
   -- * IsRegex
   , IsRegex(..)
   -- * Edit
@@ -35,6 +43,7 @@ module Text.RE.Tools
 
 import           Text.RE
 import           Text.RE.Tools.Edit
+import           Text.RE.Tools.Find
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Lex
 import           Text.RE.Tools.Sed

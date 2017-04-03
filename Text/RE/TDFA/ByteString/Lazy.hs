@@ -59,9 +59,9 @@ module Text.RE.TDFA.ByteString.Lazy
   , module Text.RE.ZeInternals.SearchReplace.TDFA.ByteString.Lazy
   ) where
 
-import           Prelude.Compat
 import qualified Data.ByteString.Lazy.Char8    as LBS
 import           Data.Typeable
+import           Prelude.Compat
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.ZeInternals.AddCaptureNames

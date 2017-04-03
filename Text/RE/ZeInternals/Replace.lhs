@@ -48,11 +48,11 @@ import qualified Data.Text                      as T
 import qualified Data.Text.Encoding             as TE
 import qualified Data.Text.Lazy                 as LT
 import           Prelude.Compat
+import           Text.RE.REOptions
 import           Text.RE.ZeInternals.Types.Capture
 import           Text.RE.ZeInternals.Types.CaptureID
 import           Text.RE.ZeInternals.Types.Match
 import           Text.RE.ZeInternals.Types.Matches
-import           Text.RE.REOptions
 import           Text.Read
 import           Text.Regex.TDFA
 import           Text.Regex.TDFA.Text()

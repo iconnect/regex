@@ -59,9 +59,9 @@ module Text.RE.TDFA.Sequence
   , module Text.RE.ZeInternals.SearchReplace.TDFA.Sequence
   ) where
 
-import           Prelude.Compat
 import qualified Data.Sequence                 as S
 import           Data.Typeable
+import           Prelude.Compat
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.ZeInternals.AddCaptureNames

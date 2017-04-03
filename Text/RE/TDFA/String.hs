@@ -59,9 +59,9 @@ module Text.RE.TDFA.String
   , module Text.RE.ZeInternals.SearchReplace.TDFA.String
   ) where
 
-import           Prelude.Compat
 
 import           Data.Typeable
+import           Prelude.Compat
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.ZeInternals.AddCaptureNames

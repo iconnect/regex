@@ -92,6 +92,12 @@ For this tutorial we will use classic Haskell strings but any application
 dealing with bulk text will probably want to choose one of the other
 options.
 \begin{code}
+import           Control.Applicative
+import           Data.Maybe
+import qualified Data.Text                      as T
+import           Prelude.Compat
+import           TestKit
+import           Text.Printf
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.TDFA.String
@@ -104,18 +110,12 @@ matter of convenience.
 We will also need access to a small selection of common libraries for
 our examples.
 \begin{code}
-import           Control.Applicative
-import           Data.Maybe
-import qualified Data.Text                      as T
-import           Text.Printf
 \end{code}
 
 And finally we a special edition of the prelude (see the commentary for
 the pragma section above) and a small specail toolkit will be used to help
 manage the example calculations.
 \begin{code}
-import           Prelude.Compat
-import           TestKit
 \end{code}
 This allows simple calculations to be defined stylistically
 in the source program, presented as calculations when rendered

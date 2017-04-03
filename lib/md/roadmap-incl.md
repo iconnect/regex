@@ -18,5 +18,6 @@
 - [X] 2017-03-29  v0.11.0.0 [Simplify the API](https://github.com/iconnect/regex/milestone/14)
 - [X] 2017-03-30  v0.11.1.0 [Fix the Haddocks](https://github.com/iconnect/regex/milestone/15)
 - [X] 2017-03-31  v0.12.0.0 [Move IsRegex into Text.RE](https://github.com/iconnect/regex/milestone/16)
-- [ ] 2017-04-03  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
+- [X] 2017-04-03  v0.13.0.0 [Protect findCaptureID and add Find, re-sort-imports](https://github.com/iconnect/regex/milestone/17)
+- [ ] 2017-04-10  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 - [ ] 2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)

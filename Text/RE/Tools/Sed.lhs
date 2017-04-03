@@ -56,10 +56,10 @@ sed' :: (IsRegex re a,Monad m,Functor m)
      => Edits m re a
      -> a
      -> m a
-sed' as lbs = do
+sed' as t = do
   mconcat <$> sequence
     [ applyEdits lno as s
-        | (lno,s)<-zip [firstLine..] $ linesR lbs
+        | (lno,s)<-zip [firstLine..] $ linesR t
         ]
 
 read_file :: FilePath -> IO LBS.ByteString

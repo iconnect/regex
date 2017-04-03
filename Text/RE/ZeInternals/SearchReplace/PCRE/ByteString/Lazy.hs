@@ -24,9 +24,9 @@ module Text.RE.ZeInternals.SearchReplace.PCRE.ByteString.Lazy
 import qualified Data.ByteString.Lazy.Char8    as LBS
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
+import           Text.RE.REOptions
 import           Text.RE.ZeInternals.PCRE
 import           Text.RE.ZeInternals.SearchReplace.PCREEdPrime
-import           Text.RE.REOptions
 import           Text.RE.ZeInternals.Types.SearchReplace
 
 

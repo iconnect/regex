@@ -74,6 +74,8 @@ two packages:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-31  v0.12.0.0 [Move IsRegex into Text.RE](https://github.com/iconnect/regex/milestone/16)
 
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-04-02  v0.13.0.0 [Protect findCaptureID and add Find, re-sort-imports, tutorials](https://github.com/iconnect/regex/milestone/17)
+
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-04-03  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)

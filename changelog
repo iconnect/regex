@@ -1,5 +1,14 @@
 -*-change-log-*-
 
+0.13.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-04-03
+  * Add a Find Tool (#106)
+  * TestBench to export Text.RE (#107)
+  * Consolidate cabal templates (#108)
+  * Add special tutorials (#109)
+  * Add sort-imports example (#110)
+  * Generalise Grep (#111)
+  * Tighten up findCaptureID (#112)
+
 0.12.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-31
   * Add Text.RE.REOptions to RE.Summa (#103)
   * Move IsRegex into Text.RE (#104)

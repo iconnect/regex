@@ -41,8 +41,8 @@ import qualified Data.List                      as L
 import           Data.Maybe
 import           Data.Ord
 import           Data.String
-import           Text.Printf
 import           Prelude.Compat
+import           Text.Printf
 import           Text.RE.REOptions
 import           Text.RE.ZeInternals.Replace
 import           Text.RE.ZeInternals.Types.Capture

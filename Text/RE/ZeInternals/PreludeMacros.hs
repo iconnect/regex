@@ -30,9 +30,9 @@ import           Data.Maybe
 import qualified Data.Text                    as T
 import           Data.Time
 import           Prelude.Compat
-import           Text.RE.TestBench
-import           Text.RE.ZeInternals.TestBench
 import           Text.RE.REOptions
+import           Text.RE.ZeInternals.TestBench
+import           Text.RE.ZeInternals.TestBench.Parsers
 
 
 -- | generate the standard prelude Macros used to parse REs

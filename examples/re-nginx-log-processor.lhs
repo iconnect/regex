@@ -29,27 +29,27 @@ import           Control.Applicative
 import           Control.Monad
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Data.Char
-import qualified Data.HashMap.Lazy                        as HML
 import           Data.Functor.Identity
+import qualified Data.HashMap.Lazy                        as HML
 import           Data.Maybe
 import           Data.String
 import qualified Data.Text                                as T
 import           Data.Time
 import           Prelude.Compat
 import           System.Directory
-import           System.FilePath
 import           System.Environment
 import           System.Exit
+import           System.FilePath
 import           System.IO
 import           TestKit
+import           Text.Printf
 import           Text.RE
 import           Text.RE.PCRE.ByteString.Lazy
 import qualified Text.RE.PCRE.String                      as S
-import           Text.RE.TestBench
-import           Text.RE.Tools.Sed
 import           Text.RE.REOptions
 import           Text.RE.Replace
-import           Text.Printf
+import           Text.RE.TestBench
+import           Text.RE.Tools.Sed
 \end{code}
 
 \begin{code}

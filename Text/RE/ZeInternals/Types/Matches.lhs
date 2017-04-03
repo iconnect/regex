@@ -18,10 +18,10 @@ module Text.RE.ZeInternals.Types.Matches
 
 \begin{code}
 import           Data.Typeable
-import           Text.Regex.Base
 import           Text.RE.ZeInternals.Types.Capture
 import           Text.RE.ZeInternals.Types.CaptureID
 import           Text.RE.ZeInternals.Types.Match
+import           Text.Regex.Base
 \end{code}
 
 

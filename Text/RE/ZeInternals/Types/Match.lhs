@@ -31,9 +31,9 @@ module Text.RE.ZeInternals.Types.Match
 import           Data.Array
 import           Data.Maybe
 import           Data.Typeable
-import           Text.Regex.Base
 import           Text.RE.ZeInternals.Types.Capture
 import           Text.RE.ZeInternals.Types.CaptureID
+import           Text.Regex.Base
 
 infixl 9 !$, !$$
 \end{code}
@@ -142,17 +142,17 @@ capture cid mtch = fromMaybe oops $ mtch !$? cid
 -- capture failed to capture anything (being in a failed alternate)
 captureMaybe :: CaptureID -> Match a -> Maybe (Capture a)
 captureMaybe cid mtch@Match{..} = do
+  i   <- lookupCaptureID cid mtch
   cap <- case bounds matchArray `inRange` CaptureOrdinal i of
     True  -> Just $ matchArray ! CaptureOrdinal i
     False -> Nothing
   case hasCaptured cap of
     True  -> Just cap
     False -> Nothing
-  where
-    i = lookupCaptureID cid mtch
 
-lookupCaptureID :: CaptureID -> Match a -> Int
-lookupCaptureID cid Match{..} = findCaptureID cid captureNames
+lookupCaptureID :: CaptureID -> Match a -> Maybe Int
+lookupCaptureID cid Match{..} =
+    either (const Nothing) Just $ findCaptureID cid captureNames
 \end{code}
 
 

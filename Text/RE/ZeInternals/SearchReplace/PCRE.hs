@@ -23,8 +23,8 @@ module Text.RE.ZeInternals.SearchReplace.PCRE
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
 import           Prelude.Compat
-import           Text.RE.ZeInternals.SearchReplace.PCREEdPrime
 import           Text.RE.REOptions
+import           Text.RE.ZeInternals.SearchReplace.PCREEdPrime
 
 
 -- | the @[ed| ... /// ... |]@ quasi quoters

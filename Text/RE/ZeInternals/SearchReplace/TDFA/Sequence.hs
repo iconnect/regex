@@ -24,9 +24,9 @@ module Text.RE.ZeInternals.SearchReplace.TDFA.Sequence
 import qualified Data.Sequence                 as S
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
-import           Text.RE.ZeInternals.TDFA
-import           Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
 import           Text.RE.REOptions
+import           Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
+import           Text.RE.ZeInternals.TDFA
 import           Text.RE.ZeInternals.Types.SearchReplace
 
 

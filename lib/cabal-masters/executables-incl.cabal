@@ -13,6 +13,9 @@
 
     Main-Is:            re-gen-modules.lhs
 
+    Other-Modules:
+      TestKit
+
 %build-depends-prog regex array base base-compat bytestring directory regex-base regex-tdfa shelly text
 
 %test-exe re-include
@@ -30,6 +33,9 @@
 
     Main-Is:            re-nginx-log-processor.lhs
 
+    Other-Modules:
+      TestKit
+
 %build-depends-prog regex regex-with-pcre array base base-compat bytestring directory filepath regex-base regex-tdfa shelly text time time-locale-compat transformers unordered-containers
 
 %test-exe re-prep
@@ -40,7 +46,17 @@
     Other-Modules:
       TestKit
 
-%build-depends-prog regex base base-compat bytestring directory heredoc http-conduit shelly text
+%build-depends-prog regex base base-compat bytestring directory filepath heredoc http-conduit shelly text
+
+%test-exe re-sort-imports
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-sort-imports.lhs
+
+    Other-Modules:
+      TestKit
+
+%build-depends-prog regex base base-compat bytestring directory filepath shelly text
 
 %test-exe re-tests
     Hs-Source-Dirs:     examples
@@ -72,5 +88,49 @@
       TestKit
 
     Extensions:         OverloadedStrings
+    Default-Extensions: QuasiQuotes
+%build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
+
+%test-exe re-tutorial-options
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial-options.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Extensions: QuasiQuotes
+%build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
+
+%test-exe re-tutorial-replacing
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial-replacing.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Extensions: QuasiQuotes
+%build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
+
+%test-exe re-tutorial-testbench
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial-testbench.lhs
+
+    Other-Modules:
+      TestKit
+
+    Default-Extensions: QuasiQuotes
+%build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
+
+%test-exe re-tutorial-tools
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-tutorial-tools.lhs
+
+    Other-Modules:
+      TestKit
+
     Default-Extensions: QuasiQuotes
 %build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers

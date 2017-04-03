@@ -59,14 +59,14 @@ module Text.RE.PCRE.ByteString
   , module Text.RE.ZeInternals.SearchReplace.PCRE.ByteString
   ) where
 
-import           Prelude.Compat
 import qualified Data.ByteString               as B
 import           Data.Typeable
+import           Prelude.Compat
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.ZeInternals.AddCaptureNames
-import           Text.RE.ZeInternals.SearchReplace.PCRE.ByteString
 import           Text.RE.ZeInternals.PCRE
+import           Text.RE.ZeInternals.SearchReplace.PCRE.ByteString
 import           Text.RE.ZeInternals.Types.IsRegex
 import           Text.Regex.Base
 import qualified Text.Regex.PCRE               as PCRE

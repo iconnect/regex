@@ -18,9 +18,9 @@ import           Language.Haskell.TH.Quote
 import           Prelude.Compat
 import           Text.RE.REOptions
 import           Text.RE.Replace
-import           Text.RE.ZeInternals.SearchReplace
-import           Text.RE.ZeInternals.QQ
 import           Text.RE.ZeInternals.PCRE
+import           Text.RE.ZeInternals.QQ
+import           Text.RE.ZeInternals.SearchReplace
 import           Text.RE.ZeInternals.Types.IsRegex
 import           Text.Regex.PCRE
 

@@ -2,10 +2,9 @@
 
 module Text.RE.ZeInternals.Types.CaptureID where
 
-import           Data.Ix
-import           Data.Hashable
 import qualified Data.HashMap.Strict            as HMS
-import           Data.Maybe
+import           Data.Hashable
+import           Data.Ix
 import qualified Data.Text                      as T
 
 
@@ -38,12 +37,16 @@ newtype CaptureOrdinal = CaptureOrdinal { getCaptureOrdinal :: Int }
   deriving (Show,Ord,Eq,Enum,Ix,Num)
 
 -- | look up a 'CaptureID' in the 'CaptureNames' dictionary
-findCaptureID :: CaptureID -> CaptureNames -> Int
-findCaptureID (IsCaptureOrdinal o) _   = getCaptureOrdinal o
+unsafeFindCaptureID :: CaptureID -> CaptureNames -> Int
+unsafeFindCaptureID cid = either error id . findCaptureID cid
+
+-- | look up a 'CaptureID' in the 'CaptureNames' dictionary
+findCaptureID :: CaptureID -> CaptureNames -> Either String Int
+findCaptureID (IsCaptureOrdinal o) _   = Right $ getCaptureOrdinal o
 findCaptureID (IsCaptureName    n) hms =
-    getCaptureOrdinal $ fromMaybe oops $ HMS.lookup n hms
+    maybe oops (Right . getCaptureOrdinal) $ HMS.lookup n hms
   where
-    oops = error $ unlines $
+    oops = Left $ unlines $
       ("lookupCaptureID: " ++ T.unpack t ++ " not found in:") :
         [ "  "++T.unpack (getCaptureName nm) | nm <- HMS.keys hms ]
     t = getCaptureName n

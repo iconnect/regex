@@ -28,22 +28,22 @@ import           Data.IORef
 import           Data.Maybe
 import           Data.Monoid
 import qualified Data.Text                                as T
-import qualified Data.Text.Encoding                       as TE
 import           Network.HTTP.Conduit
 import           Prelude.Compat
 import qualified Shelly                                   as SH
 import           System.Directory
 import           System.Environment
+import           System.FilePath
 import           System.IO
 import           TestKit
 import           Text.Heredoc
 import           Text.RE
+import           Text.RE.Replace
+import           Text.RE.TDFA.ByteString.Lazy
+import qualified Text.RE.TDFA.String                      as TS
 import           Text.RE.TestBench
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
-import           Text.RE.TDFA.ByteString.Lazy
-import qualified Text.RE.TDFA.Text                        as TT
-import           Text.RE.Replace
 \end{code}
 
 \begin{code}
@@ -178,34 +178,48 @@ gen_all = do
     pd "RE/Tools/Edit"
     pd "RE/Tools/Grep"
     pd "RE/Tools/Sed"
-    pd "RE/ZeInternals/Lex"
     pd "RE/ZeInternals/NamedCaptures"
     pd "RE/ZeInternals/Replace"
     pd "RE/ZeInternals/TestBench"
+    pd "RE/ZeInternals/Tools/Lex"
     pd "RE/ZeInternals/Types/IsRegex"
     pd "RE/ZeInternals/Types/Matches"
     pd "RE/ZeInternals/Types/Match"
     pd "RE/ZeInternals/Types/Capture"
     -- render the tutorial in HTML
-    prep_tut Doc "examples/re-tutorial-master.lhs" "tmp/re-tutorial.lhs"
     createDirectoryIfMissing False "tmp"
-    pandoc_lhs'
-      "re-tutorial.lhs"
-      "examples/re-tutorial.lhs"
-      "tmp/re-tutorial.lhs"
-      "docs/re-tutorial.html"
-    -- generate the tutorial-based tests
-    gm <- genMode
-    prep_tut gm "examples/re-tutorial-master.lhs" "examples/re-tutorial.lhs"
-    putStrLn ">> examples/re-tutorial.lhs"
+    gen_tutorial "tutorial"
+    gen_tutorial "tutorial-options"
+    gen_tutorial "tutorial-replacing"
+    gen_tutorial "tutorial-testbench"
+    gen_tutorial "tutorial-tools"
     pages
   where
     pd fnm = case (mtch !$$? [cp|fdr|],mtch !$$? [cp|mnm|]) of
-        (Nothing ,Just mnm) -> pandoc_lhs ("Text.RE."          <>mnm) ("Text/"    <>fnm<>".lhs") ("docs/"<>mnm<>".html")
-        (Just fdr,Just mnm) -> pandoc_lhs ("Text.RE."<>fdr<>"."<>mnm) ("Text/"    <>fnm<>".lhs") ("docs/"<>mnm<>".html")
-        _                   -> pandoc_lhs ("examples/"<>fnm<>".lhs" ) ("examples/"<>fnm<>".lhs") ("docs/"<>fnm<>".html")
+        (Nothing ,Just mnm) -> pandoc_lhs ("Text.RE."          ++mnm) ("Text/"    ++fnm++".lhs") ("docs/"++mnm++".html")
+        (Just fdr,Just mnm) -> pandoc_lhs ("Text.RE."++fdr++"."++mnm) ("Text/"    ++fnm++".lhs") ("docs/"++mnm++".html")
+        _                   -> pandoc_lhs ("examples/"++fnm++".lhs" ) ("examples/"++fnm++".lhs") ("docs/"++fnm++".html")
       where
-        mtch = fnm TT.?=~ [re|^RE/(${fdr}(Internal|PCRE|TDFA|Testbench|Tools|Types)/)?${mnm}(@{%id})|]
+        mtch = fnm TS.?=~ [re|^RE/(${fdr}(Internal|PCRE|TDFA|Testbench|Tools|Types)/)?${mnm}(@{%id})|]
+\end{code}
+
+
+\begin{code}
+gen_tutorial :: String -> IO ()
+gen_tutorial nm = do
+    prep_tut Doc ("examples" </> mst) ("tmp" </> tgt)
+    pandoc_lhs'       tgt
+      ("examples" </> tgt)
+      ("tmp"      </> tgt)
+      ("docs"     </> htm)
+    -- generate the tutorial-based tests
+    gm <- genMode
+    prep_tut gm ("examples" </> mst) ("examples" </> tgt)
+    putStrLn $ ">> " ++ ("examples" </> tgt)
+  where
+    tgt = "re-" ++ nm ++ ".lhs"
+    htm = "re-" ++ nm ++ ".html"
+    mst = "re-" ++ nm ++ "-master.lhs"
 \end{code}
 
 
@@ -359,7 +373,7 @@ data Token = Bra LineNo | Hit | Ket LineNo   deriving (Show)
 
 \begin{code}
 scan :: RE -> [LBS.ByteString] -> [Token]
-scan rex = grepScript
+scan rex = grepWithScript
     [ (,) [re|\\begin\{code\}|] $ \i -> chk $ Bra i
     , (,) rex                   $ \_ -> chk   Hit
     , (,) [re|\\end\{code\}|]   $ \i -> chk $ Ket i
@@ -703,15 +717,15 @@ Literate Haskell Pages
 ----------------------
 
 \begin{code}
-pandoc_lhs :: T.Text -> T.Text -> T.Text -> IO ()
+pandoc_lhs :: String -> String -> String -> IO ()
 pandoc_lhs title in_file = pandoc_lhs' title in_file in_file
 
-pandoc_lhs' :: T.Text -> T.Text -> T.Text -> T.Text -> IO ()
+pandoc_lhs' :: String -> String -> String -> String -> IO ()
 pandoc_lhs' title repo_path in_file out_file = do
   LBS.writeFile "tmp/metadata.markdown"  $
                     LBS.unlines
                       [ "---"
-                      , "title: "<>LBS.fromStrict (TE.encodeUtf8 title)
+                      , "title: "<>LBS.pack title
                       , "---"
                       ]
   LBS.writeFile "tmp/bc.html" bc
@@ -728,9 +742,9 @@ pandoc_lhs' title repo_path in_file out_file = do
         , "-A", "tmp/ft.html"
         , "-c", "lib/lhs-styles.css"
         , "-c", "lib/bs.css"
-        , "-o", out_file
+        , "-o", T.pack out_file
         , "tmp/metadata.markdown"
-        , in_file
+        , T.pack in_file
         ]
   where
     bc = LBS.unlines
@@ -741,7 +755,7 @@ pandoc_lhs' title repo_path in_file out_file = do
       , "  <ol class='breadcrumb'>"
       , "    <li>"<>branding<>"</li>"
       , "    <li><a title='source file' href='" <>
-              repo_url <> "'>" <> (LBS.pack $ T.unpack title) <> "</a></li>"
+              repo_url <> "'>" <> (LBS.pack title) <> "</a></li>"
       , "</ol>"
       , "</div>"
       , "<div class='litcontent'>"
@@ -753,7 +767,7 @@ pandoc_lhs' title repo_path in_file out_file = do
 
     repo_url = LBS.concat
       [ "https://github.com/iconnect/regex/blob/master/"
-      , LBS.pack $ T.unpack repo_path
+      , LBS.pack repo_path
       ]
 \end{code}
 

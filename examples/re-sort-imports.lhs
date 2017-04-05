@@ -75,7 +75,7 @@ The Find Script
 
 \begin{code}
 sort_r :: Mode -> FilePath -> IO ()
-sort_r md root = findMatches fm [re|\.l?hs|] root >>= sort_these md root
+sort_r md root = findMatches_ fm [re|\.l?hs|] root >>= sort_these md root
   where
     fm = FindMethods
       { doesDirectoryExistDM = doesDirectoryExist
@@ -128,3 +128,5 @@ Sorting the Imports of the Text of a Haskell Script
 
 The function for sorting a Haskell script, `sortImports` has been
 placed in `TestKit` so that it can be shared with re-gen-modules`.
+
+%include "examples/TestKit.lhs" "sortImports ::"

@@ -25,7 +25,8 @@ module Text.RE.ZeInternals.TDFA
   , reSource
   , reCaptureNames
   , reRegex
-  -- * REOptions Type
+  -- * IsOptions Class and REOptions Type
+  , IsOption(..)
   , REOptions
   , defaultREOptions
   , noPreludeREOptions
@@ -117,29 +118,35 @@ reRegex = _re_regex
 
 
 ------------------------------------------------------------------------
--- REOptions
+-- IsOption & REOptions
 ------------------------------------------------------------------------
+
+-- | a number of types can be used to encode 'REOptions_', each of which
+-- is made a member of this class
+class IsOption o where
+  -- | convert the @o@ type into an @REOptions@
+  makeREOptions :: o -> REOptions
 
 -- | and the REOptions for this back end (see "Text.RE.REOptions"
 -- for details)
 type REOptions = REOptions_ RE CompOption ExecOption
 
-instance IsOption SimpleREOptions RE CompOption ExecOption where
+instance IsOption SimpleREOptions where
   makeREOptions    = unpackSimpleREOptions
 
-instance IsOption (Macros RE) RE CompOption ExecOption where
+instance IsOption (Macros RE) where
   makeREOptions ms = REOptions ms def_comp_option def_exec_option
 
-instance IsOption CompOption  RE CompOption ExecOption where
+instance IsOption CompOption where
   makeREOptions co = REOptions prelude co def_exec_option
 
-instance IsOption ExecOption  RE CompOption ExecOption where
+instance IsOption ExecOption where
   makeREOptions eo = REOptions prelude def_comp_option eo
 
-instance IsOption REOptions     RE CompOption ExecOption where
+instance IsOption REOptions where
   makeREOptions    = id
 
-instance IsOption ()          RE CompOption ExecOption where
+instance IsOption () where
   makeREOptions _  = unpackSimpleREOptions minBound
 
 -- | the default 'REOptions'
@@ -188,10 +195,7 @@ compileRegexWith = compileRegexWithOptions
 
 -- | compile a 'String' into a 'RE' using the given @SimpleREOptions@,
 -- generating an error if the RE is not well formed
-compileRegexWithOptions :: ( IsOption o RE CompOption ExecOption
-                           , Functor m
-                           , Monad   m
-                           )
+compileRegexWithOptions :: (IsOption o, Functor m, Monad   m)
                         => o
                         -> String
                         -> m RE
@@ -257,10 +261,7 @@ escapeWith = escapeWithOptions
 
 -- | a variant of 'escapeWith' that allows an 'IsOption' RE option
 -- to be specified
-escapeWithOptions :: ( IsOption o RE CompOption ExecOption
-                     , Functor m
-                     , Monad m
-                     )
+escapeWithOptions :: ( IsOption o, Functor m, Monad m)
                   => o
                   -> (String->String)
                   -> String
@@ -370,7 +371,7 @@ unsafeCompileRegexSimple sro re_s = unsafeCompileRegex_ os re_s
   where
     os = unpackSimpleREOptions sro
 
-unsafeCompileRegex :: IsOption o RE CompOption ExecOption
+unsafeCompileRegex :: IsOption o
                    => o
                    -> String
                    -> RE

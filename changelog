@@ -1,5 +1,13 @@
 -*-change-log-*-
 
+0.14.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-04-05
+  * Move IsOption into the back ends (#115)
+  * Rename Find functions (#116)
+  * re-gen-cabals: 'sdist' to prepare final commit message (#117)
+  * re-prep: 'blog-badge' to update the blog badge (#118)
+  * re-prep: include_code_pp for all .lhs files (#119)
+  * re-gen-cabals: do 'gen' after 'bump-version' (#120)
+
 0.13.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-04-03
   * Add a Find Tool (#106)
   * TestBench to export Text.RE (#107)

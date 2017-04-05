@@ -21,8 +21,8 @@ module Text.RE.Tools
   , alex'
   -- * Find
   , FindMethods(..)
-  , findMatches
-  , findMatches'
+  , findMatches_
+  , findMatches_'
   -- * IsRegex
   , IsRegex(..)
   -- * Edit

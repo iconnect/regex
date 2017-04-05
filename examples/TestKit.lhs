@@ -263,7 +263,7 @@ sortImports lbs =
 
     (hdr,bdy) = span (not . anyMatches . getLineMatches) lns
     lns       = grepFilter rex lbs
-    rex        = [re|^import +(qualified)? +${mod}([^ ].*)$|]
+    rex       = [re|^import +(qualified)? +${mod}([^ ].*)$|]
 \end{code}
 
 

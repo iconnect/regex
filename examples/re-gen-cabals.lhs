@@ -39,7 +39,7 @@ import           TestKit
 import           Text.Printf
 import           Text.RE.Replace
 import           Text.RE.TDFA.ByteString.Lazy
-import           Text.RE.TDFA.Text                        as T
+import qualified Text.RE.TDFA.Text                        as T
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
 
@@ -50,15 +50,11 @@ main = do
   case as of
     []                    -> test
     ["test"]              -> test
-    ["bump-version",vrn]  -> bumpVersion vrn
+    ["bump-version",vrn]  -> bumpVersion vrn >> gen
     ["test-release",vrn]  -> test_release $ T.pack vrn
+    ["commit-message"]    -> commit_message
     ["sdist"]             -> sdist
-    ["gen"]               -> do
-      gen  "lib/cabal-masters/mega-regex.cabal"       "lib/mega-regex.cabal"
-      gen  "lib/cabal-masters/regex.cabal"            "lib/regex.cabal"
-      gen  "lib/cabal-masters/regex-with-pcre.cabal"  "lib/regex-with-pcre.cabal"
-      gen  "lib/cabal-masters/regex-examples.cabal"   "lib/regex-examples.cabal"
-      establish "mega-regex" "regex"
+    ["gen"]               -> gen
     _                     -> do
       let prg = (("  "++pn++" ")++)
       hPutStr stderr $ unlines
@@ -67,6 +63,7 @@ main = do
         , prg "[test]"
         , prg "bump-version <version>"
         , prg "test-release <version>"
+        , prg "commit-message"
         , prg "sdist"
         , prg "gen"
         ]
@@ -75,14 +72,22 @@ main = do
 test :: IO ()
 test = do
   createDirectoryIfMissing False "tmp"
-  gen "lib/cabal-masters/mega-regex.cabal" "tmp/mega-regex.cabal"
+  gen1 "lib/cabal-masters/mega-regex.cabal" "tmp/mega-regex.cabal"
   ok <- cmp "tmp/mega-regex.cabal" "lib/mega-regex.cabal"
   case ok of
     True  -> return ()
     False -> exitWith $ ExitFailure 1
 
-gen :: FilePath -> FilePath -> IO ()
-gen in_f out_f = do
+gen :: IO ()
+gen = do
+  gen1  "lib/cabal-masters/mega-regex.cabal"       "lib/mega-regex.cabal"
+  gen1  "lib/cabal-masters/regex.cabal"            "lib/regex.cabal"
+  gen1  "lib/cabal-masters/regex-with-pcre.cabal"  "lib/regex-with-pcre.cabal"
+  gen1  "lib/cabal-masters/regex-examples.cabal"   "lib/regex-examples.cabal"
+  establish "mega-regex" "regex"
+
+gen1 :: FilePath -> FilePath -> IO ()
+gen1 in_f out_f = do
     ctx <- setup
     LBS.writeFile out_f =<<
       sed' (gc_script ctx) =<< substVersion_ =<< include =<<
@@ -291,16 +296,19 @@ adjust_le f le = case le of
 \begin{code}
 sdist :: IO ()
 sdist = do
+  createDirectoryIfMissing False "tmp"
   sdist'    "regex"            "lib/README-regex.md"
   sdist'    "regex-with-pcre"  "lib/README-regex.md"
   sdist'    "regex-examples"   "lib/README-regex-examples.md"
   establish "mega-regex" "regex"
-  vrn_t <- T.pack . presentVrn <$> readCurrentVersion
+  vrn <- readCurrentVersion
+  let vrn_t = T.pack $ presentVrn vrn
   test_release vrn_t
-  smy_t <- summary
+  smy_t <- summary vrn
+  commit_message_ "tmp/commit.txt" vrn smy_t
   SH.shelly $ SH.verbosely $ do
     SH.run_ "git" ["add","--all"]
-    SH.run_ "git" ["commit","-m",vrn_t<>": "<>smy_t]
+    SH.run_ "git" ["commit","-F","tmp/commit.txt"]
     SH.run_ "git" ["tag",vrn_t,"-m",smy_t]
 
 sdist' :: T.Text -> SH.FilePath -> IO ()
@@ -328,24 +336,6 @@ establish nm nm' = SH.shelly $ SH.verbosely $ do
     sf = "lib/"<>nm<>".cabal"
     df = nm'<>".cabal"
 
-summary :: IO T.Text
-summary = do
-  vrn <- SH.liftIO readCurrentVersion
-  let vrn_res = concat
-        [ show $ _vrn_a vrn
-        , "\\."
-        , show $ _vrn_b vrn
-        , "\\."
-        , show $ _vrn_c vrn
-        , "\\."
-        , show $ _vrn_d vrn
-        ]
-  rex <- compileRegex $ "- \\[[xX]\\] +@{%date} +v"++vrn_res++" +\\[?${smy}([^]]+)"
-  lns <- linesMatched LinesMatched <$> grepLines rex "lib/md/roadmap-incl.md"
-  case lns of
-    [Line _ (Matches _ [mtch])] -> return $ TE.decodeUtf8 $ LBS.toStrict $ mtch !$$ [cp|smy|]
-    _ -> error "failed to locate the summary text in the roadmap"
-
 test_release :: T.Text -> IO ()
 test_release vrn_t = do
     setCurrentDirectory "releases"
@@ -368,4 +358,63 @@ test_release vrn_t = do
 \end{code}
 
 
-let vrn_res = concat [ show $ _vrn_a vrn, "\\.", show $ _vrn_b vrn, "\\.", show $ _vrn_c vrn, "\\.", show $ _vrn_d vrn ]
+Building the Release Commit Message from the Changelog
+------------------------------------------------------
+
+\begin{code}
+commit_message :: IO ()
+commit_message = do
+  createDirectoryIfMissing False "tmp"
+  vrn   <- readCurrentVersion
+  smy_t <- summary vrn
+  commit_message_ "tmp/commit.txt" vrn smy_t
+  LBS.readFile "tmp/commit.txt" >>= LBS.putStrLn
+
+commit_message_ :: FilePath -> Vrn -> T.Text -> IO ()
+commit_message_ fp vrn@Vrn{..} smy_t = do
+    rex <- escape ("^"++) vrn_s
+    parse_commit smy_ln <$> grepLines rex "changelog" >>= LBS.writeFile fp
+  where
+    smy_ln = vrn_s ++ ": " ++ T.unpack smy_t
+    vrn_s  = presentVrn vrn
+
+parse_commit :: String -> [Line LBS.ByteString] -> LBS.ByteString
+parse_commit hdr lns0 = case lns0 of
+    _:_:ln:lns | anyMatches $ getLineMatches ln
+      -> LBS.unlines $ LBS.pack hdr : map fixes (takeWhile is_bullet lns)
+    _ -> error oops
+  where
+    is_bullet Line{..} =
+        LBS.take 4 (matchesSource getLineMatches) == "  * "
+
+    fixes Line{..} =
+        matchesSource getLineMatches *=~/ [ed|#${n}([0-9]+)///fixes #${n}|]
+
+    oops = unlines
+      [ "failed to parse changelog"
+      , "(expected line 3 to start with the current version)"
+      ]
+\end{code}
+
+
+Extracting the summary from the Roadmap
+---------------------------------------
+
+\begin{code}
+summary :: Vrn -> IO T.Text
+summary vrn = do
+  let vrn_res = concat
+        [ show $ _vrn_a vrn
+        , "\\."
+        , show $ _vrn_b vrn
+        , "\\."
+        , show $ _vrn_c vrn
+        , "\\."
+        , show $ _vrn_d vrn
+        ]
+  rex <- compileRegex $ "- \\[[xX]\\] +@{%date} +v"++vrn_res++" +\\[?${smy}([^]]+)"
+  lns <- linesMatched LinesMatched <$> grepLines rex "lib/md/roadmap-incl.md"
+  case lns of
+    [Line _ (Matches _ [mtch])] -> return $ TE.decodeUtf8 $ LBS.toStrict $ mtch !$$ [cp|smy|]
+    _ -> error "failed to locate the summary text in the roadmap"
+\end{code}

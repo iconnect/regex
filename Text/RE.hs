@@ -37,6 +37,8 @@ module Text.RE
   , IsRegex(..)
   , searchReplaceAll
   , searchReplaceFirst
+  -- * IsRegex Instances
+  -- $instances
   , module Text.RE.TDFA
   ) where
 
@@ -100,3 +102,6 @@ import           Text.RE.ZeInternals.Types.Matches
 -- getting the source @t@ back again. The 'Replace' superclass of
 -- @IsRegex@ contains a useful toolkit for converting between @t@ and
 -- 'String' abd @Text@.
+
+-- $instances
+-- This module import just imports the @IsRegex TDFA s@ instances.

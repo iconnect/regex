@@ -23,8 +23,10 @@ module Main
   ) where
 
 import           Control.Applicative
+import qualified Data.ByteString.Char8                    as B
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Data.IORef
+import qualified Data.List                                as L
 import           Data.Maybe
 import           Data.Monoid
 import qualified Data.Text                                as T
@@ -56,15 +58,15 @@ main = do
     ["doc",fn,fn'] | is_file fn -> doc fn fn'
     ["gen",fn,fn'] | is_file fn -> gen fn fn'
     ["badges"]                  -> badges
-    ["bump-version",vrn]        -> bumpVersion vrn
+    ["blog-badge"]              -> blog_badge
     ["pages"]                   -> pages
     ["all"]                     -> gen_all
     _                           -> usage
   where
     is_file = not . (== "--") . take 2
 
-    doc fn fn' =                    prep_tut Doc fn fn'
-    gen fn fn' = genMode >>= \gm -> prep_tut gm  fn fn'
+    doc fn fn' =                    prepare_tutorial Doc fn fn'
+    gen fn fn' = genMode >>= \gm -> prepare_tutorial gm  fn fn'
 
     usage = do
       pnm <- getProgName
@@ -74,89 +76,11 @@ main = do
         , prg "--help"
         , prg "[test]"
         , prg "badges"
-        , prg "bump-version <version>"
         , prg "pages"
         , prg "all"
         , prg "doc (-|<in-file>) (-|<out-file>)"
         , prg "gen (-|<in-file>) (-|<out-file>)"
         ]
-\end{code}
-
-
-The Sed Script
---------------
-
-\begin{code}
--- | the MODE determines whether we are generating documentation
--- or a Haskell testsuite and includes any IO-accessible state
--- needed by the relevant processor
-data MODE
-  = Doc           -- ^ generating mardown+lhs input for pandoc
-  | Gen GenState  -- ^ adjusting-the-program-for-testing state
-\end{code}
-
-The `DocState` is initialised to `Outside` and flips though the different
-states as it traverses a code block, so that we can wrap code
-blocks in special `<div class="replcodeblock">` blocks when their
-first line indicates that it contains a REPL calculation, which the
-style sheet can pick up and present accordingly.
-
-\begin{code}
--- | the state is the accumulated test function identifiers for
--- generating the list of them gets added to the end of the programme
-type GenState = IORef [String]
-
-genMode :: IO MODE
-genMode = Gen <$> newIORef []
-\end{code}
-
-
-\begin{code}
-prep_tut :: MODE -> FilePath -> FilePath -> IO ()
-prep_tut mode =
-  sed $ Select
-    [ Function [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] TOP $ inclde   mode
-    , LineEdit [re|^%main ${arg}(top|bottom)$|]                            $ main_    mode
-    , Function [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}) \(${ans}([^)]+)\) \$ *${exp}(.*)$|]
-                                                                       TOP $ evalme   mode
-    , Function [re|^.*$|]                                              TOP $ passthru
-    ]
-\end{code}
-
-\begin{code}
-inclde,
-  evalme :: MODE
-         -> LineNo
-         -> Match LBS.ByteString
-         -> RELocation
-         -> Capture LBS.ByteString
-         -> IO (Maybe LBS.ByteString)
-
-main_ :: MODE
-      -> LineNo
-      -> Matches LBS.ByteString
-      -> IO (LineEdit LBS.ByteString)
-
-inclde  Doc     = includeDoc
-inclde (Gen _ ) = passthru
-
-main_   Doc     = delete
-main_  (Gen gs) = mainGen    gs
-
-evalme  Doc     = evalmeDoc
-evalme (Gen gs) = evalmeGen  gs
-
-passthru :: LineNo
-         -> Match LBS.ByteString
-         -> RELocation
-         -> Capture LBS.ByteString
-         -> IO (Maybe LBS.ByteString)
-passthru _ _ _ _ = return Nothing
-
-delete :: LineNo
-       -> Matches LBS.ByteString
-       -> IO (LineEdit LBS.ByteString)
-delete _ _ = return Delete
 \end{code}
 
 
@@ -172,6 +96,7 @@ gen_all = do
     pd "re-include"
     pd "re-nginx-log-processor"
     pd "re-prep"
+    pd "re-sort-imports"
     pd "re-tests"
     pd "TestKit"
     pd "RE/REOptions"
@@ -200,21 +125,21 @@ gen_all = do
         (Just fdr,Just mnm) -> pandoc_lhs ("Text.RE."++fdr++"."++mnm) ("Text/"    ++fnm++".lhs") ("docs/"++mnm++".html")
         _                   -> pandoc_lhs ("examples/"++fnm++".lhs" ) ("examples/"++fnm++".lhs") ("docs/"++fnm++".html")
       where
-        mtch = fnm TS.?=~ [re|^RE/(${fdr}(Internal|PCRE|TDFA|Testbench|Tools|Types)/)?${mnm}(@{%id})|]
+        mtch = fnm TS.?=~ [re|^RE/(${fdr}([a-zA-Z/]+)/)?${mnm}(@{%id})|]
 \end{code}
 
 
 \begin{code}
 gen_tutorial :: String -> IO ()
 gen_tutorial nm = do
-    prep_tut Doc ("examples" </> mst) ("tmp" </> tgt)
+    prepare_tutorial Doc ("examples" </> mst) ("tmp" </> tgt)
     pandoc_lhs'       tgt
       ("examples" </> tgt)
       ("tmp"      </> tgt)
       ("docs"     </> htm)
     -- generate the tutorial-based tests
     gm <- genMode
-    prep_tut gm ("examples" </> mst) ("examples" </> tgt)
+    prepare_tutorial gm ("examples" </> mst) ("examples" </> tgt)
     putStrLn $ ">> " ++ ("examples" </> tgt)
   where
     tgt = "re-" ++ nm ++ ".lhs"
@@ -223,22 +148,77 @@ gen_tutorial nm = do
 \end{code}
 
 
-Generating the Tutorial
------------------------
+The Tutorial Preprocessor
+-------------------------
 
 \begin{code}
-includeDoc :: LineNo
-           -> Match LBS.ByteString
-           -> RELocation
-           -> Capture LBS.ByteString
-           -> IO (Maybe LBS.ByteString)
-includeDoc _ mtch _ _ = fmap Just $
-    extract fp =<< compileRegex re_s
-  where
-    fp    = prs_s $ captureText [cp|file|] mtch
-    re_s  = prs_s $ captureText [cp|rex|]  mtch
+-- | the MODE determines whether we are generating documentation
+-- or a Haskell testsuite and includes any IO-accessible state
+-- needed by the relevant processor
+data MODE
+  = Doc           -- ^ generating mardown+lhs input for pandoc
+  | Gen GenState  -- ^ adjusting-the-program-for-testing state
+\end{code}
 
-    prs_s = maybe (error "includeDoc") T.unpack . parseString
+The `DocState` is initialised to `Outside` and flips though the different
+states as it traverses a code block, so that we can wrap code
+blocks in special `<div class="replcodeblock">` blocks when their
+first line indicates that it contains a REPL calculation, which the
+style sheet can pick up and present accordingly.
+
+\begin{code}
+-- | the state is the accumulated test function identifiers for
+-- generating the list of them gets added to the end of the programme
+type GenState = IORef [String]
+
+genMode :: IO MODE
+genMode = Gen <$> newIORef []
+\end{code}
+
+\begin{code}
+prepare_tutorial :: MODE -> FilePath -> FilePath -> IO ()
+prepare_tutorial mode fp_in fp_out =
+  LBS.readFile fp_in >>= prep_tutorial_pp mode >>= incld >>=
+    LBS.writeFile fp_out
+  where
+    incld = case mode of
+      Doc   -> include_code_pp
+      Gen _ -> return
+\end{code}
+
+\begin{code}
+prep_tutorial_pp :: MODE -> LBS.ByteString -> IO LBS.ByteString
+prep_tutorial_pp mode =
+  sed' $ Select
+    [ LineEdit [re|^%main ${arg}(top|bottom)$|]                            $ main_    mode
+    , Function [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}) \(${ans}([^)]+)\) \$ *${exp}(.*)$|]
+                                                                       TOP $ evalme   mode
+    , Function [re|^.*$|]                                              TOP $ passthru
+    ]
+\end{code}
+
+\begin{code}
+evalme :: MODE
+         -> LineNo
+         -> Match LBS.ByteString
+         -> RELocation
+         -> Capture LBS.ByteString
+         -> IO (Maybe LBS.ByteString)
+evalme  Doc     = evalmeDoc
+evalme (Gen gs) = evalmeGen  gs
+
+main_ :: MODE
+      -> LineNo
+      -> Matches LBS.ByteString
+      -> IO (LineEdit LBS.ByteString)
+main_   Doc     = delete
+main_  (Gen gs) = mainGen    gs
+
+
+delete :: LineNo
+       -> Matches LBS.ByteString
+       -> IO (LineEdit LBS.ByteString)
+delete _ _ = return Delete
 \end{code}
 
 \begin{code}
@@ -252,10 +232,6 @@ evalmeDoc _ mtch _ _ = return $ Just $ flip replace mtch $ LBS.intercalate "\n"
   , "${ans}"
   ]
 \end{code}
-
-
-Generating the Tests
---------------------
 
 \begin{code}
 evalmeGen :: GenState
@@ -325,6 +301,47 @@ mk_list []          = ["[]"]
 mk_list (ide0:ides) = f "[" ide0 $ foldr (f ",") ["  ]"] ides
   where
     f pfx ide t = ("  "<>pfx<>" "<>LBS.pack ide) : t
+\end{code}
+
+
+include_code_pp
+---------------
+
+\begin{code}
+include_code_pp :: LBS.ByteString -> IO LBS.ByteString
+include_code_pp =
+  sed' $ Select
+    [ Function [re|^%include ${file}(@{%string}) ${rex}(@{%string})$|] TOP  inc_code
+    , Function [re|^.*$|]                                              TOP  passthru
+    ]
+\end{code}
+
+\begin{code}
+inc_code :: LineNo
+         -> Match LBS.ByteString
+         -> RELocation
+         -> Capture LBS.ByteString
+         -> IO (Maybe LBS.ByteString)
+inc_code _ mtch _ _ = fmap Just $
+    extract fp =<< compileRegex re_s
+  where
+    fp    = prs_s $ captureText [cp|file|] mtch
+    re_s  = prs_s $ captureText [cp|rex|]  mtch
+
+    prs_s = maybe (error "include_code") T.unpack . parseString
+\end{code}
+
+
+passthru action
+---------------
+
+\begin{code}
+passthru :: LineNo
+         -> Match LBS.ByteString
+         -> RELocation
+         -> Capture LBS.ByteString
+         -> IO (Maybe LBS.ByteString)
+passthru _ _ _ _ = return Nothing
 \end{code}
 
 
@@ -409,6 +426,30 @@ badges = do
 \end{code}
 
 
+blog_badge
+----------
+
+\begin{code}
+blog_badge :: IO ()
+blog_badge = do
+  dts <- L.sortBy (flip compare) . map (take 10) <$>
+            getDirectoryContents "../regex-blog/posts"
+  case dts of
+    []   -> error "No posts found!"
+    dt:_ -> case matched $ dt_lbs ?=~ date_re of
+        False -> error $ "Post date format not recognised: " ++ dt
+        True  -> do
+          putStrLn $ "Latest blog is: " ++ dt
+          lbs <- lbsReadFile badges_file
+          LBS.writeFile badges_file $ replaceAll dt_lbs $ lbs *=~ date_re
+      where
+        dt_lbs      = LBS.pack dt
+  where
+    date_re     = [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+    badges_file = "docs/badges/blog.svg"
+\end{code}
+
+
 pages
 -----
 
@@ -448,7 +489,8 @@ page_master_file pg = "lib/md/" ++ page_root pg ++ ".md"
 page_docs_file   pg = "docs/"   ++ page_root pg ++ ".html"
 
 page_address :: Page -> LBS.ByteString
-page_address = LBS.pack . page_root
+page_address PG_reblog = "blog"
+page_address pg        = LBS.pack $ page_root pg
 
 page_title :: Page -> LBS.ByteString
 page_title pg = case pg of
@@ -722,6 +764,7 @@ pandoc_lhs title in_file = pandoc_lhs' title in_file in_file
 
 pandoc_lhs' :: String -> String -> String -> String -> IO ()
 pandoc_lhs' title repo_path in_file out_file = do
+  lbsReadFile in_file >>= include_code_pp >>= LBS.writeFile int_file
   LBS.writeFile "tmp/metadata.markdown"  $
                     LBS.unlines
                       [ "---"
@@ -744,7 +787,7 @@ pandoc_lhs' title repo_path in_file out_file = do
         , "-c", "lib/bs.css"
         , "-o", T.pack out_file
         , "tmp/metadata.markdown"
-        , T.pack in_file
+        , T.pack int_file
         ]
   where
     bc = LBS.unlines
@@ -769,6 +812,8 @@ pandoc_lhs' title repo_path in_file out_file = do
       [ "https://github.com/iconnect/regex/blob/master/"
       , LBS.pack repo_path
       ]
+
+    int_file = "tmp/pandoc-int.lhs"
 \end{code}
 
 
@@ -827,8 +872,14 @@ testing
 \begin{code}
 test :: IO ()
 test = do
-  test_pp "re-prep doc" (prep_tut Doc) "data/pp-test.lhs" "data/pp-result-doc.lhs"
+  test_pp "re-prep doc" (prepare_tutorial Doc) "data/pp-test.lhs" "data/pp-result-doc.lhs"
   gm <- genMode
-  test_pp "re-prep gen" (prep_tut gm ) "data/pp-test.lhs" "data/pp-result-gen.lhs"
+  test_pp "re-prep gen" (prepare_tutorial gm ) "data/pp-test.lhs" "data/pp-result-gen.lhs"
   putStrLn "tests passed"
+\end{code}
+
+
+\begin{code}
+lbsReadFile :: FilePath -> IO LBS.ByteString
+lbsReadFile fp = LBS.fromStrict <$> B.readFile fp
 \end{code}

@@ -22,7 +22,6 @@ import           Text.RE.ZeInternals.QQ
 import           Text.RE.ZeInternals.SearchReplace
 import           Text.RE.ZeInternals.TDFA
 import           Text.RE.ZeInternals.Types.IsRegex
-import           Text.Regex.TDFA
 
 
 -- | construct a quasi quoter from a casting function and @Just sro@
@@ -52,11 +51,9 @@ unsafe_compile_sr_simple :: IsRegex RE s
 unsafe_compile_sr_simple sro =
     unsafe_compile_sr $ unpackSimpleREOptions sro
 
-unsafe_compile_sr :: ( IsOption o RE CompOption ExecOption
-                              , IsRegex RE s
-                              )
-                           => o
-                           -> String
-                           -> SearchReplace RE s
+unsafe_compile_sr :: (IsOption o, IsRegex RE s)
+                  => o
+                  -> String
+                  -> SearchReplace RE s
 unsafe_compile_sr os =
     unsafeCompileSearchReplace_ packR $ compileRegexWithOptions os

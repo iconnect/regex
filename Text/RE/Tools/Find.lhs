@@ -8,8 +8,8 @@
 
 module Text.RE.Tools.Find
   ( FindMethods(..)
-  , findMatches
-  , findMatches'
+  , findMatches_
+  , findMatches_'
   -- * Text.RE
   , module Text.RE
   ) where
@@ -34,21 +34,21 @@ data FindMethods s =
 
 
 -- | recursively list all files whose filename matches given RE,
--- sorting the list into ascending order;
--- if the argument path has a trailing '/' then it will be removed
-findMatches :: IsRegex re s => FindMethods s -> re -> s -> IO [s]
-findMatches fm = findMatches' fm L.sort matched
+-- sorting the list into ascending order; if the argument path has a
+-- trailing '/' then it will be removed
+findMatches_ :: IsRegex re s => FindMethods s -> re -> s -> IO [s]
+findMatches_ fm = findMatches_' fm L.sort matched
 
 -- | recursively list all files whose filename matches given RE,
--- using the given function to determine which matches to accept;
-findMatches' :: IsRegex re s
-             => FindMethods s         -- ^ the directory and filepath methods
-             -> ([s]->[s])            -- ^ result post-processing function
-             -> (Match s->Bool)       -- ^ filtering function
-             -> re                    -- ^ re to be matched against the leaf filename
-             -> s                     -- ^ root directory of the search
-             -> IO [s]
-findMatches' fm srt tst re fp = srt <$> find_ fm tst re (packR "") fp
+-- using the given function to determine which matches to accept
+findMatches_' :: IsRegex re s
+              => FindMethods s         -- ^ the directory and filepath methods
+              -> ([s]->[s])            -- ^ result post-processing function
+              -> (Match s->Bool)       -- ^ filtering function
+              -> re                    -- ^ re to be matched against the leaf filename
+              -> s                     -- ^ root directory of the search
+              -> IO [s]
+findMatches_' fm srt tst re fp = srt <$> find_ fm tst re (packR "") fp
 
 find_ :: IsRegex re s
       => FindMethods s

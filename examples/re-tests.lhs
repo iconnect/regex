@@ -688,7 +688,7 @@ The Find Tests
 find_tests :: TestTree
 find_tests = testGroup "Find Tests"
     [ testCase "examples/" $ do
-        fps <- findMatches findMethods [re|^re-.*\.lhs|] "examples/"
+        fps <- findMatches_ findMethods [re|^re-.*\.lhs|] "examples/"
         example_paths @=? filter (not . matched . (?=~ [re|master\.lhs|])) fps
     ]
 
@@ -841,8 +841,8 @@ misc_tests = testGroup "Miscelaneous Tests"
     tdfa_re   = fromMaybe oops $ TDFA.compileRegexWithOptions tdfa_opts ".*"
     pcre_re   = fromMaybe oops $ PCRE.compileRegexWithOptions pcre_opts ".*"
 
-    tdfa_opts = makeREOptions no_macs_t :: REOptions_ TDFA.RE TDFA_.CompOption TDFA_.ExecOption
-    pcre_opts = makeREOptions no_macs_p :: REOptions_ PCRE.RE PCRE_.CompOption PCRE_.ExecOption
+    tdfa_opts = TDFA.makeREOptions no_macs_t :: REOptions_ TDFA.RE TDFA_.CompOption TDFA_.ExecOption
+    pcre_opts = PCRE.makeREOptions no_macs_p :: REOptions_ PCRE.RE PCRE_.CompOption PCRE_.ExecOption
 
     no_macs_t = HM.fromList [] :: Macros TDFA.RE
     no_macs_p = HM.fromList [] :: Macros PCRE.RE

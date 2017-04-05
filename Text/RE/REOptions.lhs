@@ -15,8 +15,6 @@ module Text.RE.REOptions
   -- * RE Options
     SimpleREOptions(..)
   , REOptions_(..)
-  -- * The IsOption Class
-  , IsOption(..)
   -- * The Macro Tables
   , Macros
   , MacroID(..)
@@ -70,19 +68,6 @@ data REOptions_ r c e =
     , optionsExec :: !e             -- ^ the back end execution-time options
     }
   deriving (Show)
-\end{code}
-
-
-The IsOption Class
-------------------
-
-\begin{code}
--- | a number of types can be used to encode 'REOptions_', each of which
--- is made a member of this class
-class IsOption o r c e |
-    e -> r, c -> e , e -> c, r -> c, c -> r, r -> e where
-  -- | convert the @o@ type into an @REOptions r c e@
-  makeREOptions :: o -> REOptions_ r c e
 \end{code}
 
 

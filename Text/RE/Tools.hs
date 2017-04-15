@@ -1,7 +1,9 @@
+{-# OPTIONS_GHC -fno-warn-duplicate-exports #-}
+
 module Text.RE.Tools
   (
-  -- * The Tools
-  -- $tools
+  -- * The Tools Tutorial
+  -- $tutorial
 
   -- * Sed
     sed
@@ -25,6 +27,9 @@ module Text.RE.Tools
   , findMatches_'
   -- * IsRegex
   , IsRegex(..)
+  , SearchReplace(..)
+  , searchReplaceAll
+  , searchReplaceFirst
   -- * Edit
   , Edits(..)
   , Edit(..)
@@ -37,13 +42,19 @@ module Text.RE.Tools
   , firstLine
   , getLineNo
   , lineNo
-  -- * Text.RE
-  , module Text.RE
+  -- * Replace
+  , module Text.RE.Replace
   ) where
 
-import           Text.RE
+import           Text.RE.Replace
 import           Text.RE.Tools.Edit
 import           Text.RE.Tools.Find
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Lex
 import           Text.RE.Tools.Sed
+
+-- $tutorial
+-- This API module provides some familiar RE tools on top of the core
+-- package functions and types.
+--
+-- See the Regex Tools tutorial at http://re-tutorial-tools.regex.uk

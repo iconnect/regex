@@ -48,7 +48,6 @@ import           Test.Tasty.HUnit
 import           Test.Tasty.SmallCheck          as SC
 import           TestKit
 import           Text.Heredoc
-import           Text.RE
 import qualified Text.RE.PCRE                   as PCRE
 import qualified Text.RE.PCRE.ByteString        as P_BS
 import qualified Text.RE.PCRE.ByteString.Lazy   as PLBS
@@ -66,10 +65,7 @@ import qualified Text.RE.TDFA.Text.Lazy         as TLTX
 import           Text.RE.TestBench
 import           Text.RE.Tools.Find
 import           Text.RE.Tools.Sed
-import           Text.RE.ZeInternals.AddCaptureNames
-import           Text.RE.ZeInternals.NamedCaptures
-import           Text.RE.ZeInternals.PreludeMacros
-import           Text.RE.ZeInternals.Types.CaptureID
+import           Text.RE.ZeInternals
 import qualified Text.Regex.PCRE                as PCRE_
 import qualified Text.Regex.TDFA                as TDFA_
 
@@ -365,7 +361,9 @@ replace_methods_tests = testGroup "Replace"
 \begin{code}
 search_replace_tests :: TestTree
 search_replace_tests = testGroup "SearchReplace"
-    [ testCase "TDFA.ed/String" $ test  id         tdfa_eds
+    [ testCase "?=~/ [ed_| ... |]" $ "baz bar foobar" @=? "foo bar foobar" T_ST.?=~/ [ed_|foo///baz|] ()
+    , testCase "*=~/ [ed_| ... |]" $ "baz bar bazbar" @=? "foo bar foobar" T_ST.*=~/ [ed_|foo///baz|] MultilineSensitive
+    , testCase "TDFA.ed/String" $ test  id         tdfa_eds
     , testCase "PCRE.ed/String" $ test  id         pcre_eds
     , testCase "TDFA.ed/B"      $ test  B.pack     tdfa_eds
     , testCase "PCRE.ed/B"      $ test  B.pack     pcre_eds
@@ -727,7 +725,7 @@ misc_tests :: TestTree
 misc_tests = testGroup "Miscelaneous Tests"
     [ testGroup "CaptureID"
         [ testCase "CaptureID lookup failure" $ do
-            ok <- isValidError $ unsafeFindCaptureID [cp|foo|] $ reCaptureNames [re|foo|]
+            ok <- isValidError $ unsafe_find_capture_id [cp|foo|] $ reCaptureNames [re|foo|]
             assertBool "failed" ok
         ]
     , testGroup "QQ"
@@ -901,6 +899,9 @@ isValidError x = catch (x `seq` return False) hdl
   where
     hdl :: SomeException -> IO Bool
     hdl se = return $ (length $ show se) `seq` True
+
+unsafe_find_capture_id :: CaptureID -> CaptureNames -> CaptureOrdinal
+unsafe_find_capture_id cid = either error id . findCaptureID cid
 
 un_either :: Either String a -> a
 un_either = either error id

@@ -17,35 +17,7 @@ module Text.RE
 
   -- * Further Use
   -- $further
-
-  -- * The regex Foundational Types
-  -- ** Matches
-    Matches
-  , matchesSource
-  , allMatches
-  , anyMatches
-  , countMatches
-  , matches
-  -- ** Match
-  , Match
-  , matchSource
-  , matched
-  , matchedText
-
-  -- * IsRegex
-  -- $isregex
-  , IsRegex(..)
-  , searchReplaceAll
-  , searchReplaceFirst
-  -- * IsRegex Instances
-  -- $instances
-  , module Text.RE.TDFA
   ) where
-
-import           Text.RE.TDFA()
-import           Text.RE.ZeInternals.Types.IsRegex
-import           Text.RE.ZeInternals.Types.Match
-import           Text.RE.ZeInternals.Types.Matches
 
 -- $tutorial
 --
@@ -91,17 +63,7 @@ import           Text.RE.ZeInternals.Types.Matches
 -- For more specialist applications we have the following:
 --
 -- * "Text.RE.REOptions" for specifying back-end specific options;
--- * "Text.RE.Replace"   for the full replace toolkit;
+-- * "Text.RE.Replace"   for the full text-replacement toolkit;
 -- * "Text.RE.TestBench" for building up, testing and doumenting;
 --   macro environments  for use in REs;
 -- * "Text.RE.Tools"     for an AWK-like text-processing toolkit.
-
--- $isregex
--- Class @IsRegex re t@ provides methods for matching the @t@ type for
--- the @re@ back end as well as compiling REs from @t@ to @re@ and
--- getting the source @t@ back again. The 'Replace' superclass of
--- @IsRegex@ contains a useful toolkit for converting between @t@ and
--- 'String' abd @Text@.
-
--- $instances
--- This module import just imports the @IsRegex TDFA s@ instances.

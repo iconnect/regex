@@ -39,11 +39,9 @@ import           System.FilePath
 import           System.IO
 import           TestKit
 import           Text.Heredoc
-import           Text.RE
 import           Text.RE.Replace
 import           Text.RE.TDFA.ByteString.Lazy
 import qualified Text.RE.TDFA.String                      as TS
-import           Text.RE.TestBench
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
 \end{code}
@@ -76,6 +74,7 @@ main = do
         , prg "--help"
         , prg "[test]"
         , prg "badges"
+        , prg "blog-badge"
         , prg "pages"
         , prg "all"
         , prg "doc (-|<in-file>) (-|<out-file>)"
@@ -179,7 +178,7 @@ genMode = Gen <$> newIORef []
 prepare_tutorial :: MODE -> FilePath -> FilePath -> IO ()
 prepare_tutorial mode fp_in fp_out =
   LBS.readFile fp_in >>= prep_tutorial_pp mode >>= incld >>=
-    LBS.writeFile fp_out
+    LBS.writeFile fp_out . sortImports
   where
     incld = case mode of
       Doc   -> include_code_pp
@@ -191,7 +190,11 @@ prep_tutorial_pp :: MODE -> LBS.ByteString -> IO LBS.ByteString
 prep_tutorial_pp mode =
   sed' $ Select
     [ LineEdit [re|^%main ${arg}(top|bottom)$|]                            $ main_    mode
-    , Function [re|^${fn}(evalme@{%id}) = checkThis ${arg}(@{%string}) \(${ans}([^)]+)\) \$ *${exp}(.*)$|]
+    , LineEdit [re|^import *TestKit$|]                                     $ hide     mode
+    , LineEdit [re|^\{-# OPTIONS_GHC -fno-warn-missing-signatures *#-\}$|] $ hide     mode
+    , Function [re|^${fn}(evalme@{%id}) += +(checkThis|checkThisWith +@{%id}) +${arg}(@{%string}) +\(${ans}([^)]+)\) +\$ +\(${exp}(.*)\)$|]
+                                                                       TOP $ evalme   mode
+    , Function [re|^${fn}(evalme@{%id}) += +(checkThis|checkThisWith +@{%id}) +${arg}(@{%string}) +\(${ans}([^)]+)\) +\$ +${exp}(.*)$|]
                                                                        TOP $ evalme   mode
     , Function [re|^.*$|]                                              TOP $ passthru
     ]
@@ -199,11 +202,11 @@ prep_tutorial_pp mode =
 
 \begin{code}
 evalme :: MODE
-         -> LineNo
-         -> Match LBS.ByteString
-         -> RELocation
-         -> Capture LBS.ByteString
-         -> IO (Maybe LBS.ByteString)
+       -> LineNo
+       -> Match LBS.ByteString
+       -> RELocation
+       -> Capture LBS.ByteString
+       -> IO (Maybe LBS.ByteString)
 evalme  Doc     = evalmeDoc
 evalme (Gen gs) = evalmeGen  gs
 
@@ -214,11 +217,12 @@ main_ :: MODE
 main_   Doc     = delete
 main_  (Gen gs) = mainGen    gs
 
-
-delete :: LineNo
-       -> Matches LBS.ByteString
-       -> IO (LineEdit LBS.ByteString)
-delete _ _ = return Delete
+hide :: MODE
+     -> LineNo
+     -> Matches LBS.ByteString
+    -> IO (LineEdit LBS.ByteString)
+hide  Doc    = delete
+hide (Gen _) = passthru_
 \end{code}
 
 \begin{code}
@@ -243,13 +247,18 @@ evalmeGen :: GenState
 evalmeGen gs _ mtch0 _ _ = Just <$>
     replaceCapturesM replaceMethods ALL f mtch0
   where
-    f mtch loc cap = case locationCapture loc of
-      2 -> do
-          modifyIORef gs (ide:)
-          return $ Just $ LBS.pack $ show ide
-        where
-          ide = LBS.unpack $ captureText [cp|fn|] mtch
-      _ -> return $ Just $ capturedText cap
+    f mtch loc _ =
+      case locationCapture loc == arg_i of
+        True  -> do
+            modifyIORef gs (ide:)
+            return $ Just $ LBS.pack $ show ide
+          where
+            ide = LBS.unpack $ captureText [cp|fn|] mtch
+        False -> return Nothing
+
+    arg_i = either oops id $ findCaptureID [cp|arg|] $ captureNames mtch0
+
+    oops  = error "evalmeGen: confused captures!"
 \end{code}
 
 How are we doing?
@@ -297,7 +306,7 @@ end_code   = "\\"<>"end{code}"
 
 \begin{code}
 mk_list :: [String] -> [LBS.ByteString]
-mk_list []          = ["[]"]
+mk_list []          = ["  []"]
 mk_list (ide0:ides) = f "[" ide0 $ foldr (f ",") ["  ]"] ides
   where
     f pfx ide t = ("  "<>pfx<>" "<>LBS.pack ide) : t
@@ -332,8 +341,8 @@ inc_code _ mtch _ _ = fmap Just $
 \end{code}
 
 
-passthru action
----------------
+passthru and delete actions
+---------------------------
 
 \begin{code}
 passthru :: LineNo
@@ -342,6 +351,16 @@ passthru :: LineNo
          -> Capture LBS.ByteString
          -> IO (Maybe LBS.ByteString)
 passthru _ _ _ _ = return Nothing
+
+passthru_ :: LineNo
+          -> Matches LBS.ByteString
+          -> IO (LineEdit LBS.ByteString)
+passthru_ _ _ = return NoEdit
+
+delete :: LineNo
+       -> Matches LBS.ByteString
+       -> IO (LineEdit LBS.ByteString)
+delete _ _ = return Delete
 \end{code}
 
 

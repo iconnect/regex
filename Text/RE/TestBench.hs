@@ -3,6 +3,9 @@
 
 module Text.RE.TestBench
   (
+  -- * The Test Bench Tutorial
+  -- $tutorial
+
   -- * The Test Bench
     MacroEnv
   , MacroDescriptor(..)
@@ -19,34 +22,23 @@ module Text.RE.TestBench
   , formatMacroSummary
   , formatMacroSources
   , formatMacroSource
+  , mdRegexSource
   -- ** Formatting Macros
   , testMacroEnv
   , runTests
   , runTests'
-  -- * Parsing
-  , parseInteger
-  , parseHex
-  , parseDouble
-  , parseString
-  , parseSimpleString
-  , parseDate
-  , parseSlashesDate
-  , parseTimeOfDay
-  , parseTimeZone
-  , parseDateTime
-  , parseDateTime8601
-  , parseDateTimeCLF
-  , parseShortMonth
-  , shortMonthArray
-  , IPV4Address
-  , parseIPv4Address
-  , Severity(..)
-  , parseSeverity
-  , severityKeywords
-  -- * Text.RE
-  , module Text.RE
+  -- * The Parsers
+  , module Text.RE.TestBench.Parsers
+  -- * The Match Type
+  , Match
   ) where
 
-import           Text.RE
+import           Text.RE.TestBench.Parsers
 import           Text.RE.ZeInternals.TestBench
-import           Text.RE.ZeInternals.TestBench.Parsers
+import           Text.RE.ZeInternals.Types.Match
+
+-- $tutorial
+-- This API module provides a test bench for developing, documenting and
+-- testing regex RE macros.
+--
+-- See the tutorials at http://re-tutorial-testbench.regex.uk

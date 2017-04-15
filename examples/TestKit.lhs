@@ -17,9 +17,13 @@ module TestKit
   , substVersion
   , substVersion_
   , readCurrentVersion
-  , Test
+  , Test(..)
   , runTheTests
   , checkThis
+  , checkThisWith
+  , convertMaybeTextList
+  , castInt
+  , packLBS
   , test_pp
   , include
   , cmp
@@ -140,13 +144,27 @@ runTheTests tests = do
       exitWith $ ExitFailure 1
 
 checkThis :: (Show a,Eq a) => String -> a -> a -> Test
-checkThis lab ref val =
+checkThis = checkThisWith id
+
+checkThisWith :: (Show a,Eq a) => (b->a) -> String -> b -> a -> Test
+checkThisWith f lab ref0 val =
   Test
     { testLabel    = lab
     , testExpected = show ref
     , testResult   = show val
     , testPassed   = ref == val
     }
+  where
+    ref = f ref0
+
+convertMaybeTextList :: [Maybe String] -> [Maybe T.Text]
+convertMaybeTextList = map $ fmap T.pack
+
+castInt :: Int -> Int
+castInt = id
+
+packLBS :: String -> LBS.ByteString
+packLBS = LBS.pack
 
 present_test :: Test -> String
 present_test Test{..} = unlines
@@ -181,6 +199,12 @@ simple include processor
 ------------------------
 
 \begin{code}
+-- | this function looks for lines of the form
+--
+--    `%include <file> [exclude <RE>]`
+--
+-- and replaces them with the contents of the named file, optionally
+-- excluding any lines that match the given RE.
 include :: LBS.ByteString -> IO LBS.ByteString
 include = sed' $ Select
     [ Function [re|^%include ${file}(@{%string})$|]                              TOP incl
@@ -191,6 +215,9 @@ include = sed' $ Select
     incl _ mtch _ _ = include' mtch
     nop  _ _    _ _ = return Nothing
 
+-- | processes the match from a '%include' line, analyses the match,
+-- fetches the file, optionally excludes lines specified by an RE,
+-- returning the text to include.
 include' :: Match LBS.ByteString -> IO (Maybe LBS.ByteString)
 include' mtch = do
     ftr <- case prs_s <$> mtch !$$? [cp|rex|] of
@@ -263,7 +290,7 @@ sortImports lbs =
 
     (hdr,bdy) = span (not . anyMatches . getLineMatches) lns
     lns       = grepFilter rex lbs
-    rex       = [re|^import +(qualified)? +${mod}([^ ].*)$|]
+    rex       = [re|^import +(qualified|         ) ${mod}([^ ].*)$|]
 \end{code}
 
 

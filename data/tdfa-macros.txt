@@ -37,7 +37,7 @@
 |%email.simple   |0   |[a-zA-Z0-9%_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0\|user-name%foo.bar.com@an-example.com      |                                         |     |-                |an email address                          
 |                |    |\-9.-]+                                   |                                          |not-an-email-address                     |     |                 |                                          
 |                |    |                                          |                                          |@not-an-email-address                    |     |                 |                                          
-|%frac           |1   |-?[0-9]+(\.[0-9]+)?                       |0                                         |                                         |     |parseInteger     |a decimal integer                         
+|%frac           |1   |-?[0-9]+(\.[0-9]+)?                       |0                                         |                                         |     |parseInteger     |a decimal natural number                  
 |                |    |                                          |1234567890                                |0A                                       |     |                 |                                          
 |                |    |                                          |00                                        |+0                                       |     |                 |                                          
 |                |    |                                          |01                                        |0.                                       |     |                 |                                          
@@ -106,7 +106,7 @@
 |                |    |                                          |"\"\\\""                                  |                                         |     |                 |                                          
 |                |    |                                          |"\"foo\""                                 |                                         |     |                 |                                          
 |                |    |                                          |""                                        |                                         |     |                 |                                          
-|%string.simple  |0   |"[^"[:cntrl:]]*"                          |""                                        |                                         |     |parseSimpleString|a decimal integer                         
+|%string.simple  |0   |"[^"[:cntrl:]]*"                          |""                                        |                                         |     |parseSimpleString|a simple quoted string                    
 |                |    |                                          |"foo"                                     |"                                        |     |                 |                                          
 |                |    |                                          |"\"                                       |"\""                                     |     |                 |                                          
 |                |    |                                          |""                                        |"\"\""                                   |     |                 |                                          

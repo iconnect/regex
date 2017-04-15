@@ -7,17 +7,15 @@
 #endif
 
 module Text.RE.ZeInternals.SearchReplace.PCRE.ByteString
-  ( -- * The ed Quasi Quoters
-    -- $qq
-    ed
-  , edMS
-  , edMI
-  , edBS
-  , edBI
+  ( ed
   , edMultilineSensitive
   , edMultilineInsensitive
   , edBlockSensitive
   , edBlockInsensitive
+  , edMS
+  , edMI
+  , edBS
+  , edBI
   , ed_
   ) where
 
@@ -25,47 +23,61 @@ import qualified Data.ByteString.Char8         as B
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
 import           Text.RE.REOptions
+import           Text.RE.Tools.IsRegex
 import           Text.RE.ZeInternals.PCRE
 import           Text.RE.ZeInternals.SearchReplace.PCREEdPrime
-import           Text.RE.ZeInternals.Types.SearchReplace
 
-
-ed
-  , edMS
-  , edMI
-  , edBS
-  , edBI
-  , edMultilineSensitive
-  , edMultilineInsensitive
-  , edBlockSensitive
-  , edBlockInsensitive
-  , ed_ :: QuasiQuoter
-
+-- | @[ed| ... \/\/\/ ... |]@, is equivalent to @[edMultilineSensitive| ... \/\/\/ ... |]@,
+-- compiling a case-sensitive, multi-line 'SearchReplace'
+ed                      :: QuasiQuoter
 ed                       = ed' sr_cast $ Just minBound
-edMS                     = edMultilineSensitive
-edMI                     = edMultilineInsensitive
-edBS                     = edBlockSensitive
-edBI                     = edBlockInsensitive
+
+-- | @[edMultilineSensitive| ... \/\/\/ ... |]@ compiles a case-sensitive, multi-line 'SearchReplace' template
+edMultilineSensitive    :: QuasiQuoter
 edMultilineSensitive     = ed' sr_cast $ Just  MultilineSensitive
+
+-- | @[edMultilineInsensitive| ... \/\/\/ ... |]@ compiles a case-insensitive, multi-line 'SearchReplace' template
+edMultilineInsensitive  :: QuasiQuoter
 edMultilineInsensitive   = ed' sr_cast $ Just  MultilineInsensitive
+
+-- | @[edBlockSensitive| ... \/\/\/ ... |]@ compiles a case-sensitive, non-multi-line 'SearchReplace' template
+edBlockSensitive        :: QuasiQuoter
 edBlockSensitive         = ed' sr_cast $ Just  BlockSensitive
+
+-- | @[edBlockInsensitive| ... \/\/\/ ... |]@ compiles a case-insensitive, non-multi-line 'SearchReplace' template
+edBlockInsensitive      :: QuasiQuoter
 edBlockInsensitive       = ed' sr_cast $ Just  BlockInsensitive
+
+-- | @[edMS| ... \/\/\/ ... |]@ is a shorthand for @[edMultilineSensitive| ... \/\/\/ ... |]@
+edMS                    :: QuasiQuoter
+edMS                     = edMultilineSensitive
+
+-- | @[edMI| ... \/\/\/ ... |]@ is a shorthand for @[edMultilineInsensitive| ... \/\/\/ ... |]@
+edMI                    :: QuasiQuoter
+edMI                     = edMultilineInsensitive
+
+-- | @[edBS| ... \/\/\/ ... |]@ is a shorthand for @[edBlockSensitive| ... \/\/\/ ... |]@
+edBS                    :: QuasiQuoter
+edBS                     = edBlockSensitive
+
+-- | @[edBI| ... \/\/\/ ... |]@ is a shorthand for @[edBlockInsensitive| ... \/\/\/ ... |]@
+edBI                    :: QuasiQuoter
+edBI                     = edBlockInsensitive
+
+-- | @[ed_| ... \/\/\/ ... |]@ compiles a 'SearchReplace' template to produce a function that
+-- takes the RE options (e.g., a 'SimpleREOptions' value) and yields the
+-- 'SearchReplace' template compiled with those options. For example,
+--
+--   @s *=~/ [ed_|${hex}([0-9a-f]+)\/\/\/0x${hex}|] MultilineInsensitive@
+--
+-- prefixes the hexadecimal digit strings in s with @0x@, allowing for
+-- upper- or lower-case hex didgits (which is entirely equivalent
+-- in this example to just using @[edMultilineInsensitive|[0-9a-f]+|]@).
+ed_                     :: QuasiQuoter
 ed_                      = ed' fn_cast   Nothing
 
 sr_cast :: Q Exp
 sr_cast = [|\x -> x :: SearchReplace RE B.ByteString|]
 
 fn_cast :: Q Exp
-fn_cast = [|\x -> x :: SimpleREOptions -> SearchReplace RE B.ByteString|]
-
--- $qq
--- The -- | the @[ed| ... \/\/\/ ... |]@ quasi quoters; for exaple,
---
---  @[ed|${y}([0-9]{4})-0*${m}([0-9]{2})-0*${d}([0-9]{2})\/\/\/${d}\/${m}\/${y}|])@
---
--- represents a @SearchReplace@ that will convert a YYYY-MM-DD format date
--- into a DD\/MM\/YYYY format date.
---
--- The only difference betweem these quasi quoters is the RE options that are set:
--- see the "Text.RE.REOptions" documentation for details.
---
+fn_cast = [|\f x -> f x :: SearchReplace RE B.ByteString|]

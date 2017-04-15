@@ -65,7 +65,8 @@ main = do
       putStr $ unlines
         [ "usage:"
         , "  "++prg++" [test]"
-        , "  "++prg++" <directory>"
+        , "  "++prg++" check  <directory>"
+        , "  "++prg++" update <directory>"
         ]
 \end{code}
 

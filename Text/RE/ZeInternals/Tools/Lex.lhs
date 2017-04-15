@@ -9,8 +9,10 @@ module Text.RE.ZeInternals.Tools.Lex
 import           Prelude.Compat
 import           Text.RE.Replace
 import           Text.RE.ZeInternals.Types.IsRegex
+\end{code}
 
 
+\begin{code}
 -- | a simple regex-based scanner interpretter for prototyping
 -- scanners
 alex :: IsRegex re s => [(re,Match s->Maybe t)] -> t -> s -> [t]

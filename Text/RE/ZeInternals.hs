@@ -2,14 +2,57 @@ module Text.RE.ZeInternals
   (
   -- * The regex Internal Modules
   -- $internals
+
+  -- * Text.RE.ZeInternals.AddCaptureNames
+    addCaptureNames
+  , addCaptureNamesToMatches
+  , addCaptureNamesToMatch
+  -- * Text.RE.ZeInternals.EscapeREString
+  , escapeREString
+  -- * Text.RE.ZeInternals.NamedCaptures
+  , cp
+  , extractNamedCaptures
+  , idFormatTokenREOptions
+  , Token
+  , validToken
+  , formatTokens
+  , formatTokens'
+  , formatTokens0
+  , scan
+  -- * Text.RE.ZeInternals.Replace
+  , expandMacros
+  -- * Text.RE.ZeInternals.PreludeMacros
+  , PreludeMacro(..)
+  , presentPreludeMacro
+  , preludeMacros
+  , preludeMacroTable
+  , preludeMacroSummary
+  , preludeMacroSources
+  , preludeMacroSource
+  , preludeMacroEnv
+  -- * Text.RE.ZeInternals.SearchReplace
+  , unsafeCompileSearchReplace_
+  , compileSearchReplace_
+  , compileSearchAndReplace_
+  -- * Text.RE.ZeInternals.QQ
+  , QQFailure(..)
+  , qq0
+  -- * Text.RE.ZeInternals.TestBench
+  , mkTDFA
+  , mkPCRE
+  , badMacros
   ) where
 
+import           Text.RE.ZeInternals.AddCaptureNames
+import           Text.RE.ZeInternals.EscapeREString
+import           Text.RE.ZeInternals.NamedCaptures
+import           Text.RE.ZeInternals.PreludeMacros
+import           Text.RE.ZeInternals.QQ
+import           Text.RE.ZeInternals.Replace
+import           Text.RE.ZeInternals.SearchReplace
+import           Text.RE.ZeInternals.TestBench
+
 -- $internals
--- The modules under 'ZeInternals' do not belong to the /official/ regex
--- API, though their contents will so belong if they are listed in the outside
--- `Text.RE` modules. This doesn't mean that they cannot be used but be aware
--- that they may not be as stable or as well documented as the official API
--- modules.
---
--- If you do notice anything in here that you think we have missed that
--- should be listed in the official API then please drop us a line.
+-- This module contains just what the test suite (re-tests) in regex-examples
+-- needs from the package internals to do its job and the ZeInternals
+-- types and functions needed by the regex-with-pcre package

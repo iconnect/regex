@@ -1,5 +1,17 @@
 -*-change-log-*-
 
+1.0.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-04-10
+  * Rewrite tutorials (#113)
+  * Add Text.RE.Tools.IsRegex (#122)
+  * Include Macro Parsers in Core API (#123)
+  * Adjust type of lookupCaptureID and friends (#124)
+  * re-prep to handle cast example expressions (#125)
+  * Rename compileSearchReplaceWithOptions (#126)
+  * Hide ZeInternals, Evacuate Text.RE (#127)
+  * Proper Haddocks for the quasi quoters (#128)
+  * ed_ quasi quoters are being restricted to SimpleREOptions (#129)
+  * regex dependeny on pcre-builtin (#130)
+
 0.14.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-04-05
   * Move IsOption into the back ends (#115)
   * Rename Find functions (#116)
@@ -71,7 +83,7 @@
   * Fix .travis.yml release-stack script (#67)
 
 0.6.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-13
-  * Split out rexex-with-pcre package (#65)
+  * Split out regex-with-pcre package (#65)
 
 0.5.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-03-05
   * Fix inter-operation of =~ & =~~ and named captures (#55)

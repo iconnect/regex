@@ -37,14 +37,10 @@ newtype CaptureOrdinal = CaptureOrdinal { getCaptureOrdinal :: Int }
   deriving (Show,Ord,Eq,Enum,Ix,Num)
 
 -- | look up a 'CaptureID' in the 'CaptureNames' dictionary
-unsafeFindCaptureID :: CaptureID -> CaptureNames -> Int
-unsafeFindCaptureID cid = either error id . findCaptureID cid
-
--- | look up a 'CaptureID' in the 'CaptureNames' dictionary
-findCaptureID :: CaptureID -> CaptureNames -> Either String Int
-findCaptureID (IsCaptureOrdinal o) _   = Right $ getCaptureOrdinal o
+findCaptureID :: CaptureID -> CaptureNames -> Either String CaptureOrdinal
+findCaptureID (IsCaptureOrdinal o) _   = Right o
 findCaptureID (IsCaptureName    n) hms =
-    maybe oops (Right . getCaptureOrdinal) $ HMS.lookup n hms
+    maybe oops Right $ HMS.lookup n hms
   where
     oops = Left $ unlines $
       ("lookupCaptureID: " ++ T.unpack t ++ " not found in:") :

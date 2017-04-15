@@ -11,7 +11,6 @@ Here we have a couple of single-line vanilla code fragment.
 \end{code}
 
 \begin{code}
-{-# OPTIONS_GHC -fno-warn-missing-signatures  #-}
 \end{code}
 
 And here is an empty one.
@@ -19,7 +18,6 @@ And here is an empty one.
 \end{code}
 
 The top main stuff:
-%main top
 
 A multi-line vanilla code fragment.
 
@@ -29,17 +27,27 @@ import           Control.Applicative
 
 
 An (self-)include directive
-%include "data/pp-test.lhs" "^evalme_PPT_01"
-
-evalme frgment 1
+<div class='includedcodeblock'>
 \begin{code}
-evalme_PPT_00 = checkThis ""  (0)     $  length []
+evalme_PPT_01 = checkThis "" (Just 0) $
+  length <$>
+    Just []
+\end{code}
+</div>
+
+
+
+A one-line evalme fragment.
+\begin{code}
+evalme_PPT_00 = checkThis "" 0 $
+  length []
 \end{code}
 
-evalme frgment 1
+An evalme fragment spread over a couple of lines.
 \begin{code}
-evalme_PPT_01 = checkThis "" (Just 0) $ (length <$> Just [])
+evalme_PPT_01 = checkThis "" (Just 0) $
+  length <$>
+    Just []
 \end{code}
 
 And the main bottom stuff.
-%main bottom

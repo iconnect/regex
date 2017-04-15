@@ -31,10 +31,8 @@ import qualified Data.Text                                as T
 import           Prelude.Compat
 import           System.Environment
 import           TestKit
-import           Text.RE
 import           Text.RE.Replace
 import           Text.RE.TDFA.ByteString.Lazy
-import           Text.RE.TestBench
 import           Text.RE.Tools.Edit
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed

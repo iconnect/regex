@@ -47,7 +47,9 @@ class Replace s => IsRegex re s where
   makeSearchReplace   = makeSearchReplaceWith minBound
   makeEscaped         = makeEscapedWith       minBound
   makeEscapedWith o f = makeRegexWith o . f . packR . escapeREString . unpackR
+\end{code}
 
+\begin{code}
 -- | search and replace all matches in the argument text; e.g., this function
 -- will convert every YYYY-MM-DD format date in its argument text into a
 -- DD\/MM\/YYYY date:

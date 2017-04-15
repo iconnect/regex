@@ -10,5 +10,5 @@ regex is a regular expression toolkit for regex-base with:
   * regular expression macros including:
       + a number of useful RE macros;
       + a test bench for testing and documenting new macro environments;
-  * built-in support for the TDFA and PCRE backends;
+  * built-in support for the TDFA and PCRE back ends;
   * comprehensive documentation, tutorials and copious examples.

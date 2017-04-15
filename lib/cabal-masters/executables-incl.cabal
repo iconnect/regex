@@ -100,7 +100,7 @@
       TestKit
 
     Default-Extensions: QuasiQuotes
-%build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
+%build-depends-prog regex regex-with-pcre array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
 
 %test-exe re-tutorial-replacing
     Hs-Source-Dirs:     examples

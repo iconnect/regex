@@ -39,10 +39,8 @@ infixl 9 !$, !$$
 \end{code}
 
 \begin{code}
--- | the result of matching a RE to a text once, listing the text that
--- was matched and the named captures in the RE and all of the substrings
--- matched, with the text captured by the whole RE; a complete failure
--- to match will be represented with an empty array (with bounds (0,-1))
+-- | the result of matching a RE to a text once (with @?=~@), retaining
+-- the text that was matched against
 data Match a =
   Match
     { matchSource  :: !a                -- ^ the whole source text
@@ -81,7 +79,7 @@ instance Functor Match where
 matched :: Match a -> Bool
 matched = isJust . matchCapture
 
--- | tests whether the RE matched the source text at all
+-- | yields the text matched by the RE, Nothing if no match
 matchedText :: Match a -> Maybe a
 matchedText = fmap capturedText . matchCapture
 
@@ -90,8 +88,8 @@ matchedText = fmap capturedText . matchCapture
 matchCapture :: Match a -> Maybe (Capture a)
 matchCapture = fmap fst . matchCaptures
 
--- | the top-level capture and the sub captures if the text matched
--- the RE, Nothing otherwise
+-- | the main top-level capture (capture \'0'') and the sub captures
+-- if the text matched the RE, @Nothing@ otherwise
 matchCaptures :: Match a -> Maybe (Capture a,[Capture a])
 matchCaptures Match{..} = case rangeSize (bounds matchArray) == 0 of
   True  -> Nothing
@@ -143,14 +141,14 @@ capture cid mtch = fromMaybe oops $ mtch !$? cid
 captureMaybe :: CaptureID -> Match a -> Maybe (Capture a)
 captureMaybe cid mtch@Match{..} = do
   i   <- lookupCaptureID cid mtch
-  cap <- case bounds matchArray `inRange` CaptureOrdinal i of
-    True  -> Just $ matchArray ! CaptureOrdinal i
+  cap <- case bounds matchArray `inRange` i of
+    True  -> Just $ matchArray ! i
     False -> Nothing
   case hasCaptured cap of
     True  -> Just cap
     False -> Nothing
 
-lookupCaptureID :: CaptureID -> Match a -> Maybe Int
+lookupCaptureID :: CaptureID -> Match a -> Maybe CaptureOrdinal
 lookupCaptureID cid Match{..} =
     either (const Nothing) Just $ findCaptureID cid captureNames
 \end{code}

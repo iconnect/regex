@@ -1,61 +1,30 @@
-The Regex Tutorial
+The regex Tutorial
 ==================
 
-This is a literate Haskell programme lightly processed to produce this
-web presentation and also to generate a test suite that verifies that
-each of the example calculations are generating the expected results.
-You can load it into ghci and try out the examples either by running
-_ghci_ itself from the root folder of the regex package:
-```bash
-ghci examples/re-tutorial.lhs
-```
-or using `cabal repl`:
-```
-cabal configure --enable-tests
-cabal repl examples/re-tutorial.lhs
-```
-
-Depending upon how you have configured and run `ghci` you may need to
-set one of _ghci_'s interctive settings &mdash; the topic of the next
-section.
+This tutorial is a self-testing literate Haskell programme introducing
+the vanilla API of the [regex package](http://hs.regex.uk). There
+are other tutorials for explaining the more specialist aspects of regex
+and you can load them into into you Haskell REPL of choice: see the
+[regex Tutorials page](http://tutorial.regex.uk) for details.
 
 
-Setting Up: The Pragmas
------------------------
+Language Pragmas
+----------------
 
-Haskell programs typically start with a few compiler pragmas to switch
-on the language extensions needed by the module. Because regex uses
-Template Haskell to check regular expressions at compile time `QuasiQuotes`
-should be enabled.
-
+The first thing you will have to do is enable `QuasiQuotes` as regex
+uses them to check that REs are well-formed at compile time.
 \begin{code}
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE QuasiQuotes                      #-}
+{-# OPTIONS_GHC -fno-warn-missing-signatures  #-}
 \end{code}
-
-Use this command to configure ghci accordingly (not necessary if you
-have launched ghci with `cabal repl`):
+If you are trying out examples interactively at the ghci prompt then you
+will need
 ```
 :seti -XQuasiQuotes
 ```
 
-Because we are mimicking the REPL in this tutorial we will leave off the type
-signatures on the example calculations and disable the compiler
-warnings about missing type signatures.
-\begin{code}
-{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
-\end{code}
-
-This pragma is a just technical pragma, combined with the
-`Prelude.Compat` import below used to avoid certain warnings while
-comiling against multiple versions of the compiler. It can be safely
-ignored.
-\begin{code}
-{-# LANGUAGE NoImplicitPrelude #-}
-\end{code}
-
-
-Loading Up: The Imports
------------------------
+Importing the API
+-----------------
 
 \begin{code}
 module Main(main) where
@@ -67,259 +36,147 @@ module Main(main) where
 *
 *********************************************************
 
-We have two things to consider in the import to access the regex
-goodies, which will take the form:
-```haskell
-import Text.RE.<regex-flavour>.<text-type>?
+
+Before importing the `regex` API into your Haskell script you will need
+to answer two questions:
+
+  1. Which flavour of REs do I need? If you need Posix REs then the `TDFA`
+     is for you, otherwise it is the PCRE back end, which is housed in
+     a seperate `regex-with-pcre` package.
+
+  2. Which Haskell type is being used for the text I need to match? This
+     can influence as, at the time of writing, the `PCRE` `regex` back end
+     [does not support the`Text` types](https://github.com/iconnect/regex/issues/58).
+
+The import statement will in general look like this
+```
+  import Text.RE.<back-end>.<text-type>
 ```
 
-  * Which [flavour of regular expressions](https://wiki.haskell.org/Regular_expressions) do I need?
-      + `PCRE` : [Perl-style](https://en.wikibooks.org/wiki/Regular_Expressions/Perl-Compatible_Regular_Expressions) regular expressions;
-      + `TDFA`: [Posix-style](https://en.wikipedia.org/wiki/Regular_expression#POSIX_extended) regular expressions.
+As we have no interest in Posix/PCRE distinctions or performance here,
+we have chosen to work with the `TDFA` back end with `String` types.
 
-  * And which type of text am I matching?
-      + `String` : low-performing, classic Haskell strings;
-      + `ByteString` : raw bytestrings;
-      + `ByteString.Lazy` : raw lazy bytestrings;
-      + `Text`: efficient text (currently available for `TDFA` only);
-      + `Text.Lazy` : efficient, lazy text (currently available for
-        `TDFA` only);
-      + polymorphic: if you need matching operators that work with all
-        available text types then do not specify the `<text-type>` in
-        the import path.
-
-For this tutorial we will use classic Haskell strings but any application
-dealing with bulk text will probably want to choose one of the other
-options.
 \begin{code}
-import           Control.Applicative
-import           Data.Maybe
-import qualified Data.Text                      as T
-import           Prelude.Compat
-import           TestKit
-import           Text.Printf
-import           Text.RE.REOptions
-import           Text.RE.Replace
-import           Text.RE.TDFA.String
-\end{code}
-If you are predominantly matching against a single type in your module
-then you will probably find it more convenient to use the relevant module
-rather than than the more polymorphic opertors but it is really a
-matter of convenience.
-
-We will also need access to a small selection of common libraries for
-our examples.
-\begin{code}
+import TestKit
+import Text.RE.TDFA.String
 \end{code}
 
-And finally we a special edition of the prelude (see the commentary for
-the pragma section above) and a small specail toolkit will be used to help
-manage the example calculations.
-\begin{code}
-\end{code}
-This allows simple calculations to be defined stylistically
-in the source program, presented as calculations when rendered
-in HTML and tested that they have the expected result.
-\begin{code}
-evalme_LOA_00 = checkThis "evalme_LOA_00" (0) $ length []
-\end{code}
-This trivial example calculation will be tested for zero-ness.
+You could also import `Text.RE.TDFA` or `Text.RE.PCRE` to get an API
+in which the operators are overloaded over all text types accepted by
+each of these back ends: see the [Tools Tutorial](re-tutorial-tools.html)
+for details.
 
 
-Matching with the regex-base Operators
---------------------------------------
-
-regex supports the regex-base polymorphic match operators. Used in a
-`Bool` context `=~` will evaluate to True iff the string on the left matches
-the RE on the right.
-\begin{code}
-evalme_TRD_00 = checkThis "evalme_TRD_00" (True) $ ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Bool)
-\end{code}
-Note that we enclose the RE itself in `[re|` ... `|]` quasi quote brackets,
-allowing the compiler to run some regex code at compile time to verify that
-the RE conforms to the correct syntax for the chosen RE flavour of choice
-(`TDFA` in this case). The above expression should evaluate to `True` as the
-string contains a matching sub-string.
-
-Used in an `Int` context `=~` will count the number of matches in the target string.
-\begin{code}
-evalme_TRD_01 = checkThis "evalme_TRD_01" (2) $ ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Int)
-\end{code}
-
-To determine the string that has matched the monadic `=~~` operator can be used
-in a `Maybe` context.
-\begin{code}
-evalme_TRD_02 = checkThis "evalme_TRD_02" (Just "2016-01-09") $ ("2016-01-09 2015-12-5 2015-10-05" =~~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: Maybe String)
-\end{code}
-
-A `=~` in a `[[String]]` extracts all of the matched substrings:
-\begin{code}
-evalme_TRD_04 = checkThis "evalme_TRD_04" ([["2016-01-09"],["2015-10-05"]]) $ ("2016-01-09 2015-12-5 2015-10-05" =~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|] :: [[String]])
-\end{code}
-
-regex provides special operators and types for extracting the first
-match or all of the non-overlapping substrings matching a regular expression
-which provide a little more structure that the flexible, venerable regex-base
-match operators.
-
-
-Single Matches with `?=~`
+Single `Match` with `?=~`
 -------------------------
 
-regex also provides two matching operators: one for looking for the first
+The regex API provides two matching operators: one for looking for the first
 match in its search string and the other for finding all of the matches. The
 first-match operator, `?=~`, yields the result of attempting to find the first
-match. (It's result type will be explained below.) The boolean `matched`
-function can be used to test whether a match was found.
+match.
+```
+(?=~) :: String -> RE -> Match String
+```
+The boolean `matched` function,
+```
+matched :: Match a -> Bool
+```
+can be used to test whether a match was found:
 \begin{code}
 evalme_SGL_01 = checkThis "evalme_SGL_01" (True) $ matched $ "2016-01-09 2015-12-5 2015-10-05" ?=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
 
-To get the matched text use `matchText`, which returns `Nothing` if no match was
-found in the search string.
+To get the matched text use `matchText`,
+```
+matchedText :: Match a -> Maybe a
+```
+which returns `Nothing` if no match was found in the search string:
 \begin{code}
 evalme_SGL_02 = checkThis "evalme_SGL_02" (Just "2016-01-09") $ matchedText $ "2016-01-09 2015-12-5 2015-10-05" ?=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
+\begin{code}
+evalme_SGL_03 = checkThis "evalme_SGL_03" (Nothing) $ matchedText $ "2015-12-5" ?=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
+\end{code}
 
 
-Multiple Matches with `*=~`
----------------------------
+Multiple `Matches` with `*=~`
+-----------------------------
 
-Use `*=~` to locate all of the non-overlapping substrings that matches a RE.
-`anyMatches` will return `True` iff any matches are found (and they will be).
+Use `*=~` to locate all of the non-overlapping substrings that match a RE,
+```
+(*=~)      :: String -> RE -> Matches String
+anyMatches :: Matches a -> Bool
+```
+`anyMatches` can be used to determine if any matches were found
 \begin{code}
 evalme_MLT_01 = checkThis "evalme_MLT_01" (True) $ anyMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
-
-`countMatches` will tell us how many sub-strings matched (2).
+and `countMatches` will tell us how many sub-strings matched:
 \begin{code}
 evalme_MLT_02 = checkThis "evalme_MLT_02" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
-
 `matches` will return all of the matches.
+```
+matches :: Natches a -> [a]
+```
 \begin{code}
 evalme_MLT_03 = checkThis "evalme_MLT_03" (["2016-01-09","2015-10-05"]) $ matches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|[0-9]{4}-[0-9]{2}-[0-9]{2}|]
 \end{code}
 
 
-Simple Text Replacement
------------------------
+The `regex` Macros and Parsers
+------------------------------
 
-regex supports the replacement of matched text with alternative text. This
-section will cover replacement text specified with templates. More flexible
-tools that allow functions calculate the replacement text are covered below.
+regex supports macros in regular expressions. There are a bunch of
+standard macros that you can just use, and you can define your own.
 
-_Capture_ sub-expressions, whose matched text can be inserted into the
-replacement template, can be specified as follows:
-
-  * `$(` ... `)` identifies a capture that can be identified by its
-    left-to-right position relative to the other captures in the replacement
-    template, with `$1` being used to represent the leftmost capture, `$2` the
-    next leftmost capture, and so on;
-
-  * `${foo}(` ... `)` can be used to identify a capture by name. Such captures
-    can be identified either by their left-to-right position in the regular
-    expression or by `${foo}` in the template.
-
-A function to convert ISO format dates into a UK-format date could be written
-thus:
+RE macros are enclosed in `@{` ... '}'. By convention the macros in
+the standard environment start with a '%'. `@{%date}` will match an
+ISO 8601 date, this
 \begin{code}
-uk_dates :: String -> String
-uk_dates src =
-  replaceAll "${d}/${m}/${y}" $ src *=~ [re|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|]
+evalme_MAC_00 = checkThis "evalme_MAC_00" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|@{%date}|]
 \end{code}
-with
+will pick out the two dates.
+
+There are also parsing functions for analysing the matched text. The
+`@{%string}` macro will match quoted strings (in which double quotes can be
+escaped with backslashes in the usual way) and its companion `parseString`
+function will extract the string that was being quoted, interpreting any
+escaped double quotes:
 \begin{code}
-evalme_RPL_01 = checkThis "evalme_RPL_01" ("09/01/2016 2015-12-5 05/10/2015") $ uk_dates "2016-01-09 2015-12-5 2015-10-05"
+evalme_MAC_01 = checkThisWith convertMaybeTextList "evalme_MAC_01" ([Just "foo",Just "bar", Just "\""]) $ map parseString $ matches $ "\"foo\", \"bar\" and a quote \"\\\"\"" *=~ [re|@{%string}|]
 \end{code}
 
-The same function written with numbered captures:
+See the [macro tables page](http://macros.regex.uk) for details of the standard macros and their parsers.
+
+See the [testbench tutorial](re-tutorial-testbench.html) for more on how
+you can develop, document and test RE macros with the regex test bench.
+
+
+Search and Replace
+------------------
+
+If you need to edit a string then `SearchReplace` `[ed|` ... `|]`
+templates can be used with `?=~/` to replace a single instance or
+`*=~/` to replace all matching instances.
+
 \begin{code}
-uk_dates' :: String -> String
-uk_dates' src =
-  replaceAll "$3/$2/$1" $ src *=~ [re|$([0-9]{4})-$([0-9]{2})-$([0-9]{2})|]
+evalme_SRP_00 = checkThis "evalme_SRP_00" ("0x0000: 40AA fab0") $ "0000 40AA fab0" ?=~/ [ed|${adr}([0-9A-Fa-f]{4}):?///0x${adr}:|]
 \end{code}
-with
 \begin{code}
-evalme_RPL_02 = checkThis "evalme_RPL_02" ("09/01/2016 2015-12-5 05/10/2015") $ uk_dates' "2016-01-09 2015-12-5 2015-10-05"
+evalme_SRP_01 = checkThis "evalme_SRP_01" ("0x0000: 0x40AA 0xfab0") $ "0000: 40AA fab0" *=~/ [ed|[0-9A-Fa-f]{4}///0x$0|]
 \end{code}
-yielding the same result.
-
-(Most regex conventions use plain parentheses, `(` ... `)`, to mark
-captures but we would like to reserve those exclusively for grouping
-in regex REs.)
 
 
-Matches/Match/Capture
----------------------
-
-The types returned by the `?=~` and `*=~` form the foundations of the
-package. Understandingv these simple types is the key to understanding
-the package.
-
-The type of `*=~` in this module (imported from
-`Text.RE.TDFA.String`) is:
-<div class='inlinecodeblock'>
-```
-(*=~) :: String -> RE -> Matches String
-```
-</div>
-with `Matches` defined in `Text.RE.ZeInternals.Types.Capture` thus:
-
-%include "Text/RE/ZeInternals/Types/Matches.lhs" "^data Matches "
-
-The critical component of the `Matches` type is the `[Match a]` in
-`allMatches`, containing the details all of each substring matched by
-the RE. The `matchSource` component also retains a copy of the original
-search string but the critical information is in `allmatches`.
-
-The type of `?=~` in this module (imported from
-`Text.RE.TDFA.String`) is:
-<div class='inlinecodeblock'>
-```
-(?=~) :: String -> RE -> Match String
-```
-</div>
-with `Match` (referenced in the definition of `Matches` above) defined
-in `Text.RE.ZeInternals.Types.Capture` thus:
-
-%include "Text/RE/ZeInternals/Types/Match.lhs" "^data Match "
-
-Like `matchesSource` above, `matchSource` retains the original search
-string, but also a `CaptureNames` field listing all of the capture
-names in the RE (needed by the text replacemnt tools).
-
-But the 'real' content of `Match` is to be found in the `MatchArray`,
-enumerating all of the substrings captured by this match, starting with
-`0` for the substring captured by the whole RE, `1` for the leftmost
-explicit capture in the RE, `2` for the next leftmost capture, and so
-on.
-
-Each captured substring is represented by the following `Capture` type:
-
-%include "Text/RE/ZeInternals/Types/Capture.lhs" "^data Capture "
-
-Here we list the whole original search string in `captureSource` and
-the text of the sub-string captured in `capturedText`. `captureOffset`
-contains the number of characters preceding the captured substring, or
-is negative if no substring was captured (which is a different
-situation from epsilon, the empty string, being captured).
-`captureLength` gives the length of the captured string in
-`capturedText`.
-
-The test suite in [examples/re-tests.lhs](re-tests.html) contains extensive
-worked-out examples of these `Matches`/`Match`/`Capture` types.
-
-
-Simple REOptions
-----------------
+Specifying Options
+------------------
 
 By default regular expressions are of the multi-line case-sensitive
-variety so this query
+variety so this
 \begin{code}
 evalme_SOP_01 = checkThis "evalme_SOP_01" (2) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [re|[0-9a-f]{2}$|]
 \end{code}
-finds 2 matches, the '$' anchor matching each of the newlines, but only
+will find 2 matches, the '$' anchor matching each of the newlines, but only
 the first two lowercase hex numbers matching the RE. The case sensitivity
 and multiline-ness can be controled by selecting alternative parsers.
 
@@ -359,473 +216,103 @@ evalme_SOP_06 = checkThis "evalme_SOP_06" (True) $ matched $ "SuperCaliFragilist
 \end{code}
 
 
-Using Functions to Replace Text
--------------------------------
+Compiling and Escaping
+----------------------
 
-Sometimes you will need to process each string captured by an RE with a
-function. `replaceAllCaptures` takes a `REContext`, a substitution
-function and a `Matches` and applies the function to each captured
-substring according to the `REContext`, as we can see in the following
-example function to clean up all of the mis-formatted dates in the
-argument string,
-\begin{code}
-fixup_dates :: String -> String
-fixup_dates src =
-    replaceAllCaptures SUB phi $ src *=~ [re|([0-9]+)-([0-9]+)-([0-9]+)|]
-  where
-    phi _ loc cap = Just $ case locationCapture loc of
-        1 -> printf "%04d" (read s :: Int)
-        2 -> printf "%02d" (read s :: Int)
-        3 -> printf "%02d" (read s :: Int)
-        _ -> error "fixup_dates"
-      where
-        s = capturedText cap
-\end{code}
-which will fix up our running example
-\begin{code}
-evalme_RPF_01 = checkThis "evalme_RPF_01" ("2016-01-09 2015-12-05 2015-10-05") $ fixup_dates "2016-01-09 2015-12-5 2015-10-05"
-\end{code}
-
-The `replaceAllCaptures` function is of type
-
-%include "Text/RE/ZeInternals/Replace.lhs" "replaceAllCaptures ::"
-
-and the `REContext` and `RELocation` types are defined in
-`Text.RE.Replace` as follows,
-
-%include "Text/RE/ZeInternals/Replace.lhs" "^data REContext"
-
-The processing function gets applied to the captures specified by the
-`REContext`, which can be directed to process `ALL` of the captures,
-including the substring captured by the whole RE and all of the
-subsidiary capture, or just the `TOP`, `0` capture that the whole RE
-matches, or just the `SUB` (subsidiary) captures, as was the case above.
-
-The substitution function takes the `Match` corresponding to the current
-redex being processed, the `RELocation` information specifying redex _n_
-redex and capure _i_, and the `Capure` being substituted. Our substitution
-function didn't need the `Match` context so it ignored it.
-
-The substition function either return `Nothing` to indicate that no
-substitution should be made or the replacement text.
-
-The above fixup function could be extended to enclose whole date in
-square brackets by specifing an `ALL` context and a `0` case for the
-substitution function.
-\begin{code}
-fixup_and_reformat_dates :: String -> String
-fixup_and_reformat_dates src =
-    replaceAllCaptures ALL f $ src *=~ [re|([0-9]+)-([0-9]+)-([0-9]+)|]
-  where
-    f _ loc cap = Just $ case locationCapture loc of
-        0 -> printf "[%s]"       txt
-        1 -> printf "%04d" (read txt :: Int)
-        2 -> printf "%02d" (read txt :: Int)
-        3 -> printf "%02d" (read txt :: Int)
-        _ -> error "fixup_date"
-      where
-        txt = capturedText cap
-\end{code}
-The `fixup_and_reformat_dates` applied to our running example,
-\begin{code}
-evalme_RPF_02 = checkThis "evalme_RPF_02" ("[2016-01-09] [2015-12-05] [2015-10-05]") $ fixup_and_reformat_dates "2016-01-09 2015-12-5 2015-10-05"
-\end{code}
-
-`Text.RE.Replace` provides analagous functions for replacing the
-test of a single `Match` returned from `?=~`.
-
-
-Macros and Parsers
-------------------
-
-regex supports macros in regular expressions. There are a bunch of
-standard macros and you can define your own.
-
-RE macros are enclosed in `@{` ... '}'. By convention the macros in
-the standard environment start with a '%'. `@{%date}` will match an
-ISO 8601 date, this
-\begin{code}
-evalme_MAC_00 = checkThis "evalme_MAC_00" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ [re|@{%date}|]
-\end{code}
-picking out the two dates.
-
-See the tables listing the standard macros in the tables folder of
-the distribution.
-
-See the log-processor example and the `Text.RE.TestBench` for
-more on how you can develop, document and test RE macros with the
-regex test bench.
-
-
-Compiling REs with the Complete REOptions
------------------------------------------
-
-Each type of RE &mdash; TDFA and PCRE &mdash; has it own complile-time
-options and execution-time options, called in each case `CompOption` and
-`ExecOption`. The above simple options selected with the RE
-parser (`reMultilineSensitive`, etc.) configures the RE backend
-accordingly so that you don't have to, but you may need full access to
-you chosen back end's options, or you may need to supply a different
-set of macros to those provided in the standard environment. In which
-case you will need to know about the `REOptions` type, defined by each of
-the back ends in terms of the `REOptions_` type of `Text.RE.REOptions`
-as follows.
-<div class='inlinecodeblock'>
+It is possible to compile a dynamically aquired RE string at run-time using
+`compileRegex`:
 ```
-type REOptions = REOptions_ RE CompOption ExecOption
+compileRegex :: (Functor m, Monad m) => String -> m RE
 ```
-</div>
-(Bear in mind that `CompOption` and `ExecOption` will be different
-types for each back end.)
+\begin{code}
+evalme_CPL_01 = checkThis "evalme_CPL_01" (["2016-01-09","2015-10-05"]) $ matches $ "2016-01-09 2015-12-5 2015-10-05" *=~ (either error id $ compileRegex "[0-9]{4}-[0-9]{2}-[0-9]{2}")
+\end{code}
 
-The `REOptions_` type is defined in `Text.RE.REOptions` as follows:
-
-%include "Text/RE/REOptions.lhs" "data REOptions_"
-
-  * `optionsMode` is an experimental feature that controls the RE
-    parser.
-
-  * `optionsMacs` contains the macro definitions used to compile
-    the REs (see above Macros section);
-
-  * `optionsComp` contains the back end compile-time options;
-
-  * `optionsExec` contains the back end execution-time options.
-
-(For more information on the options provided by the back ends see the
-decumentation for `regex-tdfa` and `regex-pcre` as apropriate.)
-
-Each backend provides a function to compile REs from some options and a
-string containing the RE as follows:
-<div class='inlinecodeblock'>
+These will compile the RE using the default multiline, case-sensitive options,
+but you can specify the options dynamically using `compileRegexWith`:
 ```
-compileRegex :: ( IsOption o RE CompOption ExecOption
-                , Functor m
-                , Monad   m
-                )
-             => o
-             -> String
-             -> m RE
+compileRegexWith :: (Functor m, Monad m) => SimpleREOptions -> String -> m RE
 ```
-</div>
-where `o` is some type that is recognised as a type that can configure
-REs. Your configuration-type options are:
-
-  * `()` (the unit type) means just use the default multi-line
-    case-sensitive that we get with the `re` parser.
-
-  * `SimpleREOptions` this is just a simple enum type that we use to
-    encode the standard options:
+where `SimpleREOptions` is a simple enumerated type.
 
 %include "Text/RE/REOptions.lhs" "^data SimpleREOptions"
 
-  * `Mode`: you can specify the parser mode;
-
-  * `Macros RE`: you can specify the macros use instead of the standard
-    environment;
-
-  * `CompOption`: you can specify the compile-time options for the back
-    end;
-
-  * `ExecOption`: you can specify the execution-time options for the
-    back end;
-
-  * `REOptions`: you can specify all of the options.
-
-The compilation may fail so it is expressed monadically. For the
-following examples we will use the following helper to just `error`
-the failure.
 \begin{code}
-check_for_failure :: Either String a -> a
-check_for_failure = either error id
+evalme_CPL_02 = checkThis "evalme_CPL_02" (["2016-01-09","2015-10-05"]) $ matches $ "2016-01-09 2015-12-5 2015-10-05" *=~ (either error id $ compileRegexWith MultilineSensitive "[0-9]{4}-[0-9]{2}-[0-9]{2}")
 \end{code}
 
+If you need to compile `SearchReplace` templates for use with `?=~/` and
+`*=~/` then the `compileSearchReplace` and `compileSearchReplaceWith`,
+```
+compileSearchReplace     :: (Monad m, Functor m, IsRegex RE s) => String -> String -> m (SearchReplace RE s)
+compileSearchReplaceWith :: (Monad m, Functor m, IsRegex RE s) => SimpleREOptions -> String -> String -> m (SearchReplace RE s)
+```
+work analagously to `compileRegex` and `compileRegexWith`, with the RE
+and replacement template (either side of the '///' in the `[ed|...///...|]`
+quasi quoters) being passed into these functions in two separate strings,
+to compile to the `SearchReplace` type expected by the `?=~/` and `*=~/`
+operators.
+
+%include "Text/RE/ZeInternals/Types/SearchReplace.lhs" "^data SearchReplace"
+
+The `escape` and `escapeWith` functions are special compilers that compile
+a string into a RE that should match itself, which is assumed to be embedded
+in a complex RE to be compiled.
+```
+escape :: (Functor m, Monad m) => (String->String) -> String -> m RE
+```
+The function pased in the first argument to `escape` takes the RE string
+that will match the string passed in the second argument and yields the
+RE to be compiled, which is returned from the parsing action.
 \begin{code}
-evalme_OPT_00 = checkThis "evalme_OPT_00" (2) $ countMatches $ "2016-01-09 2015-12-5 2015-10-05" *=~ check_for_failure (compileRegex "@{%date}")
-\end{code}
-\begin{code}
-evalme_OPT_01 = checkThis "evalme_OPT_01" (1) $ countMatches $ "0a\nbb\nFe\nA5" *=~ check_for_failure (compileRegexWith BlockInsensitive "[0-9a-f]{2}$")
-\end{code}
-
-This will allow you to compile regular expressions when the either the
-text to be compiled or the options have been dynamically determined.
-
-
-Specifying REOptions with `re_`
------------------------------
-
-If you just need to specify some non-standard options while statically
-checking the validity of the RE (with the default options) then you can
-use the `re_` parser:
-\begin{code}
-evalme_REU_01 = checkThis "evalme_REU_01" (1) $ countMatches $ "0a\nbb\nFe\nA5" *=~ [re_|[0-9a-f]{2}$|] BlockInsensitive
-\end{code}
-Any option `o` such that `IsOption o RE CompOption ExecOption` (i.e.,
-any option type accepted by `compileRegex` above) can be used with
-`[re_` ..`|]`.
-
-
-The Tools: 'grep', 'lex' and 'sed'
-----------------------------------
-
-The classic tools assocciated with regular expressions have inspired some
-regex conterparts.
-
-  * [Text.RE.Tools.Grep](Grep.html): takes a regular expression and a
-    file or lazy ByteString (depending upon the variant) and returns all of the
-    matching lines. (Used in the [include](re-include.html) example.)
-
-  * [Text.RE.Tools.Lex](Lex.html): takes an association list of REs and
-    token-generating functions and the input text and returns a list of tokens.
-    This should never be used where performance is important (use Alex),
-    except as a development prototype (used internally in
-    [Text.RE.ZeInternals.NamedCaptures](NamedCaptures.html)).
-
-  * [Text.RE.Tools.Sed](Sed.html) using [Text.RE.Tools.Edit](Edit.html):
-    takes an association list of regular expressions and substitution actions,
-    some input text and invokes the associated action on each line of the file
-    that matches one of the REs, substituting the text returned from the action
-    in the output stream. (Used in the [include](re-include.html),
-    [gen-modules](re-gen-modules.html),
-    [log-processor](re-nginx-log-processor.html) and [tutorial-pp](re-prep)
-    examples.)
-
-
-The Examples
-------------
-
-The remaining sections have been given over to various standalone
-examples. All bar the first are taken from the package itself, each
-contributing to either the API or the tools used to prepare the
-documentation and test suites.
-
-
-Example: log processor: development with macros
------------------------------------------------
-
-To test regex at scale &mdash; which is to say, developing with
-relatively complex  REs &mdash;
-[a preprocessor](re-nginx-log-processor.html) for parsing NGINX access
-and error logs has been written. Each line of input may be either a line
-from an NGINX access log or the event log, producing a standard-format
-event log on the output.
-
-As a taster, here is the main script, where each type of line is
-recognised by a high-level macro.
-
-%include "examples/re-nginx-log-processor.lhs" "script ::"
-
-Thes macros are based on the standard macros, using
-`Text.RE.TestBench` to build the up into the above high-level
-scanners with the apropriate
-[tests and documentation](https://github.com/iconnect/regex/tree/master/tables).
-
-The RE for recognising the access-log lines is built up here.
-
-%include "examples/re-nginx-log-processor.lhs" "access_re ::"
-
-(N.B., The Test Bench currently requires that we write our REs in Haskell
-strings.)
-
-See [the log-processor program sources](re-nginx-log-processor.html) for details.
-
-
-Example: Scanning REs: Named Captures
--------------------------------------
-
-This package needs to recognise all captures in a regular expression so
-that it can associate the named captures with their cature ordinal.
-
-Here is the prototype scanner.
-
-%include "Text/RE/ZeInternals/NamedCaptures.lhs" "scan ::"
-
-Once the package has stabilised it should be rewritten with Alex.
-
-See [Text.RE.ZeInternals.NamedCaptures](NamedCaptures.html) for
-details.
-
-
-Anti-Example: Scanning REs in the TestBench
--------------------------------------------
-
-The [Text.RE.ZeInternals.TestBench](TestBench.html) contains an almost
-identical parser to the above, written with recursive functions.
-
-%include "Text/RE/ZeInternals/TestBench.lhs" "scan_re ::"
-
-Once some technical issues have been ersolved it will use the above
-scanner in [Text.RE.ZeInternals.NamedCaptures](NamedCaptures.html).
-
-
-Example: filename analysis
---------------------------
-
-The preprocessor used to prepare the literate programs for this
-package's website uses the following 'gen_all' diriver which uses
-REs to analyse file paths.
-
-%include "examples/re-prep.lhs" "^gen_all ::"
-
-See [examples/re-prep.lhs](re-prep.html)
-
-
-Example: parsing RE macros
---------------------------
-
-The regex RE macros are parsed with code that looks similar to
-this.
-
-\begin{code}
--- | expand the @{..} macos in the argument string using the given
--- function
-expandMacros_ :: (MacroID->Maybe String) -> String -> String
-expandMacros_ lu = fixpoint e_m
-  where
-    e_m re_s =
-        replaceAllCaptures TOP phi $ re_s *=~ [re|@$(@|\{${name}([^{}]+)\})|]
-
-    phi mtch _ cap = case txt == "@@" of
-        True  -> Just   "@"
-        False -> Just $ fromMaybe txt $ lu ide
-      where
-        txt = capturedText cap
-        ide = MacroID $ capturedText $ capture [cp|name|] mtch
-
-fixpoint :: (Eq a) => (a->a) -> a -> a
-fixpoint f = chk . iterate f
-  where
-    chk (x:x':_) | x==x' = x
-    chk xs               = chk $ tail xs
+evalme_CPL_03 = checkThis "evalme_CPL_03" ("foobar") $ "fooe{0}bar" *=~/ SearchReplace (either error id $ escape id "e{0}") ""
 \end{code}
 
-For example:
+
+The Classic regex-base Match Operators
+--------------------------------------
+
+The original `=~` and `=~~` match operators are still available for
+those that have mastered them.
 \begin{code}
-evalme_PMC_00 = checkThis "evalme_PMC_00" ("foo MacroID {getMacroID = \"bar\"} baz") $ expandMacros_ (Just . show) "foo @{bar} baz"
+evalme_CLC_01 = checkThis "evalme_CLC_01" (True )    $ ("bar"    =~  [re|(foo|bar)|] :: Bool)
 \end{code}
-
-See [Text.RE.Replace](Replace.html) for details.
-
-
-Example: Parsing Replace Templates
-----------------------------------
-
-The regex replacement templates are parsed with code similar to this.
-
 \begin{code}
-type Template = String
-
-parseTemplateR' :: Template
-                -> Match String
-                -> RELocation
-                -> Capture String
-                -> Maybe String
-parseTemplateR' tpl mtch _ _ =
-    Just $ replaceAllCaptures TOP phi $
-      tpl *=~ [re|\$${arg}(\$|[0-9]+|\{${name}([^{}]+)\})|]
-  where
-    phi t_mtch _ _ = case t_mtch !$? [cp|name|] of
-      Just cap -> this $ IsCaptureName $ CaptureName txt
-        where
-          txt = T.pack $ capturedText cap
-      Nothing -> case t == "$" of
-        True  -> Just t
-        False -> this $ IsCaptureOrdinal $ CaptureOrdinal $ read t
-      where
-        t = capturedText $ capture [cp|arg|] t_mtch
-
-        this cid = capturedText <$> mtch !$? cid
-
-my_replace :: RE -> Template-> String -> String
-my_replace rex tpl src = replaceAllCaptures TOP (parseTemplateR' tpl) $ src *=~ rex
+evalme_CLC_02 = checkThis "evalme_CLC_02" (False)    $ ("quux"   =~  [re|(foo|bar)|] :: Bool)
 \end{code}
-
-It can be tested with our date-reformater example.
-
 \begin{code}
-date_reformat :: String -> String
-date_reformat = my_replace [re|${y}([0-9]{4})-${m}([0-9]{2})-${d}([0-9]{2})|] "${y}/${m}/${d}"
+evalme_CLC_03 = checkThis "evalme_CLC_03" (2)        $ ("foobar" =~  [re|(foo|bar)|] :: Int)
 \end{code}
-
-This should yield `"2016/01/11"`:
-
 \begin{code}
-evalme_TPL_00 = checkThis "evalme_TPL_00" ("2016/01/11") $ date_reformat "2016-01-11"
+evalme_CLC_04 = checkThis "evalme_CLC_04" (Nothing)  $ ("foo"    =~~ [re|bar|]       :: Maybe String)
 \end{code}
-
-See [Text.RE.Replace](Replace.html)
-
-
-Example: include preprocessor
------------------------------
-
-The 'include' preprocessor for extracting literate programming fragments
-(used in this and most of the other sections of the tutorial) has been
-lifted out of the main preprocessor into its own example.
-
-Here is sed script that makes up the main loop.
-
-%include "examples/re-include.lhs" "loop ::"
-
-The `extract` action takes the path to the file containing the fragment
-and the RE that will match a line in the fragment and returns the text
-of the fragment (wrapped in a simple styling div).
-
-%include "examples/re-include.lhs" "extract ::"
-
-And here is the scanner for recognising the literate fragments.
-
-%include "examples/re-include.lhs" "scan ::"
-
-See [examples/re-include.lhs](re-include.html)
-
-
-Example: literate preprocessor
-------------------------------
-
-The preprocessor that converts this literate Haskell program into a web
-page and a test suite that makes plenty of use of regex is in
-[examples/re-prep.lhs](re-prep.html).
-
-
-Example: gen-modules
---------------------
-
-The many TDFA and PCRE API modules (but _not_ the `RE` modules) are all
-generated from `Text.RE.TDFA.ByteString.Lazy` with
-[examples/re-gen-modules.lhs](re-gen-modules.html) which is also an
-application of regex.
-
 
 \begin{code}
 main :: IO ()
 main = runTheTests
-  [ evalme_TPL_00
-  , evalme_PMC_00
-  , evalme_REU_01
-  , evalme_OPT_01
-  , evalme_OPT_00
-  , evalme_MAC_00
-  , evalme_RPF_02
-  , evalme_RPF_01
+  [ evalme_CLC_04
+  , evalme_CLC_03
+  , evalme_CLC_02
+  , evalme_CLC_01
+  , evalme_CPL_03
+  , evalme_CPL_02
+  , evalme_CPL_01
   , evalme_SOP_06
   , evalme_SOP_05
   , evalme_SOP_04
   , evalme_SOP_03
   , evalme_SOP_02
   , evalme_SOP_01
-  , evalme_RPL_02
-  , evalme_RPL_01
+  , evalme_SRP_01
+  , evalme_SRP_00
+  , evalme_MAC_01
+  , evalme_MAC_00
   , evalme_MLT_03
   , evalme_MLT_02
   , evalme_MLT_01
+  , evalme_SGL_03
   , evalme_SGL_02
   , evalme_SGL_01
-  , evalme_TRD_04
-  , evalme_TRD_02
-  , evalme_TRD_01
-  , evalme_TRD_00
-  , evalme_LOA_00
   ]
 \end{code}
 

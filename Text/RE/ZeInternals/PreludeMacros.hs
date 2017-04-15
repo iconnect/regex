@@ -242,7 +242,7 @@ decimal_macro rty env pm = Just $ run_tests rty parseDouble samples env pm
     , macroCounterSamples = counter_samples
     , macroTestResults    = []
     , macroParser          = Just "parseInteger"
-    , macroDescription     = "a decimal integer"
+    , macroDescription     = "a decimal natural number"
     }
   where
     samples :: [(String,Double)]
@@ -315,7 +315,7 @@ string_simple_macro rty env pm =
       , macroCounterSamples = counter_samples
       , macroTestResults    = []
       , macroParser          = Just "parseSimpleString"
-      , macroDescription     = "a decimal integer"
+      , macroDescription     = "a simple quoted string"
       }
   where
     samples :: [(String,String)]

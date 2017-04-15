@@ -10,52 +10,63 @@
 module Text.RE.Tools.Edit
   (
   -- * Editing
+  -- $tutorial
     Edits(..)
   , Edit(..)
-  , SearchReplace(..)
   , LineEdit(..)
   , applyEdits
   , applyEdit
   , applyLineEdit
+  -- * IsRegex
+  , IsRegex(..)
+  , SearchReplace(..)
+  , searchReplaceAll
+  , searchReplaceFirst
   -- * LineNo
   , LineNo(..)
   , firstLine
   , getLineNo
   , lineNo
-  -- * Text.RE
-  , module Text.RE
+  -- * Replace
+  , module Text.RE.Replace
   ) where
 
 import           Data.Maybe
 import           Prelude.Compat
-import           Text.RE
 import           Text.RE.Replace
-import           Text.RE.ZeInternals.Types.IsRegex
+import           Text.RE.Tools.IsRegex
 import           Text.RE.ZeInternals.Types.LineNo
+\end{code}
 
 
+\begin{code}
 -- | an 'Edits' script will, for each line in the file, either perform
 -- the action selected by the first RE in the list, or perform all of the
 -- actions on line, arranged as a pipeline
 data Edits m re s
-  = Select ![Edit m re s]
-  | Pipe   ![Edit m re s]
+  = Select ![Edit m re s]   -- ^ for each line select the first @Edit@ to match each line and edit the line with it
+  | Pipe   ![Edit m re s]   -- ^ for each line apply every edit that matches in turn to the line
 
 -- | each Edit action specifies how the match should be processed
 data Edit m re s
   = Template !(SearchReplace re s)
+        -- ^ replace the match with this template text, substituting ${capture} as apropriate
   | Function !re REContext !(LineNo->Match s->RELocation->Capture s->m (Maybe s))
+        -- ^ use this function to replace the 'REContext' specified captures in each line matched
   | LineEdit !re           !(LineNo->Matches s->m (LineEdit s))
+        -- ^ use this function to edit each line matched
 
 -- | a LineEdit is the most general action thar can be performed on a line
 -- and is the only means of deleting a line
 data LineEdit s
-  = NoEdit
-  | ReplaceWith !s
-  | Delete
+  = NoEdit                  -- ^ do not edit this line but leave as is
+  | ReplaceWith !s          -- ^ replace the line with this text (terminating newline should not be included)
+  | Delete                  -- ^ delete the this line altogether
   deriving (Functor,Show)
+\end{code}
 
 
+\begin{code}
 -- | apply an 'Edit' script to a single line
 applyEdits :: (IsRegex re s,Monad m,Functor m)
            => LineNo
@@ -122,4 +133,12 @@ pipe_edit_scripts lno edits s0 =
     f edit act = do
       s <- act
       fromMaybe s <$> applyEdit id lno edit s
+\end{code}
+
+\begin{code}
+-- $tutorial
+-- The Edit toolkit looks for REs that match a text and runs the
+-- associated actions.
+--
+-- See the Regex Tools tutorial at http://re-tutorial-tools.regex.uk
 \end{code}

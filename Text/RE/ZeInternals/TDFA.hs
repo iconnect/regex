@@ -30,6 +30,7 @@ module Text.RE.ZeInternals.TDFA
   , REOptions
   , defaultREOptions
   , noPreludeREOptions
+  , unpackSimpleREOptions
   -- * Compiling Regular Expressions
   , compileRegex
   , compileRegexWith
@@ -37,7 +38,7 @@ module Text.RE.ZeInternals.TDFA
   -- * Compiling Search-Replace Templates
   , compileSearchReplace
   , compileSearchReplaceWith
-  , compileSearchReplaceWithREOptions
+  , compileSearchReplaceWithOptions
   -- * Escaping String
   , escape
   , escapeWith
@@ -51,7 +52,6 @@ module Text.RE.ZeInternals.TDFA
   , preludeSummary
   , preludeSources
   , preludeSource
-  , unpackSimpleREOptions
   -- * The Quasi Quoters
   , re
   , reMS
@@ -71,15 +71,10 @@ import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
 import           Prelude.Compat
 import           Text.RE.REOptions
-import           Text.RE.ZeInternals.EscapeREString
-import           Text.RE.ZeInternals.NamedCaptures
-import           Text.RE.ZeInternals.PreludeMacros
-import           Text.RE.ZeInternals.QQ
-import           Text.RE.ZeInternals.Replace
-import           Text.RE.ZeInternals.SearchReplace
-import           Text.RE.ZeInternals.TestBench
-import           Text.RE.ZeInternals.Types.CaptureID
-import           Text.RE.ZeInternals.Types.IsRegex
+import           Text.RE.Replace
+import           Text.RE.TestBench
+import           Text.RE.Tools
+import           Text.RE.ZeInternals
 import           Text.Regex.TDFA
 
 
@@ -95,7 +90,7 @@ data RE =
 
 -- | some functions in the "Text.RE.TestBench" need the back end to
 -- be passed dynamically as a 'RegexType' parameters: use 'regexType'
--- fpr this backend
+-- for this
 regexType :: RegexType
 regexType =
   mkTDFA $ \txt env md -> txt =~ mdRegexSource regexType ExclCaptures env md
@@ -227,12 +222,12 @@ compileSearchReplaceWith sro = compileSearchAndReplace_ packR $ compileRegexWith
 -- | compile a SearchReplace template, with general options, generating
 -- errors if the RE or the template are not well formed, all capture
 -- references being checked
-compileSearchReplaceWithREOptions :: (Monad m,Functor m,IsRegex RE s)
-                                  => REOptions
-                                  -> String
-                                  -> String
-                                  -> m (SearchReplace RE s)
-compileSearchReplaceWithREOptions os = compileSearchAndReplace_ packR $ compileRegexWithOptions os
+compileSearchReplaceWithOptions :: (Monad m,Functor m,IsRegex RE s)
+                                => REOptions
+                                -> String
+                                -> String
+                                -> m (SearchReplace RE s)
+compileSearchReplaceWithOptions os = compileSearchAndReplace_ packR $ compileRegexWithOptions os
 
 
 ------------------------------------------------------------------------
@@ -312,37 +307,53 @@ preludeSource = preludeMacroSource regexType
 -- Quasi Quoters
 ------------------------------------------------------------------------
 
--- | the @[re| ... |]@ and @[ed| ... /// ... |]@ quasi quoters
-re
-  , reMS
-  , reMI
-  , reBS
-  , reBI
-  , reMultilineSensitive
-  , reMultilineInsensitive
-  , reBlockSensitive
-  , reBlockInsensitive
-  , re_ :: QuasiQuoter
-  -- , ed
-  -- , edMS
-  -- , edMI
-  -- , edBS
-  -- , edBI
-  -- , edMultilineSensitive
-  -- , edMultilineInsensitive
-  -- , edBlockSensitive
-  -- , edBlockInsensitive
-  -- , ed_ :: QuasiQuoter
-
+-- | @[re| ... |]@, is equivalent to @[reMultilineSensitive| ... |]@,
+-- compiling a case-sensitive, multi-line RE
+re                      :: QuasiQuoter
 re                       = re' $ Just minBound
-reMS                     = reMultilineSensitive
-reMI                     = reMultilineInsensitive
-reBS                     = reBlockSensitive
-reBI                     = reBlockInsensitive
+
+-- | @[reMultilineSensitive| ... |]@, compiles a case-sensitive, multi-line RE
+reMultilineSensitive    :: QuasiQuoter
 reMultilineSensitive     = re' $ Just  MultilineSensitive
+
+-- | @[reMultilineInsensitive| ... |]@, compiles a case-insensitive, multi-line RE
+reMultilineInsensitive  :: QuasiQuoter
 reMultilineInsensitive   = re' $ Just  MultilineInsensitive
+
+-- | @[reMultilineInsensitive| ... |]@, compiles a case-sensitive, non-multi-line RE
+reBlockSensitive        :: QuasiQuoter
 reBlockSensitive         = re' $ Just  BlockSensitive
+
+-- | @[reMultilineInsensitive| ... |]@, compiles a case-insensitive, non-multi-line RE
+reBlockInsensitive      :: QuasiQuoter
 reBlockInsensitive       = re' $ Just  BlockInsensitive
+
+-- | @[reMS| ... |]@ is a shorthand for @[reMultilineSensitive| ... |]@
+reMS                     :: QuasiQuoter
+reMS                     = reMultilineSensitive
+
+-- | @[reMI| ... |]@ is a shorthand for @[reMultilineInsensitive| ... |]@
+reMI                    :: QuasiQuoter
+reMI                     = reMultilineInsensitive
+
+-- | @[reBS| ... |]@ is a shorthand for @[reBlockSensitive| ... |]@
+reBS                    :: QuasiQuoter
+reBS                     = reBlockSensitive
+
+-- | @[reBI| ... |]@ is a shorthand for @[reBlockInsensitive| ... |]@
+reBI                    :: QuasiQuoter
+reBI                     = reBlockInsensitive
+
+-- | @[re_| ... |]@ compiles a RE to produce a function that takes
+-- the RE options (e.g., a 'SimpleREOptions' value) and yields the
+-- RE compiled with those options. For example,
+--
+--   @countMatches $ s *=~ [re_|[0-9a-f]+|] MultilineInsensitive@
+--
+-- counts the number of hexadecimal digit strings in 's', allowing
+-- for upper- or lower-case hex didgits (which is entirely equivalent
+-- in this example to just using @[reMultilineInsensitive|[0-9a-f]+|]@).
+re_                     :: QuasiQuoter
 re_                      = re'   Nothing
 
 

@@ -18,13 +18,17 @@ Library
       Text.RE.TDFA.Text
       Text.RE.TDFA.Text.Lazy
       Text.RE.TestBench
+      Text.RE.TestBench.Parsers
       Text.RE.Tools
       Text.RE.Tools.Edit
       Text.RE.Tools.Find
       Text.RE.Tools.Grep
+      Text.RE.Tools.IsRegex
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
       Text.RE.ZeInternals
+
+    Other-Modules:
       Text.RE.ZeInternals.AddCaptureNames
       Text.RE.ZeInternals.EscapeREString
       Text.RE.ZeInternals.NamedCaptures
@@ -58,5 +62,3 @@ Library
       Text.RE.ZeInternals.Types.Match
       Text.RE.ZeInternals.Types.Matches
       Text.RE.ZeInternals.Types.SearchReplace
-
-%build-depends-lib array bytestring base base-compat containers hashable regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin template-haskell text time time-locale-compat transformers unordered-containers

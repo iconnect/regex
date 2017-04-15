@@ -35,8 +35,13 @@
 | <http://re-include.regex.uk>              | examples/re-include.lhs
 | <http://re-nginx-log-processor.regex.uk>  | examples/re-nginx-log-processor.lhs
 | <http://re-prep.regex.uk>                 | examples/re-prep.lhs
+| <http://re-sort-imports.regex.uk>         | examples/re-sort-imports.lhs
 | <http://re-tests.regex.uk>                | examples/re-tests.lhs
 | <http://re-tutorial.regex.uk>             | examples/re-tutorial.lhs
+| <http://re-tutorial-options.regex.uk>     | examples/tutorial-options.lhs
+| <http://re-tutorial-replacing.regex.uk>   | examples/tutorial-replacing.lhs
+| <http://re-tutorial-testbench.regex.uk>   | examples/tutorial-testbench.lhs
+| <http://re-tutorial-tools.regex.uk>       | examples/tutorial-tools.lhs
 | <http://testkit.regex.uk>                 | examples/TestKit.lhs
 
 

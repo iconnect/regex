@@ -43,7 +43,7 @@ import           System.FilePath
 import           System.IO
 import           TestKit
 import           Text.Printf
-import           Text.RE
+import qualified Text.RE.PCRE                             as PCRE
 import           Text.RE.PCRE.ByteString.Lazy
 import qualified Text.RE.PCRE.String                      as S
 import           Text.RE.REOptions
@@ -274,13 +274,13 @@ instance IsEvent LBS.ByteString where
 -- REOptions and Prelude
 --
 
-lpo :: REOptions
-lpo = makeREOptions lp_prelude
+lpo :: PCRE.REOptions
+lpo = PCRE.makeREOptions lp_prelude
 
 lp_prelude :: Macros RE
 lp_prelude = runIdentity $ mkMacros mk regexType ExclCaptures lp_env
   where
-    mk   = maybe oops Identity . compileRegexWithOptions noPreludeREOptions
+    mk   = maybe oops Identity . PCRE.compileRegexWithOptions PCRE.noPreludeREOptions
 
     oops = error "lp_prelude"
 
@@ -297,7 +297,7 @@ lp_macro_source :: MacroID -> String
 lp_macro_source = formatMacroSource regexType ExclCaptures lp_env
 
 lp_env :: MacroEnv
-lp_env = preludeEnv `HML.union` HML.fromList
+lp_env = PCRE.preludeEnv `HML.union` HML.fromList
     [ f "user"        user_macro
     , f "pid#tid:"    pid_tid_macro
     , f "access"      access_macro
@@ -589,4 +589,7 @@ parse_pid_tid x = case allMatches $ unpackR x S.*=~ [re|@{%nat}|] of
     _        -> Nothing
   where
     p cs = matchCapture cs >>= parseInteger . capturedText
+
+regexType :: RegexType
+regexType = PCRE.regexType
 \end{code}

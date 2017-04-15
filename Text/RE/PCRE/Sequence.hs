@@ -20,18 +20,21 @@ module Text.RE.PCRE.Sequence
   -- * The 'SearchReplace' Operators
   , (*=~/)
   , (?=~/)
-  -- * Matches
+  -- * The 'Matches' Type
   , Matches
   , matchesSource
   , allMatches
   , anyMatches
   , countMatches
   , matches
-  -- * Match
+  -- * The 'Match' Type
   , Match
   , matchSource
   , matched
   , matchedText
+  -- * The Macros and Parsers
+  -- $macros
+  , module Text.RE.TestBench.Parsers
   -- * The 'RE' Type
   , RE
   , reSource
@@ -47,16 +50,38 @@ module Text.RE.PCRE.Sequence
   , escape
   , escapeWith
   , escapeREString
-  -- * The Classic rexex-base Match Operators
+  -- * The Classic regex-base Match Operators
   , (=~)
   , (=~~)
-  -- * IsRegex
-  , IsRegex(..)
-  -- * The Quasi Quoters and Minor Functions
+  -- * The re Quasi Quoters
   -- $re
-  , module Text.RE.ZeInternals.PCRE
+  , re
+  , reMultilineSensitive
+  , reMultilineInsensitive
+  , reBlockSensitive
+  , reBlockInsensitive
+  , reMS
+  , reMI
+  , reBS
+  , reBI
+  , re_
+  -- * The Ed Quasi Quoters
   -- $ed
-  , module Text.RE.ZeInternals.SearchReplace.PCRE.Sequence
+  , edMultilineSensitive
+  , edMultilineInsensitive
+  , edBlockSensitive
+  , edBlockInsensitive
+  , ed
+  , edMS
+  , edMI
+  , edBS
+  , edBI
+  , ed_
+  -- * The cp Quasi Quoters
+  , cp
+  -- * IsRegex
+  -- $isregex
+  , module Text.RE.Tools.IsRegex
   ) where
 
 import qualified Data.Sequence                 as S
@@ -64,10 +89,11 @@ import           Data.Typeable
 import           Prelude.Compat
 import           Text.RE.REOptions
 import           Text.RE.Replace
-import           Text.RE.ZeInternals.AddCaptureNames
+import           Text.RE.TestBench.Parsers
+import           Text.RE.Tools.IsRegex
+import           Text.RE.ZeInternals
 import           Text.RE.ZeInternals.PCRE
 import           Text.RE.ZeInternals.SearchReplace.PCRE.Sequence
-import           Text.RE.ZeInternals.Types.IsRegex
 import           Text.Regex.Base
 import qualified Text.Regex.PCRE               as PCRE
 
@@ -102,7 +128,7 @@ import qualified Text.Regex.PCRE               as PCRE
 (*=~/) = flip searchReplaceAll
 
 -- | search and replace the first occurrence only (if any) in the input text
--- e.g., to prefix the first string of four hex digits in the imput text,
+-- e.g., to prefix the first string of four hex digits in the input text,
 -- if any, with @0x@:
 --
 --  @(?=~\/ [ed|[0-9A-Fa-f]{4}\/\/\/0x$0|])@
@@ -110,22 +136,20 @@ import qualified Text.Regex.PCRE               as PCRE
 (?=~/) :: (S.Seq Char) -> SearchReplace RE (S.Seq Char) -> (S.Seq Char)
 (?=~/) = flip searchReplaceFirst
 
--- | the regex-base polymorphic match operator
+-- | the `regex-base` polymorphic match operator
 (=~) :: ( Typeable a
         , RegexContext PCRE.Regex (S.Seq Char) a
-        , RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption String
         )
      => (S.Seq Char)
      -> RE
      -> a
 (=~) bs rex = addCaptureNames (reCaptureNames rex) $ match (reRegex rex) bs
 
--- | the regex-base monadic, polymorphic match operator
+-- | the `regex-base` monadic, polymorphic match operator
 (=~~) :: ( Monad m
          , Functor m
          , Typeable a
          , RegexContext PCRE.Regex (S.Seq Char) a
-         , RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption String
          )
       => (S.Seq Char)
       -> RE
@@ -142,6 +166,11 @@ instance IsRegex RE (S.Seq Char) where
 -- $tutorial
 -- We have a regex tutorial at <http://tutorial.regex.uk>.
 
+-- $macros
+-- There are a number of RE macros and corresponding Haskell parsers
+-- for parsing the matched text into appropriate Haskell types. See
+-- the [Macros Tables](http://regex.uk/macros) for details.
+
 -- $options
 -- You can specify different compilation options by appending a
 -- to the name of an [re| ... |] or [ed| ... \/\/\/ ... |] quasi quoter
@@ -152,7 +181,7 @@ instance IsRegex RE (S.Seq Char) where
 --
 -- will replace a @foo@ suffix of the argument text, of any
 -- capitalisation, with a (lower case) @bar@. If you need to specify the
--- options dynamically, use the @[re_| ... |]@ and @[red_| ... \/\/\/ ... |]@
+-- options dynamically, use the @[re_| ... |]@ and @[ed_| ... \/\/\/ ... |]@
 -- quasi quoters, which generate functions that take an 'IsOption' option
 -- (e.g., a 'SimpleReOptions' value) and yields a 'RE' or 'SearchReplace'
 -- as apropriate. For example if you have a 'SimpleReOptions' value in
@@ -171,3 +200,18 @@ instance IsRegex RE (S.Seq Char) where
 -- $ed
 -- The @[ed|.*\/\/\/foo|]@ quasi quoters, with variants for specifing different
 -- options to the RE compiler (see "Text.RE.REOptions").
+
+-- $ed
+-- The -- | the @[ed| ... \/\/\/ ... |]@ quasi quoters; for example,
+--
+--  @[ed|${y}([0-9]{4})-0*${m}([0-9]{2})-0*${d}([0-9]{2})\/\/\/${d}\/${m}\/${y}|])@
+--
+-- represents a @SearchReplace@ that will convert a YYYY-MM-DD format date
+-- into a DD\/MM\/YYYY format date.
+--
+-- The only difference betweem these quasi quoters is the RE options that are set,
+-- using the same conventions as the @[re| ... |]@ quasi quoters.
+
+-- $isregex
+-- The 'IsRegex' class is used to abstact over the different regex back ends and
+-- the text types they work with -- see "Text.RE.Tools.IsRegex" for details.

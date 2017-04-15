@@ -12,7 +12,7 @@ regex is a regular expression toolkit for regex-base with:
   * regular expression macros including:
       + a number of useful RE macros;
       + a test bench for testing and documenting new macro environments;
-  * built-in support for the TDFA and PCRE backends;
+  * built-in support for the TDFA and PCRE back ends;
   * comprehensive documentation, tutorials and copious examples.
 
 
@@ -78,7 +78,7 @@ two packages:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-04-04  v0.14.0.0 [Move IsOption, rename Find functions](https://github.com/iconnect/regex/milestone/18)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-04-10  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-04-10  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)
 

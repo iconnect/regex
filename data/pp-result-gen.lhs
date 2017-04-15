@@ -34,25 +34,20 @@ A multi-line vanilla code fragment.
 
 \begin{code}
 import           Control.Applicative
-import           TestKit
 \end{code}
 
 
 An (self-)include directive
 %include "data/pp-test.lhs" "^evalme_PPT_01"
 
-
-A one-line evalme fragment.
+evalme frgment 1
 \begin{code}
-evalme_PPT_00 = checkThis "" 0 $
-  length []
+evalme_PPT_00 = checkThis "evalme_PPT_00"  (0)     $  length []
 \end{code}
 
-An evalme fragment spread over a couple of lines.
+evalme frgment 1
 \begin{code}
-evalme_PPT_01 = checkThis "evalme_PPT_01" (Just 0) $
-  length <$>
-    Just []
+evalme_PPT_01 = checkThis "evalme_PPT_01" (Just 0) $ (length <$> Just [])
 \end{code}
 
 And the main bottom stuff.
@@ -60,6 +55,7 @@ And the main bottom stuff.
 main :: IO ()
 main = runTheTests
   [ evalme_PPT_01
+  , evalme_PPT_00
   ]
 \end{code}
 

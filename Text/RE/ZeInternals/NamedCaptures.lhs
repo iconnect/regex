@@ -36,7 +36,9 @@ import           Text.RE.ZeInternals.Types.Match
 import           Text.Regex.TDFA
 
 
--- | quasi quoter for CaptureID ([cp|0|],[cp|y|], etc.)
+-- | quasi quoter for CaptureID: @[cp|0|]@, @[cp|0|]@, etc.,
+-- indexing captures by classic positional numbers, and @[cp|foo|]@,
+-- etc., referencing a named capture @[re| ... ${foo}( ... ) ... |]@.
 cp :: QuasiQuoter
 cp =
     (qq0 "cp")
@@ -115,7 +117,7 @@ Scanning Regex Strings
 \begin{code}
 -- | scan a RE string into a list of RE Token
 scan :: String -> [Token]
-scan = alex' match al oops
+scan = alex' match al $ oops "top"
   where
     al :: [(Regex,Match String->Maybe Token)]
     al =
@@ -131,11 +133,11 @@ scan = alex' match al oops
     x_1     = captureText $ IsCaptureOrdinal $ CaptureOrdinal 1
 
     s2c [c] = c
-    s2c _   = error "scan:s2c:internal error"
+    s2c _   = oops "s2c"
 
     mk s f  = (either error id $ makeRegexM s,Just . f)
 
-    oops    = error "reScanner"
+    oops  m = error $ "NamedCaptures.scan: " ++ m
 \end{code}
 
 

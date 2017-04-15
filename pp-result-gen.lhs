@@ -19,7 +19,16 @@ And here is an empty one.
 \end{code}
 
 The top main stuff:
-%main top
+\begin{code}
+module Main(main) where
+\end{code}
+
+*********************************************************
+*
+* WARNING: this is generated from pp-tutorial-master.lhs
+*
+*********************************************************
+
 
 A multi-line vanilla code fragment.
 
@@ -33,13 +42,19 @@ An (self-)include directive
 
 evalme frgment 1
 \begin{code}
-evalme_PPT_00 = checkThis ""  (0)     $  length []
+evalme_PPT_00 = checkThis "evalme_PPT_00"  (0)     $  length []
 \end{code}
 
 evalme frgment 1
 \begin{code}
-evalme_PPT_01 = checkThis "" (Just 0) $ (length <$> Just [])
+evalme_PPT_01 = checkThis "evalme_PPT_01" (Just 0) $ (length <$> Just [])
 \end{code}
 
 And the main bottom stuff.
-%main bottom
+\begin{code}
+main :: IO ()
+main = runTheTests
+  [ evalme_PPT_01
+  , evalme_PPT_00
+  ]
+\end{code}

@@ -7,19 +7,29 @@
 #endif
 
 module Text.RE.Tools.Find
-  ( FindMethods(..)
+  (
+  -- * Find
+  -- $tutorial
+    FindMethods(..)
   , findMatches_
   , findMatches_'
-  -- * Text.RE
-  , module Text.RE
+  -- * IsRegex
+  , IsRegex(..)
+  , SearchReplace(..)
+  , searchReplaceAll
+  , searchReplaceFirst
+  -- * Replace
+  , module Text.RE.Replace
   ) where
 
 import qualified Data.List                      as L
 import           Prelude.Compat
-import           Text.RE
 import           Text.RE.Replace
+import           Text.RE.Tools.IsRegex
+\end{code}
 
 
+\begin{code}
 -- | as we don't want the @directory@ and FilePath dependencies
 -- we will abstract the three calls we need into this record type
 data FindMethods s =
@@ -31,8 +41,10 @@ data FindMethods s =
                                               -- System.Directory
     , combineDM            :: s -> s -> s     -- ^ </> from System.FilePath
     }
+\end{code}
 
 
+\begin{code}
 -- | recursively list all files whose filename matches given RE,
 -- sorting the list into ascending order; if the argument path has a
 -- trailing '/' then it will be removed
@@ -68,4 +80,12 @@ find_ fm@FindMethods{..} tst re fn fp = do
   where
     abs_path fn_ = fp `combineDM` fn_
     ordinary fn_ = not $ fn_ `elem` [packR ".",packR ".."]
+\end{code}
+
+\begin{code}
+-- $tutorial
+-- The Find toolkit traverses directory trees invoking actions for each
+-- file that matches a RE.
+--
+-- See the Regex Tools tutorial at http://re-tutorial-tools.regex.uk
 \end{code}

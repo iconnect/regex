@@ -26,8 +26,8 @@ import           Text.Regex.Base
 
 
 \begin{code}
--- | the result type to use when every match is needed, not just the
--- first match of the RE against the source
+-- | the result of matching a RE against a text (with @*=~@), retaining
+-- the text that was matched against
 data Matches a =
   Matches
     { matchesSource :: !a          -- ^ the source text being matched
@@ -54,7 +54,7 @@ anyMatches = not . null . allMatches
 countMatches :: Matches a -> Int
 countMatches = length . allMatches
 
--- | list the Matches
+-- | list the texts that Matched
 matches :: Matches a -> [a]
 matches = map capturedText . mainCaptures
 

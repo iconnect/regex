@@ -12,8 +12,12 @@
 
 module Text.RE.REOptions
   (
-  -- * RE Options
+  -- * The Options Tutorial
+  -- $tutorial
+
+  -- * 'SimpleREOptions'
     SimpleREOptions(..)
+  -- * 'REOptions_'
   , REOptions_(..)
   -- * The Macro Tables
   , Macros
@@ -60,7 +64,7 @@ instance Lift SimpleREOptions where
 -- and its @CompOption@ and @ExecOption@ types (the compile-time and
 -- execution time options, respectively); each back end will define an
 -- @REOptions@ type that fills out these three type parameters with the
--- apropriate types (see, for example, "Text.RE.ZeInternals.TDFA")
+-- apropriate types (see, for example, "Text.RE.TDFA")
 data REOptions_ r c e =
   REOptions
     { optionsMacs :: !(Macros r)    -- ^ the available TestBench RE macros
@@ -75,7 +79,7 @@ The Macro Tables
 ----------------
 
 \begin{code}
--- | our macro tables are parameterised over the backend @RE@ type and
+-- | our macro tables are parameterised over the back end @RE@ type and
 -- and just associate each @MacroID@ with an @RE@ (which may in turn
 -- contain macros to be expanded)
 type Macros r = HM.HashMap MacroID r
@@ -99,4 +103,13 @@ instance Hashable MacroID where
 -- | a macro table containing no entries
 emptyMacros :: Macros r
 emptyMacros = HM.empty
+\end{code}
+
+
+\begin{code}
+-- $tutorial
+-- This API module provides the generic types used to specify the options
+-- when compiling REs for each of the backl ends.
+--
+-- See the tutorials at http://re-tutorial-options.regex.uk
 \end{code}

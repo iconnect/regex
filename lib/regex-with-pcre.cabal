@@ -1,5 +1,5 @@
 Name:                   regex-with-pcre
-Version:                0.14.0.0
+Version:                1.0.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A regular expression toolkit for regex-base with
                         compile-time checking of RE syntax, data types for
@@ -32,7 +32,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                0.14.0.0
+    Tag:                1.0.0.0
 
 
 
@@ -45,8 +45,9 @@ Library
       Text.RE.PCRE.ByteString.Lazy
       Text.RE.PCRE.Sequence
       Text.RE.PCRE.String
+
+    Other-Modules:
       Text.RE.ZeInternals.PCRE
-      Text.RE.ZeInternals.SearchReplace
       Text.RE.ZeInternals.SearchReplace.PCRE
       Text.RE.ZeInternals.SearchReplace.PCRE.ByteString
       Text.RE.ZeInternals.SearchReplace.PCRE.ByteString.Lazy
@@ -87,7 +88,7 @@ Library
       -Wwarn
 
     Build-depends:
-        regex                == 0.14.0.0
+        regex                == 1.0.0.0
       , base                 >= 4 && < 5
       , base-compat          >= 0.6.0
       , bytestring           >= 0.10.2.0

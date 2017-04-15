@@ -31,3 +31,4 @@ Extra-Source-Files:
     src/Text/RE/TDFA/String.hs
     src/Text/RE/TDFA/Text.hs
     src/Text/RE/TDFA/Text/Lazy.hs
+    stack-8.0.yaml

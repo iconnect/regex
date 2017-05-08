@@ -34,51 +34,9 @@ two packages:
 
 ## Road Map
 
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-01-26  v0.0.0.1  Pre-release (I)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-01-30  v0.0.0.2  Pre-release (II)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-18  v0.1.0.0  [Proposed core API with presentable Haddocks](https://github.com/iconnect/regex/milestone/1)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-19  v0.2.0.0  [Package split into regex and regex-examples](https://github.com/iconnect/regex/milestone/5)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-20  v0.2.0.1  [Remove library from regex-examples](https://github.com/iconnect/regex/issues/43)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-21  v0.2.0.2  [Fix tests for Hackage](https://github.com/iconnect/regex/issues/45)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-21  v0.2.0.3  Tweak README/index layout
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-22  v0.2.0.4  [Repair re-gen-modules-test for Windows](https://github.com/iconnect/regex/issues/47)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-02-26  v0.3.0.0  [API adjustments](https://github.com/iconnect/regex/milestone/2)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-05  v0.5.0.0  [Ready for review: API, tutorials and examples finalized](https://github.com/iconnect/regex/issues/67)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-13  v0.6.0.0  [Split out PCRE](https://github.com/iconnect/regex/milestone/7)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-13  v0.6.0.1  [Fix .travis.yml release-stack script](https://github.com/iconnect/regex/issues/67)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-15  v0.7.0.0  [Better organization of API](https://github.com/iconnect/regex/milestone/8)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-16  v0.8.0.0  [Tidy up the API](https://github.com/iconnect/regex/milestone/10)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-24  v0.9.0.0  [Finish tidying up the API, Add type-safe replacement templates and exploit TemplateHaskellQuotes](https://github.com/iconnect/regex/milestone/9)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-27  v0.10.0.2 [Tweak Templates, Fix release scripts and update Haddocks commentary](https://github.com/iconnect/regex/milestone/12)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-28  v0.10.0.3 [Upgrade to LTS 8.6 and Improve Haddocks for Text.RE.{TDFA,PCRE}](https://github.com/iconnect/regex/milestone/13)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-29  v0.11.0.0 [Simplify the API](https://github.com/iconnect/regex/milestone/14)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-30  v0.11.1.0 [Fix the Haddocks](https://github.com/iconnect/regex/milestone/15)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-03-31  v0.12.0.0 [Move IsRegex into Text.RE](https://github.com/iconnect/regex/milestone/16)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-04-03  v0.13.0.0 [Protect findCaptureID and add Find, re-sort-imports](https://github.com/iconnect/regex/milestone/17)
-
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-04-04  v0.14.0.0 [Move IsOption, rename Find functions](https://github.com/iconnect/regex/milestone/18)
-
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-04-10  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-05-15  v1.1.0.0  [Update LTS versions and add r-top example](https://github.com/iconnect/regex/milestone/19)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)
 

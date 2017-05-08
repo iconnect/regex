@@ -6,3 +6,4 @@ packages:
 system-ghc: false
 extra-deps:
   - regex-tdfa-text-1.0.0.3
+  - sort-0.0.0.1

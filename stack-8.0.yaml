@@ -1,7 +1,8 @@
-resolver: lts-8.6
+resolver: lts-8.13
 install-ghc: true
 flags: {}
 packages:
 - '.'
 system-ghc: false
-extra-deps: []
+extra-deps:
+  - sort-0.0.0.1

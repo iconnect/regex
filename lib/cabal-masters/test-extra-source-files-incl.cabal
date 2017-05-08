@@ -1,11 +1,13 @@
 Extra-Source-Files:
     README.markdown
     changelog
+    data/2015-16-premierleague.txt
     data/access-errors.log
     data/access.log
     data/error.log
     data/events.log
     data/include-result.lhs
+    data/league-table.md
     data/pp-result-doc.lhs
     data/pp-result-gen.lhs
     data/pp-test.lhs

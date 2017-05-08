@@ -18,7 +18,7 @@ The NGINX Log Processor Example [examples/re-nginx-log-processor.lhs](re-nginx-l
 provides an extended example of large-scale RE development with the regex test bench.
 
 
-%heading#tools The Regex Tools
+%heading#tools The Regex Example Programs
 
   * The Include Processor Example [examples/re-include.lhs](re-include.html)
     is the starting point for the preprocessor that we use to generate the tutorial
@@ -38,6 +38,9 @@ provides an extended example of large-scale RE development with the regex test b
   * The Cabal-file Generator [examples/re-gen-modules.lhs](re-gen-modules.html)
     contains a tool for generating the cabal file from the template(s) in `lib/cabal-masters`.
 
+  * The league-table generator [examples/re-top.lhs](re-top.html) generates
+    top-n league tables from this [openfootball](https://github.com/cdornan/eng-england/tree/corrections)
+    data. Some example tables can be found [here](league-tables/index.html).
 
 %heading#library Selected Library Modules
 

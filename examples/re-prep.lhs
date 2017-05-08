@@ -96,6 +96,7 @@ gen_all = do
     pd "re-nginx-log-processor"
     pd "re-prep"
     pd "re-sort-imports"
+    pd "re-top"
     pd "re-tests"
     pd "TestKit"
     pd "RE/REOptions"

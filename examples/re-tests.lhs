@@ -699,6 +699,7 @@ example_paths =
   , "examples/re-prep.lhs"
   , "examples/re-sort-imports.lhs"
   , "examples/re-tests.lhs"
+  , "examples/re-top.lhs"
   , "examples/re-tutorial-options.lhs"
   , "examples/re-tutorial-replacing.lhs"
   , "examples/re-tutorial-testbench.lhs"

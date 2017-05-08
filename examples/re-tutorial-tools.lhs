@@ -155,7 +155,7 @@ the imports by the name of the module in a single block located at the
 position of the first import statement in the module, where each import
 statement is in a standard form matched by the regex
 ```haskell
-[re|^import +(qualified )? *${mod}([^ ].*)$|]
+[re|^import +(qualified|         ) ${mod}([^ ].*)$|]
 ```
 
 We have reproduced `sortImports` under the name `sortImports_` here.

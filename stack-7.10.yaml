@@ -1,9 +1,10 @@
-resolver: lts-6.30
+resolver: lts-6.31
 
 packages:
 - '.'
 
-extra-deps: []
+extra-deps:
+  - sort-0.0.0.1
 
 flags: {}
 

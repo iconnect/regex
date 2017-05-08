@@ -68,6 +68,13 @@
 
 %build-depends-prog regex regex-with-pcre array base base-compat bytestring containers directory filepath heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell text unordered-containers
 
+%test-exe re-top
+    Hs-Source-Dirs:     examples
+
+    Main-Is:            re-top.lhs
+
+%build-depends-prog regex base base-compat blaze-html data-default directory filepath shelly sort text time time-locale-compat transformers unordered-containers
+
 %test-exe re-tutorial
     Hs-Source-Dirs:     examples
 

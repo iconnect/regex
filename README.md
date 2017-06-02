@@ -35,7 +35,7 @@ two packages:
 ## Road Map
 
 - [X] 2017-04-10  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
-- [ ] 2017-05-15  v1.1.0.0  [Update LTS versions and add r-top example](https://github.com/iconnect/regex/milestone/19)
+- [X] 2017-06-03  v1.0.1.0  [PCRE.Text, strict PVP, Update Stackage vrns, add re-top](https://github.com/iconnect/regex/milestone/19)
 - [ ] 2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)
 
 

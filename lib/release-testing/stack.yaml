@@ -1,9 +1,10 @@
-resolver: lts-8.5
+resolver: lts-8.16
 install-ghc: true
 flags: {}
 packages:
-- '.'
-- test-regex
-- test-regex-with-pcre
+  - '.'
+  - test-regex
+  - test-regex-with-pcre
 system-ghc: false
-extra-deps: []
+extra-deps:
+  - regex-pcre-text-0.94.0.0

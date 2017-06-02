@@ -53,6 +53,8 @@ import qualified Text.RE.PCRE.ByteString        as P_BS
 import qualified Text.RE.PCRE.ByteString.Lazy   as PLBS
 import qualified Text.RE.PCRE.Sequence          as P_SQ
 import qualified Text.RE.PCRE.String            as P_ST
+import qualified Text.RE.PCRE.Text              as P_TX
+import qualified Text.RE.PCRE.Text.Lazy         as PLTX
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.TDFA                   as TDFA
@@ -382,7 +384,9 @@ search_replace_tests = testGroup "SearchReplace"
     , testg "TDFA.op/LBS"    (TLBS.?=~/) (TLBS.*=~/) tdfa_sr
     , testg "PCRE.op/LBS"    (PLBS.?=~/) (PLBS.*=~/) pcre_sr
     , testg "TDFA.op/T"      (T_TX.?=~/) (T_TX.*=~/) tdfa_sr
+    , testg "PCRE.op/T"      (P_TX.?=~/) (P_TX.*=~/) pcre_sr
     , testg "TDFA.op/LT"     (TLTX.?=~/) (TLTX.*=~/) tdfa_sr
+    , testg "PCRE.op/LT"     (PLTX.?=~/) (PLTX.*=~/) pcre_sr
     , testG "TDFA.op/S"      (T_SQ.?=~/) (T_SQ.*=~/) tdfa_sr
     , testG "PCRE.op/S"      (P_SQ.?=~/) (P_SQ.*=~/) pcre_sr
     ]
@@ -482,6 +486,8 @@ many_tests = testGroup "Many Tests"
     , testCase "PCRE ByteString.Lazy" $ test (PLBS.*=~) (PLBS.?=~) (PLBS.=~) (PLBS.=~~) matchOnce matchMany makeSearchReplace LBS.pack    re_pcre
     , testCase "PCRE Sequence"        $ test (P_SQ.*=~) (P_SQ.?=~) (P_SQ.=~) (P_SQ.=~~) matchOnce matchMany makeSearchReplace S.fromList  re_pcre
     , testCase "PCRE String"          $ test (P_ST.*=~) (P_ST.?=~) (P_ST.=~) (P_ST.=~~) matchOnce matchMany makeSearchReplace id          re_pcre
+    , testCase "PCRE Text"            $ test (P_TX.*=~) (P_TX.?=~) (P_TX.=~) (P_TX.=~~) matchOnce matchMany makeSearchReplace T.pack      re_pcre
+    , testCase "PCRE Text.Lazy"       $ test (PLTX.*=~) (PLTX.?=~) (PLTX.=~) (PLTX.=~~) matchOnce matchMany makeSearchReplace LT.pack     re_pcre
     , testCase "TDFA a"               $ test (TDFA.*=~) (TDFA.?=~) (TDFA.=~) (TDFA.=~~) matchOnce matchMany makeSearchReplace id          re_tdfa
     , testCase "TDFA ByteString"      $ test (T_BS.*=~) (T_BS.?=~) (T_BS.=~) (T_BS.=~~) matchOnce matchMany makeSearchReplace B.pack      re_tdfa
     , testCase "TDFA ByteString.Lazy" $ test (TLBS.*=~) (TLBS.?=~) (TLBS.=~) (TLBS.=~~) matchOnce matchMany makeSearchReplace LBS.pack    re_tdfa

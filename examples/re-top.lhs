@@ -1,35 +1,32 @@
 top: Calculating league table variations for the Premier League
 ===============================================================
 
-This program calculates top-n league tables for the Premier League
-based on this [openfootball data](https://github.com/cdornan/eng-england/tree/corrections).
+This program calculates top-n league tables for the Premier League based
+on this [openfootball
+data](https://github.com/cdornan/eng-england/tree/corrections).
 
-The program has enough data to self-test but to generate any useful
-data you will need to clone [this repo](git@github.com:cdornan/eng-england.git)
-into the parent directory and checkout the 'corrections' branch.
+The program has enough data to self-test but to generate any useful data
+you will need to clone [this
+repo](git@github.com:cdornan/eng-england.git) into the parent directory
+and checkout the 'corrections' branch.
 
 \begin{code}
 {-# LANGUAGE NoImplicitPrelude            #-}
 {-# LANGUAGE RecordWildCards              #-}
 {-# LANGUAGE OverloadedStrings            #-}
 {-# LANGUAGE QuasiQuotes                  #-}
-{-# LANGUAGE CPP                          #-}
-{-# OPTIONS_GHC -fno-warn-unused-imports  #-}
 
 module Main(main) where
 
 import qualified Control.Monad         as M
-import           Data.Default
 import           Data.Functor.Identity
 import qualified Data.HashMap.Lazy     as HML
 import qualified Data.List             as L
 import           Data.Maybe
 import           Data.Monoid
 import           Data.Ord
-import           Data.Sort
 import qualified Data.Text             as T
 import qualified Data.Text.IO          as T
-import qualified Data.Text.Lazy        as LT
 import           Data.Time
 import           Prelude.Compat
 import qualified Shelly                as SH
@@ -38,8 +35,7 @@ import           System.Environment
 import           System.Exit
 import           System.FilePath
 import           System.IO
-import           Text.Blaze.Html.Renderer.Text
-import qualified Text.Blaze.Html5     as H
+import           TestKit
 import           Text.RE.Summa
 import qualified Text.RE.TDFA         as TDFA
 import           Text.RE.TDFA.Text
@@ -65,29 +61,43 @@ to do with it.
 \begin{code}
 data Job =
   Job
-    { jobTitle  :: T.Text       -- ^ title for the table
-    , jobSize   :: Maybe Int    -- ^ is it the full table or a top-n table
-    , jobInputs :: [FilePath]   -- ^ the files containing the game data
-    , jobIsTest :: Bool         -- ^ are we testing against the output or writing it
-    , jobIsHtml :: Bool         -- ^ are we generating HTML from markdown
-    , jobOutput :: FilePath     -- ^ where is the output
+    { jobTitle  :: T.Text     -- ^ title for the table
+    , jobSize   :: Maybe Int  -- ^ a full table or a top-n table
+    , jobInputs :: [FilePath] -- ^ the files containing the game data
+    , jobIsTest :: Bool       -- ^ are we testing o/p or writing it
+    , jobIsHtml :: Bool       -- ^ are we generating HTML from markdown
+    , jobOutput :: FilePath   -- ^ where is the output
     }
   deriving (Show)
+\end{code}
 
--- | a match result, data in the usual order:
---      <home-team> <home-score>-<away-score> <away-team>
+A match result lists the data in the usual order:
+
+    <home-team> <home-score> <away-score> <away-team>
+
+\begin{code}
 data Game = Game Team Int Int Team
   deriving (Eq,Ord,Read,Show)
+\end{code}
 
--- | a league table is a list of teams and their results; the ordering
--- on everything is arranged so that the list can be sorted with the
--- default Ord ordering to arrange the tableaccording to PL conventions
+A league table is a list of teams and their results with the ordering
+on everything is arranged so that the list can be sorted with the
+default `Ord` ordering to arrange the table according to PL conventions.
+
+\begin{code}
 newtype Table = Table { getTable :: [(Results,Team)] }
   deriving (Show)
+\end{code}
 
+Teams are just Text containing the names used by the openfootball data.
+
+\begin{code}
 type Team = T.Text
+\end{code}
 
--- | Results contain everything we need to generate a league table
+Results contain everything we need to generate a league table.
+
+\begin{code}
 data Results =
   Results
     { resultsGamesPlayed  :: Int
@@ -97,14 +107,25 @@ data Results =
     , resultsPointsScored :: Int
     }
   deriving (Show)
+\end{code}
 
--- | these vectors have expected zeros and sums
+These vectors have expected zeros and sums.
+
+\begin{code}
 instance Monoid Results where
   mempty  = Results 0 0 0 0 0
-  mappend (Results gp1 gw1 gf1 ga1 ps1) (Results gp2 gw2 gf2 ga2 ps2) =
-      Results (gp1+gp2) (gw1+gw2) (gf1+gf2) (ga1+ga2) (ps1+ps2)
+  mappend (Results gp1 gw1 gf1 ga1 ps1)
+          (Results gp2 gw2 gf2 ga2 ps2) =
+      Results (gp1+gp2)
+              (gw1+gw2)
+              (gf1+gf2)
+              (ga1+ga2)
+              (ps1+ps2)
+\end{code}
 
--- | CL results are ordered by (points,goal-difference,goals-scored)
+PL results are ordered by (points,goal-difference,goals-scored).
+
+\begin{code}
 instance Ord Results where
   compare = comparing $ \Results{..} ->
       ( resultsPointsScored
@@ -215,7 +236,7 @@ sortResults :: [(Results,Team)] -> Table
 sortResults =
     Table
       . L.sortBy (flip $ comparing fst)
-      . groupSortWith (comparing snd) grp
+      . groupSortBy (comparing snd) grp
   where
     grp (r,t) ps = (r',t)
       where
@@ -233,7 +254,7 @@ Parse openfootball data into Game data, eliminating duplicate results.
 \begin{code}
 input :: Job -> IO [Game]
 input Job{..} =
-    groupSort const . parseGames . T.concat <$> mapM T.readFile jobInputs
+  groupSort const . parseGames . T.concat <$> mapM T.readFile jobInputs
 \end{code}
 
 
@@ -253,12 +274,29 @@ data ParseGames = SimpleParseGames | FunParseGames | PrimParseGames
 \end{code}
 
 
-<h3>simpleParseGames</2>
+<h3>simpleParseGames</h3>
+
+Here we apply the `gameEdit` `SearchReplace` editor to:
+
+  1. recognise the lines that contain the match results data and
+
+  2. transform the lines into Haskell `Game` format which can be
+     parsed by `readText`.
+
+The `edit` function is a simple specialisation of the `regex` `sed'`
+function (defined below) that deletes every line in the file that edits
+every line in the file according to the given `SearchReplace`, deleting
+all other lies.
+
 
 \begin{code}
 simpleParseGames :: T.Text -> [Game]
 simpleParseGames = map readText . T.lines . edit gameEdit
 \end{code}
+
+The `[ed|` ... `///` ... `|]` `SearchReplace` editors for recognizing
+line containing matchresults and converting them to Haskell-format
+`Game` data come in two variants that should be equivalent.
 
 \begin{code}
 gameEdit :: SearchReplace RE T.Text
@@ -270,7 +308,7 @@ data GameEdit = SimpleGameEdit | MacrosGameEdit
 \end{code}
 
 
-<h4>simpleGameEdit</2>
+<h4>simpleGameEdit</h4>
 
 \begin{code}
 simpleGameEdit :: SearchReplace RE T.Text
@@ -279,7 +317,7 @@ simpleGameEdit =
 \end{code}
 
 
-<h4>simpleGameEdit</2>
+<h4>simpleGameEdit</h4>
 
 \begin{code}
 macrosGameEdit :: SearchReplace RE T.Text
@@ -338,7 +376,12 @@ listMacros = do
 \end{code}
 
 
-<h3>funParseGames</2>
+<h3>funParseGames</h3>
+
+Here we use the `regex` `grepFilter` to extract all of the lines that
+match our `rex` RE for detecting match-result data and assemble the
+`Game` data directly by extracting the `ht`, `hs`, `as` and `at`
+fields from the matched result.
 
 \begin{code}
 funParseGames :: T.Text -> [Game]
@@ -352,6 +395,11 @@ funParseGames txt =
         ]
 \end{code}
 
+The RE for merely recognising lines that contain match results in the
+input data come in two variants. We either extract the RE from the above
+`SearchReplace` template or rebuild the `[re|` ... `]`. (They should of
+course be equivalent.)
+
 \begin{code}
 rex :: RE
 rex = case Direct of
@@ -364,7 +412,10 @@ data REX = Direct | Recycle
 \end{code}
 
 
-<h3>primParseGames</2>
+<h3>primParseGames</h3>
+
+This variant of `funParseGames` uses `T.lines` and `?=~` instead of
+`grepFilter`.
 
 \begin{code}
 primParseGames :: T.Text -> [Game]
@@ -471,7 +522,11 @@ column_header col = case col of
 parseCLI
 --------
 
-The command line parser generates a list of jobs for execution.
+The command line parser generates a list of league-table
+generating/testing jobs for execution by the above `job`
+action. Non-league-table-generating CLI commands like
+`macros` for listing our RE table macros just do their
+thing and return an empty list of jobs.
 
 \begin{code}
 parseCLI :: IO [Job]
@@ -680,16 +735,29 @@ Helpers
 
 The general helpers.
 
+<h3>edit</h3>
+
+The `edit` function is a simple specialisation of the `regex`
+`sed'` function (defined below) that deletes every line in the file
+that edits every line in the file according to the given `SearchReplace`
+template, deleting all other lines. (It should probably be added to
+regex.)
+
 \begin{code}
--- | apply a SearchReplace edit to a line of text,
 edit :: SearchReplace RE T.Text -> T.Text -> T.Text
 edit sr txt = runIdentity $ flip sed' txt $
     Select
       [ Template sr
       , LineEdit [re|.*|] $ \_ _ -> return Delete
       ]
+\end{code}
 
--- | Construct a Macros table for compiling REs from a MacroEnv.
+<h3>makeMacros and makeEnv</h3>
+
+Construct a Macros table for compiling REs from a MacroEnv. (Something
+similar  should probably be added to regex.)
+
+\begin{code}
 makeMacros :: MacroEnv -> Macros RE
 makeMacros ev = runIdentity $
     mkMacros mk TDFA.regexType ExclCaptures ev
@@ -698,10 +766,14 @@ makeMacros ev = runIdentity $
                 TDFA.compileRegexWithOptions TDFA.noPreludeREOptions
 
     oops = error "makeMacros: unexpected RE compilation error"
+\end{code}
 
--- | Construct a a MacroEnv from an association list of MacroId and
--- MacroDescriptior constructor functions and the base MacroEnv
--- (the macros that can be used inside the macros).
+Construct a a `MacroEnv` from an association list of `MacroId` and
+`MacroDescriptior` constructor functions and the base `MacroEnv`
+(the macros that can be used inside the macros). (Something
+similar  should probably be added to regex.)
+
+\begin{code}
 makeEnv :: [(MacroID,MacroEnv -> MacroID -> MacroDescriptor)]
         -> MacroEnv
         -> MacroEnv
@@ -709,7 +781,14 @@ makeEnv al ev0 = ev
   where
     ev = ev0 `HML.union` HML.fromList
                   [ (mid, mk ev mid) | (mid,mk) <- al ]
+\end{code}
 
+
+<h3>showText and readText</h3>
+
+Variants of the standard functions that operate over `Text`.
+
+\begin{code}
 showText :: Show a => a -> T.Text
 showText = T.pack . show
 

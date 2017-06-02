@@ -10,6 +10,8 @@ Library
       Text.RE.PCRE.ByteString.Lazy
       Text.RE.PCRE.Sequence
       Text.RE.PCRE.String
+      Text.RE.PCRE.Text
+      Text.RE.PCRE.Text.Lazy
 
     Other-Modules:
       Text.RE.ZeInternals.PCRE
@@ -18,8 +20,12 @@ Library
       Text.RE.ZeInternals.SearchReplace.PCRE.ByteString.Lazy
       Text.RE.ZeInternals.SearchReplace.PCRE.Sequence
       Text.RE.ZeInternals.SearchReplace.PCRE.String
+      Text.RE.ZeInternals.SearchReplace.PCRE.Text
+      Text.RE.ZeInternals.SearchReplace.PCRE.Text.Lazy
       Text.RE.ZeInternals.SearchReplace.PCREEdPrime
+      Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
+      Text.RE.ZeInternals.TDFA
 
-%build-depends-lib base base-compat bytestring containers regex-base regex regex-pcre-builtin regex-tdfa template-haskell transformers unordered-containers
+%build-depends-lib base base-compat bytestring containers regex-base regex regex-pcre-builtin regex-pcre-text regex-tdfa template-haskell text transformers unordered-containers
 
 -- Generated with re-gen-cabals

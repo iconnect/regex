@@ -29,6 +29,8 @@ module TestKit
   , cmp
   , dumpMacroTable
   , sortImports
+  , groupSort
+  , groupSortBy
   , read_file
   , write_file
   ) where
@@ -291,6 +293,37 @@ sortImports lbs =
     (hdr,bdy) = span (not . anyMatches . getLineMatches) lns
     lns       = grepFilter rex lbs
     rex       = [re|^import +(qualified|         ) ${mod}([^ ].*)$|]
+\end{code}
+
+
+
+groupSort and groupSortBy
+-------------------------
+
+\begin{code}
+-- | Sort a list of elements with a stable sort, grouping together the
+-- equal elements with the argument grouping function
+groupSort :: (Ord a) => (a->[a]->b) -> [a] -> [b]
+groupSort = groupSortBy compare
+
+-- | Sort a list of elements with a stable sort, grouping together the
+-- equal elements with the argument grouping function.
+groupSortBy :: (a->a->Ordering)
+            -> (a->[a]->b)
+            -> [a]
+            -> [b]
+groupSortBy comp grp = aggregate . L.sortBy comp
+  where
+    aggregate []    = []
+    aggregate (h:t) = seq g $ g : aggregate rst
+      where
+        g         = grp h eqs
+        (eqs,rst) = span is_le t
+
+        is_le x   = case comp x h of
+          LT -> True
+          EQ -> True
+          GT -> False
 \end{code}
 
 

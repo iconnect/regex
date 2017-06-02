@@ -9,7 +9,7 @@
 {-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
 #endif
 
-module Text.RE.PCRE.ByteString.Lazy
+module Text.RE.PCRE.Text
   (
   -- * Tutorial
   -- $tutorial
@@ -84,7 +84,7 @@ module Text.RE.PCRE.ByteString.Lazy
   , module Text.RE.Tools.IsRegex
   ) where
 
-import qualified Data.ByteString.Lazy          as LBS
+import qualified Data.Text                     as T
 import           Data.Typeable
 import           Prelude.Compat
 import           Text.RE.REOptions
@@ -93,19 +93,19 @@ import           Text.RE.TestBench.Parsers
 import           Text.RE.Tools.IsRegex
 import           Text.RE.ZeInternals
 import           Text.RE.ZeInternals.PCRE
-import           Text.RE.ZeInternals.SearchReplace.PCRE.ByteString.Lazy
+import           Text.RE.ZeInternals.SearchReplace.PCRE.Text
 import           Text.Regex.Base
 import qualified Text.Regex.PCRE               as PCRE
--- NB regex-base instance imports maybe be needed for for some API modules
+import           Text.Regex.PCRE.Text()
 
 -- | find all the matches in the argument text; e.g., to count the number
 -- of naturals in s:
 --
 --   @countMatches $ s *=~ [re|[0-9]+|]@
 --
-(*=~) :: LBS.ByteString
+(*=~) :: T.Text
       -> RE
-      -> Matches LBS.ByteString
+      -> Matches T.Text
 (*=~) bs rex = addCaptureNamesToMatches (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | find the first match in the argument text; e.g., to test if there
@@ -113,9 +113,9 @@ import qualified Text.Regex.PCRE               as PCRE
 --
 --   @matched $ s ?=~ [re|[0-9]+|]@
 --
-(?=~) :: LBS.ByteString
+(?=~) :: T.Text
       -> RE
-      -> Match LBS.ByteString
+      -> Match T.Text
 (?=~) bs rex = addCaptureNamesToMatch (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | search and replace all matches in the argument text; e.g., this section
@@ -124,7 +124,7 @@ import qualified Text.Regex.PCRE               as PCRE
 --
 --   @(*=~\/ [ed|${y}([0-9]{4})-0*${m}([0-9]{2})-0*${d}([0-9]{2})\/\/\/${d}\/${m}\/${y}|])@
 --
-(*=~/) :: LBS.ByteString -> SearchReplace RE LBS.ByteString -> LBS.ByteString
+(*=~/) :: T.Text -> SearchReplace RE T.Text -> T.Text
 (*=~/) = flip searchReplaceAll
 
 -- | search and replace the first occurrence only (if any) in the input text
@@ -133,14 +133,14 @@ import qualified Text.Regex.PCRE               as PCRE
 --
 --  @(?=~\/ [ed|[0-9A-Fa-f]{4}\/\/\/0x$0|])@
 --
-(?=~/) :: LBS.ByteString -> SearchReplace RE LBS.ByteString -> LBS.ByteString
+(?=~/) :: T.Text -> SearchReplace RE T.Text -> T.Text
 (?=~/) = flip searchReplaceFirst
 
 -- | the `regex-base` polymorphic match operator
 (=~) :: ( Typeable a
-        , RegexContext PCRE.Regex LBS.ByteString a
+        , RegexContext PCRE.Regex T.Text a
         )
-     => LBS.ByteString
+     => T.Text
      -> RE
      -> a
 (=~) bs rex = addCaptureNames (reCaptureNames rex) $ match (reRegex rex) bs
@@ -149,14 +149,14 @@ import qualified Text.Regex.PCRE               as PCRE
 (=~~) :: ( Monad m
          , Functor m
          , Typeable a
-         , RegexContext PCRE.Regex LBS.ByteString a
+         , RegexContext PCRE.Regex T.Text a
          )
-      => LBS.ByteString
+      => T.Text
       -> RE
       -> m a
 (=~~) bs rex = addCaptureNames (reCaptureNames rex) <$> matchM (reRegex rex) bs
 
-instance IsRegex RE LBS.ByteString where
+instance IsRegex RE T.Text where
   matchOnce             = flip (?=~)
   matchMany             = flip (*=~)
   makeRegexWith         = \o -> compileRegexWith o . unpackR

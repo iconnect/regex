@@ -1,10 +1,10 @@
-resolver: lts-6.31
+resolver: lts-6.33
 
 packages:
 - '.'
 
 extra-deps:
-  - sort-0.0.0.1
+  - regex-pcre-text-0.94.0.0
 
 flags: {}
 

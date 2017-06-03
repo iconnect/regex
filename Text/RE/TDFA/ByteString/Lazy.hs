@@ -96,7 +96,7 @@ import           Text.RE.ZeInternals.SearchReplace.TDFA.ByteString.Lazy
 import           Text.RE.ZeInternals.TDFA
 import           Text.Regex.Base
 import qualified Text.Regex.TDFA               as TDFA
-
+-- NB regex-base instance imports maybe be needed for for some API modules
 
 -- | find all the matches in the argument text; e.g., to count the number
 -- of naturals in s:

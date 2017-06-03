@@ -73,7 +73,10 @@
 
     Main-Is:            re-top.lhs
 
-%build-depends-prog regex base base-compat blaze-html data-default directory filepath shelly sort text time time-locale-compat transformers unordered-containers
+    Other-Modules:
+      TestKit
+
+%build-depends-prog regex base base-compat blaze-html bytestring data-default directory filepath shelly text time time-locale-compat transformers unordered-containers
 
 %test-exe re-tutorial
     Hs-Source-Dirs:     examples

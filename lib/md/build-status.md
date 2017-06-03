@@ -8,18 +8,19 @@ Travis-CI and AppVeyor pipelines that monitor the head of the repository.
 | ------------ | ------- | ------------- | ------ | ---- | ----------------------- | ------------- | -------------
 | Hackage      |         |               |        |      |                         | &#8209;Wwarn  | [![Hackage](https://img.shields.io/hackage/v/regex.svg)](https://hackage.haskell.org/package/regex)
 | Licence      |         |               |        |      |                         |               | [![BSD3 License](http://img.shields.io/badge/license-BSD3-brightgreen.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
-| Travis CI    | Linux   | release-stack | 8.0.2  | 8.6  |                         | &#8209;Werror | [![Un*x build](https://travis-ci.org/iconnect/regex.svg?branch=master)](https://travis-ci.org/iconnect/regex)
-|              | Linux   | stack         | 7.10.3 | 6.31 |                         | &#8209;Werror |
+| Travis CI    | Linux   | release-stack | 8.0.2  | 8.16 |                         | &#8209;Werror | [![Un*x build](https://travis-ci.org/iconnect/regex.svg?branch=master)](https://travis-ci.org/iconnect/regex)
+|              | Linux   | stack         | 7.10.3 | 6.33 |                         | &#8209;Werror |
 |              | Linux   | stack         | 7.8.4  | 2.22 | regex-tdfa-text-1.0.0.3 | &#8209;Werror |
-|              | Linux   | stack         | 8.0.2  | 8.13 |                         | &#8209;Werror |
+|              | Linux   | stack         | 8.0.2  | 8.16 |                         | &#8209;Werror |
 |              | Linux   | cabal         | 7.10.3 |      |                         | &#8209;Werror |
-|              | Linux   | stack         | 8.0.2  | 2017&#8209;03&#8209;28 |       | &#8209;Werror |
+|              | Linux   | stack         | 8.0.2  | 2017&#8209;06&#8209;02 |       | &#8209;Werror |
 |              | macOS   | stack         | 7.8.4  | 2.22 |                         | &#8209;Werror |
-|              | macOS   | stack         | 8.0.2  | 8.5  |                         | &#8209;Werror |
-| AppVeyor     | Windows | stack         | 8.0.2  | 8.5  |                         | &#8209;Werror |  [![Windows build](https://ci.appveyor.com/api/projects/status/hmgqoawgptk72epq?svg=true)](https://ci.appveyor.com/project/cdornan/regex)
-| coveralls.io | Linux   | stack         | 7.10.3 | 6.30 |                         | &#8209;Werror |  [![Coverage](https://coveralls.io/repos/github/iconnect/regex/badge.svg?branch=master)](https://coveralls.io/github/iconnect/regex?branch=master)
+|              | macOS   | stack         | 8.0.2  | 8.16 |                         | &#8209;Werror |
+| AppVeyor     | Windows | stack         | 8.0.2  | 8.16 |                         | &#8209;Werror |  [![Windows build](https://ci.appveyor.com/api/projects/status/hmgqoawgptk72epq?svg=true)](https://ci.appveyor.com/project/cdornan/regex)
+| coveralls.io | Linux   | stack         | 7.10.3 | 6.33 |                         | &#8209;Werror |  [![Coverage](https://coveralls.io/repos/github/iconnect/regex/badge.svg?branch=master)](https://coveralls.io/github/iconnect/regex?branch=master)
 
-(\*) extra-deps packages needed by the library only
+(\*) extra-deps packages needed by the library only, apart from
+     regex-pcre-text-0.94.0.0
 
 %heading#coveragenote Coverage Exceptions
 

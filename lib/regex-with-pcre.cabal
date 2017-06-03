@@ -1,5 +1,5 @@
 Name:                   regex-with-pcre
-Version:                1.0.0.0
+Version:                1.0.1.0
 Synopsis:               Toolkit for regex-base
 Description:            A regular expression toolkit for regex-base with
                         compile-time checking of RE syntax, data types for
@@ -32,7 +32,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                1.0.0.0
+    Tag:                1.0.1.0
 
 
 
@@ -45,6 +45,8 @@ Library
       Text.RE.PCRE.ByteString.Lazy
       Text.RE.PCRE.Sequence
       Text.RE.PCRE.String
+      Text.RE.PCRE.Text
+      Text.RE.PCRE.Text.Lazy
 
     Other-Modules:
       Text.RE.ZeInternals.PCRE
@@ -53,7 +55,11 @@ Library
       Text.RE.ZeInternals.SearchReplace.PCRE.ByteString.Lazy
       Text.RE.ZeInternals.SearchReplace.PCRE.Sequence
       Text.RE.ZeInternals.SearchReplace.PCRE.String
+      Text.RE.ZeInternals.SearchReplace.PCRE.Text
+      Text.RE.ZeInternals.SearchReplace.PCRE.Text.Lazy
       Text.RE.ZeInternals.SearchReplace.PCREEdPrime
+      Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
+      Text.RE.ZeInternals.TDFA
 
     Default-Language:   Haskell2010
 
@@ -88,17 +94,19 @@ Library
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.0.0
-      , base                 >= 4 && < 5
-      , base-compat          >= 0.6.0
-      , bytestring           >= 0.10.2.0
-      , containers           >= 0.4
-      , regex-base           >= 0.93.2
-      , regex-pcre-builtin   >= 0.94.4.8.8.35
-      , regex-tdfa           >= 1.2.0
-      , template-haskell     >= 2.7
-      , transformers         >= 0.2.2
-      , unordered-containers >= 0.2.5.1
+        regex                == 1.0.1.0
+      , base                 >= 4        && < 5
+      , base-compat          >= 0.6      && < 0.10
+      , bytestring           == 0.10.*
+      , containers           >= 0.4      && < 0.6
+      , regex-base           == 0.93.*
+      , regex-pcre-builtin   == 0.94.*
+      , regex-pcre-text      == 0.94.*
+      , regex-tdfa           == 1.2.*
+      , template-haskell     >= 2.7      && < 2.12
+      , text                 == 1.2.*
+      , transformers         >= 0.2.2    && < 0.6
+      , unordered-containers == 0.2.*
 
 
 -- Generated with re-gen-cabals

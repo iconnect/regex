@@ -7,6 +7,8 @@ Library
       Text.RE.PCRE.ByteString.Lazy
       Text.RE.PCRE.Sequence
       Text.RE.PCRE.String
+      Text.RE.PCRE.Text
+      Text.RE.PCRE.Text.Lazy
       Text.RE.REOptions
       Text.RE.Replace
       Text.RE.Summa
@@ -42,6 +44,8 @@ Library
       Text.RE.ZeInternals.SearchReplace.PCRE.ByteString.Lazy
       Text.RE.ZeInternals.SearchReplace.PCRE.Sequence
       Text.RE.ZeInternals.SearchReplace.PCRE.String
+      Text.RE.ZeInternals.SearchReplace.PCRE.Text
+      Text.RE.ZeInternals.SearchReplace.PCRE.Text.Lazy
       Text.RE.ZeInternals.SearchReplace.PCREEdPrime
       Text.RE.ZeInternals.SearchReplace.TDFA
       Text.RE.ZeInternals.SearchReplace.TDFA.ByteString

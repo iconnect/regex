@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                1.0.0.0
+Version:                1.0.1.0
 Synopsis:               Toolkit for regex-base
 Description:            A regular expression toolkit for regex-base with
                         compile-time checking of RE syntax, data types for
@@ -32,7 +32,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                1.0.0.0
+    Tag:                1.0.1.0
 
 
 
@@ -123,21 +123,21 @@ Library
       -Wwarn
 
     Build-depends:
-        array                >= 0.4
-      , base                 >= 4 && < 5
-      , base-compat          >= 0.6.0
-      , bytestring           >= 0.10.2.0
-      , containers           >= 0.4
-      , hashable             >= 1.2.3.3
-      , regex-base           >= 0.93.2
-      , regex-tdfa           >= 1.2.0
-      , regex-tdfa-text      >= 1.0.0.3
-      , template-haskell     >= 2.7
-      , text                 >= 1.2.0.6
-      , time                 >= 1.4.2
-      , time-locale-compat   >= 0.1.0.1
-      , transformers         >= 0.2.2
-      , unordered-containers >= 0.2.5.1
+        array                >= 0.4      && < 0.6
+      , base                 >= 4        && < 5
+      , base-compat          >= 0.6      && < 0.10
+      , bytestring           == 0.10.*
+      , containers           >= 0.4      && < 0.6
+      , hashable             == 1.2.*
+      , regex-base           == 0.93.*
+      , regex-tdfa           == 1.2.*
+      , regex-tdfa-text      == 1.0.*
+      , template-haskell     >= 2.7      && < 2.12
+      , text                 == 1.2.*
+      , time                 >= 1.4.2    && < 1.9
+      , time-locale-compat   == 0.1.*
+      , transformers         >= 0.2.2    && < 0.6
+      , unordered-containers == 0.2.*
 
 
 -- Generated with re-gen-cabals

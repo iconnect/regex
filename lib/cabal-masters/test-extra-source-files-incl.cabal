@@ -27,6 +27,8 @@ Extra-Source-Files:
     src/Text/RE/PCRE/ByteString/Lazy.hs
     src/Text/RE/PCRE/Sequence.hs
     src/Text/RE/PCRE/String.hs
+    src/Text/RE/PCRE/Text.hs
+    src/Text/RE/PCRE/Text/Lazy.hs
     src/Text/RE/TDFA/ByteString.hs
     src/Text/RE/TDFA/ByteString/Lazy.hs
     src/Text/RE/TDFA/Sequence.hs

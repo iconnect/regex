@@ -96,7 +96,7 @@ import           Text.RE.ZeInternals.PCRE
 import           Text.RE.ZeInternals.SearchReplace.PCRE.ByteString
 import           Text.Regex.Base
 import qualified Text.Regex.PCRE               as PCRE
-
+-- NB regex-base instance imports maybe be needed for for some API modules
 
 -- | find all the matches in the argument text; e.g., to count the number
 -- of naturals in s:

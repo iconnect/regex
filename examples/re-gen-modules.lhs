@@ -17,6 +17,7 @@ The tool is self-testing: run it with no arguments (or `cabal test`).
 module Main (main) where
 
 import qualified Data.ByteString.Lazy.Char8               as LBS
+import           Data.Monoid
 import qualified Data.Text                                as T
 import           Prelude.Compat
 import           System.Directory
@@ -105,10 +106,12 @@ tdfa_api_edits =
 
 pcre_api_edits :: [(ModPath,SedScript)]
 pcre_api_edits =
-  [ pcre_api_edit "PCRE.ByteString"       "B.ByteString"    "import qualified Data.ByteString               as B"
-  , pcre_api_edit "PCRE.ByteString.Lazy"  "LBS.ByteString"  "import qualified Data.ByteString.Lazy          as LBS"
-  , pcre_api_edit "PCRE.Sequence"         "(S.Seq Char)"    "import qualified Data.Sequence                 as S"
-  , pcre_api_edit "PCRE.String"           "String"          ""
+  [ pcre_api_edit "PCRE.ByteString"       "B.ByteString"    "import qualified Data.ByteString               as B"   False
+  , pcre_api_edit "PCRE.ByteString.Lazy"  "LBS.ByteString"  "import qualified Data.ByteString.Lazy          as LBS" False
+  , pcre_api_edit "PCRE.Sequence"         "(S.Seq Char)"    "import qualified Data.Sequence                 as S"   False
+  , pcre_api_edit "PCRE.String"           "String"          ""                                                      False
+  , pcre_api_edit "PCRE.Text"             "T.Text"          "import qualified Data.Text                     as T"   True
+  , pcre_api_edit "PCRE.Text.Lazy"        "TL.Text"         "import qualified Data.Text.Lazy                as TL"  True
   ]
 
 tdfa_api_edit :: ModPath
@@ -127,25 +130,33 @@ tdfa_api_edit mp bs_lbs import_lbs =
 pcre_api_edit :: ModPath
               -> LBS.ByteString
               -> LBS.ByteString
+              -> Bool
               -> (ModPath,SedScript)
-pcre_api_edit mp bs_lbs import_lbs =
-    (,) fmp $ Pipe
+pcre_api_edit mp bs_lbs import_lbs is_orp =
+    (,) fmp $ Pipe $
         [ Template $ SearchReplace tdfa_re     "PCRE"
         , Template $ SearchReplace module_re $ LBS.pack mp
         , Template $ SearchReplace import_re   import_lbs
         , Template $ SearchReplace bs_re       bs_lbs
-        ]
+        ] ++
+        [ Template $ SearchReplace orp_re    $ orphan_import mp
+          | is_orp
+          ]
   where
     fmp = "Text.RE." ++ mp
 
 source_api_mp :: ModPath
 source_api_mp = "Text.RE.TDFA.ByteString.Lazy"
 
-tdfa_re, module_re, import_re, bs_re :: RE
+orphan_import :: ModPath -> LBS.ByteString
+orphan_import mp = "import           Text.Regex." <> LBS.pack mp <> "()"
+
+tdfa_re, module_re, import_re, bs_re, orp_re :: RE
 tdfa_re   = [re|TDFA|]
 module_re = [re|TDFA.ByteString.Lazy|]
 import_re = [re|import qualified Data.ByteString.Lazy.Char8 *as LBS|]
 bs_re     = [re|LBS.ByteString|]
+orp_re    = [re|^-- NB regex-base instance imports.*$|]
 
 
 ------------------------------------------------------------------------
@@ -206,6 +217,16 @@ pcre_ed_edits =
       , Template [ed|import qualified Data.ByteString.Lazy.Char8    as LBS///|]
       , Template [ed|LBS.ByteString///String|]
       , Template [ed|Text.RE.ZeInternals.TDFA///Text.RE.ZeInternals.PCRE|]
+      ]
+  , (,) "Text.RE.ZeInternals.SearchReplace.PCRE.Text" $ pipe
+      [ Template [ed|SearchReplace.TDFA.ByteString.Lazy///SearchReplace.PCRE.Text|]
+      , Template [ed|Data.ByteString.Lazy.Char8    as LBS///Data.Text                     as T|]
+      , Template [ed|LBS.ByteString///T.Text|]
+      ]
+  , (,) "Text.RE.ZeInternals.SearchReplace.PCRE.Text.Lazy" $ pipe
+      [ Template [ed|SearchReplace.TDFA.ByteString.Lazy///SearchReplace.PCRE.Text.Lazy|]
+      , Template [ed|Data.ByteString.Lazy.Char8    as LBS///Data.Text.Lazy                as TL|]
+      , Template [ed|LBS.ByteString///TL.Text|]
       ]
   ]
   where

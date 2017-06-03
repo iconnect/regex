@@ -1,5 +1,11 @@
 -*-change-log-*-
 
+1.0.1.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-06-05
+  * Text.RE.PCRE.Text[.Lazy] (#58)
+  * Update LSTHaskell versions (#136)
+  * Add re-top example (#137)
+  * Regex library to conform with strict PVP (#138)
+
 1.0.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-04-10
   * Rewrite tutorials (#113)
   * Add Text.RE.Tools.IsRegex (#122)

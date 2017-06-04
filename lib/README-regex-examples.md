@@ -38,6 +38,12 @@ two packages:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-06-03  v1.0.1.0  [PCRE.Text, strict PVP, Update Stackage vrns, add re-top](https://github.com/iconnect/regex/milestone/19)
 
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-06-04  v1.0.1.1  [Fix 1.0.1.0 release bug and provisionally fix UTF8/PCRE interworking](https://github.com/iconnect/regex/milestone/20)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-06-05  v1.0.1.2  [Permit utf8-string-1](https://github.com/iconnect/regex/milestone/21)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-06-05  v1.0.1.3  [Suspend Windows tests for PCRE on UTF-8 text](https://github.com/iconnect/regex/milestone/22)
+
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)
 
 

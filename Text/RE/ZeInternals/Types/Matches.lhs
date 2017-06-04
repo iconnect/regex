@@ -71,10 +71,11 @@ mainCaptures ac = [ capture c0 cs | cs<-allMatches ac ]
 instance
     ( RegexContext regex source [MatchText source]
     , RegexLike    regex source
+    , RegexFix     regex source
     ) =>
   RegexContext regex source (Matches source) where
-    match  r s = Matches s $ map (convertMatchText s) $ match r s
+    match  r s = Matches s $ map (convertMatchText r s) $ match r s
     matchM r s = do
       y <- matchM r s
-      return $ Matches s $ map (convertMatchText s) y
+      return $ Matches s $ map (convertMatchText r s) y
 \end{code}

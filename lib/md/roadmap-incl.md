@@ -1,3 +1,6 @@
 - [X] 2017-04-10  v1.0.0.0  [First stable release](https://github.com/iconnect/regex/milestone/3)
 - [X] 2017-06-03  v1.0.1.0  [PCRE.Text, strict PVP, Update Stackage vrns, add re-top](https://github.com/iconnect/regex/milestone/19)
+- [X] 2017-06-04  v1.0.1.1  [Fix 1.0.1.0 release bug and provisionally fix UTF8/PCRE interworking](https://github.com/iconnect/regex/milestone/20)
+- [X] 2017-06-05  v1.0.1.2  [Permit utf8-string-1](https://github.com/iconnect/regex/milestone/21)
+- [X] 2017-06-05  v1.0.1.3  [Suspend Windows tests for PCRE on UTF-8 text](https://github.com/iconnect/regex/milestone/22)
 - [ ] 2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)

@@ -28,6 +28,8 @@ import           Control.Monad
 import           Data.Array
 import qualified Data.ByteString.Char8          as B
 import qualified Data.ByteString.Lazy.Char8     as LBS
+import qualified Data.ByteString.Lazy.UTF8      as LBS
+import qualified Data.ByteString.UTF8           as B
 import           Data.Char
 import qualified Data.Foldable                  as F
 import qualified Data.HashMap.Strict            as HM
@@ -42,6 +44,7 @@ import           Language.Haskell.TH.Quote
 import           Prelude.Compat
 import           System.Directory
 import           System.FilePath
+import qualified System.Info                    as SI
 import           Test.SmallCheck.Series
 import           Test.Tasty
 import           Test.Tasty.HUnit
@@ -70,28 +73,28 @@ import           Text.RE.Tools.Sed
 import           Text.RE.ZeInternals
 import qualified Text.Regex.PCRE                as PCRE_
 import qualified Text.Regex.TDFA                as TDFA_
-
-
 \end{code}
 
 
 \begin{code}
 main :: IO ()
-main = defaultMain $
-  testGroup "Tests"
-    [ prelude_tests
-    , compiling_tests
-    , core_tests
-    , replace_methods_tests
-    , search_replace_tests
-    , options_tests
-    , named_capture_tests
-    , many_tests
-    , escape_tests
-    , add_capture_names_tests
-    , find_tests
-    , misc_tests
-    ]
+main = do
+  print SI.os
+  defaultMain $
+    testGroup "Tests"
+      [ prelude_tests
+      , compiling_tests
+      , core_tests
+      , replace_methods_tests
+      , search_replace_tests
+      , options_tests
+      , named_capture_tests
+      , many_tests
+      , escape_tests
+      , add_capture_names_tests
+      , find_tests
+      , misc_tests
+      ]
 \end{code}
 
 
@@ -362,7 +365,7 @@ replace_methods_tests = testGroup "Replace"
 
 \begin{code}
 search_replace_tests :: TestTree
-search_replace_tests = testGroup "SearchReplace"
+search_replace_tests = testGroup "SearchReplace" $
     [ testCase "?=~/ [ed_| ... |]" $ "baz bar foobar" @=? "foo bar foobar" T_ST.?=~/ [ed_|foo///baz|] ()
     , testCase "*=~/ [ed_| ... |]" $ "baz bar bazbar" @=? "foo bar foobar" T_ST.*=~/ [ed_|foo///baz|] MultilineSensitive
     , testCase "TDFA.ed/String" $ test  id         tdfa_eds
@@ -377,20 +380,40 @@ search_replace_tests = testGroup "SearchReplace"
     , testCase "TDFA.ed/LT"     $ test  LT.pack    tdfa_eds
     , testCase "TDFA.ed/T(d)"   $ test  T.pack     tdfa_eds'
     , testCase "PCRE.ed/LBS(d)" $ test  LBS.pack   pcre_eds'
-    , testg "TDFA.op/String" (T_ST.?=~/) (T_ST.*=~/) tdfa_sr
-    , testg "PCRE.op/String" (P_ST.?=~/) (P_ST.*=~/) pcre_sr
-    , testg "TDFA.op/B"      (T_BS.?=~/) (T_BS.*=~/) tdfa_sr
-    , testg "PCRE.op/B"      (P_BS.?=~/) (P_BS.*=~/) pcre_sr
-    , testg "TDFA.op/LBS"    (TLBS.?=~/) (TLBS.*=~/) tdfa_sr
-    , testg "PCRE.op/LBS"    (PLBS.?=~/) (PLBS.*=~/) pcre_sr
-    , testg "TDFA.op/T"      (T_TX.?=~/) (T_TX.*=~/) tdfa_sr
-    , testg "PCRE.op/T"      (P_TX.?=~/) (P_TX.*=~/) pcre_sr
-    , testg "TDFA.op/LT"     (TLTX.?=~/) (TLTX.*=~/) tdfa_sr
-    , testg "PCRE.op/LT"     (PLTX.?=~/) (PLTX.*=~/) pcre_sr
-    , testG "TDFA.op/S"      (T_SQ.?=~/) (T_SQ.*=~/) tdfa_sr
-    , testG "PCRE.op/S"      (P_SQ.?=~/) (P_SQ.*=~/) pcre_sr
+    , testg "TDFA.op"        (T_ST.?=~/) (T_ST.*=~/) tdfa_sr
+    , testg "PCRE.op"        (P_ST.?=~/) (P_ST.*=~/) pcre_sr
+    , testg "TDFA.op/String" (T_ST.?=~/) (T_ST.*=~/) tdfa_sr_str
+    , testg "PCRE.op/String" (P_ST.?=~/) (P_ST.*=~/) pcre_sr_str
+    , testg "TDFA.op/B"      (T_BS.?=~/) (T_BS.*=~/) tdfa_sr_b
+    , testg "PCRE.op/B"      (P_BS.?=~/) (P_BS.*=~/) pcre_sr_b
+    , testg "TDFA.op/LBS"    (TLBS.?=~/) (TLBS.*=~/) tdfa_sr_lbs
+    , testg "PCRE.op/LBS"    (PLBS.?=~/) (PLBS.*=~/) pcre_sr_lbs
+    , testg "TDFA.op/T"      (T_TX.?=~/) (T_TX.*=~/) tdfa_sr_t
+    , testg "PCRE.op/T"      (P_TX.?=~/) (P_TX.*=~/) pcre_sr_t
+    , testg "TDFA.op/LT"     (TLTX.?=~/) (TLTX.*=~/) tdfa_sr_lt
+    , testg "PCRE.op/LT"     (PLTX.?=~/) (PLTX.*=~/) pcre_sr_lt
+    , testG "TDFA.op/S"      (T_SQ.?=~/) (T_SQ.*=~/) tdfa_sr_s
+    , testG "PCRE.op/S"      (P_SQ.?=~/) (P_SQ.*=~/) pcre_sr_s
+    , testu "TDFA.U/String" id              (T_ST.*=~/) [T_ST.ed|scientist///boffin|] (T_ST.*=~) [T_ST.re|λ-|]
+    , testu "TDFA.U/B"      B.fromString    (T_BS.*=~/) [T_BS.ed|scientist///boffin|] (T_BS.*=~) [T_BS.re|burble|]
+    , testu "TDFA.U/LBS"    LBS.fromString  (TLBS.*=~/) [TLBS.ed|scientist///boffin|] (TLBS.*=~) [TLBS.re|burble|]
+    , testu "TDFA.U/T"      T.pack          (T_TX.*=~/) [T_TX.ed|scientist///boffin|] (T_TX.*=~) [T_TX.re|λ-|]
+    , testu "TDFA.U/LT"     LT.pack         (TLTX.*=~/) [TLTX.ed|scientist///boffin|] (TLTX.*=~) [TLTX.re|λ-|]
+    , testu "TDFA.U/S"      S.fromList      (T_SQ.*=~/) [T_SQ.ed|scientist///boffin|] (T_SQ.*=~) [T_SQ.re|λ-|]
+    ] ++ not_win32_for_now
+    [ testu "PCRE.U/String" id              (P_ST.*=~/) [P_ST.ed|scientist///boffin|] (P_ST.*=~) [P_ST.re|λ-|]
+    , testu "PCRE.U/B"      B.fromString    (P_BS.*=~/) [P_BS.ed|scientist///boffin|] (P_BS.*=~) [P_BS.re|λ-|]
+    , testu "PCRE.U/LBS"    LBS.fromString  (PLBS.*=~/) [PLBS.ed|scientist///boffin|] (PLBS.*=~) [PLBS.re|λ-|]
+    , testu "PCRE.U/T"      T.pack          (P_TX.*=~/) [P_TX.ed|scientist///boffin|] (P_TX.*=~) [P_TX.re|λ-|]
+    , testu "PCRE.U/LT"     LT.pack         (PLTX.*=~/) [PLTX.ed|scientist///boffin|] (PLTX.*=~) [PLTX.re|λ-|]
+    , testu "PCRE.U/S"      S.fromList      (P_SQ.*=~/) [P_SQ.ed|scientist///boffin|] (P_SQ.*=~) [P_SQ.re|burble|]
     ]
   where
+    not_win32_for_now :: [a] -> [a]
+    not_win32_for_now = case SI.os == "mingw32" of
+      True  -> const []
+      False -> id
+
     test :: IsRegex re a => (String->a) -> Edits Identity re a -> Assertion
     test inj eds =  inj rsm @=? runIdentity (sed' eds $ inj inp)
 
@@ -404,39 +427,84 @@ search_replace_tests = testGroup "SearchReplace"
       , testCase "*=~/" $ S.fromList rsm @=? S.fromList inp `opm` sr
       ]
 
+    testu lab inj op sr qop rex = testGroup lab
+      [ testCase "*=~/" $ inj unr @=? inj uni `op` sr
+      , testCase "*=~"  $ 1       @=? countMatches (inj uni `qop` rex)
+      ]
+
     inp, rs1, rsm :: IsString a => a
     inp = "16/03/2017 01/01/2000\n"
     rs1 = "2017-03-16 01/01/2000\n"
     rsm = "2017-03-16 2000-01-01\n"
 
-    tdfa_eds :: IsRegex TDFA.RE a => Edits Identity TDFA.RE a
-    tdfa_eds = Select [Template tdfa_sr]
+    uni, unr :: String
+    uni = "\x2070E-\8364-\955-scientist-burble"
+    unr = "\x2070E-\8364-\955-boffin-burble"
 
-    pcre_eds :: IsRegex PCRE.RE a => Edits Identity PCRE.RE a
-    pcre_eds = Select [Template pcre_sr]
+    tdfa_eds    :: IsRegex TDFA.RE a => Edits Identity TDFA.RE a
+    tdfa_eds    = Select [Template tdfa_sr]
 
-    tdfa_sr  :: IsRegex TDFA.RE a => SearchReplace TDFA.RE a
-    tdfa_sr  = [TDFA.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+    pcre_eds    :: IsRegex PCRE.RE a => Edits Identity PCRE.RE a
+    pcre_eds    = Select [Template pcre_sr]
 
-    pcre_sr  :: IsRegex PCRE.RE a => SearchReplace PCRE.RE a
-    pcre_sr  = [PCRE.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+    tdfa_sr     :: IsRegex TDFA.RE a => SearchReplace TDFA.RE a
+    tdfa_sr     = [TDFA.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
 
-    tdfa_eds' :: IsRegex TDFA.RE a => Edits Identity TDFA.RE a
-    tdfa_eds' = Select [Template $ tdfa_csr "${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})" "${y}-${m}-${d}"]
+    pcre_sr     :: IsRegex PCRE.RE a => SearchReplace PCRE.RE a
+    pcre_sr     = [PCRE.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
 
-    pcre_eds' :: IsRegex PCRE.RE a => Edits Identity PCRE.RE a
-    pcre_eds' = Select [Template $ pcre_csr "${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})" "${y}-${m}-${d}"]
+    tdfa_sr_str :: SearchReplace TDFA.RE String
+    tdfa_sr_str = [T_ST.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
 
-    tdfa_csr :: IsRegex TDFA.RE s
-             => String
-             -> String
-             -> SearchReplace TDFA.RE s
+    pcre_sr_str :: SearchReplace PCRE.RE String
+    pcre_sr_str = [P_ST.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    tdfa_sr_b   :: SearchReplace TDFA.RE B.ByteString
+    tdfa_sr_b   = [T_BS.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    pcre_sr_b   :: SearchReplace PCRE.RE B.ByteString
+    pcre_sr_b   = [P_BS.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    tdfa_sr_lbs :: SearchReplace TDFA.RE LBS.ByteString
+    tdfa_sr_lbs = [TLBS.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    pcre_sr_lbs :: SearchReplace PCRE.RE LBS.ByteString
+    pcre_sr_lbs = [PLBS.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    tdfa_sr_t   :: SearchReplace TDFA.RE T.Text
+    tdfa_sr_t   = [T_TX.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    pcre_sr_t   :: SearchReplace PCRE.RE T.Text
+    pcre_sr_t   = [P_TX.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    tdfa_sr_lt  :: SearchReplace TDFA.RE LT.Text
+    tdfa_sr_lt  = [TLTX.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    pcre_sr_lt  :: SearchReplace PCRE.RE LT.Text
+    pcre_sr_lt  = [PLTX.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    tdfa_sr_s   :: SearchReplace TDFA.RE (S.Seq Char)
+    tdfa_sr_s   = [T_SQ.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    pcre_sr_s   :: SearchReplace PCRE.RE (S.Seq Char)
+    pcre_sr_s   = [P_SQ.ed|${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})///${y}-${m}-${d}|]
+
+    tdfa_eds'   :: IsRegex TDFA.RE a => Edits Identity TDFA.RE a
+    tdfa_eds'   = Select [Template $ tdfa_csr "${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})" "${y}-${m}-${d}"]
+
+    pcre_eds'   :: IsRegex PCRE.RE a => Edits Identity PCRE.RE a
+    pcre_eds'   = Select [Template $ pcre_csr "${d}([0-9]{2})/${m}([0-9]{2})/${y}([0-9]{4})" "${y}-${m}-${d}"]
+
+    tdfa_csr    :: IsRegex TDFA.RE s
+                => String
+                -> String
+                -> SearchReplace TDFA.RE s
     tdfa_csr re_s = either error id . TDFA.compileSearchReplace re_s
 
-    pcre_csr :: IsRegex PCRE.RE s
-             => String
-             -> String
-             -> SearchReplace PCRE.RE s
+    pcre_csr    :: IsRegex PCRE.RE s
+                => String
+                -> String
+                -> SearchReplace PCRE.RE s
     pcre_csr re_s = either error id . PCRE.compileSearchReplace re_s
 \end{code}
 

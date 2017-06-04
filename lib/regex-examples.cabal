@@ -1,5 +1,5 @@
 Name:                   regex-examples
-Version:                1.0.1.0
+Version:                1.0.1.3
 Synopsis:               Tutorial, tests and example programs for regex
 Description:            Tutorial, tests and example programs for regex,
                         a Regular Expression Toolkit for regex-base with
@@ -68,7 +68,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                1.0.1.0
+    Tag:                1.0.1.3
 
 
 Executable re-gen-cabals
@@ -87,7 +87,7 @@ Executable re-gen-cabals
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -117,7 +117,7 @@ Test-Suite re-gen-cabals-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -147,7 +147,7 @@ Executable re-gen-modules
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -176,7 +176,7 @@ Test-Suite re-gen-modules-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -205,7 +205,7 @@ Executable re-include
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
       , bytestring           == 0.10.*
@@ -231,7 +231,7 @@ Test-Suite re-include-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
       , bytestring           == 0.10.*
@@ -257,8 +257,8 @@ Executable re-nginx-log-processor
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
-      , regex-with-pcre      == 1.0.1.0
+        regex                == 1.0.1.3
+      , regex-with-pcre      == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -292,8 +292,8 @@ Test-Suite re-nginx-log-processor-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
-      , regex-with-pcre      == 1.0.1.0
+        regex                == 1.0.1.3
+      , regex-with-pcre      == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -327,7 +327,7 @@ Executable re-prep
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
       , bytestring           == 0.10.*
@@ -356,7 +356,7 @@ Test-Suite re-prep-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
       , bytestring           == 0.10.*
@@ -385,7 +385,7 @@ Executable re-sort-imports
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
       , bytestring           == 0.10.*
@@ -412,7 +412,7 @@ Test-Suite re-sort-imports-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
       , bytestring           == 0.10.*
@@ -439,8 +439,8 @@ Executable re-tests
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
-      , regex-with-pcre      == 1.0.1.0
+        regex                == 1.0.1.3
+      , regex-with-pcre      == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -461,6 +461,7 @@ Executable re-tests
       , template-haskell     >= 2.7      && < 2.12
       , text                 == 1.2.*
       , unordered-containers == 0.2.*
+      , utf8-string          >= 1        && < 1.1
 
 
 Test-Suite re-tests-test
@@ -480,8 +481,8 @@ Test-Suite re-tests-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
-      , regex-with-pcre      == 1.0.1.0
+        regex                == 1.0.1.3
+      , regex-with-pcre      == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -502,6 +503,7 @@ Test-Suite re-tests-test
       , template-haskell     >= 2.7      && < 2.12
       , text                 == 1.2.*
       , unordered-containers == 0.2.*
+      , utf8-string          >= 1        && < 1.1
 
 
 
@@ -521,7 +523,7 @@ Executable re-top
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
       , blaze-html           >= 0.8.1.0
@@ -554,7 +556,7 @@ Test-Suite re-top-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
       , blaze-html           >= 0.8.1.0
@@ -588,7 +590,7 @@ Executable re-tutorial
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -632,7 +634,7 @@ Test-Suite re-tutorial-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -678,7 +680,7 @@ Test-Suite re-tutorial-os-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -722,8 +724,8 @@ Executable re-tutorial-options
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
-      , regex-with-pcre      == 1.0.1.0
+        regex                == 1.0.1.3
+      , regex-with-pcre      == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -767,8 +769,8 @@ Test-Suite re-tutorial-options-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
-      , regex-with-pcre      == 1.0.1.0
+        regex                == 1.0.1.3
+      , regex-with-pcre      == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -812,7 +814,7 @@ Executable re-tutorial-replacing
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -856,7 +858,7 @@ Test-Suite re-tutorial-replacing-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -900,7 +902,7 @@ Executable re-tutorial-testbench
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -944,7 +946,7 @@ Test-Suite re-tutorial-testbench-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -988,7 +990,7 @@ Executable re-tutorial-tools
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10
@@ -1033,7 +1035,7 @@ Test-Suite re-tutorial-tools-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.0
+        regex                == 1.0.1.3
       , array                >= 0.4      && < 0.6
       , base                 >= 4        && < 5
       , base-compat          >= 0.6      && < 0.10

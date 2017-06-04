@@ -36,6 +36,6 @@ The following modules have been exempted from the code coverage statistics.
 The regex Hackage Matrix Builder summarizes the buildability of each version of
 each Hackage package:
 
-  * [`regex`](http://104.239.175.197:8080/package/regex)
-  * [`regex-with-pcre`](http://104.239.175.197:8080/package/regex-with-pcre)
-  * [`regex-examples`](http://104.239.175.197:8080/package/regex-examples)
+  * [`regex`](https://matrix.hackage.haskell.org/package/regex)
+  * [`regex-with-pcre`](https://matrix.hackage.haskell.org/package/regex-with-pcre)
+  * [`regex-examples`](https://matrix.hackage.haskell.org/package/regex-examples)

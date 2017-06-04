@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                1.0.1.1
+Version:                1.0.1.2
 Synopsis:               Toolkit for regex-base
 Description:            A regular expression toolkit for regex-base with
                         compile-time checking of RE syntax, data types for
@@ -32,7 +32,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                1.0.1.1
+    Tag:                1.0.1.2
 
 
 
@@ -139,7 +139,7 @@ Library
       , time-locale-compat   == 0.1.*
       , transformers         >= 0.2.2    && < 0.6
       , unordered-containers == 0.2.*
-      , utf8-string          == 1.0.*
+      , utf8-string          >= 1        && < 1.1
 
 
 -- Generated with re-gen-cabals

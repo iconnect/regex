@@ -23,17 +23,30 @@ module Text.RE.ZeInternals.Types.Match
   , capture
   , (!$?)
   , captureMaybe
+  , RegexFix(..)
   , convertMatchText
   ) where
 \end{code}
 
 \begin{code}
 import           Data.Array
+import           Data.Bits
+import qualified Data.ByteString                as BW
+import qualified Data.ByteString.Char8          as B
+import qualified Data.ByteString.Lazy.Char8     as LBS
+import qualified Data.ByteString.UTF8           as B
 import           Data.Maybe
+import qualified Data.Sequence                  as S
+import qualified Data.Text                      as T
+import qualified Data.Text.Encoding             as T
+import qualified Data.Text.Lazy                 as LT
 import           Data.Typeable
+import           Data.Word
 import           Text.RE.ZeInternals.Types.Capture
 import           Text.RE.ZeInternals.Types.CaptureID
 import           Text.Regex.Base
+import qualified Text.Regex.PCRE                as PCRE
+import qualified Text.Regex.TDFA                as TDFA
 
 infixl 9 !$, !$$
 \end{code}
@@ -160,18 +173,23 @@ lookupCaptureID cid Match{..} =
 instance
     ( RegexContext regex source (AllTextSubmatches (Array Int) (source,(Int,Int)))
     , RegexLike    regex source
+    , RegexFix     regex source
     ) =>
   RegexContext regex source (Match source) where
-    match  r s = convertMatchText s $ getAllTextSubmatches $ match r s
+    match  r s = convertMatchText r s $ getAllTextSubmatches $ match r s
     matchM r s = do
       y <- matchM r s
-      return $ convertMatchText s $ getAllTextSubmatches y
+      return $ convertMatchText r s $ getAllTextSubmatches y
 \end{code}
 
 \begin{code}
 -- | convert a regex-base native MatchText into a regex Match type
-convertMatchText :: source -> MatchText source -> Match source
-convertMatchText hay arr =
+convertMatchText :: RegexFix regex source
+                 => regex
+                 -> source
+                 -> MatchText source
+                 -> Match source
+convertMatchText re hay arr =
     Match
       { matchSource  = hay
       , captureNames = noCaptureNames
@@ -182,11 +200,78 @@ convertMatchText hay arr =
   where
     (lo,hi) = bounds arr
 
-    f (ndl,(off,len)) =
+    f (ndl,(off_,len_)) =
       Capture
         { captureSource = hay
         , capturedText  = ndl
         , captureOffset = off
         , captureLength = len
         }
+      where
+        CharRange off len = utf8_correct re hay off_ len_
+\end{code}
+
+\begin{code}
+data CharRange = CharRange !Int !Int
+  deriving (Show)
+
+class RegexFix regex source where
+  utf8_correct :: regex -> source -> Int -> Int -> CharRange
+  utf8_correct _ _ = CharRange
+
+instance RegexFix TDFA.Regex [Char]         where
+instance RegexFix TDFA.Regex B.ByteString   where
+instance RegexFix TDFA.Regex LBS.ByteString where
+instance RegexFix TDFA.Regex T.Text         where
+instance RegexFix TDFA.Regex LT.Text        where
+instance RegexFix TDFA.Regex (S.Seq Char)   where
+
+instance RegexFix PCRE.Regex [Char]         where
+  utf8_correct _ = utf8_correct_bs . B.fromString
+instance RegexFix PCRE.Regex B.ByteString   where
+instance RegexFix PCRE.Regex LBS.ByteString where
+instance RegexFix PCRE.Regex T.Text         where
+  utf8_correct _ = utf8_correct_bs . T.encodeUtf8
+instance RegexFix PCRE.Regex LT.Text        where
+  utf8_correct _ = utf8_correct_bs . T.encodeUtf8 . LT.toStrict
+instance RegexFix PCRE.Regex (S.Seq Char)   where
+
+-- convert a byte offset+length in a UTF-8-encoded ByteString
+-- into a character offset+length
+utf8_correct_bs :: B.ByteString -> Int -> Int -> CharRange
+utf8_correct_bs bs ix0 ln0 = case ix0+ln0 > BW.length bs of
+    True  -> error "utf8_correct_bs: index+length out of range"
+    False -> skip 0 0     -- BW.index calls below should not fail
+  where
+    skip ix di = case compare ix ix0 of
+      GT -> error "utf8_correct_bs: UTF-8 decoding error"
+      EQ -> count ix di 0 ln0
+      LT -> case u8_width $ BW.index bs ix of
+        Single    -> skip (ix+1)   di
+        Double    -> skip (ix+2) $ di+1
+        Triple    -> skip (ix+3) $ di+2
+        Quadruple -> skip (ix+4) $ di+3
+
+    count ix di dl c = case compare c 0 of
+      LT -> error "utf8_correct_bs: length ends inside character"
+      EQ -> CharRange (ix0-di) (ln0-dl)
+      GT -> case u8_width $ BW.index bs ix of
+        Single    -> count (ix+1) di  dl    $ c-1
+        Double    -> count (ix+2) di (dl+1) $ c-2
+        Triple    -> count (ix+3) di (dl+2) $ c-3
+        Quadruple -> count (ix+4) di (dl+3) $ c-4
+
+data UTF8Size = Single | Double | Triple | Quadruple
+  deriving (Show)
+
+u8_width :: Word8 -> UTF8Size
+u8_width w8 = case   w8 .&. 0x80 == 0x00 of
+  True  ->       Single
+  False -> case      w8 .&. 0xE0 == 0xC0 of
+    True  ->     Double
+    False -> case    w8 .&. 0xF0 == 0xE0 of
+      True  ->   Triple
+      False -> case  w8 .&. 0xF8 == 0xF0 of
+        True  -> Quadruple
+        False -> error "u8_width: UTF-8 decoding error"
 \end{code}

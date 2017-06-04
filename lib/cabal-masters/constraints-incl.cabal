@@ -29,3 +29,4 @@
 %-    time-locale-compat      == 0.1.*
 %-    transformers            >= 0.2.2    && < 0.6
 %-    unordered-containers    == 0.2.*
+%-    utf8-string             == 1.0.*

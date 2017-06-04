@@ -24,8 +24,8 @@ import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
 import           Text.RE.REOptions
 import           Text.RE.Tools.IsRegex
-import           Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
-import           Text.RE.ZeInternals.TDFA
+import           Text.RE.ZeInternals.PCRE
+import           Text.RE.ZeInternals.SearchReplace.PCREEdPrime
 
 -- | @[ed| ... \/\/\/ ... |]@, is equivalent to @[edMultilineSensitive| ... \/\/\/ ... |]@,
 -- compiling a case-sensitive, multi-line 'SearchReplace'

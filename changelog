@@ -1,6 +1,10 @@
 -*-change-log-*-
 
-1.0.1.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-06-05
+1.0.1.1 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-06-04
+  * regex-pcre not working properly with UTF-8 text (#141)
+  * ZeInternals/SearchReplace (#140)
+
+1.0.1.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-06-03
   * Text.RE.PCRE.Text[.Lazy] (#58)
   * Update LSTHaskell versions (#136)
   * Add re-top example (#137)

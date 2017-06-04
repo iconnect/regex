@@ -44,6 +44,7 @@ import           Language.Haskell.TH.Quote
 import           Prelude.Compat
 import           System.Directory
 import           System.FilePath
+import qualified System.Info                    as SI
 import           Test.SmallCheck.Series
 import           Test.Tasty
 import           Test.Tasty.HUnit
@@ -72,28 +73,28 @@ import           Text.RE.Tools.Sed
 import           Text.RE.ZeInternals
 import qualified Text.Regex.PCRE                as PCRE_
 import qualified Text.Regex.TDFA                as TDFA_
-
-
 \end{code}
 
 
 \begin{code}
 main :: IO ()
-main = defaultMain $
-  testGroup "Tests"
-    [ prelude_tests
-    , compiling_tests
-    , core_tests
-    , replace_methods_tests
-    , search_replace_tests
-    , options_tests
-    , named_capture_tests
-    , many_tests
-    , escape_tests
-    , add_capture_names_tests
-    , find_tests
-    , misc_tests
-    ]
+main = do
+  print SI.os
+  defaultMain $
+    testGroup "Tests"
+      [ prelude_tests
+      , compiling_tests
+      , core_tests
+      , replace_methods_tests
+      , search_replace_tests
+      , options_tests
+      , named_capture_tests
+      , many_tests
+      , escape_tests
+      , add_capture_names_tests
+      , find_tests
+      , misc_tests
+      ]
 \end{code}
 
 
@@ -364,7 +365,7 @@ replace_methods_tests = testGroup "Replace"
 
 \begin{code}
 search_replace_tests :: TestTree
-search_replace_tests = testGroup "SearchReplace"
+search_replace_tests = testGroup "SearchReplace" $
     [ testCase "?=~/ [ed_| ... |]" $ "baz bar foobar" @=? "foo bar foobar" T_ST.?=~/ [ed_|foo///baz|] ()
     , testCase "*=~/ [ed_| ... |]" $ "baz bar bazbar" @=? "foo bar foobar" T_ST.*=~/ [ed_|foo///baz|] MultilineSensitive
     , testCase "TDFA.ed/String" $ test  id         tdfa_eds
@@ -393,21 +394,26 @@ search_replace_tests = testGroup "SearchReplace"
     , testg "PCRE.op/LT"     (PLTX.?=~/) (PLTX.*=~/) pcre_sr_lt
     , testG "TDFA.op/S"      (T_SQ.?=~/) (T_SQ.*=~/) tdfa_sr_s
     , testG "PCRE.op/S"      (P_SQ.?=~/) (P_SQ.*=~/) pcre_sr_s
-    , testu "PCRE.U/String" id              (P_ST.*=~/) [P_ST.ed|scientist///boffin|] (P_ST.*=~) [P_ST.re|λ-|]
-    , testu "PCRE.U/B"      B.fromString    (P_BS.*=~/) [P_BS.ed|scientist///boffin|] (P_BS.*=~) [P_BS.re|λ-|]
-    , testu "PCRE.U/LBS"    LBS.fromString  (PLBS.*=~/) [PLBS.ed|scientist///boffin|] (PLBS.*=~) [PLBS.re|λ-|]
-    , testu "PCRE.U/T"      T.pack          (P_TX.*=~/) [P_TX.ed|scientist///boffin|] (P_TX.*=~) [P_TX.re|λ-|]
-    , testu "PCRE.U/LT"     LT.pack         (PLTX.*=~/) [PLTX.ed|scientist///boffin|] (PLTX.*=~) [PLTX.re|λ-|]
-    , testu "PCRE.U/S"      S.fromList      (P_SQ.*=~/) [P_SQ.ed|scientist///boffin|] (P_SQ.*=~) [P_SQ.re|burble|]
     , testu "TDFA.U/String" id              (T_ST.*=~/) [T_ST.ed|scientist///boffin|] (T_ST.*=~) [T_ST.re|λ-|]
     , testu "TDFA.U/B"      B.fromString    (T_BS.*=~/) [T_BS.ed|scientist///boffin|] (T_BS.*=~) [T_BS.re|burble|]
     , testu "TDFA.U/LBS"    LBS.fromString  (TLBS.*=~/) [TLBS.ed|scientist///boffin|] (TLBS.*=~) [TLBS.re|burble|]
     , testu "TDFA.U/T"      T.pack          (T_TX.*=~/) [T_TX.ed|scientist///boffin|] (T_TX.*=~) [T_TX.re|λ-|]
     , testu "TDFA.U/LT"     LT.pack         (TLTX.*=~/) [TLTX.ed|scientist///boffin|] (TLTX.*=~) [TLTX.re|λ-|]
     , testu "TDFA.U/S"      S.fromList      (T_SQ.*=~/) [T_SQ.ed|scientist///boffin|] (T_SQ.*=~) [T_SQ.re|λ-|]
-
+    ] ++ not_win32_for_now
+    [ testu "PCRE.U/String" id              (P_ST.*=~/) [P_ST.ed|scientist///boffin|] (P_ST.*=~) [P_ST.re|λ-|]
+    , testu "PCRE.U/B"      B.fromString    (P_BS.*=~/) [P_BS.ed|scientist///boffin|] (P_BS.*=~) [P_BS.re|λ-|]
+    , testu "PCRE.U/LBS"    LBS.fromString  (PLBS.*=~/) [PLBS.ed|scientist///boffin|] (PLBS.*=~) [PLBS.re|λ-|]
+    , testu "PCRE.U/T"      T.pack          (P_TX.*=~/) [P_TX.ed|scientist///boffin|] (P_TX.*=~) [P_TX.re|λ-|]
+    , testu "PCRE.U/LT"     LT.pack         (PLTX.*=~/) [PLTX.ed|scientist///boffin|] (PLTX.*=~) [PLTX.re|λ-|]
+    , testu "PCRE.U/S"      S.fromList      (P_SQ.*=~/) [P_SQ.ed|scientist///boffin|] (P_SQ.*=~) [P_SQ.re|burble|]
     ]
   where
+    not_win32_for_now :: [a] -> [a]
+    not_win32_for_now = case SI.os == "mingw32" of
+      True  -> const []
+      False -> id
+
     test :: IsRegex re a => (String->a) -> Edits Identity re a -> Assertion
     test inj eds =  inj rsm @=? runIdentity (sed' eds $ inj inp)
 

@@ -1,5 +1,8 @@
 -*-change-log-*-
 
+1.0.1.3 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-06-05
+  * Suspending UTF-8 tests for Windows/PCRE (#144)
+
 1.0.1.2 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-06-05
   * Permit utf8-string-1 (#142)
 

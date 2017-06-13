@@ -5,7 +5,7 @@ The regex Replacing Tutorial
 Language Options and  Imports
 -----------------------------
 
-This tutorial is a literate Haskell program whwre we start by specifying
+This tutorial is a literate Haskell program where we start by specifying
 the language pragmas and imports we will need for this module.
 
 \begin{code}
@@ -83,7 +83,7 @@ Matches/Match/Capture
 ---------------------
 
 The types returned by the `?=~` and `*=~` form the foundations of the
-package. Understandingv these simple types is the key to understanding
+package. Understanding these simple types is the key to understanding
 the package.
 
 The type of `*=~` in this module (imported from

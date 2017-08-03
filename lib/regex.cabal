@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                1.0.1.3
+Version:                1.0.1.4
 Synopsis:               Toolkit for regex-base
 Description:            A regular expression toolkit for regex-base with
                         compile-time checking of RE syntax, data types for
@@ -133,7 +133,7 @@ Library
       , regex-pcre-builtin   == 0.94.*
       , regex-tdfa           == 1.2.*
       , regex-tdfa-text      == 1.0.*
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*

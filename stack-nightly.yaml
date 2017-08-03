@@ -1,8 +1,8 @@
-resolver: nightly-2017-06-02
+resolver: nightly-2017-07-31
 install-ghc: true
 flags: {}
 packages:
 - '.'
 system-ghc: false
 extra-deps:
-  - regex-pcre-text-0.94.0.0
+- shelly-1.6.8.4

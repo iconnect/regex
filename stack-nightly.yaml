@@ -1,4 +1,5 @@
 resolver: nightly-2017-07-31
+
 install-ghc: true
 flags: {}
 packages:

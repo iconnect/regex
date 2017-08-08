@@ -103,7 +103,7 @@ Library
       , regex-pcre-builtin   == 0.94.*
       , regex-pcre-text      == 0.94.*
       , regex-tdfa           == 1.2.*
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , transformers         >= 0.2.2    && < 0.6
       , unordered-containers == 0.2.*

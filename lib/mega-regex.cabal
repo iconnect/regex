@@ -186,7 +186,7 @@ Library
       , regex-pcre-text      == 0.94.*
       , regex-tdfa           == 1.2.*
       , regex-tdfa-text      == 1.0.*
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*
@@ -579,7 +579,7 @@ Executable re-tests
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , unordered-containers == 0.2.*
       , utf8-string          >= 1        && < 1.1
@@ -620,7 +620,7 @@ Test-Suite re-tests-test
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , unordered-containers == 0.2.*
       , utf8-string          >= 1        && < 1.1
@@ -728,7 +728,7 @@ Executable re-tutorial
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*
@@ -772,7 +772,7 @@ Test-Suite re-tutorial-test
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*
@@ -818,7 +818,7 @@ Test-Suite re-tutorial-os-test
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*
@@ -862,7 +862,7 @@ Executable re-tutorial-options
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*
@@ -906,7 +906,7 @@ Test-Suite re-tutorial-options-test
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*
@@ -950,7 +950,7 @@ Executable re-tutorial-replacing
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*
@@ -994,7 +994,7 @@ Test-Suite re-tutorial-replacing-test
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*
@@ -1038,7 +1038,7 @@ Executable re-tutorial-testbench
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*
@@ -1082,7 +1082,7 @@ Test-Suite re-tutorial-testbench-test
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*
@@ -1126,7 +1126,7 @@ Executable re-tutorial-tools
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*
@@ -1171,7 +1171,7 @@ Test-Suite re-tutorial-tools-test
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
-      , template-haskell     >= 2.7      && < 2.12
+      , template-haskell     >= 2.7      && < 2.13
       , text                 == 1.2.*
       , time                 >= 1.4.2    && < 1.9
       , time-locale-compat   == 0.1.*

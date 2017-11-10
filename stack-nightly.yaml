@@ -1,4 +1,4 @@
-resolver: nightly-2017-08-08
+resolver: nightly-2017-11-10
 
 install-ghc: true
 flags: {}

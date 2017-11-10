@@ -44,18 +44,18 @@ Extra-Source-Files:
     lib/cabal-masters/test-extra-source-files-incl.cabal
     lib/mega-regex.cabal
     lib/version.txt
-    src/Text/RE/PCRE/ByteString.hs
-    src/Text/RE/PCRE/ByteString/Lazy.hs
-    src/Text/RE/PCRE/Sequence.hs
-    src/Text/RE/PCRE/String.hs
-    src/Text/RE/PCRE/Text.hs
-    src/Text/RE/PCRE/Text/Lazy.hs
-    src/Text/RE/TDFA/ByteString.hs
-    src/Text/RE/TDFA/ByteString/Lazy.hs
-    src/Text/RE/TDFA/Sequence.hs
-    src/Text/RE/TDFA/String.hs
-    src/Text/RE/TDFA/Text.hs
-    src/Text/RE/TDFA/Text/Lazy.hs
+    Text/RE/PCRE/ByteString.hs
+    Text/RE/PCRE/ByteString/Lazy.hs
+    Text/RE/PCRE/Sequence.hs
+    Text/RE/PCRE/String.hs
+    Text/RE/PCRE/Text.hs
+    Text/RE/PCRE/Text/Lazy.hs
+    Text/RE/TDFA/ByteString.hs
+    Text/RE/TDFA/ByteString/Lazy.hs
+    Text/RE/TDFA/Sequence.hs
+    Text/RE/TDFA/String.hs
+    Text/RE/TDFA/Text.hs
+    Text/RE/TDFA/Text/Lazy.hs
     stack-8.0.yaml
 
 

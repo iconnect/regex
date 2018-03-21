@@ -15,6 +15,7 @@ and checkout the 'corrections' branch.
 {-# LANGUAGE RecordWildCards              #-}
 {-# LANGUAGE OverloadedStrings            #-}
 {-# LANGUAGE QuasiQuotes                  #-}
+{-# LANGUAGE CPP                          #-}
 
 module Main(main) where
 
@@ -23,8 +24,13 @@ import           Data.Functor.Identity
 import qualified Data.HashMap.Lazy     as HML
 import qualified Data.List             as L
 import           Data.Maybe
+#if __GLASGOW_HASKELL__ < 804
+import           Data.Monoid hiding ((<>))
+#else
 import           Data.Monoid
+#endif
 import           Data.Ord
+import           Data.Semigroup
 import qualified Data.Text             as T
 import qualified Data.Text.IO          as T
 import           Data.Time
@@ -112,15 +118,18 @@ data Results =
 These vectors have expected zeros and sums.
 
 \begin{code}
-instance Monoid Results where
-  mempty  = Results 0 0 0 0 0
-  mappend (Results gp1 gw1 gf1 ga1 ps1)
-          (Results gp2 gw2 gf2 ga2 ps2) =
+instance Semigroup Results where
+  (<>) (Results gp1 gw1 gf1 ga1 ps1)
+       (Results gp2 gw2 gf2 ga2 ps2) =
       Results (gp1+gp2)
               (gw1+gw2)
               (gf1+gf2)
               (ga1+ga2)
               (ps1+ps2)
+
+instance Monoid Results where
+  mempty  = Results 0 0 0 0 0
+  mappend = (<>)
 \end{code}
 
 PL results are ordered by (points,goal-difference,goals-scored).

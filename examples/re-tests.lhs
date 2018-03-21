@@ -20,6 +20,7 @@ regressions.
 {-# LANGUAGE DeriveFunctor              #-}
 {-# LANGUAGE StandaloneDeriving         #-}
 {-# OPTIONS_GHC -fno-warn-orphans       #-}
+{-# OPTIONS_GHC -fno-warn-name-shadowing #-}
 
 module Main (main) where
 

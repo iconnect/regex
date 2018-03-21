@@ -1,0 +1,5 @@
+resolver: nightly-2018-03-21
+packages:
+- '.'
+install-ghc: true
+system-ghc: false

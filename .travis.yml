@@ -54,6 +54,14 @@ matrix:
     compiler: ": #stack 8.0.2"
     addons: {apt: {packages: [libgmp-dev]}}
 
+  - env: BUILD=stack GHCVER=8.2.2 STACK_YAML=stack-8.2.yaml
+    compiler: ": #stack 8.2.2"
+    addons: {apt: {packages: [libgmp-dev]}}
+
+  - env: BUILD=stack GHCVER=8.4.1 STACK_YAML=stack-8.4.yaml
+    compiler: ": #stack 8.4.1"
+    addons: {apt: {packages: [libgmp-dev]}}
+
   # Linux/cabal
 
   - env: BUILD=cabal GHCVER=7.10.3 CABALVER=1.22 HAPPYVER=1.19.5 ALEXVER=3.1.7

@@ -48,7 +48,7 @@ import qualified System.Info                    as SI
 import           Test.SmallCheck.Series
 import           Test.Tasty
 import           Test.Tasty.HUnit
-import           Test.Tasty.SmallCheck          as SC
+import           Test.Tasty.SmallCheck          as SC hiding (test)
 import           TestKit
 import           Text.Heredoc
 import qualified Text.RE.PCRE                   as PCRE

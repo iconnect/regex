@@ -4,6 +4,7 @@
 {-# LANGUAGE UndecidableInstances       #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE DeriveDataTypeable         #-}
+{-# LANGUAGE MonoLocalBinds             #-}
 \end{code}
 
 \begin{code}

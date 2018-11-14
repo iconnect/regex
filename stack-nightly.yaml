@@ -1,8 +1,5 @@
-resolver: nightly-2017-06-02
-install-ghc: true
-flags: {}
+resolver: nightly-2018-11-13 # GHC 8.6.2
 packages:
 - '.'
+install-ghc: true
 system-ghc: false
-extra-deps:
-  - regex-pcre-text-0.94.0.0

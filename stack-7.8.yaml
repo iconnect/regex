@@ -1,8 +1,7 @@
 resolver: lts-2.22
-install-ghc: true
-flags: {}
 packages:
 - '.'
+install-ghc: true
 system-ghc: false
 extra-deps:
   - regex-pcre-text-0.94.0.0

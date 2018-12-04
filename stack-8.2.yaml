@@ -1,4 +1,4 @@
-resolver: lts-11.1
+resolver: lts-11.22 # GHC 8.2.2
 packages:
 - '.'
 install-ghc: true

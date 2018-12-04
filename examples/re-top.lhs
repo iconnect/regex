@@ -15,7 +15,6 @@ and checkout the 'corrections' branch.
 {-# LANGUAGE RecordWildCards              #-}
 {-# LANGUAGE OverloadedStrings            #-}
 {-# LANGUAGE QuasiQuotes                  #-}
-{-# LANGUAGE CPP                          #-}
 
 module Main(main) where
 
@@ -24,13 +23,9 @@ import           Data.Functor.Identity
 import qualified Data.HashMap.Lazy     as HML
 import qualified Data.List             as L
 import           Data.Maybe
-#if __GLASGOW_HASKELL__ < 804
 import           Data.Monoid hiding ((<>))
-#else
-import           Data.Monoid
-#endif
 import           Data.Ord
-import           Data.Semigroup
+import           Data.Semigroup (Semigroup, (<>))
 import qualified Data.Text             as T
 import qualified Data.Text.IO          as T
 import           Data.Time

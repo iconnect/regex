@@ -1,4 +1,4 @@
-resolver: nightly-2018-03-21
+resolver: lts-12.18 # GHC 8.4.4
 packages:
 - '.'
 install-ghc: true

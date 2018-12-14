@@ -368,18 +368,18 @@ search_replace_tests :: TestTree
 search_replace_tests = testGroup "SearchReplace" $
     [ testCase "?=~/ [ed_| ... |]" $ "baz bar foobar" @=? "foo bar foobar" T_ST.?=~/ [ed_|foo///baz|] ()
     , testCase "*=~/ [ed_| ... |]" $ "baz bar bazbar" @=? "foo bar foobar" T_ST.*=~/ [ed_|foo///baz|] MultilineSensitive
-    , testCase "TDFA.ed/String" $ test  id         tdfa_eds
-    , testCase "PCRE.ed/String" $ test  id         pcre_eds
-    , testCase "TDFA.ed/B"      $ test  B.pack     tdfa_eds
-    , testCase "PCRE.ed/B"      $ test  B.pack     pcre_eds
-    , testCase "TDFA.ed/LBS"    $ test  LBS.pack   tdfa_eds
-    , testCase "PCRE.ed/LBS"    $ test  LBS.pack   pcre_eds
-    , testCase "TDFA.ed/S"      $ test  S.fromList tdfa_eds
-    , testCase "PCRE.ed/S"      $ test  S.fromList pcre_eds
-    , testCase "TDFA.ed/T"      $ test  T.pack     tdfa_eds
-    , testCase "TDFA.ed/LT"     $ test  LT.pack    tdfa_eds
-    , testCase "TDFA.ed/T(d)"   $ test  T.pack     tdfa_eds'
-    , testCase "PCRE.ed/LBS(d)" $ test  LBS.pack   pcre_eds'
+    , testCase "TDFA.ed/String" $ test_ id         tdfa_eds
+    , testCase "PCRE.ed/String" $ test_ id         pcre_eds
+    , testCase "TDFA.ed/B"      $ test_ B.pack     tdfa_eds
+    , testCase "PCRE.ed/B"      $ test_ B.pack     pcre_eds
+    , testCase "TDFA.ed/LBS"    $ test_ LBS.pack   tdfa_eds
+    , testCase "PCRE.ed/LBS"    $ test_ LBS.pack   pcre_eds
+    , testCase "TDFA.ed/S"      $ test_ S.fromList tdfa_eds
+    , testCase "PCRE.ed/S"      $ test_ S.fromList pcre_eds
+    , testCase "TDFA.ed/T"      $ test_ T.pack     tdfa_eds
+    , testCase "TDFA.ed/LT"     $ test_ LT.pack    tdfa_eds
+    , testCase "TDFA.ed/T(d)"   $ test_ T.pack     tdfa_eds'
+    , testCase "PCRE.ed/LBS(d)" $ test_ LBS.pack   pcre_eds'
     , testg "TDFA.op"        (T_ST.?=~/) (T_ST.*=~/) tdfa_sr
     , testg "PCRE.op"        (P_ST.?=~/) (P_ST.*=~/) pcre_sr
     , testg "TDFA.op/String" (T_ST.?=~/) (T_ST.*=~/) tdfa_sr_str
@@ -414,8 +414,8 @@ search_replace_tests = testGroup "SearchReplace" $
       True  -> const []
       False -> id
 
-    test :: IsRegex re a => (String->a) -> Edits Identity re a -> Assertion
-    test inj eds =  inj rsm @=? runIdentity (sed' eds $ inj inp)
+    test_ :: IsRegex re a => (String->a) -> Edits Identity re a -> Assertion
+    test_ inj eds =  inj rsm @=? runIdentity (sed' eds $ inj inp)
 
     testg lab op1 opm sr = testGroup lab
       [ testCase "?=~/" $ rs1 @=? inp `op1` sr
@@ -549,34 +549,34 @@ options_tests = testGroup "Simple REOptions"
 \begin{code}
 many_tests :: TestTree
 many_tests = testGroup "Many Tests"
-    [ testCase "PCRE a"               $ test (PCRE.*=~) (PCRE.?=~) (PCRE.=~) (PCRE.=~~) matchOnce matchMany makeSearchReplace id          re_pcre
-    , testCase "PCRE ByteString"      $ test (P_BS.*=~) (P_BS.?=~) (P_BS.=~) (P_BS.=~~) matchOnce matchMany makeSearchReplace B.pack      re_pcre
-    , testCase "PCRE ByteString.Lazy" $ test (PLBS.*=~) (PLBS.?=~) (PLBS.=~) (PLBS.=~~) matchOnce matchMany makeSearchReplace LBS.pack    re_pcre
-    , testCase "PCRE Sequence"        $ test (P_SQ.*=~) (P_SQ.?=~) (P_SQ.=~) (P_SQ.=~~) matchOnce matchMany makeSearchReplace S.fromList  re_pcre
-    , testCase "PCRE String"          $ test (P_ST.*=~) (P_ST.?=~) (P_ST.=~) (P_ST.=~~) matchOnce matchMany makeSearchReplace id          re_pcre
-    , testCase "PCRE Text"            $ test (P_TX.*=~) (P_TX.?=~) (P_TX.=~) (P_TX.=~~) matchOnce matchMany makeSearchReplace T.pack      re_pcre
-    , testCase "PCRE Text.Lazy"       $ test (PLTX.*=~) (PLTX.?=~) (PLTX.=~) (PLTX.=~~) matchOnce matchMany makeSearchReplace LT.pack     re_pcre
-    , testCase "TDFA a"               $ test (TDFA.*=~) (TDFA.?=~) (TDFA.=~) (TDFA.=~~) matchOnce matchMany makeSearchReplace id          re_tdfa
-    , testCase "TDFA ByteString"      $ test (T_BS.*=~) (T_BS.?=~) (T_BS.=~) (T_BS.=~~) matchOnce matchMany makeSearchReplace B.pack      re_tdfa
-    , testCase "TDFA ByteString.Lazy" $ test (TLBS.*=~) (TLBS.?=~) (TLBS.=~) (TLBS.=~~) matchOnce matchMany makeSearchReplace LBS.pack    re_tdfa
-    , testCase "TDFA Sequence"        $ test (T_SQ.*=~) (T_SQ.?=~) (T_SQ.=~) (T_SQ.=~~) matchOnce matchMany makeSearchReplace S.fromList  re_tdfa
-    , testCase "TDFA String"          $ test (T_ST.*=~) (T_ST.?=~) (T_ST.=~) (T_ST.=~~) matchOnce matchMany makeSearchReplace id          re_tdfa
-    , testCase "TDFA Text"            $ test (T_TX.*=~) (T_TX.?=~) (T_TX.=~) (T_TX.=~~) matchOnce matchMany makeSearchReplace T.pack      re_tdfa
-    , testCase "TDFA Text.Lazy"       $ test (TLTX.*=~) (TLTX.?=~) (TLTX.=~) (TLTX.=~~) matchOnce matchMany makeSearchReplace LT.pack     re_tdfa
+    [ testCase "PCRE a"               $ test_ (PCRE.*=~) (PCRE.?=~) (PCRE.=~) (PCRE.=~~) matchOnce matchMany makeSearchReplace id          re_pcre
+    , testCase "PCRE ByteString"      $ test_ (P_BS.*=~) (P_BS.?=~) (P_BS.=~) (P_BS.=~~) matchOnce matchMany makeSearchReplace B.pack      re_pcre
+    , testCase "PCRE ByteString.Lazy" $ test_ (PLBS.*=~) (PLBS.?=~) (PLBS.=~) (PLBS.=~~) matchOnce matchMany makeSearchReplace LBS.pack    re_pcre
+    , testCase "PCRE Sequence"        $ test_ (P_SQ.*=~) (P_SQ.?=~) (P_SQ.=~) (P_SQ.=~~) matchOnce matchMany makeSearchReplace S.fromList  re_pcre
+    , testCase "PCRE String"          $ test_ (P_ST.*=~) (P_ST.?=~) (P_ST.=~) (P_ST.=~~) matchOnce matchMany makeSearchReplace id          re_pcre
+    , testCase "PCRE Text"            $ test_ (P_TX.*=~) (P_TX.?=~) (P_TX.=~) (P_TX.=~~) matchOnce matchMany makeSearchReplace T.pack      re_pcre
+    , testCase "PCRE Text.Lazy"       $ test_ (PLTX.*=~) (PLTX.?=~) (PLTX.=~) (PLTX.=~~) matchOnce matchMany makeSearchReplace LT.pack     re_pcre
+    , testCase "TDFA a"               $ test_ (TDFA.*=~) (TDFA.?=~) (TDFA.=~) (TDFA.=~~) matchOnce matchMany makeSearchReplace id          re_tdfa
+    , testCase "TDFA ByteString"      $ test_ (T_BS.*=~) (T_BS.?=~) (T_BS.=~) (T_BS.=~~) matchOnce matchMany makeSearchReplace B.pack      re_tdfa
+    , testCase "TDFA ByteString.Lazy" $ test_ (TLBS.*=~) (TLBS.?=~) (TLBS.=~) (TLBS.=~~) matchOnce matchMany makeSearchReplace LBS.pack    re_tdfa
+    , testCase "TDFA Sequence"        $ test_ (T_SQ.*=~) (T_SQ.?=~) (T_SQ.=~) (T_SQ.=~~) matchOnce matchMany makeSearchReplace S.fromList  re_tdfa
+    , testCase "TDFA String"          $ test_ (T_ST.*=~) (T_ST.?=~) (T_ST.=~) (T_ST.=~~) matchOnce matchMany makeSearchReplace id          re_tdfa
+    , testCase "TDFA Text"            $ test_ (T_TX.*=~) (T_TX.?=~) (T_TX.=~) (T_TX.=~~) matchOnce matchMany makeSearchReplace T.pack      re_tdfa
+    , testCase "TDFA Text.Lazy"       $ test_ (TLTX.*=~) (TLTX.?=~) (TLTX.=~) (TLTX.=~~) matchOnce matchMany makeSearchReplace LT.pack     re_tdfa
     ]
   where
-    test :: (IsRegex r s,Show s,Eq s)
-         => (s->r->Matches s)
-         -> (s->r->Match   s)
-         -> (s->r->Matches s)
-         -> (s->r->Maybe(Match s))
-         -> (r->s->Match   s)
-         -> (r->s->Matches s)
-         -> (s->s->Either String (SearchReplace r s))
-         -> (String->s)
-         -> r
-         -> Assertion
-    test (%*=~) (%?=~) (%=~) (%=~~) mo mm mk_sr0 inj r = do
+    test_ :: (IsRegex r s,Show s,Eq s)
+          => (s->r->Matches s)
+          -> (s->r->Match   s)
+          -> (s->r->Matches s)
+          -> (s->r->Maybe(Match s))
+          -> (r->s->Match   s)
+          -> (r->s->Matches s)
+          -> (s->s->Either String (SearchReplace r s))
+          -> (String->s)
+          -> r
+          -> Assertion
+    test_ (%*=~) (%?=~) (%=~) (%=~~) mo mm mk_sr0 inj r = do
         2         @=? countMatches mtchs
         Just txt' @=? matchedText  mtch
         mtchs     @=? mtchs'

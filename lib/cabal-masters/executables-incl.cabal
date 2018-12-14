@@ -97,8 +97,8 @@
     Other-Modules:
       TestKit
 
-    Extensions:         OverloadedStrings
     Default-Extensions: QuasiQuotes
+                        OverloadedStrings
 %build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
 
 %test-exe re-tutorial-options

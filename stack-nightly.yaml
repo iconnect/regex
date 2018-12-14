@@ -1,8 +1,7 @@
-resolver: nightly-2017-06-02
+resolver: nightly-2018-12-14
 install-ghc: true
 flags: {}
 packages:
 - '.'
 system-ghc: false
 extra-deps:
-  - regex-pcre-text-0.94.0.0

@@ -19,7 +19,7 @@ Stability:              Stable
 bug-reports:            http://issues.regex.uk
 
 Extra-Source-Files:
-    README.markdown
+    README.md
     changelog
 
 Cabal-Version:          >= 1.10

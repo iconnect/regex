@@ -1,5 +1,5 @@
 Extra-Source-Files:
-    README.markdown
+    README.md
     changelog
     data/2015-16-premierleague.txt
     data/access-errors.log

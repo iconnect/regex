@@ -11,6 +11,7 @@ repo](git@github.com:cdornan/eng-england.git) into the parent directory
 and checkout the 'corrections' branch.
 
 \begin{code}
+{-# LANGUAGE CPP                        #-}
 {-# LANGUAGE NoImplicitPrelude            #-}
 {-# LANGUAGE RecordWildCards              #-}
 {-# LANGUAGE OverloadedStrings            #-}
@@ -112,16 +113,31 @@ data Results =
 These vectors have expected zeros and sums.
 
 \begin{code}
+#if __GLASGOW_HASKELL__ >= 804
+instance Semigroup Results where
+  (<>) = mappend_r
+#endif
+
 instance Monoid Results where
-  mempty  = Results 0 0 0 0 0
-  mappend (Results gp1 gw1 gf1 ga1 ps1)
-          (Results gp2 gw2 gf2 ga2 ps2) =
-      Results (gp1+gp2)
-              (gw1+gw2)
-              (gf1+gf2)
-              (ga1+ga2)
-              (ps1+ps2)
+  mempty  = mempty_r
+  mappend = mappend_r
 \end{code}
+
+
+\begin{code}
+mappend_r :: Results -> Results -> Results
+mappend_r (Results gp1 gw1 gf1 ga1 ps1)
+          (Results gp2 gw2 gf2 ga2 ps2) =
+       Results (gp1+gp2)
+               (gw1+gw2)
+               (gf1+gf2)
+               (ga1+ga2)
+               (ps1+ps2)
+
+mempty_r :: Results
+mempty_r  = Results 0 0 0 0 0
+\end{code}
+
 
 PL results are ordered by (points,goal-difference,goals-scored).
 

@@ -1,4 +1,4 @@
-resolver: lts-2.22
+resolver: lts-11.22
 install-ghc: true
 flags: {}
 packages:
@@ -6,4 +6,3 @@ packages:
 system-ghc: false
 extra-deps:
   - regex-pcre-text-0.94.0.0
-  - regex-tdfa-text-1.0.0.3

@@ -20,7 +20,7 @@ Stability:              Stable
 bug-reports:            http://issues.regex.uk
 
 Extra-Source-Files:
-    README.markdown
+    README.md
     changelog
     data/2015-16-premierleague.txt
     data/access-errors.log
@@ -87,7 +87,7 @@ Executable re-gen-cabals
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -117,7 +117,7 @@ Test-Suite re-gen-cabals-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -147,7 +147,7 @@ Executable re-gen-modules
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -176,7 +176,7 @@ Test-Suite re-gen-modules-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -205,7 +205,7 @@ Executable re-include
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , bytestring           == 0.10.*
@@ -231,7 +231,7 @@ Test-Suite re-include-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , bytestring           == 0.10.*
@@ -257,8 +257,8 @@ Executable re-nginx-log-processor
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
-      , regex-with-pcre      == 1.0.1.4
+        regex                
+      , regex-with-pcre      
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -292,8 +292,8 @@ Test-Suite re-nginx-log-processor-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
-      , regex-with-pcre      == 1.0.1.4
+        regex                
+      , regex-with-pcre      
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -327,7 +327,7 @@ Executable re-prep
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , bytestring           == 0.10.*
@@ -356,7 +356,7 @@ Test-Suite re-prep-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , bytestring           == 0.10.*
@@ -385,7 +385,7 @@ Executable re-sort-imports
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , bytestring           == 0.10.*
@@ -412,7 +412,7 @@ Test-Suite re-sort-imports-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , bytestring           == 0.10.*
@@ -439,8 +439,8 @@ Executable re-tests
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
-      , regex-with-pcre      == 1.0.1.4
+        regex                
+      , regex-with-pcre      
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -481,8 +481,8 @@ Test-Suite re-tests-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
-      , regex-with-pcre      == 1.0.1.4
+        regex                
+      , regex-with-pcre      
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -523,7 +523,7 @@ Executable re-top
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , blaze-html           >= 0.8.1.0
@@ -556,7 +556,7 @@ Test-Suite re-top-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , blaze-html           >= 0.8.1.0
@@ -590,7 +590,7 @@ Executable re-tutorial
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -634,7 +634,7 @@ Test-Suite re-tutorial-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -680,7 +680,7 @@ Test-Suite re-tutorial-os-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -724,8 +724,8 @@ Executable re-tutorial-options
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
-      , regex-with-pcre      == 1.0.1.4
+        regex                
+      , regex-with-pcre      
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -769,8 +769,8 @@ Test-Suite re-tutorial-options-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
-      , regex-with-pcre      == 1.0.1.4
+        regex                
+      , regex-with-pcre      
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -814,7 +814,7 @@ Executable re-tutorial-replacing
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -858,7 +858,7 @@ Test-Suite re-tutorial-replacing-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -902,7 +902,7 @@ Executable re-tutorial-testbench
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -946,7 +946,7 @@ Test-Suite re-tutorial-testbench-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -990,7 +990,7 @@ Executable re-tutorial-tools
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -1035,7 +1035,7 @@ Test-Suite re-tutorial-tools-test
       -Wwarn
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6

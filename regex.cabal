@@ -20,7 +20,7 @@ Stability:              Stable
 bug-reports:            http://issues.regex.uk
 
 Extra-Source-Files:
-    README.markdown
+    README.md
     changelog
     data/2015-16-premierleague.txt
     data/access-errors.log
@@ -211,7 +211,7 @@ Executable re-gen-cabals
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -241,7 +241,7 @@ Test-Suite re-gen-cabals-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -271,7 +271,7 @@ Executable re-gen-modules
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -300,7 +300,7 @@ Test-Suite re-gen-modules-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -329,7 +329,7 @@ Executable re-include
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , bytestring           == 0.10.*
@@ -355,7 +355,7 @@ Test-Suite re-include-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , bytestring           == 0.10.*
@@ -381,7 +381,7 @@ Executable re-nginx-log-processor
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -415,7 +415,7 @@ Test-Suite re-nginx-log-processor-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -449,7 +449,7 @@ Executable re-prep
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , bytestring           == 0.10.*
@@ -478,7 +478,7 @@ Test-Suite re-prep-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , bytestring           == 0.10.*
@@ -507,7 +507,7 @@ Executable re-sort-imports
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , bytestring           == 0.10.*
@@ -534,7 +534,7 @@ Test-Suite re-sort-imports-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , bytestring           == 0.10.*
@@ -561,7 +561,7 @@ Executable re-tests
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -602,7 +602,7 @@ Test-Suite re-tests-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -643,7 +643,7 @@ Executable re-top
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , blaze-html           >= 0.8.1.0
@@ -676,7 +676,7 @@ Test-Suite re-top-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
       , blaze-html           >= 0.8.1.0
@@ -710,7 +710,7 @@ Executable re-tutorial
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -754,7 +754,7 @@ Test-Suite re-tutorial-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -800,7 +800,7 @@ Test-Suite re-tutorial-os-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -844,7 +844,7 @@ Executable re-tutorial-options
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -888,7 +888,7 @@ Test-Suite re-tutorial-options-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -932,7 +932,7 @@ Executable re-tutorial-replacing
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -976,7 +976,7 @@ Test-Suite re-tutorial-replacing-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -1020,7 +1020,7 @@ Executable re-tutorial-testbench
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -1064,7 +1064,7 @@ Test-Suite re-tutorial-testbench-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -1108,7 +1108,7 @@ Executable re-tutorial-tools
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6
@@ -1153,7 +1153,7 @@ Test-Suite re-tutorial-tools-test
       -Werror
 
     Build-depends:
-        regex                == 1.0.1.4
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6

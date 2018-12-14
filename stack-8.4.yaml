@@ -5,4 +5,4 @@ packages:
 - '.'
 system-ghc: false
 extra-deps:
-  - regex-pcre-text-0.94.0.0
+  - shelly-1.8.0      # 1.8.1 is broken for windows: see https://github.com/yesodweb/Shelly.hs/issues/176

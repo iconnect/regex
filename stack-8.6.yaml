@@ -5,3 +5,4 @@ packages:
 - '.'
 system-ghc: false
 extra-deps:
+  - shelly-1.8.0      # 1.8.1 is broken for windows: see https://github.com/yesodweb/Shelly.hs/issues/176

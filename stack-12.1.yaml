@@ -1,0 +1,8 @@
+resolver: lts-12.1
+install-ghc: true
+flags: {}
+packages:
+- '.'
+system-ghc: false
+extra-deps:
+  - regex-pcre-text-0.94.0.0

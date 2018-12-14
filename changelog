@@ -1,5 +1,8 @@
 -*-change-log-*-
 
+1.0.1.4 Chris Dornan <chris.dornan@irisconnect.co.uk> 2018-12-14
+  * GHC-8.4.4, GHC-8.6.2 (#160)
+
 1.0.1.3 Chris Dornan <chris.dornan@irisconnect.co.uk> 2017-06-05
   * Suspending UTF-8 tests for Windows/PCRE (#144)
 

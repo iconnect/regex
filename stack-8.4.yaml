@@ -1,4 +1,4 @@
-resolver: lts-12.1
+resolver: lts-12.22
 install-ghc: true
 flags: {}
 packages:

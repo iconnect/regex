@@ -42,6 +42,7 @@ import qualified Data.ByteString.Lazy.Char8               as LBS
 import qualified Data.List                                as L
 import           Data.Maybe
 import qualified Data.Text                                as T
+import qualified Data.Text.IO                             as T
 import           Prelude.Compat
 import qualified Shelly                                   as SH
 import           System.Directory
@@ -109,7 +110,7 @@ substVersion_ txt =
     ms = txt *=~ [re|<<\$version\$>>|]
 
 readCurrentVersion :: IO Vrn
-readCurrentVersion = parseVrn <$> readFile "lib/version.txt"
+readCurrentVersion = parseVrn . T.unpack <$> T.readFile "lib/version.txt"
 
 write_current_version :: Vrn -> IO ()
 write_current_version = writeFile "lib/version.txt" . presentVrn

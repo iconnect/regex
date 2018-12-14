@@ -670,8 +670,8 @@ Test-Suite re-tutorial-os-test
     Other-Modules:
       TestKit
 
-    Extensions:         OverloadedStrings
     Default-Extensions: QuasiQuotes
+                        OverloadedStrings
     Default-Language:   Haskell2010
 
     GHC-Options:

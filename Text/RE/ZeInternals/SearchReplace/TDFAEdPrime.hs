@@ -55,4 +55,4 @@ unsafe_compile_sr :: (IsOption o, IsRegex RE s)
                   -> String
                   -> SearchReplace RE s
 unsafe_compile_sr os =
-    unsafeCompileSearchReplace_ packR $ compileRegexWithOptions os
+    unsafeCompileSearchReplace_ packR $ compileRegexWithOptionsForQQ os

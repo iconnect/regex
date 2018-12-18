@@ -1,5 +1,8 @@
 -*-change-log-*-
 
+1.0.1.5 Chris Dornan <chris.dornan@irisconnect.co.uk> 2018-12-18
+  * TDFA quasi quoters not dealing with \n, etc. (#157)
+
 1.0.1.4 Chris Dornan <chris.dornan@irisconnect.co.uk> 2018-12-14
   * GHC-8.4.4, GHC-8.6.2 (#160)
 

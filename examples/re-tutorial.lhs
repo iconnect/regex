@@ -44,6 +44,10 @@ to answer two questions:
      is for you, otherwise it is the PCRE back end, which is housed in
      a seperate `regex-with-pcre` package.
 
+  2. Which Haskell type is being used for the text I need to match? This
+     can influence as, at the time of writing, the `PCRE` `regex` back end
+     [does not support the`Text` types](https://github.com/iconnect/regex/issues/58).
+
 The import statement will in general look like this
 ```
   import Text.RE.<back-end>.<text-type>

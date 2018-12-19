@@ -1,5 +1,5 @@
 Name:                   regex-examples
-Version:                1.0.1.5
+Version:                1.0.2.0
 Synopsis:               Tutorial, tests and example programs for regex
 Description:            Tutorial, tests and example programs for regex,
                         a Regular Expression Toolkit for regex-base with
@@ -68,7 +68,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                1.0.1.5
+    Tag:                1.0.2.0
 
 
 Executable re-gen-cabals
@@ -581,7 +581,7 @@ Executable re-tutorial
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -625,7 +625,7 @@ Test-Suite re-tutorial-test
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -670,7 +670,7 @@ Test-Suite re-tutorial-os-test
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
                         OverloadedStrings
     Default-Language:   Haskell2010
 
@@ -715,7 +715,7 @@ Executable re-tutorial-options
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -760,7 +760,7 @@ Test-Suite re-tutorial-options-test
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -805,7 +805,7 @@ Executable re-tutorial-replacing
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -849,7 +849,7 @@ Test-Suite re-tutorial-replacing-test
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -893,7 +893,7 @@ Executable re-tutorial-testbench
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -937,7 +937,7 @@ Test-Suite re-tutorial-testbench-test
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -981,7 +981,7 @@ Executable re-tutorial-tools
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
     Default-Language:   Haskell2010
 
     GHC-Options:
@@ -1026,7 +1026,7 @@ Test-Suite re-tutorial-tools-test
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
     Default-Language:   Haskell2010
 
     GHC-Options:

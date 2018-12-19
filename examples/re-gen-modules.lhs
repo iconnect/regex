@@ -17,7 +17,7 @@ The tool is self-testing: run it with no arguments (or `cabal test`).
 module Main (main) where
 
 import qualified Data.ByteString.Lazy.Char8               as LBS
-import           Data.Monoid
+import qualified Data.Monoid                              as M
 import qualified Data.Text                                as T
 import           Prelude.Compat
 import           System.Directory
@@ -149,7 +149,7 @@ source_api_mp :: ModPath
 source_api_mp = "Text.RE.TDFA.ByteString.Lazy"
 
 orphan_import :: ModPath -> LBS.ByteString
-orphan_import mp = "import           Text.Regex." <> LBS.pack mp <> "()"
+orphan_import mp = "import           Text.Regex." M.<> LBS.pack mp M.<> "()"
 
 tdfa_re, module_re, import_re, bs_re, orp_re :: RE
 tdfa_re   = [re|TDFA|]

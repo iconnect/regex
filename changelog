@@ -1,5 +1,10 @@
 -*-change-log-*-
 
+1.0.2.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2018-12-19
+  * cabal-install build with 8.0 and 8.2 failing (#163)
+  * Switch to GHC-8.6.3/nightly-2018-12-19 (#164)
+  * Switch from Default-Extensions to Other-Extensions (#165)
+
 1.0.1.5 Chris Dornan <chris.dornan@irisconnect.co.uk> 2018-12-18
   * TDFA quasi quoters not dealing with newlines (#157)
 

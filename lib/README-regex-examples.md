@@ -44,7 +44,9 @@ two packages:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2017-06-05  v1.0.1.3  [Suspend Windows tests for PCRE on UTF-8 text](https://github.com/iconnect/regex/milestone/22)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&#x2610;&nbsp;&nbsp;2017-08-31  v2.0.0.0  [Fast text replacement with benchmarks](https://github.com/iconnect/regex/milestone/4)
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2018-12-14  v1.0.1.4  [Fix for GHC 8.4.4, GHC-8.6.2](https://github.com/iconnect/regex/milestone/23)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2018-12-18  v1.0.1.5  [TDFA quasi quoters not dealing with newlines](https://github.com/iconnect/regex/milestone/24)
 
 
 

@@ -127,7 +127,7 @@ scan = alex' match al $ oops "top"
       , mk "\\(\\?"               $ const   PCap
       , mk "\\("                  $ const   Bra
       , mk "\\\\(.)"              $         BS    . s2c . x_1
-      , mk "(.)"                  $         Other . s2c . x_1
+      , mk "(.|\n)"               $         Other . s2c . x_1
       ]
 
     x_1     = captureText $ IsCaptureOrdinal $ CaptureOrdinal 1

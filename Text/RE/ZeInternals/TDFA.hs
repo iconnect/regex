@@ -35,6 +35,7 @@ module Text.RE.ZeInternals.TDFA
   , compileRegex
   , compileRegexWith
   , compileRegexWithOptions
+  , compileRegexWithOptionsForQQ
   -- * Compiling Search-Replace Templates
   , compileSearchReplace
   , compileSearchReplaceWith
@@ -194,7 +195,15 @@ compileRegexWithOptions :: (IsOption o, Functor m, Monad   m)
                         => o
                         -> String
                         -> m RE
-compileRegexWithOptions = compileRegex_ . makeREOptions
+compileRegexWithOptions = compileRegex_ RPM_raw . makeREOptions
+
+-- | compile a 'String' into a 'RE' for q quasi quoter, using the given
+-- @SimpleREOptions@, generating an error if the RE is not well formed
+compileRegexWithOptionsForQQ :: (IsOption o, Functor m, Monad   m)
+                             => o
+                             -> String
+                             -> m RE
+compileRegexWithOptionsForQQ = compileRegex_ RPM_qq . makeREOptions
 
 
 ------------------------------------------------------------------------
@@ -273,7 +282,7 @@ escapeWithOptions o f = compileRegexWithOptions o . f . escapeREString
 prelude :: Macros RE
 prelude = runIdentity $ preludeMacros mk regexType ExclCaptures
   where
-    mk = Identity . unsafeCompileRegex_ noPreludeREOptions
+    mk = Identity . unsafeCompileRegex_ RPM_raw noPreludeREOptions
 
 -- | the standard 'MacroEnv' for this back end (see "Text.RE.TestBench")
 preludeEnv :: MacroEnv
@@ -373,12 +382,17 @@ re' mb = case mb of
       }
   where
     parse :: SimpleREOptions -> (String->Q Exp) -> String -> Q Exp
-    parse sro mk rs = either error (\_->mk rs) $ compileRegex_ os rs
+    parse sro mk rs = either error (\_->mk rs) $ compileRegex_ RPM_qq os rs
       where
         os = unpackSimpleREOptions sro
 
+data RegexParseMode
+  = RPM_qq
+  | RPM_raw
+  deriving (Eq,Show)
+
 unsafeCompileRegexSimple :: SimpleREOptions -> String -> RE
-unsafeCompileRegexSimple sro re_s = unsafeCompileRegex_ os re_s
+unsafeCompileRegexSimple sro re_s = unsafeCompileRegex_ RPM_qq os re_s
   where
     os = unpackSimpleREOptions sro
 
@@ -386,28 +400,19 @@ unsafeCompileRegex :: IsOption o
                    => o
                    -> String
                    -> RE
-unsafeCompileRegex = unsafeCompileRegex_ . makeREOptions
+unsafeCompileRegex = unsafeCompileRegex_ RPM_qq . makeREOptions
 
-unsafeCompileRegex_ :: REOptions -> String -> RE
-unsafeCompileRegex_ os = either oops id . compileRegex_ os
+unsafeCompileRegex_ :: RegexParseMode -> REOptions -> String -> RE
+unsafeCompileRegex_ rpm os = either oops id . compileRegex_ rpm os
   where
     oops = error . ("unsafeCompileRegex: " ++)
 
-compileRegex' :: (Functor m,Monad m)
-              => REOptions
-              -> String
-              -> m (CaptureNames,Regex)
-compileRegex' REOptions{..} s0 = do
-    ((_,cnms),s2) <- either fail return $ extractNamedCaptures s1
-    (,) cnms <$> makeRegexOptsM optionsComp optionsExec s2
-  where
-    s1 = expandMacros reSource optionsMacs s0
-
 compileRegex_ :: (Functor m,Monad m)
-              => REOptions
+              => RegexParseMode
+              -> REOptions
               -> String
               -> m RE
-compileRegex_ os re_s = uncurry mk <$> compileRegex' os re_s
+compileRegex_ rpm os re_s = uncurry mk <$> compileRegex' rpm os re_s
   where
     mk cnms rx =
       RE
@@ -416,6 +421,45 @@ compileRegex_ os re_s = uncurry mk <$> compileRegex' os re_s
         , _re_cnames  = cnms
         , _re_regex   = rx
         }
+
+compileRegex' :: (Functor m,Monad m)
+              => RegexParseMode
+              -> REOptions
+              -> String
+              -> m (CaptureNames,Regex)
+compileRegex' rpm REOptions{..} s0 = do
+    ((_,cnms),s2) <- either fail return $ extractNamedCaptures s1
+    (,) cnms <$> makeRegexOptsM optionsComp optionsExec s2
+  where
+    s1 = expandMacros reSource optionsMacs $ pp s0
+
+    pp = case rpm of
+      RPM_qq  -> qq_prep
+      RPM_raw -> id
+
+
+------------------------------------------------------------------------
+-- Preprocessing Literal REs
+------------------------------------------------------------------------
+
+qq_prep :: String -> String
+qq_prep s0 = case s0 of
+    ""  -> ""
+    c:s -> case c of
+      '\\' -> backslash s
+      _    -> c : qq_prep s
+  where
+    backslash s1 = case s1 of
+      ""  -> "\\"
+      c:s -> case c of
+        'a'  -> '\a'    : qq_prep s
+        'b'  -> '\b'    : qq_prep s
+        'f'  -> '\f'    : qq_prep s
+        'n'  -> '\n'    : qq_prep s
+        'r'  -> '\r'    : qq_prep s
+        't'  -> '\t'    : qq_prep s
+        'v'  -> '\v'    : qq_prep s
+        _    -> '\\': c : qq_prep s
 
 
 ------------------------------------------------------------------------

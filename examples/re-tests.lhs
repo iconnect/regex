@@ -93,6 +93,7 @@ main = do
       , escape_tests
       , add_capture_names_tests
       , find_tests
+      , backslash_tests
       , misc_tests
       ]
 \end{code}
@@ -789,6 +790,38 @@ findMethods =
     , combineDM            = (</>)
     }
 
+\end{code}
+
+
+The Backslash Tests
+-------------------
+
+\begin{code}
+backslash_tests :: TestTree
+backslash_tests = testGroup "Backslash Tests"
+  [ testGroup "PCRE"
+      [ testCase "backslash-a"         $ "\ay" @=? "--foo\ay" P_TX.*=~/ [P_TX.edBlockSensitive|--[^\a]*///|]
+      , testCase "backslash-b"         $ "\by" @=? "--foo\by" P_TX.*=~/ [P_TX.edBlockSensitive|--[^\b]*///|]
+      , testCase "backslash-f"         $ "\fy" @=? "--foo\fy" P_TX.*=~/ [P_TX.edBlockSensitive|--[^\f]*///|]
+      , testCase "backslash-n"         $ "\ny" @=? "--foo\ny" P_TX.*=~/ [P_TX.edBlockSensitive|--[^\n]*///|]
+      , testCase "backslash-r"         $ "\ry" @=? "--foo\ry" P_TX.*=~/ [P_TX.edBlockSensitive|--[^\r]*///|]
+      , testCase "backslash-t"         $ "\ty" @=? "--foo\ty" P_TX.*=~/ [P_TX.edBlockSensitive|--[^\t]*///|]
+      , testCase "backslash-v"         $ "\vy" @=? "--foo\vy" P_TX.*=~/ [P_TX.edBlockSensitive|--[^\v]*///|]
+      , testCase "backslash-$"         $ "$y"  @=? "--foo$y"  P_TX.*=~/ [P_TX.edBlockSensitive|--[^\$]*///|]
+      , testCase "backslash-backslash" $ "\\y" @=? "--foo\\y" P_TX.*=~/ [P_TX.edBlockSensitive|--[^\\]*///|]
+      ]
+  , testGroup "TDFA"
+      [ testCase "backslash-a"         $ "\ay" @=? "--foo\ay" T_TX.*=~/ [T_TX.edBlockSensitive|--[^\a]*///|]
+      , testCase "backslash-b"         $ "\by" @=? "--foo\by" T_TX.*=~/ [T_TX.edBlockSensitive|--[^\b]*///|]
+      , testCase "backslash-f"         $ "\fy" @=? "--foo\fy" T_TX.*=~/ [T_TX.edBlockSensitive|--[^\f]*///|]
+      , testCase "backslash-n"         $ "\ny" @=? "--foo\ny" T_TX.*=~/ [T_TX.edBlockSensitive|--[^\n]*///|]
+      , testCase "backslash-r"         $ "\ry" @=? "--foo\ry" T_TX.*=~/ [T_TX.edBlockSensitive|--[^\r]*///|]
+      , testCase "backslash-t"         $ "\ty" @=? "--foo\ty" T_TX.*=~/ [T_TX.edBlockSensitive|--[^\t]*///|]
+      , testCase "backslash-v"         $ "\vy" @=? "--foo\vy" T_TX.*=~/ [T_TX.edBlockSensitive|--[^\v]*///|]
+      , testCase "backslash-$"         $ "$y"  @=? "--foo$y"  T_TX.*=~/ [T_TX.edBlockSensitive|--[^\$]*///|]
+      , testCase "backslash-backslash" $ "\\y" @=? "--foo\\y" T_TX.*=~/ [T_TX.edBlockSensitive|--[^\\]*///|]
+      ]
+  ]
 \end{code}
 
 

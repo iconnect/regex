@@ -48,6 +48,8 @@ two packages:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2018-12-18  v1.0.1.5  [TDFA quasi quoters not dealing with newlines](https://github.com/iconnect/regex/milestone/24)
 
+&nbsp;&nbsp;&nbsp;&nbsp;&#x2612;&nbsp;&nbsp;2018-12-19  v1.0.2.0  [Tidy build issues](https://github.com/iconnect/regex/milestone/25)
+
 
 
 See the [Roadmap page](http://roadmap.regex.uk) for details.

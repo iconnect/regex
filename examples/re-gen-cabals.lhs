@@ -26,7 +26,7 @@ import           Data.IORef
 import qualified Data.List                                as L
 import qualified Data.Map                                 as Map
 import           Data.Maybe
-import           Data.Monoid
+import qualified Data.Monoid                              as M
 import qualified Data.Text                                as T
 import qualified Data.Text.Encoding                       as TE
 import           Prelude.Compat
@@ -160,9 +160,9 @@ default_gen ctx@Ctx{..} _ mtchs = do
     mb <- readIORef _ctx_test_exe
     case mb of
       Nothing -> return $ ReplaceWith ln
-      Just te -> case isSpace $ LBS.head $ ln<>"\n" of
+      Just te -> case isSpace $ LBS.head $ ln M.<> "\n" of
         True  -> put ctx ln
-        False -> adjust_le (<>ln) <$> close_test_exe ctx te
+        False -> adjust_le (M.<>ln) <$> close_test_exe ctx te
   where
     ln   = matchSource mtch
     mtch = allMatches mtchs !! 0
@@ -203,17 +203,17 @@ put Ctx{..} lbs = do
     case mb of
       Nothing -> return $ ReplaceWith lbs
       Just te -> do
-        writeIORef _ctx_test_exe $ Just te { _te_text = _te_text te <> lbs <> "\n" }
+        writeIORef _ctx_test_exe $ Just te { _te_text = _te_text te M.<> lbs M.<> "\n" }
         return Delete
 
 mk_test_exe :: Bool -> TestExe -> LBS.ByteString -> LBS.ByteString
-mk_test_exe is_t te te_lbs_kw = (<>_te_text te) $ LBS.unlines $ concat
+mk_test_exe is_t te te_lbs_kw = (M.<> _te_text te) $ LBS.unlines $ concat
     [ [ LBS.pack $ printf "%s %s" (LBS.unpack te_lbs_kw) nm ]
     , [ "    type:               exitcode-stdio-1.0" | is_t ]
     ]
   where
     nm = case is_t of
-      True  -> LBS.unpack $ _te_name te <> "-test"
+      True  -> LBS.unpack $ _te_name te M.<> "-test"
       False -> LBS.unpack $ _te_name te
 
 mk_build_depends :: Bool
@@ -255,7 +255,7 @@ mk_build_depends lb we fp mp pks0 = LBS.unlines $
         [ "    GHC-Options:"
         , "      -Wall"
         , "      -fwarn-tabs"
-        , "      " <> w_error_or_warn
+        , "      " M.<> w_error_or_warn
         , ""
         , "    Build-depends:"
         ] ++ (map fmt $ zip (True : repeat False) $ L.sortBy comp pks)
@@ -318,7 +318,7 @@ sdist' nm readme = do
     SH.cp readme "README.markdown"
     SH.run_ "stack" ["sdist","--stack-yaml","stack-8.0.yaml"]
     (pth,tb) <- analyse_so <$> SH.lastStderr
-    SH.cp (SH.fromText $ pth) $ SH.fromText $ "releases/"<>tb
+    SH.cp (SH.fromText $ pth) $ SH.fromText $ "releases/" M.<> tb
   where
     analyse_so so = (mtch!$$[cp|pth|],mtch!$$[cp|tb|])
       where
@@ -333,8 +333,8 @@ establish nm nm' = SH.shelly $ SH.verbosely $ do
     SH.rm_f "regex-examples.cabal"
     SH.cp (SH.fromText sf) (SH.fromText df)
   where
-    sf = "lib/"<>nm<>".cabal"
-    df = nm'<>".cabal"
+    sf = "lib/" M.<> nm M.<> ".cabal"
+    df = nm' M.<> ".cabal"
 
 test_release :: T.Text -> IO ()
 test_release vrn_t = do
@@ -351,10 +351,10 @@ test_release vrn_t = do
     setCurrentDirectory "../.."
   where
     unpack rp pn = do
-        SH.run_ "tar" ["xzf",rp<>"/"<>pn_vrn<>".tar.gz"]
-        SH.mv (SH.fromText pn_vrn) (SH.fromText $ "test-"<>pn)
+        SH.run_ "tar" ["xzf",rp M.<> "/" M.<> pn_vrn M.<> ".tar.gz"]
+        SH.mv (SH.fromText pn_vrn) (SH.fromText $ "test-" M.<> pn)
       where
-        pn_vrn = pn<>"-"<>vrn_t
+        pn_vrn = pn M.<> "-" M.<> vrn_t
 \end{code}
 
 

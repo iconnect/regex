@@ -86,7 +86,7 @@
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
 %build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
 
 %test re-tutorial-os
@@ -97,7 +97,7 @@
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
                         OverloadedStrings
 %build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
 
@@ -109,7 +109,7 @@
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
 %build-depends-prog regex regex-with-pcre array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
 
 %test-exe re-tutorial-replacing
@@ -120,7 +120,7 @@
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
 %build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
 
 %test-exe re-tutorial-testbench
@@ -131,7 +131,7 @@
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
 %build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers
 
 %test-exe re-tutorial-tools
@@ -142,5 +142,5 @@
     Other-Modules:
       TestKit
 
-    Default-Extensions: QuasiQuotes
+    Other-Extensions:   QuasiQuotes
 %build-depends-prog regex array base base-compat bytestring containers directory hashable heredoc regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin shelly smallcheck tasty tasty-hunit tasty-smallcheck template-haskell transformers text time time-locale-compat unordered-containers

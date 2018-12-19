@@ -72,9 +72,9 @@ matrix:
 
   # Linux/stack/hackage release
 
-  - env: BUILD=release-stack GHCVER=8.0.2 STACK_YAML=stack-8.0.yaml
-    compiler: ": #stack 8.0.2"
-    addons: {apt: {packages: [libgmp-dev]}}
+  # - env: BUILD=release-stack GHCVER=8.0.2 STACK_YAML=stack-8.0.yaml
+  #   compiler: ": #stack 8.0.2"
+  #   addons: {apt: {packages: [libgmp-dev]}}
 
   # Nightly builds are allowed to fail
 

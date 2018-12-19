@@ -24,7 +24,7 @@ import           Data.Functor.Identity
 import qualified Data.HashMap.Lazy     as HML
 import qualified Data.List             as L
 import           Data.Maybe
-import           Data.Monoid
+import qualified Data.Monoid           as M
 import           Data.Ord
 import qualified Data.Text             as T
 import qualified Data.Text.IO          as T
@@ -474,7 +474,7 @@ the Html.
 \begin{code}
 formatTable :: Job -> Table -> IO T.Text
 formatTable Job{..} (Table ps) = to_html $ T.unlines $
-    [ "# " <> jobTitle
+    [ "# " M.<> jobTitle
     , ""
     , mk_row header_row
     , mk_row divider_row
@@ -602,9 +602,9 @@ updateJobs = do
     mk dy js@JobSpec{..} =
         [ Job
             { jobTitle  = T.unwords $
-                [ "Premier League " <> T.pack jsSeason
-                , maybe "" (\n->"Top "<>showText n<>" ") jsSize
-                , "["<>showText dy<>"]"
+                [ "Premier League " M.<> T.pack jsSeason
+                , maybe "" (\n->"Top " M.<> showText n M.<> " ") jsSize
+                , "[" M.<> showText dy M.<> "]"
                 ]
             , jobSize   = jsSize
             , jobInputs =
@@ -622,7 +622,7 @@ updateIndex :: IO ()
 updateIndex = pandoc title toc >>= T.writeFile index_file
   where
     toc = T.unlines $
-      [ "# " <> title
+      [ "# " M.<> title
       , ""
       , mk_row ["Season", "Top-N", "Html", "Text"]
       , mk_row ["------", "-----", "----", "----"]
@@ -641,7 +641,7 @@ updateIndex = pandoc title toc >>= T.writeFile index_file
 
     mk_row     = T.intercalate "|"
 
-    lk lab url = "["<>lab<>"]("<>url<>")"
+    lk lab url = "[" M.<> lab M.<> "](" M.<> url M.<> ")"
 
 tableFile :: JobSpec -> Bool -> FilePath
 tableFile JobSpec{..} is_html = jsSeason ++ "-" ++ sze <.> ext
@@ -683,7 +683,7 @@ discover fp mb = do
   where
     fp_t            = T.pack fp
 
-    mk_ttl ssn      = "Premier League " <> ssn
+    mk_ttl ssn      = "Premier League " M.<> ssn
 
     dscvr []        = error $ fp ++ ": no data found"
     dscvr (fps:cds) = do
@@ -721,7 +721,7 @@ pandoc title txt = do
     T.writeFile inp_file   txt
     T.writeFile mda_file $ T.unlines
           [ "---"
-          , "title: "<>title
+          , "title: " M.<> title
           , "---"
           ]
     fmap (const ()) $

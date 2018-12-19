@@ -28,7 +28,7 @@ import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Data.IORef
 import qualified Data.List                                as L
 import           Data.Maybe
-import           Data.Monoid
+import qualified Data.Monoid                              as M
 import qualified Data.Text                                as T
 import           Network.HTTP.Conduit
 import           Prelude.Compat
@@ -301,8 +301,8 @@ use these definitions instead.
 
 \begin{code}
 begin_code, end_code :: LBS.ByteString
-begin_code = "\\"<>"begin{code}"
-end_code   = "\\"<>"end{code}"
+begin_code = "\\" M.<>  "begin{code}"
+end_code   = "\\" M.<>  "end{code}"
 \end{code}
 
 \begin{code}
@@ -310,7 +310,7 @@ mk_list :: [String] -> [LBS.ByteString]
 mk_list []          = ["  []"]
 mk_list (ide0:ides) = f "[" ide0 $ foldr (f ",") ["  ]"] ides
   where
-    f pfx ide t = ("  "<>pfx<>" "<>LBS.pack ide) : t
+    f pfx ide t = ("  " M.<> pfx M.<> " " M.<> LBS.pack ide) : t
 \end{code}
 
 
@@ -533,7 +533,7 @@ pandoc_page :: Page -> IO ()
 pandoc_page pg = do
   mt_lbs <- setup_ttl <$> LBS.readFile (page_master_file pg)
   (hdgs,md_lbs) <- prep_page' MM_pandoc mt_lbs
-  LBS.writeFile "tmp/metadata.markdown"  $ LBS.unlines ["---","title: "<>page_title pg,"---"]
+  LBS.writeFile "tmp/metadata.markdown"  $ LBS.unlines ["---","title: " M.<> page_title pg,"---"]
   LBS.writeFile "tmp/heading.markdown"   $ page_heading pg
   LBS.writeFile "tmp/page_pre_body.html" $ mk_pre_body_html pg hdgs
   LBS.writeFile "tmp/page_pst_body.html"   pst_body_html
@@ -574,7 +574,7 @@ data MarkdownMode
 page_heading :: Page -> LBS.ByteString
 page_heading PG_index = ""
 page_heading pg       =
-  "<p class='pagebc'><a href='.' title='Home'>Home</a> &raquo; **"<>page_title pg<>"**</p>\n"
+  "<p class='pagebc'><a href='.' title='Home'>Home</a> &raquo; **" M.<> page_title pg M.<> "**</p>\n"
 
 prep_page :: LBS.ByteString -> MarkdownMode -> FilePath -> FilePath -> IO ()
 prep_page ttl mmd in_fp out_fp = do
@@ -597,7 +597,7 @@ prep_page' mmd lbs = do
     lbs1 <- fmap (tweak_md mmd) $ sed' (scr rf_h rf_t) =<< include lbs
     lbs2 <- fromMaybe "" <$> fin_task_list' mmd rf_t
     hdgs <- reverse <$> readIORef rf_h
-    return (hdgs,lbs1<>lbs2)
+    return (hdgs,lbs1 M.<> lbs2)
   where
     scr rf_h rf_t = Select
       [ Function [re|^%heading#${ide}(@{%id}) +${ttl}([^ ].*)$|] TOP $ heading       mmd rf_t rf_h
@@ -617,24 +617,24 @@ heading :: MarkdownMode
 heading mmd rf_t rf_h _ mtch _ _ = do
     lbs <- fromMaybe "" <$> fin_task_list' mmd rf_t
     modifyIORef rf_h (Heading ide ttl:)
-    return $ Just $ lbs<>h2
+    return $ Just $ lbs M.<> h2
   where
     h2 = case mmd of
-      MM_github  -> "## "<>ttl
-      MM_hackage -> "## "<>ttl
-      MM_pandoc  -> "<h2 id='"<>ide<>"'>"<>ttl<>"</h2>"
+      MM_github  -> "## " M.<> ttl
+      MM_hackage -> "## " M.<> ttl
+      MM_pandoc  -> "<h2 id='" M.<> ide M.<> "'>" M.<> ttl M.<> "</h2>"
 
     ide = mtch !$$ [cp|ide|]
     ttl = mtch !$$ [cp|ttl|]
 
 mk_pre_body_html :: Page -> [Heading] -> LBS.ByteString
-mk_pre_body_html pg hdgs = hdr <> LBS.concat (map nav [minBound..maxBound]) <> ftr
+mk_pre_body_html pg hdgs = hdr M.<> LBS.concat (map nav [minBound..maxBound]) M.<> ftr
   where
     hdr :: LBS.ByteString
     hdr = [here|    <div id="container">
     <div id="sidebar">
       <div id="corner">
-        |] <> branding <> [here|
+        |] M.<> branding M.<> [here|
       </div>
       <div class="widget" id="pages">
         <ul class="page-nav">
@@ -642,7 +642,7 @@ mk_pre_body_html pg hdgs = hdr <> LBS.concat (map nav [minBound..maxBound]) <> f
 
     nav dst_pg = LBS.unlines $
       nav_li "          " pg_cls pg_adr pg_ttl :
-        [ nav_li "            " ["secnav"] ("#"<>_hdg_id) _hdg_title
+        [ nav_li "            " ["secnav"] ("#" M.<> _hdg_id) _hdg_title
           | Heading{..} <- hdgs
           , is_moi
           ]
@@ -708,7 +708,7 @@ mk_pre_body_html pg hdgs = hdr <> LBS.concat (map nav [minBound..maxBound]) <> f
 pst_body_html :: LBS.ByteString
 pst_body_html = [here|      </div>
     </div>
-|] <> tracking
+|] M.<> tracking
 \end{code}
 
 
@@ -729,7 +729,7 @@ task_list :: MarkdownMode               -- ^ what flavour of md are we generatin
 task_list mmd rf chk _ mtch _ _ =
   case mmd of
     MM_github  -> return Nothing
-    MM_hackage -> return $ Just $ "&nbsp;&nbsp;&nbsp;&nbsp;"<>cb<>"&nbsp;&nbsp;"<>itm<>"\n"
+    MM_hackage -> return $ Just $ "&nbsp;&nbsp;&nbsp;&nbsp;" M.<> cb M.<> "&nbsp;&nbsp;" M.<> itm M.<> "\n"
     MM_pandoc  -> do
       in_tl <- readIORef rf
       writeIORef rf True
@@ -759,7 +759,7 @@ fin_task_list :: MarkdownMode               -- ^ what flavour of md are we gener
               -> Capture LBS.ByteString     -- ^ the capture weare replacing (unsuded)
               -> IO (Maybe LBS.ByteString)  -- ^ the replacement text, or Nothing to indicate no change to this line
 fin_task_list mmd rf_t _ mtch _ _ =
-  fmap (<>matchSource mtch) <$> fin_task_list' mmd rf_t
+  fmap ( M.<> matchSource mtch) <$> fin_task_list' mmd rf_t
 
 -- | close any task list being processed, returning the closing text
 -- as necessary
@@ -788,7 +788,7 @@ pandoc_lhs' title repo_path in_file out_file = do
   LBS.writeFile "tmp/metadata.markdown"  $
                     LBS.unlines
                       [ "---"
-                      , "title: "<>LBS.pack title
+                      , "title: " M.<> LBS.pack title
                       , "---"
                       ]
   LBS.writeFile "tmp/bc.html" bc
@@ -812,13 +812,13 @@ pandoc_lhs' title repo_path in_file out_file = do
   where
     bc = LBS.unlines
     --  [ "<div class='brandingdiv'>"
-    --  , "  " <> branding
+    --  , "  " M.<> branding
     --  , "</div>"
       [ "<div class='bcdiv'>"
       , "  <ol class='breadcrumb'>"
-      , "    <li>"<>branding<>"</li>"
-      , "    <li><a title='source file' href='" <>
-              repo_url <> "'>" <> (LBS.pack title) <> "</a></li>"
+      , "    <li>" M.<> branding M.<> "</li>"
+      , "    <li><a title='source file' href='"  M.<>
+              repo_url M.<> "'>" M.<> (LBS.pack title) M.<> "</a></li>"
       , "</ol>"
       , "</div>"
       , "<div class='litcontent'>"
@@ -826,7 +826,7 @@ pandoc_lhs' title repo_path in_file out_file = do
 
     ft = LBS.concat
       [ "</div>"
-      ] <> tracking
+      ] M.<> tracking
 
     repo_url = LBS.concat
       [ "https://github.com/iconnect/regex/blob/master/"

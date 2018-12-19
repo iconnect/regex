@@ -43,7 +43,7 @@ import qualified Data.Foldable                  as F
 import           Data.Functor.Identity
 import qualified Data.HashMap.Strict            as HM
 import           Data.Maybe
-import           Data.Monoid
+import qualified Data.Monoid                    as M
 import qualified Data.Sequence                  as S
 import qualified Data.Text                      as T
 import qualified Data.Text.Encoding             as TE
@@ -397,10 +397,10 @@ class (Show a,Eq a,Ord a,Extract a,Monoid a) => Replace a where
 
   textifyR       = T.pack . unpackR
   detextifyR     = packR  . T.unpack
-  appendNewlineR = (<> packR "\n")
+  appendNewlineR = (M.<> packR "\n")
 
   substR f m@Capture{..} =
-    capturePrefix m <> f capturedText <> captureSuffix m
+    capturePrefix m M.<> f capturedText M.<> captureSuffix m
 \end{code}
 
 \begin{code}
@@ -434,7 +434,7 @@ instance Replace [Char] where
   detextifyR      = T.unpack
   linesR          = lines
   unlinesR        = unlines
-  appendNewlineR  = (<>"\n")
+  appendNewlineR  = (M.<>"\n")
   parseTemplateR  = parseTemplateR' id
 
 instance Replace B.ByteString where
@@ -445,7 +445,7 @@ instance Replace B.ByteString where
   detextifyR      = TE.encodeUtf8
   linesR          = B.lines
   unlinesR        = B.unlines
-  appendNewlineR  = (<>"\n")
+  appendNewlineR  = (M.<>"\n")
   parseTemplateR  = parseTemplateR' B.unpack
 
 instance Replace LBS.ByteString where
@@ -456,7 +456,7 @@ instance Replace LBS.ByteString where
   linesR          = LBS.lines
   unlinesR        = LBS.unlines
   detextifyR      = LBS.fromStrict . TE.encodeUtf8
-  appendNewlineR  = (<>"\n")
+  appendNewlineR  = (M.<>"\n")
   parseTemplateR  = parseTemplateR' LBS.unpack
 
 instance Replace (S.Seq Char) where
@@ -475,7 +475,7 @@ instance Replace T.Text where
   detextifyR      = id
   linesR          = T.lines
   unlinesR        = T.unlines
-  appendNewlineR  = (<>"\n")
+  appendNewlineR  = (M.<>"\n")
   parseTemplateR  = parseTemplateR' T.unpack
 
 instance Replace LT.Text where
@@ -486,7 +486,7 @@ instance Replace LT.Text where
   detextifyR      = LT.fromStrict
   linesR          = LT.lines
   unlinesR        = LT.unlines
-  appendNewlineR  = (<>"\n")
+  appendNewlineR  = (M.<>"\n")
   parseTemplateR  = parseTemplateR' LT.unpack
 \end{code}
 

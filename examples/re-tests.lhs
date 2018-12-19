@@ -34,7 +34,7 @@ import           Data.Char
 import qualified Data.Foldable                  as F
 import qualified Data.HashMap.Strict            as HM
 import           Data.Maybe
-import           Data.Monoid
+import qualified Data.Monoid                    as M
 import qualified Data.Sequence                  as S
 import           Data.String
 import qualified Data.Text                      as T
@@ -333,8 +333,8 @@ replace_methods_tests = testGroup "Replace"
   , testCase "Seq Char" $ do
       let ms = S.fromList str_ =~ regex_ :: Matches (S.Seq Char)
           f  = \_ (RELocation i j) Capture{..} -> Just $ S.fromList $
-                  "(" <> show i <> ":" <> show_co j <> ":" <>
-                    F.toList capturedText <> ")"
+                  "(" M.<> show i M.<> ":" M.<> show_co j M.<> ":" M.<>
+                    F.toList capturedText M.<> ")"
           r  = replaceAllCaptures ALL f ms
       assertEqual "replaceAllCaptures" r $
         S.fromList "(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))"
@@ -355,8 +355,8 @@ replace_methods_tests = testGroup "Replace"
         "(0:0:(0:1:a) (0:2:bbbb)) (1:0:(1:1:aa) (1:2:b))"
 
     fmt :: (IsString s,Replace s) => a -> RELocation -> Capture s -> Maybe s
-    fmt _ (RELocation i j) Capture{..} = Just $ "(" <> packR (show i) <> ":" <>
-      packR (show_co j) <> ":" <> capturedText <> ")"
+    fmt _ (RELocation i j) Capture{..} = Just $ "(" M.<> packR (show i) M.<> ":" M.<>
+      packR (show_co j) M.<> ":" M.<> capturedText M.<> ")"
 
     show_co (CaptureOrdinal j) = show j
 \end{code}

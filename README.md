@@ -42,6 +42,7 @@ two packages:
 - [X] 2018-12-14  v1.0.1.4  [Fix for GHC 8.4.4, GHC-8.6.2](https://github.com/iconnect/regex/milestone/23)
 - [X] 2018-12-18  v1.0.1.5  [TDFA quasi quoters not dealing with newlines](https://github.com/iconnect/regex/milestone/24)
 - [X] 2018-12-19  v1.0.2.0  [Tidy build issues](https://github.com/iconnect/regex/milestone/25)
+- [X] 2020-01-27  v1.1.0.0  [Adapt for MonadFail/base-4.13/GHC-8.8](https://github.com/iconnect/regex/milestone/26)
 
 
 See the [Roadmap page](http://roadmap.regex.uk) for details.

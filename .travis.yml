@@ -42,31 +42,23 @@ matrix:
 
   # Linux/stack
 
-  - env: BUILD=stack GHCVER=7.10.3 STACK_YAML=stack-7.10.yaml
-    compiler: ": #stack 7.10.3"
-    addons: {apt: {packages: [libgmp-dev]}}
-
-  - env: BUILD=stack GHCVER=8.0.2 STACK_YAML=stack-8.0.yaml
-    compiler: ": #stack 8.0.2"
-    addons: {apt: {packages: [libgmp-dev]}}
-
   - env: BUILD=stack GHCVER=8.4.4 STACK_YAML=stack-8.4.yaml
     compiler: ": #stack 8.4.4"
     addons: {apt: {packages: [libgmp-dev]}}
 
-  - env: BUILD=stack GHCVER=8.6.3 STACK_YAML=stack-8.6.yaml
-    compiler: ": #stack 8.6.3"
+  - env: BUILD=stack GHCVER=8.6.5 STACK_YAML=stack-8.6.yaml
+    compiler: ": #stack 8.6.5"
+    addons: {apt: {packages: [libgmp-dev]}}
+
+  - env: BUILD=stack GHCVER=8.8.2 STACK_YAML=stack-8.8.yaml
+    compiler: ": #stack 8.8.2"
     addons: {apt: {packages: [libgmp-dev]}}
 
 
   # macOS (stack)
 
-  - env: BUILD=stack STACK_YAML=stack-7.10.yaml
-    compiler: ": #stack 7.10.3 osx"
-    os: osx
-
-  - env: BUILD=stack STACK_YAML=stack-8.0.yaml
-    compiler: ": #stack 8.0.2 osx"
+  - env: BUILD=stack STACK_YAML=stack-8.8.yaml
+    compiler: ": #stack 8.8.2 osx"
     os: osx
 
 

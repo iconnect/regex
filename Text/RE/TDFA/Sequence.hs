@@ -7,6 +7,7 @@
 {-# LANGUAGE CPP                            #-}
 #if __GLASGOW_HASKELL__ >= 800
 {-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports        #-}
 #endif
 
 module Text.RE.TDFA.Sequence

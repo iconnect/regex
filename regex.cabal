@@ -102,6 +102,7 @@ Library
       Text.RE.Tools.Lex
       Text.RE.Tools.Sed
       Text.RE.ZeInternals
+      Text.RE.ZeInternals.Types.Poss
 
     Other-Modules:
       Text.RE.ZeInternals.AddCaptureNames
@@ -138,7 +139,6 @@ Library
       Text.RE.ZeInternals.Types.LineNo
       Text.RE.ZeInternals.Types.Match
       Text.RE.ZeInternals.Types.Matches
-      Text.RE.ZeInternals.Types.Poss
       Text.RE.ZeInternals.Types.SearchReplace
 
 

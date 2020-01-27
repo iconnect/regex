@@ -4,7 +4,8 @@
 #if __GLASGOW_HASKELL__ >= 800
 {-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
 #endif
-{-# OPTIONS_GHC -fno-warn-dodgy-exports #-}
+{-# OPTIONS_GHC -fno-warn-dodgy-exports         #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports        #-}
 
 module Text.RE.PCRE
   (
@@ -111,6 +112,7 @@ module Text.RE.PCRE
   , module Text.RE.PCRE.String
   ) where
 
+import           Control.Monad.Fail
 import           Text.RE.PCRE.ByteString()
 import           Text.RE.PCRE.ByteString.Lazy()
 import           Text.RE.PCRE.Sequence()
@@ -176,7 +178,7 @@ import qualified Text.Regex.PCRE                          as PCRE
 (=~) bs rex = B.match (reRegex rex) bs
 
 -- | the regex-base monadic, polymorphic match operator
-(=~~) :: ( Monad m
+(=~~) :: ( Monad m, MonadFail m
          , B.RegexContext PCRE.Regex s a
          , B.RegexMaker   PCRE.Regex PCRE.CompOption PCRE.ExecOption s
          )

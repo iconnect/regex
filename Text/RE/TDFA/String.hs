@@ -7,6 +7,7 @@
 {-# LANGUAGE CPP                            #-}
 #if __GLASGOW_HASKELL__ >= 800
 {-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports        #-}
 #endif
 
 module Text.RE.TDFA.String
@@ -84,7 +85,7 @@ module Text.RE.TDFA.String
   , module Text.RE.Tools.IsRegex
   ) where
 
-
+import           Control.Monad.Fail
 import           Data.Typeable
 import           Prelude.Compat
 import           Text.RE.REOptions
@@ -96,6 +97,7 @@ import           Text.RE.ZeInternals.SearchReplace.TDFA.String
 import           Text.RE.ZeInternals.TDFA
 import           Text.Regex.Base
 import qualified Text.Regex.TDFA               as TDFA
+
 -- NB regex-base instance imports maybe be needed for for some API modules
 
 -- | find all the matches in the argument text; e.g., to count the number
@@ -146,7 +148,7 @@ import qualified Text.Regex.TDFA               as TDFA
 (=~) bs rex = addCaptureNames (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | the `regex-base` monadic, polymorphic match operator
-(=~~) :: ( Monad m
+(=~~) :: ( Monad m, MonadFail m
          , Functor m
          , Typeable a
          , RegexContext TDFA.Regex String a

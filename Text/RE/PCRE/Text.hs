@@ -7,6 +7,7 @@
 {-# LANGUAGE CPP                            #-}
 #if __GLASGOW_HASKELL__ >= 800
 {-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports        #-}
 #endif
 
 module Text.RE.PCRE.Text
@@ -84,6 +85,7 @@ module Text.RE.PCRE.Text
   , module Text.RE.Tools.IsRegex
   ) where
 
+import           Control.Monad.Fail
 import qualified Data.Text                     as T
 import           Data.Typeable
 import           Prelude.Compat
@@ -146,7 +148,7 @@ import           Text.Regex.PCRE.Text()
 (=~) bs rex = addCaptureNames (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | the `regex-base` monadic, polymorphic match operator
-(=~~) :: ( Monad m
+(=~~) :: ( Monad m, MonadFail m
          , Functor m
          , Typeable a
          , RegexContext PCRE.Regex T.Text a

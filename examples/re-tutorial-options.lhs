@@ -123,8 +123,8 @@ The compilation takes place in a monad to allow for failure. In the following
 examples we will use this helper, which will extract the compiled RE using
 error to deal with any failures.
 \begin{code}
-check :: Either String a -> a
-check = either error id
+check :: Maybe a -> a
+check = maybe (error "booyah") id
 \end{code}
 
 \begin{code}

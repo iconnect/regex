@@ -6,7 +6,7 @@ Description:            A regular expression toolkit for regex-base with
                         matches and captures, a text replacement toolkit,
                         portable options, high-level AWK-like tools
                         for building text processing apps, regular expression
-                        macros with parsers and test bench, omprehensive
+                        macros with parsers and test bench, comprehensive
                         documentation, tutorials and copious examples.
 Homepage:               http://regex.uk
 Author:                 Chris Dornan
@@ -38,7 +38,7 @@ Source-Repository this
 
 %include "lib/cabal-masters/library-incl.cabal"
 
-%build-depends-lib array bytestring base base-compat containers hashable regex-base regex-tdfa regex-tdfa-text regex-pcre-builtin regex-pcre-text template-haskell text time time-locale-compat transformers unordered-containers utf8-string
+%build-depends-lib array bytestring base base-compat containers hashable regex-base regex-tdfa regex-pcre-builtin template-haskell text time time-locale-compat transformers unordered-containers utf8-string
 
 %include "lib/cabal-masters/executables-incl.cabal"
 

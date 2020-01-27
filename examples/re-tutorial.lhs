@@ -225,7 +225,7 @@ It is possible to compile a dynamically aquired RE string at run-time using
 compileRegex :: (Functor m, Monad m) => String -> m RE
 ```
 \begin{code}
-evalme_CPL_01 = checkThis "evalme_CPL_01" (["2016-01-09","2015-10-05"]) $ matches $ "2016-01-09 2015-12-5 2015-10-05" *=~ (either error id $ compileRegex "[0-9]{4}-[0-9]{2}-[0-9]{2}")
+evalme_CPL_01 = checkThis "evalme_CPL_01" (["2016-01-09","2015-10-05"]) $ matches $ "2016-01-09 2015-12-5 2015-10-05" *=~ (maybe (error "evalme_CPL_01") id $ compileRegex "[0-9]{4}-[0-9]{2}-[0-9]{2}")
 \end{code}
 
 These will compile the RE using the default multiline, case-sensitive options,
@@ -238,7 +238,7 @@ where `SimpleREOptions` is a simple enumerated type.
 %include "Text/RE/REOptions.lhs" "^data SimpleREOptions"
 
 \begin{code}
-evalme_CPL_02 = checkThis "evalme_CPL_02" (["2016-01-09","2015-10-05"]) $ matches $ "2016-01-09 2015-12-5 2015-10-05" *=~ (either error id $ compileRegexWith MultilineSensitive "[0-9]{4}-[0-9]{2}-[0-9]{2}")
+evalme_CPL_02 = checkThis "evalme_CPL_02" (["2016-01-09","2015-10-05"]) $ matches $ "2016-01-09 2015-12-5 2015-10-05" *=~ (maybe (error "evalme_CPL_01") id $ compileRegexWith MultilineSensitive "[0-9]{4}-[0-9]{2}-[0-9]{2}")
 \end{code}
 
 If you need to compile `SearchReplace` templates for use with `?=~/` and
@@ -265,7 +265,7 @@ The function pased in the first argument to `escape` takes the RE string
 that will match the string passed in the second argument and yields the
 RE to be compiled, which is returned from the parsing action.
 \begin{code}
-evalme_CPL_03 = checkThis "evalme_CPL_03" ("foobar") $ "fooe{0}bar" *=~/ SearchReplace (either error id $ escape id "e{0}") ""
+evalme_CPL_03 = checkThis "evalme_CPL_03" ("foobar") $ "fooe{0}bar" *=~/ SearchReplace (maybe (error "evalme_CPL_03") id $ escape id "e{0}") ""
 \end{code}
 
 

@@ -1,12 +1,12 @@
 Name:                   regex
-Version:                1.0.2.0
+Version:                1.1.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A regular expression toolkit for regex-base with
                         compile-time checking of RE syntax, data types for
                         matches and captures, a text replacement toolkit,
                         portable options, high-level AWK-like tools
                         for building text processing apps, regular expression
-                        macros with parsers and test bench, omprehensive
+                        macros with parsers and test bench, comprehensive
                         documentation, tutorials and copious examples.
 Homepage:               http://regex.uk
 Author:                 Chris Dornan
@@ -32,7 +32,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                1.0.2.0
+    Tag:                1.1.0.0
 
 
 
@@ -87,6 +87,7 @@ Library
       Text.RE.ZeInternals.Types.LineNo
       Text.RE.ZeInternals.Types.Match
       Text.RE.ZeInternals.Types.Matches
+      Text.RE.ZeInternals.Types.Poss
       Text.RE.ZeInternals.Types.SearchReplace
 
 
@@ -125,20 +126,19 @@ Library
     Build-depends:
         array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
-      , hashable             == 1.2.*
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , hashable             >= 1.2
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
       , utf8-string          >= 1
 
 

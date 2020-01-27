@@ -263,7 +263,7 @@ instance IsEvent LBS.ByteString where
     Event
       { _event_line     = lno
       , _event_source   = src
-      , _event_utc      = read "1970-01-01 00:00:00"
+      , _event_utc      = read "1970-01-01 00:00:00Z"
       , _event_severity = Nothing
       , _event_address  = (0,0,0,0)
       , _event_details  = lbs
@@ -496,7 +496,7 @@ deg_access =
   Access
     { _a_remote_addr      = (0,0,0,0)
     , _a_remote_user      = "-"
-    , _a_time_local       = read "1970-01-01 00:00:00"
+    , _a_time_local       = read "1970-01-01 00:00:00Z"
     , _a_request          = ""
     , _a_status           = 0
     , _a_body_bytes       = 0

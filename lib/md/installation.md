@@ -8,22 +8,28 @@ cabal update && cabal install regex
 
 %heading#stackinstall Installing with Stack
 
-We maintain three stack configurations:
+We maintain for stack configurations:
 
 ```bash
-stack --stack-yaml stack-8.0.yaml install regex
+stack --stack-yaml stack-8.8.yaml install regex
 ```
 
 and
 
 ```bash
-stack --stack-yaml stack-7.10.yaml install regex
+stack --stack-yaml stack-8.6.yaml install regex
 ```
 
 and
 
 ```bash
-stack --stack-yaml stack-7.8.yaml install regex
+stack --stack-yaml stack-8.4.yaml install regex
+```
+
+and
+
+```bash
+stack --stack-yaml stack-8.2.yaml install regex
 ```
 
 

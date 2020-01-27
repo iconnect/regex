@@ -1,12 +1,12 @@
 Name:                   regex
-Version:                1.0.2.0
+Version:                1.1.0.0
 Synopsis:               Toolkit for regex-base
 Description:            A regular expression toolkit for regex-base with
                         compile-time checking of RE syntax, data types for
                         matches and captures, a text replacement toolkit,
                         portable options, high-level AWK-like tools
                         for building text processing apps, regular expression
-                        macros with parsers and test bench, omprehensive
+                        macros with parsers and test bench, comprehensive
                         documentation, tutorials and copious examples.
 Homepage:               http://regex.uk
 Author:                 Chris Dornan
@@ -56,7 +56,6 @@ Extra-Source-Files:
     src/Text/RE/TDFA/String.hs
     src/Text/RE/TDFA/Text.hs
     src/Text/RE/TDFA/Text/Lazy.hs
-    stack-8.0.yaml
 
 
 Cabal-Version:          >= 1.10
@@ -68,7 +67,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                1.0.2.0
+    Tag:                1.1.0.0
 
 
 
@@ -139,6 +138,7 @@ Library
       Text.RE.ZeInternals.Types.LineNo
       Text.RE.ZeInternals.Types.Match
       Text.RE.ZeInternals.Types.Matches
+      Text.RE.ZeInternals.Types.Poss
       Text.RE.ZeInternals.Types.SearchReplace
 
 
@@ -177,21 +177,19 @@ Library
     Build-depends:
         array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
-      , hashable             == 1.2.*
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-pcre-text      == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , hashable             >= 1.2
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
       , utf8-string          >= 1
 
 
@@ -214,14 +212,14 @@ Executable re-gen-cabals
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , regex-base           == 0.93.*
-      , regex-tdfa           == 1.2.*
+      , regex-base           >= 0.93
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
 
 
 Test-Suite re-gen-cabals-test
@@ -244,14 +242,14 @@ Test-Suite re-gen-cabals-test
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , regex-base           == 0.93.*
-      , regex-tdfa           == 1.2.*
+      , regex-base           >= 0.93
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
 
 
 
@@ -274,13 +272,13 @@ Executable re-gen-modules
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , directory            >= 1.2.1.0
-      , regex-base           == 0.93.*
-      , regex-tdfa           == 1.2.*
+      , regex-base           >= 0.93
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
 
 
 Test-Suite re-gen-modules-test
@@ -303,13 +301,13 @@ Test-Suite re-gen-modules-test
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , directory            >= 1.2.1.0
-      , regex-base           == 0.93.*
-      , regex-tdfa           == 1.2.*
+      , regex-base           >= 0.93
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
 
 
 
@@ -331,11 +329,11 @@ Executable re-include
     Build-depends:
         regex                
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
 
 
 Test-Suite re-include-test
@@ -357,11 +355,11 @@ Test-Suite re-include-test
     Build-depends:
         regex                
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
 
 
 
@@ -384,18 +382,18 @@ Executable re-nginx-log-processor
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
-      , regex-base           == 0.93.*
-      , regex-tdfa           == 1.2.*
+      , regex-base           >= 0.93
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 Test-Suite re-nginx-log-processor-test
@@ -418,18 +416,18 @@ Test-Suite re-nginx-log-processor-test
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
-      , regex-base           == 0.93.*
-      , regex-tdfa           == 1.2.*
+      , regex-base           >= 0.93
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 
@@ -451,14 +449,14 @@ Executable re-prep
     Build-depends:
         regex                
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , heredoc              >= 0.2.0.0
       , http-conduit         >= 2.1.7.2
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
 
 
 Test-Suite re-prep-test
@@ -480,14 +478,14 @@ Test-Suite re-prep-test
     Build-depends:
         regex                
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , heredoc              >= 0.2.0.0
       , http-conduit         >= 2.1.7.2
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
 
 
 
@@ -509,12 +507,12 @@ Executable re-sort-imports
     Build-depends:
         regex                
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
 
 
 Test-Suite re-sort-imports-test
@@ -536,12 +534,12 @@ Test-Suite re-sort-imports-test
     Build-depends:
         regex                
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
 
 
 
@@ -564,24 +562,23 @@ Executable re-tests
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
-      , unordered-containers == 0.2.*
+      , text                 >= 1.2
+      , unordered-containers >= 0.2
       , utf8-string          >= 1
 
 
@@ -605,24 +602,23 @@ Test-Suite re-tests-test
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
-      , unordered-containers == 0.2.*
+      , text                 >= 1.2
+      , unordered-containers >= 0.2
       , utf8-string          >= 1
 
 
@@ -645,18 +641,18 @@ Executable re-top
     Build-depends:
         regex                
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
+      , base-compat          >= 0.6      && <  1
       , blaze-html           >= 0.8.1.0
-      , bytestring           == 0.10.*
+      , bytestring           >= 0.10
       , data-default         >= 0.5.3
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 Test-Suite re-top-test
@@ -678,18 +674,18 @@ Test-Suite re-top-test
     Build-depends:
         regex                
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
+      , base-compat          >= 0.6      && <  1
       , blaze-html           >= 0.8.1.0
-      , bytestring           == 0.10.*
+      , bytestring           >= 0.10
       , data-default         >= 0.5.3
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , shelly               >= 1.6.1.2
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 
@@ -713,27 +709,26 @@ Executable re-tutorial
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , hashable             == 1.2.*
+      , hashable             >= 1.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 Test-Suite re-tutorial-test
@@ -757,27 +752,26 @@ Test-Suite re-tutorial-test
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , hashable             == 1.2.*
+      , hashable             >= 1.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 
@@ -803,27 +797,26 @@ Test-Suite re-tutorial-os-test
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , hashable             == 1.2.*
+      , hashable             >= 1.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 
@@ -847,27 +840,26 @@ Executable re-tutorial-options
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , hashable             == 1.2.*
+      , hashable             >= 1.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 Test-Suite re-tutorial-options-test
@@ -891,27 +883,26 @@ Test-Suite re-tutorial-options-test
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , hashable             == 1.2.*
+      , hashable             >= 1.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 
@@ -935,27 +926,26 @@ Executable re-tutorial-replacing
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , hashable             == 1.2.*
+      , hashable             >= 1.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 Test-Suite re-tutorial-replacing-test
@@ -979,27 +969,26 @@ Test-Suite re-tutorial-replacing-test
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , hashable             == 1.2.*
+      , hashable             >= 1.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 
@@ -1023,27 +1012,26 @@ Executable re-tutorial-testbench
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , hashable             == 1.2.*
+      , hashable             >= 1.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 Test-Suite re-tutorial-testbench-test
@@ -1067,27 +1055,26 @@ Test-Suite re-tutorial-testbench-test
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , hashable             == 1.2.*
+      , hashable             >= 1.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 
@@ -1111,27 +1098,26 @@ Executable re-tutorial-tools
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , hashable             == 1.2.*
+      , hashable             >= 1.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 
@@ -1156,27 +1142,26 @@ Test-Suite re-tutorial-tools-test
         regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
-      , base-compat          >= 0.6
-      , bytestring           == 0.10.*
+      , base-compat          >= 0.6      && <  1
+      , bytestring           >= 0.10
       , containers           >= 0.4
       , directory            >= 1.2.1.0
-      , hashable             == 1.2.*
+      , hashable             >= 1.2
       , heredoc              >= 0.2.0.0
-      , regex-base           == 0.93.*
-      , regex-pcre-builtin   == 0.94.*
-      , regex-tdfa           == 1.2.*
-      , regex-tdfa-text      == 1.0.*
+      , regex-base           >= 0.93
+      , regex-pcre-builtin   >= 0.94
+      , regex-tdfa           >= 1.2
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
       , tasty-hunit          >= 0.9.2
       , tasty-smallcheck     >= 0.8.0.1
       , template-haskell     >= 2.7
-      , text                 == 1.2.*
+      , text                 >= 1.2
       , time                 >= 1.4.2
-      , time-locale-compat   == 0.1.*
+      , time-locale-compat   >= 0.1
       , transformers         >= 0.2.2
-      , unordered-containers == 0.2.*
+      , unordered-containers >= 0.2
 
 
 

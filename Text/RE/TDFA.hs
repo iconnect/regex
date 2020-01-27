@@ -4,7 +4,8 @@
 #if __GLASGOW_HASKELL__ >= 800
 {-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
 #endif
-{-# OPTIONS_GHC -fno-warn-dodgy-exports #-}
+{-# OPTIONS_GHC -fno-warn-dodgy-exports         #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports        #-}
 
 module Text.RE.TDFA
   (
@@ -113,6 +114,7 @@ module Text.RE.TDFA
   , module Text.RE.TDFA.Text.Lazy
   ) where
 
+import           Control.Monad.Fail
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.TDFA.ByteString()
@@ -175,7 +177,7 @@ import qualified Text.Regex.TDFA                          as TDFA
 (=~) bs rex = B.match (reRegex rex) bs
 
 -- | the regex-base monadic, polymorphic match operator
-(=~~) :: ( Monad m
+(=~~) :: ( Monad m, MonadFail m
          , B.RegexContext TDFA.Regex s a
          , B.RegexMaker   TDFA.Regex TDFA.CompOption TDFA.ExecOption s
          )

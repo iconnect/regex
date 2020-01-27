@@ -12,7 +12,8 @@
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TemplateHaskell            #-}
 #endif
-{-# OPTIONS_GHC -fno-warn-orphans       #-}
+{-# OPTIONS_GHC -fno-warn-orphans               #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports        #-}
 
 module Text.RE.ZeInternals.PCRE
   ( -- * About
@@ -66,16 +67,18 @@ module Text.RE.ZeInternals.PCRE
   , cp
   ) where
 
+import           Control.Monad.Fail
 import           Data.Bits
 import           Data.Functor.Identity
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
-import           Prelude.Compat
+import           Prelude.Compat                   hiding (fail)
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.TestBench
 import           Text.RE.Tools
 import           Text.RE.ZeInternals
+import           Text.RE.ZeInternals.Types.Poss
 import           Text.Regex.PCRE
 
 
@@ -184,17 +187,17 @@ unpackSimpleREOptions sro =
 
 -- | compile a 'String' into a 'RE' with the default options,
 -- generating an error if the RE is not well formed
-compileRegex :: (Functor m,Monad m) => String -> m RE
+compileRegex :: (Functor m,Monad m, MonadFail m) => String -> m RE
 compileRegex = compileRegexWith minBound
 
 -- | compile a 'String' into a 'RE' using the given @SimpleREOptions@,
 -- generating an error if the RE is not well formed
-compileRegexWith :: (Functor m,Monad m) => SimpleREOptions -> String -> m RE
+compileRegexWith :: (Functor m,Monad m, MonadFail m) => SimpleREOptions -> String -> m RE
 compileRegexWith = compileRegexWithOptions
 
 -- | compile a 'String' into a 'RE' using the given @SimpleREOptions@,
 -- generating an error if the RE is not well formed
-compileRegexWithOptions :: (IsOption o, Functor m, Monad m)
+compileRegexWithOptions :: (IsOption o, Functor m, Monad m, MonadFail m)
                         => o
                         -> String
                         -> m RE
@@ -207,7 +210,7 @@ compileRegexWithOptions = compileRegex_ . makeREOptions
 
 -- | compile a SearchReplace template generating errors if the RE or
 -- the template are not well formed, all capture references being checked
-compileSearchReplace :: (Monad m,Functor m,IsRegex RE s)
+compileSearchReplace :: (Monad m,MonadFail m,Functor m,IsRegex RE s)
                      => String
                      -> String
                      -> m (SearchReplace RE s)
@@ -216,22 +219,22 @@ compileSearchReplace = compileSearchReplaceWith minBound
 -- | compile a SearchReplace template, with simple options, generating
 -- errors if the RE or the template are not well formed, all capture
 -- references being checked
-compileSearchReplaceWith :: (Monad m,Functor m,IsRegex RE s)
+compileSearchReplaceWith :: (Monad m,MonadFail m,Functor m,IsRegex RE s)
                          => SimpleREOptions
                          -> String
                          -> String
                          -> m (SearchReplace RE s)
-compileSearchReplaceWith sro = compileSearchAndReplace_ packR $ compileRegexWith sro
+compileSearchReplaceWith sro = compileSearchAndReplace_ packR $ poss2either . compileRegexWith sro
 
 -- | compile a SearchReplace template, with general options, generating
 -- errors if the RE or the template are not well formed, all capture
 -- references being checked
-compileSearchReplaceWithOptions :: (Monad m,Functor m,IsRegex RE s)
+compileSearchReplaceWithOptions :: (Monad m,MonadFail m,Functor m,IsRegex RE s)
                                 => REOptions
                                 -> String
                                 -> String
                                 -> m (SearchReplace RE s)
-compileSearchReplaceWithOptions os = compileSearchAndReplace_ packR $ compileRegexWithOptions os
+compileSearchReplaceWithOptions os = compileSearchAndReplace_ packR $ poss2either . compileRegexWithOptions os
 
 
 ------------------------------------------------------------------------
@@ -244,14 +247,14 @@ compileSearchReplaceWithOptions os = compileSearchAndReplace_ packR $ compileReg
 --
 --  @maybe undefined id . escape ((\"^\"++) . (++\"$\"))@
 --
-escape :: (Functor m,Monad m)
+escape :: (Functor m,Monad m, MonadFail m)
        => (String->String)
        -> String
        -> m RE
 escape = escapeWith minBound
 
 -- | a variant of 'escape' where the 'SimpleREOptions' are specified
-escapeWith :: (Functor m,Monad m)
+escapeWith :: (Functor m,Monad m, MonadFail m)
            => SimpleREOptions
            -> (String->String)
            -> String
@@ -260,7 +263,7 @@ escapeWith = escapeWithOptions
 
 -- | a variant of 'escapeWith' that allows an 'IsOption' RE option
 -- to be specified
-escapeWithOptions :: ( IsOption o, Functor m, Monad   m)
+escapeWithOptions :: ( IsOption o, Functor m, Monad m, MonadFail m)
                   => o
                   -> (String->String)
                   -> String
@@ -376,7 +379,7 @@ re' mb = case mb of
       }
   where
     parse :: SimpleREOptions -> (String->Q Exp) -> String -> Q Exp
-    parse sro mk rs = either error (\_->mk rs) $ compileRegex_ os rs
+    parse sro mk rs = poss error (\_->mk rs) $ compileRegex_ os rs
       where
         os = unpackSimpleREOptions sro
 
@@ -392,11 +395,11 @@ unsafeCompileRegex :: IsOption o
 unsafeCompileRegex = unsafeCompileRegex_ . makeREOptions
 
 unsafeCompileRegex_ :: REOptions -> String -> RE
-unsafeCompileRegex_ os = either oops id . compileRegexWithOptions os
+unsafeCompileRegex_ os = poss oops id . compileRegexWithOptions os
   where
     oops = error . ("unsafeCompileRegex: " ++)
 
-compileRegex' :: (Functor m,Monad m)
+compileRegex' :: (Functor m,Monad m,MonadFail m)
               => REOptions
               -> String
               -> m (CaptureNames,Regex)
@@ -406,7 +409,7 @@ compileRegex' REOptions{..} s0 = do
   where
     s1 = expandMacros reSource optionsMacs s0
 
-compileRegex_ :: ( Functor m , Monad m )
+compileRegex_ :: ( Functor m , Monad m, MonadFail m )
               => REOptions
               -> String
               -> m RE

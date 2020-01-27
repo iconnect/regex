@@ -6,7 +6,7 @@ Description:            A regular expression toolkit for regex-base with
                         matches and captures, a text replacement toolkit,
                         portable options, high-level AWK-like tools
                         for building text processing apps, regular expression
-                        macros with parsers and test bench, omprehensive
+                        macros with parsers and test bench, comprehensive
                         documentation, tutorials and copious examples.
 Homepage:               http://regex.uk
 Author:                 Chris Dornan
@@ -56,7 +56,6 @@ Extra-Source-Files:
     src/Text/RE/TDFA/String.hs
     src/Text/RE/TDFA/Text.hs
     src/Text/RE/TDFA/Text/Lazy.hs
-    stack-8.0.yaml
 
 
 Cabal-Version:          >= 1.10

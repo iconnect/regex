@@ -2,6 +2,7 @@
 module Text.RE.ZeInternals.Types.SearchReplace
   ( SearchReplace(..)
   ) where
+
 \end{code}
 
 \begin{code}

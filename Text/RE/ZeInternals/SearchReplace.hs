@@ -8,7 +8,8 @@
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TemplateHaskell            #-}
 #endif
-{-# OPTIONS_GHC -fno-warn-orphans       #-}
+{-# OPTIONS_GHC -fno-warn-orphans               #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports        #-}
 
 module Text.RE.ZeInternals.SearchReplace
   ( unsafeCompileSearchReplace_
@@ -16,13 +17,15 @@ module Text.RE.ZeInternals.SearchReplace
   , compileSearchAndReplace_
   ) where
 
+import           Control.Monad.Fail
 import qualified Data.HashMap.Strict            as HMS
-import           Prelude.Compat
+import           Prelude.Compat                           hiding (fail)
 import           Text.RE.ZeInternals.NamedCaptures
 import           Text.RE.ZeInternals.Replace
 import           Text.RE.ZeInternals.Types.Capture
 import           Text.RE.ZeInternals.Types.CaptureID
 import           Text.RE.ZeInternals.Types.Matches
+import           Text.RE.ZeInternals.Types.Poss
 import           Text.RE.ZeInternals.Types.SearchReplace
 import qualified Text.Regex.TDFA                as TDFA
 
@@ -33,27 +36,27 @@ unsafeCompileSearchReplace_ :: (String->s)
                             -> (String->Either String re)
                             -> String
                             -> SearchReplace re s
-unsafeCompileSearchReplace_ pk cf = either err id . compileSearchReplace_ pk cf
+unsafeCompileSearchReplace_ pk cf = poss err id . compileSearchReplace_ pk cf
   where
     err msg = error $ "unsafeCompileSearchReplace_: " ++ msg
 
 -- | compile a SearchReplace template generating errors if the RE or
 -- the template are not well formed -- all capture references being checked
-compileSearchReplace_ :: (Monad m,Functor m)
+compileSearchReplace_ :: (Monad m,MonadFail m,Functor m)
                       => (String->s)
                       -> (String->Either String re)
                       -> String
                       -> m (SearchReplace re s)
-compileSearchReplace_ pack compile_re sr_tpl = either fail return $ do
+compileSearchReplace_ pack compile_re sr_tpl = poss fail return $ do
     case mainCaptures $ sr_tpl $=~ "///" of
       [cap] ->
         compileSearchAndReplace_ pack compile_re
                       (capturePrefix cap) (captureSuffix cap)
-      _ -> Left $ "bad search-replace template syntax: " ++ sr_tpl
+      _ -> Eek $ "bad search-replace template syntax: " ++ sr_tpl
 
 -- | compile 'SearcgReplace' from two strings containing the RE
 -- and the replacement template
-compileSearchAndReplace_ :: (Monad m,Functor m)
+compileSearchAndReplace_ :: (Monad m,MonadFail m,Functor m)
                          => (String->s)
                          -> (String->Either String re)
                          -> String

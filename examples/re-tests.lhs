@@ -500,13 +500,13 @@ search_replace_tests = testGroup "SearchReplace" $
                 => String
                 -> String
                 -> SearchReplace TDFA.RE s
-    tdfa_csr re_s = either error id . TDFA.compileSearchReplace re_s
+    tdfa_csr re_s = maybe (error "eek") id . TDFA.compileSearchReplace re_s
 
     pcre_csr    :: IsRegex PCRE.RE s
                 => String
                 -> String
                 -> SearchReplace PCRE.RE s
-    pcre_csr re_s = either error id . PCRE.compileSearchReplace re_s
+    pcre_csr re_s = maybe (error "eek") id . PCRE.compileSearchReplace re_s
 \end{code}
 
 
@@ -573,7 +573,7 @@ many_tests = testGroup "Many Tests"
           -> (s->r->Maybe(Match s))
           -> (r->s->Match   s)
           -> (r->s->Matches s)
-          -> (s->s->Either String (SearchReplace r s))
+          -> (s->s->Maybe (SearchReplace r s))
           -> (String->s)
           -> r
           -> Assertion
@@ -600,7 +600,7 @@ many_tests = testGroup "Many Tests"
         txt'    = inj "2016-01-09"
         txt''   = inj "09/01/2016 2015-12-5 05/10/2015"
 
-        mk_sr   = \r_ t_ -> either error id $ mk_sr0 r_ t_
+        mk_sr   = \r_ t_ -> maybe (error "agh") id $ mk_sr0 r_ t_
 
 
     re_pcre = fromMaybe oops $ PCRE.compileRegex "[0-9]{4}-[0-9]{2}-[0-9]{2}"
@@ -642,13 +642,13 @@ escape_tests = testGroup "Escape Tests"
         ]
     ]
   where
-    tst :: ((String->String)->String->Either String a)
+    tst :: ((String->String)->String->Maybe a)
         -> (String->a->Match String)
         -> String
         -> Bool
     tst esc0 (%=~) s = matched $ s %=~ esc s
       where
-        esc = un_either . esc0 (("^" ++) . (++ "$"))
+        esc = un_maybe . esc0 (("^" ++) . (++ "$"))
 
     metacharacters :: String
     metacharacters = "^\\.|*+?()[]{}$"
@@ -1011,6 +1011,6 @@ isValidError x = catch (x `seq` return False) hdl
 unsafe_find_capture_id :: CaptureID -> CaptureNames -> CaptureOrdinal
 unsafe_find_capture_id cid = either error id . findCaptureID cid
 
-un_either :: Either String a -> a
-un_either = either error id
+un_maybe :: Maybe a -> a
+un_maybe = maybe (error "urk") id
 \end{code}

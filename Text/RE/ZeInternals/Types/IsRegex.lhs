@@ -5,6 +5,7 @@
 {-# LANGUAGE CPP                        #-}
 #if __GLASGOW_HASKELL__ >= 800
 {-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports        #-}
 #endif
 
 module Text.RE.ZeInternals.Types.IsRegex
@@ -14,6 +15,7 @@ module Text.RE.ZeInternals.Types.IsRegex
   , searchReplaceFirst
   ) where
 
+import           Control.Monad.Fail
 import           Text.RE.REOptions
 import           Text.RE.Replace
 import           Text.RE.ZeInternals.EscapeREString
@@ -29,17 +31,17 @@ class Replace s => IsRegex re s where
   -- | finding all matches
   matchMany             :: re -> s -> Matches s
   -- | compiling an RE, failing if the RE is not well formed
-  makeRegex             :: (Functor m,Monad m) => s -> m re
+  makeRegex             :: (Functor m,Monad m, MonadFail m) => s -> m re
   -- | comiling an RE, specifying the 'SimpleREOptions'
-  makeRegexWith         :: (Functor m,Monad m) => SimpleREOptions -> s -> m re
+  makeRegexWith         :: (Functor m,Monad m, MonadFail m) => SimpleREOptions -> s -> m re
   -- | compiling a 'SearchReplace' template from the RE text and the template Text, failing if they are not well formed
-  makeSearchReplace     :: (Functor m,Monad m,IsRegex re s) => s -> s -> m (SearchReplace re s)
+  makeSearchReplace     :: (Functor m,Monad m, MonadFail m,IsRegex re s) => s -> s -> m (SearchReplace re s)
   -- | compiling a 'SearchReplace' template specifing the 'SimpleREOptions' for the RE
-  makeSearchReplaceWith :: (Functor m,Monad m,IsRegex re s) => SimpleREOptions -> s -> s -> m (SearchReplace re s)
+  makeSearchReplaceWith :: (Functor m,Monad m, MonadFail m,IsRegex re s) => SimpleREOptions -> s -> s -> m (SearchReplace re s)
   -- | incorporate an escaped string into a compiled RE with the default options
-  makeEscaped           :: (Functor m,Monad m) => (s->s) -> s -> m re
+  makeEscaped           :: (Functor m,Monad m, MonadFail m) => (s->s) -> s -> m re
   -- | incorporate an escaped string into a compiled RE with the specified 'SimpleREOptions'
-  makeEscapedWith       :: (Functor m,Monad m) => SimpleREOptions -> (s->s) -> s -> m re
+  makeEscapedWith       :: (Functor m,Monad m, MonadFail m) => SimpleREOptions -> (s->s) -> s -> m re
   -- | extract the text of the RE from the RE
   regexSource           :: re -> s
 

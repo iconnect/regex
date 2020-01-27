@@ -33,6 +33,7 @@ import           Text.RE.ZeInternals.TestBench
 import           Text.RE.ZeInternals.Tools.Lex
 import           Text.RE.ZeInternals.Types.CaptureID
 import           Text.RE.ZeInternals.Types.Match
+import           Text.RE.ZeInternals.Types.Poss
 import           Text.Regex.TDFA
 
 
@@ -135,7 +136,7 @@ scan = alex' match al $ oops "top"
     s2c [c] = c
     s2c _   = oops "s2c"
 
-    mk s f  = (either error id $ makeRegexM s,Just . f)
+    mk s f  = (poss error id $ makeRegexM s,Just . f)
 
     oops  m = error $ "NamedCaptures.scan: " ++ m
 \end{code}

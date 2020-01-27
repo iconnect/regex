@@ -3,6 +3,6 @@ Name:                   regex
 %include "lib/cabal-masters/constraints-incl.cabal"
 %include "lib/cabal-masters/library-incl.cabal" exclude "PCRE"
 
-%build-depends-lib array base base-compat bytestring containers hashable regex-base regex-pcre-builtin regex-tdfa regex-tdfa-text template-haskell text time time-locale-compat transformers unordered-containers utf8-string
+%build-depends-lib array base base-compat bytestring containers hashable regex-base regex-pcre-builtin regex-tdfa template-haskell text time time-locale-compat transformers unordered-containers utf8-string
 
 -- Generated with re-gen-cabals

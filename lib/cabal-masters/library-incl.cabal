@@ -65,4 +65,5 @@ Library
       Text.RE.ZeInternals.Types.LineNo
       Text.RE.ZeInternals.Types.Match
       Text.RE.ZeInternals.Types.Matches
+      Text.RE.ZeInternals.Types.Poss
       Text.RE.ZeInternals.Types.SearchReplace

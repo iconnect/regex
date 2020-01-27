@@ -21,6 +21,7 @@ import           Text.RE.Replace
 import           Text.RE.Tools.IsRegex
 import           Text.RE.ZeInternals
 import           Text.RE.ZeInternals.TDFA
+import           Text.RE.ZeInternals.Types.Poss
 
 
 -- | construct a quasi quoter from a casting function and @Just sro@
@@ -41,7 +42,7 @@ ed' qe mb = case mb of
     parse sro mk ts = either error (\_->mk ts) ei
       where
         ei :: Either String (SearchReplace RE String)
-        ei = compileSearchReplace_ id (compileRegexWith sro) ts
+        ei = poss2either $ compileSearchReplace_ id (poss2either . compileRegexWith sro) ts
 
 unsafe_compile_sr_simple :: IsRegex RE s
                          => SimpleREOptions
@@ -55,4 +56,4 @@ unsafe_compile_sr :: (IsOption o, IsRegex RE s)
                   -> String
                   -> SearchReplace RE s
 unsafe_compile_sr os =
-    unsafeCompileSearchReplace_ packR $ compileRegexWithOptionsForQQ os
+    unsafeCompileSearchReplace_ packR $ poss2either . compileRegexWithOptionsForQQ os

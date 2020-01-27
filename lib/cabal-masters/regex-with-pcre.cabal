@@ -26,6 +26,6 @@ Library
       Text.RE.ZeInternals.SearchReplace.TDFAEdPrime
       Text.RE.ZeInternals.TDFA
 
-%build-depends-lib base base-compat bytestring containers regex-base regex regex-pcre-builtin regex-pcre-text regex-tdfa template-haskell text transformers unordered-containers
+%build-depends-lib base base-compat bytestring containers regex-base regex regex-pcre-builtin regex-tdfa template-haskell text transformers unordered-containers
 
 -- Generated with re-gen-cabals

@@ -1,5 +1,9 @@
 -*-change-log-*-
 
+1.1.0.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2018-12-19
+  * drop support for GHC 8.0 and below
+  * adapt for base 4.13 (MonadFail)
+
 1.0.2.0 Chris Dornan <chris.dornan@irisconnect.co.uk> 2018-12-19
   * cabal-install build with 8.0 and 8.2 failing (#163)
   * Switch to GHC-8.6.3/nightly-2018-12-19 (#164)

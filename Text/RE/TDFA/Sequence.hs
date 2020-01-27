@@ -84,6 +84,7 @@ module Text.RE.TDFA.Sequence
   , module Text.RE.Tools.IsRegex
   ) where
 
+import           Control.Monad.Fail
 import qualified Data.Sequence                 as S
 import           Data.Typeable
 import           Prelude.Compat
@@ -146,7 +147,7 @@ import qualified Text.Regex.TDFA               as TDFA
 (=~) bs rex = addCaptureNames (reCaptureNames rex) $ match (reRegex rex) bs
 
 -- | the `regex-base` monadic, polymorphic match operator
-(=~~) :: ( Monad m
+(=~~) :: ( Monad m, MonadFail m
          , Functor m
          , Typeable a
          , RegexContext TDFA.Regex (S.Seq Char) a

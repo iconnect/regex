@@ -1,0 +1,9 @@
+resolver: nightly-2020-12-14
+install-ghc: true
+system-ghc: false
+flags: {}
+packages:
+- '.'
+extra-deps:
+  - shelly-1.8.0      # 1.8.1 is broken for windows: see https://github.com/yesodweb/Shelly.hs/issues/176
+  - regex-pcre-0.95.0.0

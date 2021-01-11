@@ -1,8 +1,0 @@
-resolver: nightly-2020-01-25
-install-ghc: true
-system-ghc: false
-flags: {}
-packages:
-- '.'
-extra-deps:
-  - regex-pcre-0.95.0.0

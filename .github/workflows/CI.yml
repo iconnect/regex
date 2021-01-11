@@ -8,13 +8,14 @@ on:
 
 jobs:
   stack:
-    name: stack / ghc ${{ matrix.ghc }}
-    runs-on: ubuntu-latest
+    name: stack / ghc ${{ matrix.ghc }} / ${{ matrix.platform }}
+    runs-on: ${{ matrix.platform }}
     strategy:
       fail-fast: false
       matrix:
         stack: ["2.3.1"]
-        ghc: ['8.2.2', '8.4.4', '8.6.5', '8.8.4', '8.10.2']
+        ghc: ['8.6.5', '8.8.4', '8.10.2']
+        platform: [ubuntu-latest, windows-latest]
 
     steps:
     - uses: actions/checkout@v2

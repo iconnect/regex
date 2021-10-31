@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-warnings-deprecations #-}
 {-# LANGUAGE OverloadedStrings                  #-}
+{-# LANGUAGE CPP                                #-}
 
 module Text.RE.ZeInternals.TestBench.Parsers
   (
@@ -120,9 +121,12 @@ parse_time :: (ParseTime t,Replace s) => [String] -> s -> Maybe t
 parse_time tpls = prs . unpackR
   where
     prs s = listToMaybe $ catMaybes
-      [ parseTime LC.defaultTimeLocale fmt s
+      [ parseTimeM True  LC.defaultTimeLocale fmt s
           | fmt<-tpls
           ]
+#if !MIN_VERSION_time(1,5,0)
+    parseTimeM _ = parseTime
+#endif
 
 short_month_hm :: HM.HashMap String Int
 short_month_hm = HM.fromList [ (T.unpack $ shortMonthArray!i,i) | i<-[1..12] ]

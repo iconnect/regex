@@ -1,5 +1,6 @@
 \begin{code}
 {-# LANGUAGE RecordWildCards            #-}
+{-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE UndecidableInstances       #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}

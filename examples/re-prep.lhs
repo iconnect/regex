@@ -23,6 +23,7 @@ module Main
   ) where
 
 import           Control.Applicative
+import           Control.Monad.IO.Class
 import qualified Data.ByteString.Char8                    as B
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Data.IORef
@@ -30,7 +31,7 @@ import qualified Data.List                                as L
 import           Data.Maybe
 import qualified Data.Monoid                              as M
 import qualified Data.Text                                as T
-import           Network.HTTP.Conduit
+-- import           Network.HTTP.Conduit
 import           Prelude.Compat
 import qualified Shelly                                   as SH
 import           System.Directory
@@ -443,6 +444,9 @@ badges = do
       simpleHttp url >>= LBS.writeFile (badge_fn nm)
 
     badge_fn nm = "docs/badges/"++nm++".svg"
+
+    simpleHttp :: MonadIO m => String -> m LBS.ByteString
+    simpleHttp = undefined -- TODO: fixme
 \end{code}
 
 

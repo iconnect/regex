@@ -1,0 +1,65 @@
+name: Tests
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    branches:
+      - support-ghc-9.2
+      - master
+
+jobs:
+  build:
+    name: stack / ghc ${{ matrix.ghc }} / ${{ matrix.platform }}
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest]
+        resolver:
+          [
+            "lts-18.14",
+            "lts-16.31",
+            "lts-14.27",
+            "lts-12.26",
+            "lts-11.22"
+          ]
+        include:
+          - resolver: "lts-18.14"
+            ghc: "8.10.7"
+            ghv: "8.10"
+          - resolver: "lts-16.31"
+            ghc: "8.8.4"
+            ghv: "8.8"
+          - resolver: "lts-14.27"
+            ghc: "8.6.5"
+            ghv: "8.6"
+          - resolver: "lts-12.26"
+            ghc: "8.4.4"
+            ghv: "8.4"
+          - resolver: "lts-11.22"
+            ghc: "8.2.2"
+            ghv: "8.2"
+
+    steps:
+      - name: Setup GHC
+        uses: haskell/actions/setup@v1
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          enable-stack: true
+
+      - name: Clone project
+        uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.stack
+          key: ${{ runner.os }}-${{ matrix.resolver }}-${{ hashFiles('stack.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.resolver }}-
+
+      # This entirely avoids the caching of a GHC version.
+      - name: Build and run tests
+        run: "stack test --fast --no-terminal --resolver=${{ matrix.resolver }} --system-ghc --stack-yaml=stack-${{ matrix.ghv }}.yaml"

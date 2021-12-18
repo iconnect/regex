@@ -371,7 +371,7 @@ commit_message = do
   LBS.readFile "tmp/commit.txt" >>= LBS.putStrLn
 
 commit_message_ :: FilePath -> Vrn -> T.Text -> IO ()
-commit_message_ fp vrn@Vrn{..} smy_t = do
+commit_message_ fp vrn@Vrn{} smy_t = do
     rex <- escape ("^"++) vrn_s
     parse_commit smy_ln <$> grepLines rex "changelog" >>= LBS.writeFile fp
   where

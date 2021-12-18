@@ -1,0 +1,12 @@
+resolver: lts-16.31
+install-ghc: true
+system-ghc: false
+flags: {}
+packages:
+- '.'
+extra-deps:
+  # Using an outdated shelly, forces an outdated 'time', which breaks unix, directory, ...
+  # Instead, we don't build with 8.8 or 8.10 on Windows.
+  # - shelly-1.8.0 # 1.8.1 and 1.9.0 are broken for windows: see https://github.com/yesodweb/Shelly.hs/issues/176
+  # - time-1.8.0.4
+  - regex-pcre-0.95.0.0

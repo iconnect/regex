@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                1.1.0.0
+Version:                1.1.0.1
 Synopsis:               Toolkit for regex-base
 Description:            A regular expression toolkit for regex-base with
                         compile-time checking of RE syntax, data types for
@@ -67,7 +67,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                1.1.0.0
+    Tag:                1.1.0.1
 
 
 
@@ -183,7 +183,7 @@ Library
       , hashable             >= 1.2
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , template-haskell     >= 2.7
       , text                 >= 1.2
       , time                 >= 1.4.2
@@ -217,7 +217,7 @@ Executable re-gen-cabals
       , containers           >= 0.4
       , directory            >= 1.2.1.0
       , regex-base           >= 0.93
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , text                 >= 1.2
 
@@ -247,7 +247,7 @@ Test-Suite re-gen-cabals-test
       , containers           >= 0.4
       , directory            >= 1.2.1.0
       , regex-base           >= 0.93
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , text                 >= 1.2
 
@@ -276,7 +276,7 @@ Executable re-gen-modules
       , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , regex-base           >= 0.93
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , text                 >= 1.2
 
@@ -305,7 +305,7 @@ Test-Suite re-gen-modules-test
       , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , regex-base           >= 0.93
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , text                 >= 1.2
 
@@ -387,7 +387,7 @@ Executable re-nginx-log-processor
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , regex-base           >= 0.93
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , text                 >= 1.2
       , time                 >= 1.4.2
@@ -421,7 +421,7 @@ Test-Suite re-nginx-log-processor-test
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , regex-base           >= 0.93
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , text                 >= 1.2
       , time                 >= 1.4.2
@@ -454,9 +454,10 @@ Executable re-prep
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , heredoc              >= 0.2.0.0
-      , http-conduit         >= 2.1.7.2
       , shelly               >= 1.6.1.2
+      , stm                  
       , text                 >= 1.2
+      , typed-process        
 
 
 Test-Suite re-prep-test
@@ -483,9 +484,10 @@ Test-Suite re-prep-test
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , heredoc              >= 0.2.0.0
-      , http-conduit         >= 2.1.7.2
       , shelly               >= 1.6.1.2
+      , stm                  
       , text                 >= 1.2
+      , typed-process        
 
 
 
@@ -570,7 +572,7 @@ Executable re-tests
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -610,7 +612,7 @@ Test-Suite re-tests-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -717,7 +719,7 @@ Executable re-tutorial
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -760,7 +762,7 @@ Test-Suite re-tutorial-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -805,7 +807,7 @@ Test-Suite re-tutorial-os-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -848,7 +850,7 @@ Executable re-tutorial-options
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -891,7 +893,7 @@ Test-Suite re-tutorial-options-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -934,7 +936,7 @@ Executable re-tutorial-replacing
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -977,7 +979,7 @@ Test-Suite re-tutorial-replacing-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -1020,7 +1022,7 @@ Executable re-tutorial-testbench
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -1063,7 +1065,7 @@ Test-Suite re-tutorial-testbench-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -1106,7 +1108,7 @@ Executable re-tutorial-tools
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -1150,7 +1152,7 @@ Test-Suite re-tutorial-tools-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2

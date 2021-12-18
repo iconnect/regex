@@ -7,3 +7,4 @@
 - [X] 2018-12-18  v1.0.1.5  [TDFA quasi quoters not dealing with newlines](https://github.com/iconnect/regex/milestone/24)
 - [X] 2018-12-19  v1.0.2.0  [Tidy build issues](https://github.com/iconnect/regex/milestone/25)
 - [X] 2020-01-27  v1.1.0.0  [Adapt for MonadFail/base-4.13/GHC-8.8](https://github.com/iconnect/regex/milestone/26)
+- [X] 2021-12-18  v1.1.0.1  [Fix for base-4.16.0.0/GHC 9.2.1](https://github.com/iconnect/regex/milestone/27)

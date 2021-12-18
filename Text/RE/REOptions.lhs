@@ -5,6 +5,8 @@
 {-# LANGUAGE CPP                        #-}
 #if __GLASGOW_HASKELL__ >= 800
 {-# LANGUAGE TemplateHaskellQuotes      #-}
+{-# LANGUAGE DeriveLift                 #-}
+{-# LANGUAGE StandaloneDeriving         #-}
 #else
 {-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE TemplateHaskell            #-}
@@ -28,7 +30,6 @@ module Text.RE.REOptions
 import qualified Data.HashMap.Strict        as HM
 import           Data.Hashable
 import           Data.String
-import           Language.Haskell.TH
 import           Language.Haskell.TH.Syntax
 \end{code}
 
@@ -50,12 +51,7 @@ data SimpleREOptions
 \begin{code}
 -- | we need to use this in the quasi quoters to specify @SimpleREOptions@
 -- selected by the quasi quoter
-instance Lift SimpleREOptions where
-  lift sro = case sro of
-    MultilineSensitive    -> conE 'MultilineSensitive
-    MultilineInsensitive  -> conE 'MultilineInsensitive
-    BlockSensitive        -> conE 'BlockSensitive
-    BlockInsensitive      -> conE 'BlockInsensitive
+deriving instance Lift SimpleREOptions
 \end{code}
 
 \begin{code}

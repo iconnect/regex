@@ -9,6 +9,7 @@ regressions.
 
 
 \begin{code}
+{-# LANGUAGE CPP                        #-}
 {-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE OverloadedStrings          #-}
@@ -32,6 +33,7 @@ import qualified Data.ByteString.Lazy.UTF8      as LBS
 import qualified Data.ByteString.UTF8           as B
 import           Data.Char
 import qualified Data.Foldable                  as F
+import           Data.Functor.Identity
 import qualified Data.HashMap.Strict            as HM
 import           Data.Maybe
 import qualified Data.Monoid                    as M
@@ -990,17 +992,6 @@ tdfa_prelude_macros = [minBound..maxBound]
 
 s_toList :: S.Seq Char -> [Char]
 s_toList = F.toList
-
-newtype Identity a = Identity { runIdentity :: a }
-  deriving (Functor)
-
-instance Applicative Identity where
-  pure = Identity
-  (<*>) (Identity f) (Identity x) = Identity $ f x
-
-instance Monad Identity where
-  return = Identity
-  (>>=) (Identity x) f = f x
 
 isValidError :: a -> IO Bool
 isValidError x = catch (x `seq` return False) hdl

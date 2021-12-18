@@ -113,14 +113,15 @@ data Results =
 These vectors have expected zeros and sums.
 
 \begin{code}
-#if __GLASGOW_HASKELL__ >= 804
+instance Monoid Results where
+  mempty  = mempty_r
+#if __GLASGOW_HASKELL__ < 804
+  mappend = mappend_r
+#else
+
 instance Semigroup Results where
   (<>) = mappend_r
 #endif
-
-instance Monoid Results where
-  mempty  = mempty_r
-  mappend = mappend_r
 \end{code}
 
 
@@ -270,7 +271,7 @@ Parse openfootball data into Game data, eliminating duplicate results.
 \begin{code}
 input :: Job -> IO [Game]
 input Job{..} =
-  groupSort const . parseGames . T.concat <$> mapM T.readFile jobInputs
+  groupSort const . parseGames PrimParseGames . T.concat <$> mapM T.readFile jobInputs
 \end{code}
 
 
@@ -280,8 +281,8 @@ parseGames
 The Game parser has three variants that should all be equivalent.
 
 \begin{code}
-parseGames :: T.Text -> [Game]
-parseGames = case PrimParseGames of
+parseGames :: ParseGames -> T.Text -> [Game]
+parseGames which = case which of
   SimpleParseGames -> simpleParseGames
   FunParseGames    -> funParseGames
   PrimParseGames   -> primParseGames
@@ -307,7 +308,7 @@ all other lies.
 
 \begin{code}
 simpleParseGames :: T.Text -> [Game]
-simpleParseGames = map readText . T.lines . edit gameEdit
+simpleParseGames = map readText . T.lines . edit (gameEdit MacrosGameEdit)
 \end{code}
 
 The `[ed|` ... `///` ... `|]` `SearchReplace` editors for recognizing
@@ -315,8 +316,8 @@ line containing matchresults and converting them to Haskell-format
 `Game` data come in two variants that should be equivalent.
 
 \begin{code}
-gameEdit :: SearchReplace RE T.Text
-gameEdit = case MacrosGameEdit of
+gameEdit :: GameEdit -> SearchReplace RE T.Text
+gameEdit which = case which of
   SimpleGameEdit -> simpleGameEdit
   MacrosGameEdit -> macrosGameEdit
 
@@ -406,7 +407,7 @@ funParseGames txt =
            (readText $ mtch !$$ [cp|hs|])
            (readText $ mtch !$$ [cp|as|])
            (           mtch !$$ [cp|at|])
-        | Line{..} <- grepFilter rex txt
+        | Line{..} <- grepFilter (rex Direct) txt
         , [mtch]   <- [allMatches getLineMatches]
         ]
 \end{code}
@@ -417,12 +418,12 @@ input data come in two variants. We either extract the RE from the above
 course be equivalent.)
 
 \begin{code}
-rex :: RE
-rex = case Direct of
+rex :: REX -> RE
+rex which = case which of
   Direct  ->
     [re_|^ *${ht}(@{team}) +${hs}([0-9]+)-${as}([0-9]+) +(\([0-9]+-[0-9]+\) *)?${at}(@{team}) *(@.*)?$|] macs
   Recycle ->
-    getSearch gameEdit
+    getSearch (gameEdit MacrosGameEdit)
 
 data REX = Direct | Recycle
 \end{code}
@@ -440,7 +441,7 @@ primParseGames txt =
            (readText $ mtch !$$ [cp|hs|])
            (readText $ mtch !$$ [cp|as|])
            (           mtch !$$ [cp|at|])
-        | mtch <- map (?=~ rex) $ T.lines txt
+        | mtch <- map (?=~ rex Direct) $ T.lines txt
         , matched mtch
         ]
 \end{code}

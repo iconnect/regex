@@ -316,7 +316,7 @@ sdist' nm readme = do
   establish nm nm
   SH.shelly $ SH.verbosely $ do
     SH.cp readme "README.markdown"
-    SH.run_ "stack" ["sdist","--stack-yaml","stack-8.8.yaml"]
+    SH.run_ "stack" ["sdist","--stack-yaml","stack-9.2.yaml"]
     (pth,tb) <- analyse_so <$> SH.lastStderr
     SH.cp (SH.fromText $ pth) $ SH.fromText $ "releases/" M.<> tb
   where

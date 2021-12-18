@@ -1,10 +1,16 @@
-resolver: nightly-2020-01-25
-install-ghc: true
-flags: {}
+resolver: nightly-2021-12-16
+compiler: ghc-9.2.1
+
 packages:
-  - '.'
-  - test-regex
-  - test-regex-with-pcre
-system-ghc: false
+- '.'
+- test-regex
+- test-regex-with-pcre
+
 extra-deps:
-  - regex-pcre-text-0.94.0.0
+- base-compat-0.12.1
+- base-compat-batteries-0.12.1
+- attoparsec-0.14.3
+- aeson-2.0.2.0
+- cryptonite-cd-0.29.1
+- memory-cd-0.16.0.1
+- basement-cd-0.0.12.1

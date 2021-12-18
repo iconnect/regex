@@ -46,7 +46,7 @@
     Other-Modules:
       TestKit
 
-%build-depends-prog regex base base-compat bytestring directory filepath heredoc http-conduit shelly text
+%build-depends-prog regex base base-compat bytestring directory filepath heredoc shelly stm typed-process text
 
 %test-exe re-sort-imports
     Hs-Source-Dirs:     examples

@@ -1,5 +1,5 @@
 Name:                   regex
-Version:                1.1.0.0
+Version:                1.1.0.1
 Synopsis:               Toolkit for regex-base
 Description:            A regular expression toolkit for regex-base with
                         compile-time checking of RE syntax, data types for
@@ -67,7 +67,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                1.1.0.0
+    Tag:                1.1.0.1
 
 
 
@@ -183,7 +183,7 @@ Library
       , hashable             >= 1.2
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , template-haskell     >= 2.7
       , text                 >= 1.2
       , time                 >= 1.4.2
@@ -209,7 +209,7 @@ Executable re-gen-cabals
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -217,7 +217,7 @@ Executable re-gen-cabals
       , containers           >= 0.4
       , directory            >= 1.2.1.0
       , regex-base           >= 0.93
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , text                 >= 1.2
 
@@ -239,7 +239,7 @@ Test-Suite re-gen-cabals-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -247,7 +247,7 @@ Test-Suite re-gen-cabals-test
       , containers           >= 0.4
       , directory            >= 1.2.1.0
       , regex-base           >= 0.93
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , text                 >= 1.2
 
@@ -269,14 +269,14 @@ Executable re-gen-modules
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
       , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , regex-base           >= 0.93
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , text                 >= 1.2
 
@@ -298,14 +298,14 @@ Test-Suite re-gen-modules-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
       , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , regex-base           >= 0.93
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , text                 >= 1.2
 
@@ -327,7 +327,7 @@ Executable re-include
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
       , bytestring           >= 0.10
@@ -353,7 +353,7 @@ Test-Suite re-include-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
       , bytestring           >= 0.10
@@ -379,7 +379,7 @@ Executable re-nginx-log-processor
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -387,7 +387,7 @@ Executable re-nginx-log-processor
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , regex-base           >= 0.93
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , text                 >= 1.2
       , time                 >= 1.4.2
@@ -413,7 +413,7 @@ Test-Suite re-nginx-log-processor-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -421,7 +421,7 @@ Test-Suite re-nginx-log-processor-test
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , regex-base           >= 0.93
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , text                 >= 1.2
       , time                 >= 1.4.2
@@ -447,16 +447,17 @@ Executable re-prep
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
       , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , heredoc              >= 0.2.0.0
-      -- , http-conduit         >= 2.1.7.2
       , shelly               >= 1.6.1.2
+      , stm                  
       , text                 >= 1.2
+      , typed-process        
 
 
 Test-Suite re-prep-test
@@ -476,16 +477,17 @@ Test-Suite re-prep-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
       , bytestring           >= 0.10
       , directory            >= 1.2.1.0
       , filepath             >= 1.3.0.2
       , heredoc              >= 0.2.0.0
-      -- , http-conduit         >= 2.1.7.2
       , shelly               >= 1.6.1.2
+      , stm                  
       , text                 >= 1.2
+      , typed-process        
 
 
 
@@ -505,7 +507,7 @@ Executable re-sort-imports
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
       , bytestring           >= 0.10
@@ -532,7 +534,7 @@ Test-Suite re-sort-imports-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
       , bytestring           >= 0.10
@@ -559,7 +561,7 @@ Executable re-tests
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -570,7 +572,7 @@ Executable re-tests
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -599,7 +601,7 @@ Test-Suite re-tests-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -610,7 +612,7 @@ Test-Suite re-tests-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -639,7 +641,7 @@ Executable re-top
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
       , blaze-html           >= 0.8.1.0
@@ -672,7 +674,7 @@ Test-Suite re-top-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
       , blaze-html           >= 0.8.1.0
@@ -706,7 +708,7 @@ Executable re-tutorial
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -717,7 +719,7 @@ Executable re-tutorial
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -749,7 +751,7 @@ Test-Suite re-tutorial-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -760,7 +762,7 @@ Test-Suite re-tutorial-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -794,7 +796,7 @@ Test-Suite re-tutorial-os-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -805,7 +807,7 @@ Test-Suite re-tutorial-os-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -837,7 +839,7 @@ Executable re-tutorial-options
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -848,7 +850,7 @@ Executable re-tutorial-options
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -880,7 +882,7 @@ Test-Suite re-tutorial-options-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -891,7 +893,7 @@ Test-Suite re-tutorial-options-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -923,7 +925,7 @@ Executable re-tutorial-replacing
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -934,7 +936,7 @@ Executable re-tutorial-replacing
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -966,7 +968,7 @@ Test-Suite re-tutorial-replacing-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -977,7 +979,7 @@ Test-Suite re-tutorial-replacing-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -1009,7 +1011,7 @@ Executable re-tutorial-testbench
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -1020,7 +1022,7 @@ Executable re-tutorial-testbench
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -1052,7 +1054,7 @@ Test-Suite re-tutorial-testbench-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -1063,7 +1065,7 @@ Test-Suite re-tutorial-testbench-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -1095,7 +1097,7 @@ Executable re-tutorial-tools
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -1106,7 +1108,7 @@ Executable re-tutorial-tools
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2
@@ -1139,7 +1141,7 @@ Test-Suite re-tutorial-tools-test
       -Werror
 
     Build-depends:
-        regex
+        regex                
       , array                >= 0.4
       , base                 >= 4        && <  5
       , base-compat          >= 0.6      && <  1
@@ -1150,7 +1152,7 @@ Test-Suite re-tutorial-tools-test
       , heredoc              >= 0.2.0.0
       , regex-base           >= 0.93
       , regex-pcre-builtin   >= 0.94
-      , regex-tdfa           >= 1.2
+      , regex-tdfa           >= 1.3.1.0
       , shelly               >= 1.6.1.2
       , smallcheck           >= 1.1.1
       , tasty                >= 0.10.1.2

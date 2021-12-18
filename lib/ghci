@@ -3,4 +3,6 @@
 :seti -XOverloadedStrings
 :seti -XQuasiQuotes
 
+:set -hide-package base-compat-batteries
+
 :set -iexamples

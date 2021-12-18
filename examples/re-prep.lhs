@@ -23,7 +23,7 @@ module Main
   ) where
 
 import           Control.Applicative
-import           Control.Monad.IO.Class
+import           Control.Concurrent.STM (atomically)
 import qualified Data.ByteString.Char8                    as B
 import qualified Data.ByteString.Lazy.Char8               as LBS
 import           Data.IORef
@@ -31,13 +31,13 @@ import qualified Data.List                                as L
 import           Data.Maybe
 import qualified Data.Monoid                              as M
 import qualified Data.Text                                as T
--- import           Network.HTTP.Conduit
 import           Prelude.Compat
 import qualified Shelly                                   as SH
 import           System.Directory
 import           System.Environment
 import           System.FilePath
 import           System.IO
+import           System.Process.Typed
 import           TestKit
 import           Text.Heredoc
 import           Text.RE.Replace
@@ -45,6 +45,15 @@ import           Text.RE.TDFA.ByteString.Lazy
 import qualified Text.RE.TDFA.String                      as TS
 import           Text.RE.Tools.Grep
 import           Text.RE.Tools.Sed
+-- import           Control.Monad.IO.Class
+-- import           Network.HTTP.Conduit
+
+
+-- import qualified Data.ByteString.Lazy as L
+-- import qualified Data.ByteString.Lazy.Char8 as L8
+-- import Control.Exception (throwIO)
+
+
 \end{code}
 
 \begin{code}
@@ -441,12 +450,20 @@ badges = do
   where
     collect (nm,url) = do
       putStrLn $ "updating badge: " ++ nm
-      simpleHttp url >>= LBS.writeFile (badge_fn nm)
+      curl url >>= LBS.writeFile (badge_fn nm)
 
     badge_fn nm = "docs/badges/"++nm++".svg"
 
-    simpleHttp :: MonadIO m => String -> m LBS.ByteString
-    simpleHttp = undefined -- TODO: fixme
+    curl :: String -> IO LBS.ByteString
+    curl url = withProcessWait_ curl_ go
+      where
+        go p = atomically (getStdout p)
+
+        curl_ = setStdin createPipe
+          $ setStdout byteStringOutput
+          $ proc "curl" [url]
+
+
 \end{code}
 
 

@@ -305,7 +305,7 @@ preludeSummary = preludeMacroSummary regexType
 preludeSources :: String
 preludeSources = preludeMacroSources regexType
 
--- | the prolude source of a given macro in the standard environment
+-- | the prelude source of a given macro in the standard environment
 preludeSource :: PreludeMacro -> String
 preludeSource = preludeMacroSource regexType
 
@@ -358,7 +358,7 @@ reBI                     = reBlockInsensitive
 --   @countMatches $ s *=~ [re_|[0-9a-f]+|] MultilineInsensitive@
 --
 -- counts the number of hexadecimal digit strings in 's', allowing
--- upper- or lower-case hex didgits.
+-- upper- or lower-case hex digits.
 re_                     :: QuasiQuoter
 re_                      = re'   Nothing
 

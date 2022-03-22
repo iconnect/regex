@@ -58,7 +58,7 @@ preludeMacroSources :: RegexType -> String
 preludeMacroSources rty =
   formatMacroSources rty ExclCaptures $ preludeMacroEnv rty
 
--- | generate plain text giving theexpanded RE for a single macro
+-- | generate plain text giving the expanded RE for a single macro
 preludeMacroSource :: RegexType -> PreludeMacro -> String
 preludeMacroSource rty =
   formatMacroSource rty ExclCaptures (preludeMacroEnv rty) . prelude_macro_id

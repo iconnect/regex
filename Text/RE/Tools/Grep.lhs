@@ -47,7 +47,7 @@ grep v rex fp = grepLines rex fp >>= putStr . report v
 \end{code}
 
 \begin{code}
--- | specifies whether to return the linss matched or missed
+-- | specifies whether to return the lines matched or missed
 data Verbosity
   = LinesMatched
   | LinesNotMatched
@@ -121,7 +121,7 @@ linesMatched v = filter $ f . anyMatches . getLineMatches
 
 \begin{code}
 -- $tutorial
--- The Grep toolkit matches REs againt each line of a text.
+-- The Grep toolkit matches REs against each line of a text.
 --
 -- See the Regex Tools tutorial at http://re-tutorial-tools.regex.uk
 \end{code}

@@ -8,7 +8,7 @@ escapeREString = foldr esc []
     esc c t | isMetaChar c = '\\' : c : t
             | otherwise    = c : t
 
--- | returns True iff the charactr is an RE meta character
+-- | returns True iff the character is an RE meta character
 -- ('[', '*', '{', etc.)
 isMetaChar :: Char -> Bool
 isMetaChar c = case c of

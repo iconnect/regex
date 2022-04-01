@@ -193,7 +193,7 @@ import qualified Text.Regex.TDFA                          as TDFA
 -- This module provides access to the back end through polymorphic functions
 -- that operate over all of the String\/Text\/ByteString types supported by the
 -- back end. The module also provides all of the specialised back-end functionality
--- that will not be needed by most regex clientts. If you don't need this generality
+-- that will not be needed by most regex clients. If you don't need this generality
 -- then you might want to consider using one of the simpler modules that have been
 -- specialised for each of these types:
 --
@@ -222,7 +222,7 @@ import qualified Text.Regex.TDFA                          as TDFA
 -- options dynamically, use the @[re_| ... |]@ and @[ed_| ... \/\/\/ ... |]@
 -- quasi quoters, which generate functions that take an 'IsOption' option
 -- (e.g., a 'SimpleReOptions' value) and yields a 'RE' or 'SearchReplace'
--- as apropriate. For example if you have a 'SimpleReOptions' value in
+-- as appropriate. For example if you have a 'SimpleReOptions' value in
 -- @sro@ then
 --
 --  @(?=~/ [ed_|foo$\/\/\/bar|] sro)@
@@ -231,7 +231,7 @@ import qualified Text.Regex.TDFA                          as TDFA
 -- on specifying RE options see "Text.RE.REOptions".
 
 -- $re
--- The @[re|.*|]@ quasi quoters, with variants for specifing different
+-- The @[re|.*|]@ quasi quoters, with variants for specifying different
 -- options to the RE compiler (see "Text.RE.REOptions"), and the
 -- specialised back-end types and functions.
 
@@ -243,11 +243,11 @@ import qualified Text.Regex.TDFA                          as TDFA
 -- represents a @SearchReplace@ that will convert a YYYY-MM-DD format date
 -- into a DD\/MM\/YYYY format date.
 --
--- The only difference betweem these quasi quoters is the RE options that are set,
+-- The only difference between these quasi quoters is the RE options that are set,
 -- using the same conventions as the @[re| ... |]@ quasi quoters.
 
 -- $isregex
--- The 'IsRegex' class is used to abstact over the different regex back ends and
+-- The 'IsRegex' class is used to abstract over the different regex back ends and
 -- the text types they work with -- see "Text.RE.Tools.IsRegex" for details.
 
 -- $instances

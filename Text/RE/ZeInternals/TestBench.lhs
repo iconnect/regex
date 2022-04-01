@@ -84,7 +84,7 @@ instance Show RegexType where
   show (TDFA _) = "TDFA <function>"
   show (PCRE _) = "PCRE <function>"
 
--- | do we need the captures in the RE or whould they be stripped out
+-- | do we need the captures in the RE or would they be stripped out
 -- where possible
 data WithCaptures
   = InclCaptures      -- ^ include all captures
@@ -95,7 +95,7 @@ data WithCaptures
 -- required for each macro, so we use a Lazy HashMap
 type MacroEnv = HML.HashMap MacroID MacroDescriptor
 
--- | describes a macro, giving the text of the RE and a si=ummary
+-- | describes a macro, giving the text of the RE and a summary
 -- description
 data MacroDescriptor =
   MacroDescriptor

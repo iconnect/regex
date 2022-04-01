@@ -188,7 +188,7 @@ The substition function either return `Nothing` to indicate that no
 substitution should be made or the replacement text.
 
 The above fixup function could be extended to enclose whole date in
-square brackets by specifing an `ALL` context and a `0` case for the
+square brackets by specifying an `ALL` context and a `0` case for the
 substitution function.
 \begin{code}
 fixup_and_reformat_dates :: String -> String

@@ -289,7 +289,7 @@ expandMacros x_src hm s =
 \end{code}
 
 \begin{code}
--- | expand the @{..} macos in the argument string using the given
+-- | expand the @{..} macros in the argument string using the given
 -- function
 expandMacros' :: (MacroID->Maybe String) -> String -> String
 expandMacros' lu = fixpoint e_m
@@ -404,7 +404,7 @@ class (Show a,Eq a,Ord a,Extract a,Monoid a) => Replace a where
 \end{code}
 
 \begin{code}
--- | a selction of the Replace methods can be encapsulated with ReplaceMethods
+-- | a selection of the Replace methods can be encapsulated with ReplaceMethods
 -- for the higher-order replacement functions
 data ReplaceMethods a =
   ReplaceMethods
@@ -495,7 +495,7 @@ Parsing Replace Templates
 -------------------------
 
 \begin{code}
--- | parse the replacement template in second argument, substititing
+-- | parse the replacement template in second argument, substituting
 -- the capture references with corresponding captures from the Match
 -- in the third argument (the result of a single match of the RE
 -- against the input text to be matched); Nothing is returned if the

@@ -71,7 +71,7 @@ edBI                     = edBlockInsensitive
 --   @s *=~/ [ed_|${hex}([0-9a-f]+)\/\/\/0x${hex}|] MultilineInsensitive@
 --
 -- prefixes the hexadecimal digit strings in s with @0x@, allowing for
--- upper- or lower-case hex didgits (which is entirely equivalent
+-- upper- or lower-case hex digits (which is entirely equivalent
 -- in this example to just using @[edMultilineInsensitive|[0-9a-f]+|]@).
 ed_                     :: QuasiQuoter
 ed_                      = ed' fn_cast   Nothing

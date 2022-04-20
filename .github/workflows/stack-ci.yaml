@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - name: Setup GHC
-        uses: haskell/actions/setup@v1
+        uses: haskell/actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc }}
           enable-stack: true

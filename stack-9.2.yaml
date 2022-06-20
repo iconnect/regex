@@ -1,5 +1,4 @@
-resolver: nightly-2021-12-16
-compiler: ghc-9.2.1
+resolver: nightly-2022-06-04
 
 ghc-options:
   regex: -j10

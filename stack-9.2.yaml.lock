@@ -19,10 +19,10 @@ packages:
   original:
     hackage: base-compat-batteries-0.12.1
 - completed:
-    hackage: attoparsec-0.14.3@sha256:b65d94fa4ac2854e396d29532915c5fd6c48d000fea8b84f3c0d9c8430e36dc4,6183
+    hackage: attoparsec-0.14.3@sha256:214ff6d3f29793ba8053679e71c00bc2a79a58fa82641c3294627cbad6e2dce2,6192
     pantry-tree:
       size: 5305
-      sha256: 0a15e87509cc67315b0531cac10baaaad5eef464c0bb5175d8ecbdcd7365e056
+      sha256: 882328ed1eb10a7173958fe19d56ed87205dddc640b86f107aa2a6e9f8536d46
   original:
     hackage: attoparsec-0.14.3
 - completed:
@@ -33,24 +33,24 @@ packages:
   original:
     hackage: aeson-2.0.2.0
 - completed:
-    hackage: cryptonite-cd-0.29.1@sha256:d1c76166cadcf49ae0b87465d9bb9cbf17b7779174cfe655915c3f4f75ad27f9,18834
+    hackage: cryptonite-cd-0.29.1@sha256:fad461d58ebc25636a29a3b86f521fb63a20890b64ca0f3a4593e6786080ecc8,18873
     pantry-tree:
       size: 23325
-      sha256: 3afca5f3374e921652d5ffeba890b3f21cd858dc41886255c221b0facd2eaf74
+      sha256: f3e5da28c709981bfa26fa787dfc8a96eb1d18348723fa3f6241e309a0ad95c9
   original:
     hackage: cryptonite-cd-0.29.1
 - completed:
-    hackage: memory-cd-0.16.0.1@sha256:b76547dbfa4470646b1a50a9b6cf087f5561bd741e819cfb2251a80f7ce45ec1,4905
+    hackage: memory-cd-0.16.0.1@sha256:2e792919d8c03e0e516587ec896804f1fd472642b2ea61e736ce052886444ace,5101
     pantry-tree:
       size: 2509
-      sha256: 8ded27c64e12d089882923c679e9cab95b993b9074d9dc3542bcde14d54994fd
+      sha256: 730dc368aad2a80d0a785723f8452a361f6dd5c5f2e42d255edda5898a137bff
   original:
     hackage: memory-cd-0.16.0.1
 - completed:
-    hackage: basement-cd-0.0.12.1@sha256:b41b0cd85142c1b1591b4c4625944d8588400f6c73d0e4bc8b29a215ebfef1c6,5529
+    hackage: basement-cd-0.0.12.1@sha256:986d3e8fdd481d1457b2b0d9f067d6f4da39fc6185fb52686253faf61b49e78b,5746
     pantry-tree:
       size: 5931
-      sha256: 235d1cc30e9278e1a875d5645a5fd8db57f606e0e0038041b5d0813321afb761
+      sha256: 0d376bf8c4329cd5dc16043e72d9d9fc0c53b63cdee8c5f5d27abd83a2e8e1dd
   original:
     hackage: basement-cd-0.0.12.1
 snapshots:

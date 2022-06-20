@@ -1,5 +1,5 @@
 Name:                   regex-examples
-Version:                1.1.0.1
+Version:                1.1.0.2
 Synopsis:               Tutorial, tests and example programs for regex
 Description:            Tutorial, tests and example programs for regex,
                         a Regular Expression Toolkit for regex-base with
@@ -67,7 +67,7 @@ Source-Repository head
 Source-Repository this
     Type:               git
     Location:           https://github.com/iconnect/regex.git
-    Tag:                1.1.0.1
+    Tag:                1.1.0.2
 
 
 Executable re-gen-cabals

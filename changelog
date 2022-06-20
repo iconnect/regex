@@ -1,5 +1,8 @@
 -*-change-log-*-
 
+1.1.0.2 Igor Ranieri Elland 2022-05-20
+* fix for [#171](https://github.com/iconnect/regex/issues/171)
+
 1.1.0.1 Chris Dornan <chris.dornan@irisconnect.co.uk> 2018-12-19
   * fix for base-4.16.0.0/GHC 9.2.1
   * eliminate http-conduit dependency (currently stymied by cryptonite)

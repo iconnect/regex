@@ -5,6 +5,7 @@ docs
 .ghci
 .hub
 .ghci
+.vscode
 /stack.yaml
 README.markdown
 tmp

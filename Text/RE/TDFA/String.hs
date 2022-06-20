@@ -186,7 +186,7 @@ instance IsRegex RE String where
 -- options dynamically, use the @[re_| ... |]@ and @[ed_| ... \/\/\/ ... |]@
 -- quasi quoters, which generate functions that take an 'IsOption' option
 -- (e.g., a 'SimpleReOptions' value) and yields a 'RE' or 'SearchReplace'
--- as apropriate. For example if you have a 'SimpleReOptions' value in
+-- as appropriate. For example if you have a 'SimpleReOptions' value in
 -- @sro@ then
 --
 --  @(?=~/ [ed_|foo$\/\/\/bar|] sro)@
@@ -195,12 +195,12 @@ instance IsRegex RE String where
 -- on specifying RE options see "Text.RE.REOptions".
 
 -- $re
--- The @[re|.*|]@ quasi quoters, with variants for specifing different
+-- The @[re|.*|]@ quasi quoters, with variants for specifying different
 -- options to the RE compiler (see "Text.RE.REOptions"), and the
 -- specialised back-end types and functions.
 
 -- $ed
--- The @[ed|.*\/\/\/foo|]@ quasi quoters, with variants for specifing different
+-- The @[ed|.*\/\/\/foo|]@ quasi quoters, with variants for specifying different
 -- options to the RE compiler (see "Text.RE.REOptions").
 
 -- $ed
@@ -211,9 +211,9 @@ instance IsRegex RE String where
 -- represents a @SearchReplace@ that will convert a YYYY-MM-DD format date
 -- into a DD\/MM\/YYYY format date.
 --
--- The only difference betweem these quasi quoters is the RE options that are set,
+-- The only difference between these quasi quoters is the RE options that are set,
 -- using the same conventions as the @[re| ... |]@ quasi quoters.
 
 -- $isregex
--- The 'IsRegex' class is used to abstact over the different regex back ends and
+-- The 'IsRegex' class is used to abstract over the different regex back ends and
 -- the text types they work with -- see "Text.RE.Tools.IsRegex" for details.

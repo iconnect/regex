@@ -980,7 +980,7 @@ ne_string label s =
 
 -- just evaluating quasi quoters to HNF for now -- they
 -- being tested everywhere [re|...|] (etc.) calculations
--- are bings used but HPC isn't measuring this
+-- are being used but HPC isn't measuring this
 valid_res :: RegexType -> [QuasiQuoter] -> TestTree
 valid_res rty = testCase (show rty) . foldr seq (return ())
 

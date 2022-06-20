@@ -39,7 +39,7 @@ The RE Options
 
 \begin{code}
 -- | the default API uses these simple, universal RE options,
--- which get auto-converted into the apropriate back-end 'REOptions_'
+-- which get auto-converted into the appropriate back-end 'REOptions_'
 data SimpleREOptions
   = MultilineSensitive        -- ^ case-sensitive with ^ and $ matching the start and end of a line
   | MultilineInsensitive      -- ^ case-insensitive with ^ and $ matsh the start and end of a line
@@ -60,7 +60,7 @@ deriving instance Lift SimpleREOptions
 -- and its @CompOption@ and @ExecOption@ types (the compile-time and
 -- execution time options, respectively); each back end will define an
 -- @REOptions@ type that fills out these three type parameters with the
--- apropriate types (see, for example, "Text.RE.TDFA")
+-- appropriate types (see, for example, "Text.RE.TDFA")
 data REOptions_ r c e =
   REOptions
     { optionsMacs :: !(Macros r)    -- ^ the available TestBench RE macros

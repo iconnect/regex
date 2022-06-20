@@ -18,17 +18,17 @@ jobs:
         platform: [ubuntu-latest, windows-latest]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'
 
-    - uses: haskell/actions/setup@v1
+    - uses: haskell/actions/setup@v2
       name: Setup Haskell Stack
       with:
         ghc-version: ${{ matrix.ghc }}
         enable-stack: true
         stack-version: ${{ matrix.stack }}
 
-    - uses: actions/cache@v2.1.7
+    - uses: actions/cache@v3.0.4
       name: Cache ~/.stack
       with:
         path: ~/.stack

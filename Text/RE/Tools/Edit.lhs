@@ -50,13 +50,13 @@ data Edits m re s
 -- | each Edit action specifies how the match should be processed
 data Edit m re s
   = Template !(SearchReplace re s)
-        -- ^ replace the match with this template text, substituting ${capture} as apropriate
+        -- ^ replace the match with this template text, substituting ${capture} as appropriate
   | Function !re REContext !(LineNo->Match s->RELocation->Capture s->m (Maybe s))
         -- ^ use this function to replace the 'REContext' specified captures in each line matched
   | LineEdit !re           !(LineNo->Matches s->m (LineEdit s))
         -- ^ use this function to edit each line matched
 
--- | a LineEdit is the most general action thar can be performed on a line
+-- | a LineEdit is the most general action that can be performed on a line
 -- and is the only means of deleting a line
 data LineEdit s
   = NoEdit                  -- ^ do not edit this line but leave as is

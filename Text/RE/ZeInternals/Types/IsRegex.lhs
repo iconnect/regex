@@ -36,7 +36,7 @@ class Replace s => IsRegex re s where
   makeRegexWith         :: (Functor m,Monad m, MonadFail m) => SimpleREOptions -> s -> m re
   -- | compiling a 'SearchReplace' template from the RE text and the template Text, failing if they are not well formed
   makeSearchReplace     :: (Functor m,Monad m, MonadFail m,IsRegex re s) => s -> s -> m (SearchReplace re s)
-  -- | compiling a 'SearchReplace' template specifing the 'SimpleREOptions' for the RE
+  -- | compiling a 'SearchReplace' template specifying the 'SimpleREOptions' for the RE
   makeSearchReplaceWith :: (Functor m,Monad m, MonadFail m,IsRegex re s) => SimpleREOptions -> s -> s -> m (SearchReplace re s)
   -- | incorporate an escaped string into a compiled RE with the default options
   makeEscaped           :: (Functor m,Monad m, MonadFail m) => (s->s) -> s -> m re

@@ -64,6 +64,6 @@ module Text.RE
 --
 -- * "Text.RE.REOptions" for specifying back-end specific options;
 -- * "Text.RE.Replace"   for the full text-replacement toolkit;
--- * "Text.RE.TestBench" for building up, testing and doumenting;
+-- * "Text.RE.TestBench" for building up, testing and documenting;
 --   macro environments  for use in REs;
 -- * "Text.RE.Tools"     for an AWK-like text-processing toolkit.

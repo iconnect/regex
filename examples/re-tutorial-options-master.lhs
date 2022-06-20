@@ -77,7 +77,7 @@ The `REOptions_` type is defined in `Text.RE.REOptions` as follows:
 
 (For more information on the options provided by the back ends see the
 decumentation for the `regex-tdfa` and `regex-pcre` packages as
-apropriate.)
+appropriate.)
 
 Each back end provides a function to compile REs from some options and a
 string containing the RE as follows:
@@ -95,7 +95,7 @@ where `o` is one of the following RE-configuring types:
     case-sensitive used with the `re` parser.
 
   * `SimpleREOptions` (explained in the [main tutorial](re-tutorial.html)),
-    which will be converted into the apropriate `CompOption` and
+    which will be converted into the appropriate `CompOption` and
     `ExecOption` for the beck end in question);
 
   * `CompOption` to directly specify the compile-time options for the back

@@ -13,7 +13,7 @@ import           Text.RE.ZeInternals.Types.IsRegex
 
 
 \begin{code}
--- | a simple regex-based scanner interpretter for prototyping
+-- | a simple regex-based scanner interpreter for prototyping
 -- scanners
 alex :: IsRegex re s => [(re,Match s->Maybe t)] -> t -> s -> [t]
 alex = alex' matchOnce

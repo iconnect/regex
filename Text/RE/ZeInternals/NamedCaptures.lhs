@@ -47,7 +47,7 @@ cp =
       }
 
 -- | extract the CaptureNames from an RE or return an error diagnostic
--- if the RE is not well formed; also returs the total number of captures
+-- if the RE is not well formed; also returns the total number of captures
 -- in the RE
 extractNamedCaptures :: String -> Either String ((Int,CaptureNames),String)
 extractNamedCaptures s = Right (analyseTokens tks,formatTokens tks)

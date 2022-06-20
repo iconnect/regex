@@ -87,7 +87,7 @@ write_file fp  = LBS.writeFile fp
 
 \begin{code}
 -- $tutorial
--- The Sed toolkit applyies @Edits@ scripts to each line
+-- The Sed toolkit applies @Edits@ scripts to each line
 -- of a text, running the actions and adjusting each line
 -- accordingly.
 --

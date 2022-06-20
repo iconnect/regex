@@ -246,7 +246,10 @@ utf8_correct_bs bs ix0 ln0 = case ix0+ln0 > BW.length bs of
     False -> skip 0 0     -- BW.index calls below should not fail
   where
     skip ix di = case compare ix ix0 of
-      GT -> error "utf8_correct_bs: UTF-8 decoding error"
+      GT -> case ix0 of
+        -- -1 is used as a magic number to indicate failure to match
+        -1 -> CharRange ix0 ln0
+        _ -> error "utf8_correct_bs: UTF-8 decoding error"
       EQ -> count ix di 0 ln0
       LT -> case u8_width $ BW.index bs ix of
         Single    -> skip (ix+1)   di
